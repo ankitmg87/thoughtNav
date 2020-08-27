@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
@@ -51,55 +52,68 @@ class _SelectAvatarScreenState extends State<SelectAvatarScreen> {
         ),
         centerTitle: true,
       ),
-      body: ListView(
-        children: [
-          CustomInformationContainer(
-            title: 'Select your Display Profile',
-            subtitle1:
-                'Your display profile contains the avatar and username you will be using during the study.',
-            subtitle2:
-                'You cannot change your selection after your account has been created.',
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600.0,
           ),
-          AspectRatio(
-            aspectRatio: 1.0,
-            child: Container(
-              margin: EdgeInsets.all(10.0),
-              padding: EdgeInsets.all(10.0),
-              width: screenWidth,
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                borderRadius: BorderRadius.circular(12.0),
-                border: Border.all(
-                  color: Colors.grey[300],
-                ),
+          child: ListView(
+            children: [
+              CustomInformationContainer(
+                title: 'Select your Display Profile',
+                subtitle1:
+                    'Your display profile contains the avatar and username you will be using during the study.',
+                subtitle2:
+                    'You cannot change your selection after your account has been created.',
               ),
-              child: Center(
-                child: CarouselSlider(
-                  items: [
-                    _Page1(screenHeight: screenHeight, screenWidth: screenWidth),
-                    _Page2(screenHeight: screenHeight, screenWidth: screenWidth),
-                    _Page3(screenHeight: screenHeight, screenWidth: screenWidth),
-                  ],
-                  options: CarouselOptions(
-                    aspectRatio: 1.0,
-                    viewportFraction: 1.0,
-                    enlargeCenterPage: true,
+              AspectRatio(
+                aspectRatio: 1.0,
+                child: Container(
+                  margin: EdgeInsets.all(10.0),
+                  padding: EdgeInsets.all(10.0),
+                  width: screenWidth,
+                  decoration: BoxDecoration(
+                    color: Colors.white70,
+                    borderRadius: BorderRadius.circular(12.0),
+                    border: Border.all(
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  child: Center(
+                    child: CarouselSlider(
+                      items: [
+                        _Page1(
+                            screenHeight: screenHeight,
+                            screenWidth: screenWidth),
+                        _Page2(
+                            screenHeight: screenHeight,
+                            screenWidth: screenWidth),
+                        _Page3(
+                            screenHeight: screenHeight,
+                            screenWidth: screenWidth),
+                      ],
+                      options: CarouselOptions(
+                        aspectRatio: 1.0,
+                        viewportFraction: 1.0,
+                        enlargeCenterPage: true,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              SizedBox(
+                height: screenHeight * 0.05,
+              ),
+              CustomFlatButton(
+                label: 'Continue',
+                routeName: CONFIRM_DISPLAY_PROFILE_SCREEN,
+              ),
+              SizedBox(
+                height: 40.0,
+              ),
+            ],
           ),
-          SizedBox(
-            height: screenHeight * 0.05,
-          ),
-          CustomFlatButton(
-            label: 'Continue',
-            routeName: CONFIRM_DISPLAY_PROFILE_SCREEN,
-          ),
-          SizedBox(
-            height: 40.0,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -124,56 +138,47 @@ class _Page1 extends StatelessWidget {
         physics: NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 10.0,
-          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 20.0,
+          crossAxisSpacing: 20.0,
         ),
         children: [
           AvatarContainer(
             screenHeight: screenHeight,
             screenWidth: screenWidth,
-            imagePath: 'images/avatars/batman.svg',
-
+            imagePath: 'images/avatars/batman.png',
           ),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/queen.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/queen.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/lego.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/lego.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/wolverine.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/wolverine.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/mummy.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/mummy.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/mr_t.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/mr_t.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/spiderman.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/spiderman.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/he_man.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/he_man.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/blue.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/blue.png'),
         ],
       ),
     );
@@ -199,55 +204,46 @@ class _Page2 extends StatelessWidget {
         physics: NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 10.0,
-          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 20.0,
+          crossAxisSpacing: 20.0,
         ),
         children: [
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/blue_clear.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/blue_clear.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/11.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/11.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/12.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/12.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/13.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/13.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/14.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/14.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/15.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/15.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/16.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/16.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/17.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/17.png'),
           AvatarContainer(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-              imagePath: 'images/avatars/18.svg'
-          ),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+              imagePath: 'images/avatars/18.png'),
         ],
       ),
     );
@@ -273,55 +269,46 @@ class _Page3 extends StatelessWidget {
         physics: NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 10.0,
-          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 20.0,
+          crossAxisSpacing: 20.0,
         ),
         children: [
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/19.svg'
-          ),
+              imagePath: 'images/avatars/19.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/20.svg'
-          ),
+              imagePath: 'images/avatars/20.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/21.svg'
-          ),
+              imagePath: 'images/avatars/21.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/22.svg'
-          ),
+              imagePath: 'images/avatars/22.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/23.svg'
-          ),
+              imagePath: 'images/avatars/23.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/24.svg'
-          ),
+              imagePath: 'images/avatars/24.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/25.svg'
-          ),
+              imagePath: 'images/avatars/25.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/26.svg'
-          ),
+              imagePath: 'images/avatars/26.png'),
           AvatarContainer(
               screenHeight: screenHeight,
               screenWidth: screenWidth,
-              imagePath: 'images/avatars/27.svg'
-          ),
+              imagePath: 'images/avatars/27.png'),
         ],
       ),
     );
@@ -373,17 +360,16 @@ class _AvatarContainerState extends State<AvatarContainer> {
         setState(() {});
       },
       child: Container(
-        padding: EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
           color: _currentBackgroundColor,
           shape: BoxShape.circle,
           border: Border.all(color: _currentBorderColor, width: 5.0),
         ),
         child: Center(
-          child: SvgPicture.asset(
+          child: Image.asset(
             widget.imagePath,
-            width: widget.screenWidth * 0.1,
-            height: widget.screenWidth * 0.1,
+            width: 200.0,
           ),
         ),
       ),

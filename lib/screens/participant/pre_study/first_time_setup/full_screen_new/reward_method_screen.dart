@@ -30,142 +30,149 @@ class RewardMethodScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: ListView(
-        children: [
-          CustomInformationContainer(
-            title: 'Setup a Reward Method',
-            subtitle1:
-                'After you complete this study, you\'ll be awarded a \$150 giftcard.',
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600.0
           ),
-          SizedBox(
-            height: 20.0,
-          ),
-          Container(
-            margin: EdgeInsets.all(10.0),
-            padding: EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'How would you like to get paid?',
-                  style: TextStyle(
-                    color: Color(0xFF3F3F3F),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.0,
-                  ),
+          child: ListView(
+            children: [
+              CustomInformationContainer(
+                title: 'Setup a Reward Method',
+                subtitle1:
+                    'After you complete this study, you\'ll be awarded a \$150 giftcard.',
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              Container(
+                margin: EdgeInsets.all(10.0),
+                padding: EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.0),
                 ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _PaymentModeSelectionWidget(
-                      screenHeight: screenHeight,
-                      logoPath: 'images/paypal_logo.png',
+                    Text(
+                      'How would you like to get paid?',
+                      style: TextStyle(
+                        color: Color(0xFF3F3F3F),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
                     ),
-                    _PaymentModeSelectionWidget(
-                      screenHeight: screenHeight,
-                      logoPath: 'images/amazon_logo.png',
+                    SizedBox(
+                      height: 10.0,
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 80.0,
-                ),
-                Text(
-                  'Enter the email address for your account',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                  ),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Email',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
+                    Row(
+                      children: [
+                        _PaymentModeSelectionWidget(
+                          screenHeight: screenHeight,
+                          logoPath: 'images/paypal_logo.png',
+                        ),
+                        _PaymentModeSelectionWidget(
+                          screenHeight: screenHeight,
+                          logoPath: 'images/amazon_logo.png',
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Colors.grey[300]),
-                  ),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
+                    SizedBox(
+                      height: 80.0,
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Password',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
+                    Text(
+                      'Enter the email address for your account',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                      ),
                     ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(
-                      color: Colors.grey[300],
+                    SizedBox(
+                      height: 20.0,
                     ),
-                  ),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .pushNamed(SETUP_COMPLETE_SCREEN),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10.0),
                       child: Text(
-                        'Setup Later',
+                        'Email',
                         style: TextStyle(
-                          color: PROJECT_GREEN,
+                          color: Colors.grey[400],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0,
                         ),
                       ),
                     ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Colors.grey[300]),
+                      ),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10.0),
+                      child: Text(
+                        'Password',
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(
+                          color: Colors.grey[300],
+                        ),
+                      ),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(SETUP_COMPLETE_SCREEN),
+                          child: Text(
+                            'Setup Later',
+                            style: TextStyle(
+                              color: PROJECT_GREEN,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              SizedBox(
+                height: 40.0,
+              ),
+              CustomFlatButton(
+                label: 'Complete',
+                routeName: SETUP_COMPLETE_SCREEN,
+              ),
+              SizedBox(
+                height: 40.0,
+              ),
+            ],
           ),
-          SizedBox(
-            height: 40.0,
-          ),
-          CustomFlatButton(
-            label: 'Complete',
-            routeName: SETUP_COMPLETE_SCREEN,
-          ),
-          SizedBox(
-            height: 40.0,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -194,7 +201,7 @@ class __PaymentModeSelectionWidgetState
     return Expanded(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8.0),
-        height: widget.screenHeight * 0.2,
+        height: widget.screenHeight * 0.3,
         child: DottedBorder(
           color: Colors.grey[300],
           radius: Radius.circular(20.0),

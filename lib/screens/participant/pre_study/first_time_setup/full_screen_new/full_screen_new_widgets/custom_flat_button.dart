@@ -24,7 +24,9 @@ class CustomFlatButton extends StatelessWidget {
               ),
               color: PROJECT_GREEN,
               onPressed: (){
-                Navigator.of(context).pushNamed(routeName);
+                if(routeName != null){
+                  Navigator.of(context).pushNamed(routeName);
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.all(12.0),

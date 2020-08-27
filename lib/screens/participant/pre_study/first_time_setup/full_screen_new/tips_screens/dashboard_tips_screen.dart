@@ -1,5 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/full_screen_new_widgets/custom_flat_button.dart';
 
 class DashboardTipsScreen extends StatelessWidget {
   @override
@@ -9,58 +11,55 @@ class DashboardTipsScreen extends StatelessWidget {
 
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'A few tips before you begin',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16.0,
-              ),
-            ),
-            SizedBox(
-              height: screenHeight * 0.075,
-            ),
-            Container(
-              height: screenHeight * 0.8,
-              child: PageView(
-                children: [
-                  _TipsContainer(
-                    screenHeight: screenHeight,
-                    screenWidth: screenWidth,
-                    title: 'Be Specific',
-                    description:
-                    'Tell us the reason behind your answers. Details are important!',
-                    imagePath: 'images/login_screen_left.png',
-                  ),
-                  _TipsContainer(
-                    screenHeight: screenHeight,
-                    screenWidth: screenWidth,
-                    title: 'Be open and honest',
-                    description: 'We need to hear the truth, even if it hurts. Your responses won\'t be linked back to you in any way.',
-                    imagePath: 'images/login_screen_right.png',
-                  ),
-                  _TipsContainer(
-                    screenHeight: screenHeight,
-                    screenWidth: screenWidth,
-                    title: 'Comment on the other posts',
-                    description: 'Let others know when you agree or disagree with what they have said.',
-                    imagePath: 'images/dashboard_screen_3.png',
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: FlatButton(
-
-                  ),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'A few tips before you begin',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16.0,
                 ),
-              ],
-            )
-          ],
+              ),
+              SizedBox(
+                height: screenHeight * 0.075,
+              ),
+              Container(
+                height: screenHeight * 0.8,
+                child: PageView(
+                  children: [
+                    _TipsContainer(
+                      screenHeight: screenHeight,
+                      screenWidth: screenWidth,
+                      title: 'Be Specific',
+                      description:
+                      'Tell us the reason behind your answers. Details are important!',
+                      imagePath: 'images/login_screen_left.png',
+                    ),
+                    _TipsContainer(
+                      screenHeight: screenHeight,
+                      screenWidth: screenWidth,
+                      title: 'Be open and honest',
+                      description: 'We need to hear the truth, even if it hurts. Your responses won\'t be linked back to you in any way.',
+                      imagePath: 'images/login_screen_right.png',
+                    ),
+                    _TipsContainer(
+                      screenHeight: screenHeight,
+                      screenWidth: screenWidth,
+                      title: 'Comment on the other posts',
+                      description: 'Let others know when you agree or disagree with what they have said.',
+                      imagePath: 'images/dashboard_screen_3.png',
+                    ),
+                  ],
+                ),
+              ),
+              CustomFlatButton(label: 'BEGIN STUDY', routeName: null),
+            ],
+          ),
         ),
       ),
     );

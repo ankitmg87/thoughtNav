@@ -8,3 +8,5 @@ const String CONFIRM_DISPLAY_PROFILE_SCREEN = 'confirm_display_profile_screen';
 const String REWARD_METHOD_SCREEN = 'reward_method_screen';
 const String SETUP_COMPLETE_SCREEN = 'setup_complete_screen';
 const String DASHBOARD_TIPS_SCREEN = 'dashboard_tips_screen';
+
+const String DASHBOARD_SCREEN = 'dashboard_screen';

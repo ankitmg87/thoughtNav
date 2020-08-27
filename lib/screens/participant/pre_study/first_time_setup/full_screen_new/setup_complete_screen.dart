@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -7,22 +9,24 @@ import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_s
 class SetupCompleteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     final double screenHeight = MediaQuery.of(context).size.height;
+
 
     return Scaffold(
       backgroundColor: PROJECT_GREEN,
-      body: Container(
-        child: Center(
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600.0
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(
                 radius: 50.0,
                 backgroundColor: Color(0xFFB6ECC7),
-                child: SvgPicture.asset(
-                  'images/avatars/batman.svg',
-                ),
+                child: Image.asset('images/avatars/batman.png',
+                  width: 50,),
               ),
               SizedBox(
                 height: screenHeight * 0.05,
@@ -77,23 +81,21 @@ class SetupCompleteScreen extends StatelessWidget {
                     Expanded(
                       child: FlatButton(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6.0),
-                          side: BorderSide(
-                            color: Color(0xFF00DD66),
-                            width: 4.0,
-                          )
-                        ),
-                        onPressed: (){},
+                            borderRadius: BorderRadius.circular(6.0),
+                            side: BorderSide(
+                              color: Color(0xFF00DD66),
+                              width: 4.0,
+                            )),
+                        onPressed: () {},
                         color: Color(0xFF00DD66),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
                             'Answer Questions',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.0
-                            ),
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.0),
                           ),
                         ),
                       ),
@@ -110,22 +112,24 @@ class SetupCompleteScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlineButton(
+                        borderSide: BorderSide(
+                          color: Colors.white,
+                          width: 6.0,
+                          style: BorderStyle.solid,
+                        ),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6.0),
-                            side: BorderSide(
-                              color: Colors.white,
-                              width: 4.0,
-                            )
-                        ),
-                        onPressed: () => Navigator.of(context).pushNamed(DASHBOARD_TIPS_SCREEN),
+                            ),
+                        onPressed: () => Navigator.of(context)
+                            .pushNamed(DASHBOARD_TIPS_SCREEN),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
                             'Continue to Dashboard',
                             style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
                             ),
                           ),
                         ),
@@ -133,7 +137,7 @@ class SetupCompleteScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/confirm_display_profile_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/reward_method_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/select_avatar_screen.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: SCAFFOLD_BACKGROUND_COLOR,
         unselectedWidgetColor: Colors.white,
       ),
-      initialRoute: TN_HOME_SCREEN_ROUTE,
+      initialRoute: DASHBOARD_SCREEN,
       routes: {
         TN_HOME_SCREEN_ROUTE : (context) => TNHomeScreen(),
         LOGIN_SCREEN: (context) => LoginScreen(),
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         REWARD_METHOD_SCREEN: (context) => RewardMethodScreen(),
         SETUP_COMPLETE_SCREEN: (context) => SetupCompleteScreen(),
         DASHBOARD_TIPS_SCREEN: (context) => DashboardTipsScreen(),
+        DASHBOARD_SCREEN: (context) => DashboardScreen(),
       },
     );
   }
