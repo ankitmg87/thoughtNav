@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/notifications_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/set_account/contact_us_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/set_account/user_peferences_screen.dart';
+import 'package:thoughtnav/screens/participant/post_study/post_study_reward_methods_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/confirm_display_profile_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/reward_method_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/select_avatar_screen.dart';
@@ -19,11 +23,11 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ThoughtNav',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -32,17 +36,27 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: DASHBOARD_SCREEN,
       routes: {
-        TN_HOME_SCREEN_ROUTE : (context) => TNHomeScreen(),
+        // Public Section
+
+        TN_HOME_SCREEN_ROUTE: (context) => TNHomeScreen(),
         LOGIN_SCREEN: (context) => LoginScreen(),
         FORGOT_PASSWORD_SCREEN: (context) => ForgotPasswordScreen(),
         RESET_PASSWORD_SCREEN: (context) => ResetPasswordScreen(),
         STUDY_DETAILS_SCREEN: (context) => StudyDetailsScreen(),
         SELECT_AVATAR_SCREEN: (context) => SelectAvatarScreen(),
-        CONFIRM_DISPLAY_PROFILE_SCREEN: (context) => ConfirmDisplayProfileScreen(),
+        CONFIRM_DISPLAY_PROFILE_SCREEN: (context) =>
+            ConfirmDisplayProfileScreen(),
         REWARD_METHOD_SCREEN: (context) => RewardMethodScreen(),
         SETUP_COMPLETE_SCREEN: (context) => SetupCompleteScreen(),
         DASHBOARD_TIPS_SCREEN: (context) => DashboardTipsScreen(),
+
+        //Participants Section
+
         DASHBOARD_SCREEN: (context) => DashboardScreen(),
+        NOTIFICATIONS_SCREEN: (context) => NotificationsScreen(),
+        POST_STUDY_REWARD_METHODS_SCREEN: (context) => PostStudyRewardMethodsScreen(),
+        CONTACT_US_SCREEN: (context) => ContactUsScreen(),
+        USER_PREFERENCES_SCREEN: (context) => UserPreferencesScreen(),
       },
     );
   }

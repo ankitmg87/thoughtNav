@@ -10,3 +10,7 @@ const String SETUP_COMPLETE_SCREEN = 'setup_complete_screen';
 const String DASHBOARD_TIPS_SCREEN = 'dashboard_tips_screen';
 
 const String DASHBOARD_SCREEN = 'dashboard_screen';
+const String NOTIFICATIONS_SCREEN = 'notifications_screen';
+const String POST_STUDY_REWARD_METHODS_SCREEN = 'post_study_reward_methods_screen';
+const String CONTACT_US_SCREEN = 'contact_us_screen';
+const String USER_PREFERENCES_SCREEN = 'user_preferences_screen';

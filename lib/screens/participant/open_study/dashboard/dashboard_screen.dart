@@ -1,7 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/constants/misc_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
+
+import 'dashboard_widgets/active_task_widget.dart';
+import 'dashboard_widgets/dashboard_top_container.dart';
+import 'dashboard_widgets/drawer_tile.dart';
+import 'dashboard_widgets/end_drawer_expansion_tile_child.dart';
+import 'dashboard_widgets/locked_task_widget.dart';
+import 'dashboard_widgets/end_drawer_expansion_tile.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -9,25 +16,37 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final GlobalKey<ScaffoldState> _dashboardScaffoldKey =
+      GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
     if (size.width < size.height)
       return Scaffold(
+        key: _dashboardScaffoldKey,
         appBar: buildPhoneAppBar(),
+        drawer: buildPhoneDrawer(),
+        endDrawer: buildPhoneEndDrawer(),
         body: Column(
           children: [
-            DashboardTopContainer(),
+            DashboardTopContainer(
+              scaffoldKey: _dashboardScaffoldKey,
+            ),
             Expanded(
               child: ListView(
                 shrinkWrap: true,
                 children: [
                   ActiveTaskWidget(),
                   LockedTaskWidget(),
+                  LockedTaskWidget(),
                 ],
               ),
             ),
+            SizedBox(
+              height: 20.0,
+            )
           ],
         ),
       );
@@ -35,6 +54,252 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return Scaffold(
         appBar: buildDesktopAppBar(),
       );
+  }
+
+  Drawer buildPhoneEndDrawer() {
+    return Drawer(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.close,
+                  color: Color(0xFF333333),
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+              Expanded(
+                child: Text(
+                  'Study Navigator',
+                  style: TextStyle(
+                    color: Color(0xFF333333),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            width: double.infinity,
+            height: 1.0,
+            color: Color(0xFFE5E5E5),
+            margin: EdgeInsets.only(top: 5.0,),
+          ),
+          Expanded(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                EndDrawerExpansionTile(
+                  title: 'Quick Intro',
+                  children: [
+                    EndDrawerExpansionTileChild(),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Drawer buildPhoneDrawer() {
+    return Drawer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  radius: 30.0,
+                  backgroundColor: Color(0xFFB6ECC7),
+                  child: Image(
+                    width: 40.0,
+                    image: AssetImage(
+                      'images/avatars/batman.png',
+                    ),
+                  ),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Sarah Baker',
+                    style: TextStyle(
+                      color: Color(0xFF333333),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '@batman_789',
+                    style: TextStyle(
+                      fontSize: 10.0,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                  Text(
+                    'Group 2 - Smartphone users',
+                    style: TextStyle(
+                      fontSize: 10.0,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Container(),
+              ),
+              Column(
+                children: [
+                  IconButton(
+                    alignment: Alignment.topCenter,
+                    icon: Icon(
+                      CupertinoIcons.clear_thick,
+                      color: Color(0xFF333333),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Container(
+            height: 1.0,
+            color: Color(0xFFE5E5E5),
+            width: double.infinity,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Text(
+                  'Continue Study - Question 1.2',
+                  style: TextStyle(
+                    color: PROJECT_GREEN,
+                    fontSize: 14.0,
+                  ),
+                ),
+                SizedBox(
+                  width: 5.0,
+                ),
+                Icon(
+                  Icons.arrow_forward,
+                  color: PROJECT_GREEN,
+                  size: 12.0,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 1.0,
+            color: Color(0xFFE5E5E5),
+            width: double.infinity,
+          ),
+          Expanded(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                DrawerTile(
+                  image: 'images/dashboard_icons/dashboard.png',
+                  title: 'Dashboard',
+                ),
+                DrawerTile(
+                  image: 'images/dashboard_icons/notifications_outline_black.png',
+                  title: 'Notifications',
+                  onTap: () => Navigator.of(context).pushNamed(NOTIFICATIONS_SCREEN),
+                ),
+                DrawerTile(
+                  image: 'images/dashboard_icons/rewards.png',
+                  title: 'Rewards',
+                  width: 22.5,
+                  onTap: () => Navigator.of(context).pushNamed(POST_STUDY_REWARD_METHODS_SCREEN),
+                ),
+                DrawerTile(
+                  image: 'images/dashboard_icons/contact_us.png',
+                  title: 'Contact Us',
+                  onTap: () => Navigator.of(context).pushNamed(CONTACT_US_SCREEN),
+                ),
+                DrawerTile(
+                  image: 'images/dashboard_icons/preferences.png',
+                  title: 'Preferences',
+                  onTap: () => Navigator.of(context).pushNamed(USER_PREFERENCES_SCREEN),
+                ),
+                SizedBox(
+                  height: 40.0,
+                ),
+                Container(
+                  height: 1.0,
+                  color: Color(0xFFE5E5E5),
+                  width: double.infinity,
+                ),
+                GestureDetector(
+                  child: Container(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
+                    child: Text(
+                      'Settings and Privacy',
+                      style: TextStyle(color: TEXT_COLOR, fontWeight: FontWeight.bold,),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  child: Container(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.only(left: 20.0, top: 10.0, bottom: 20.0),
+                    child: Text(
+                      'Help Center',
+                      style: TextStyle(color: TEXT_COLOR, fontWeight: FontWeight.bold,),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 50.0,
+                ),
+                GestureDetector(
+                  child: Container(
+                    color: Color(0xFFF3F3F3),
+                    padding: EdgeInsets.all(20.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Log Out',
+                          style: TextStyle(
+                            color: TEXT_COLOR.withOpacity(0.6),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Icon(
+                          Icons.logout,
+                          color: Color(0xFF333333).withOpacity(0.7),
+                          size: 15.0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   AppBar buildPhoneAppBar() {
@@ -45,16 +310,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'ThoughtNav',
         style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
       ),
-      leading: Container(
-        margin: EdgeInsets.all(10.0),
-        decoration: BoxDecoration(
-          color: Color(0xFFB6ECC7),
-          shape: BoxShape.circle,
-        ),
-        child: Image(
-          image: AssetImage('images/avatars/batman.png'),
+      leading: GestureDetector(
+        onTap: () => _dashboardScaffoldKey.currentState.openDrawer(),
+        child: Container(
+          margin: EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: Color(0xFFB6ECC7),
+            shape: BoxShape.circle,
+          ),
+          child: Image(
+            image: AssetImage('images/avatars/batman.png'),
+          ),
         ),
       ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.menu,
+            color: PROJECT_GREEN,
+          ),
+          onPressed: () => _dashboardScaffoldKey.currentState.openEndDrawer(),
+        ),
+      ],
     );
   }
 
@@ -76,390 +353,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class DashboardTopContainer extends StatelessWidget {
-  const DashboardTopContainer({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: COMMON_PADDING,
-      color: Color(0xFF092A66),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Power Wheelchair Study',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(
-            height: 20.0,
-          ),
-          GestureDetector(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'View Details',
-                  style: TextStyle(
-                    color: PROJECT_GREEN,
-                  ),
-                ),
-                Icon(
-                  CupertinoIcons.right_chevron,
-                  color: PROJECT_GREEN,
-                  size: 10.0,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 20.0,
-          ),
-          Row(
-            children: [
-              StartProgressContainer(),
-              MiddleProgressContainer(),
-              MiddleProgressContainer(),
-              EndProgressContainer(),
-            ],
-          ),
-          SizedBox(
-            height: 20.0,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'You have not completed any questions',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12.0,
-                ),
-              ),
-              GestureDetector(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Next: Quick Intro',
-                      style: TextStyle(
-                        color: PROJECT_GREEN,
-                      ),
-                    ),
-                    Icon(
-                      CupertinoIcons.right_chevron,
-                      color: PROJECT_GREEN,
-                      size: 10.0,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 20.0,
-          ),
-          CustomTabBar()
-        ],
-      ),
-    );
-  }
-}
-
-class CustomTabBar extends StatelessWidget {
-  const CustomTabBar({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        CustomTab(),
-        CustomTab(),
-        CustomTab(),
-      ],
-    );
-  }
-}
-
-class CustomTab extends StatelessWidget {
-  const CustomTab({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        child: Container(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              Text(
-                '5',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                ),
-              ),
-              SizedBox(
-                height: 4.0,
-              ),
-              Text(
-                'Remaining',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(
-                height: 4.0,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class StartProgressContainer extends StatelessWidget {
-  const StartProgressContainer({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.all(1.0),
-        height: 10.0,
-        decoration: BoxDecoration(
-          color: Color(0xFFDFE2ED).withOpacity(0.5),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10.0),
-            bottomLeft: Radius.circular(10.0),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class MiddleProgressContainer extends StatelessWidget {
-  const MiddleProgressContainer({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.all(0.5),
-        height: 10.0,
-        color: Color(0xFFDFE2ED).withOpacity(0.5),
-      ),
-    );
-  }
-}
-
-class EndProgressContainer extends StatelessWidget {
-  const EndProgressContainer({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.all(1.0),
-        height: 10.0,
-        decoration: BoxDecoration(
-          color: Color(0xFFDFE2ED).withOpacity(0.5),
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(10.0),
-            bottomRight: Radius.circular(10.0),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ActiveTaskWidget extends StatefulWidget {
-  @override
-  _ActiveTaskWidgetState createState() => _ActiveTaskWidgetState();
-}
-
-class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
-      child: Card(
-        elevation: 4.0,
-        child: Container(
-          width: double.infinity,
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(
-                  vertical: 30.0,
-                  horizontal: 20.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Quick Intro',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 5.0,
-                        ),
-                        Text(
-                          'Pre Study',
-                          style: TextStyle(
-                            color: Color(0xFF7F7F7F),
-                            fontSize: 12.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                    FlatButton(
-                      color: PROJECT_GREEN,
-                      onPressed: () {},
-                      child: Text(
-                        'Start',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 5.0,
-                ),
-                color: Color(0xFFDFE2ED).withOpacity(0.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.menu_sharp,
-                          color: Color(0xFFC6C5CC),
-                          size: 12.0,
-                        ),
-                        SizedBox(
-                          width: 2.0,
-                        ),
-                        Text(
-                          '0/1',
-                          style: TextStyle(
-                            color: Color(0xFFC6C5CC),
-                            fontSize: 10.0,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 8.0,
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.message,
-                              color: Color(0xFFC6C5CC),
-                              size: 12.0,
-                            ),
-                            SizedBox(
-                              width: 2.0,
-                            ),
-                            Text(
-                              '3',
-                              style: TextStyle(
-                                color: Color(0xFFC6C5CC),
-                                fontSize: 10.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                    Text(
-                      'Show Details',
-                      style: TextStyle(
-                        fontSize: 10.0,
-                        color: Color(0xFFC6C5CC),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class LockedTaskWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Color(0xFFDFE2ED),
-      margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0,),
-      padding: EdgeInsets.all(20.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome to Day One',
-                style: TextStyle(
-                  color: Color(0xFF333333).withOpacity(0.3),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              SizedBox(
-                height: 4.0,
-              ),
-              Text(
-                'Feb. 4',
-                style: TextStyle(
-                  color: Color(0xFF333333).withOpacity(0.3),
-                  fontSize: 12.0,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 

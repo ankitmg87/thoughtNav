@@ -16,9 +16,13 @@ dependencies:
 
   flutter_svg: ^0.18.0
 
+  websafe_svg: ^1.1.4
+
   carousel_slider: ^2.2.1
 
   dotted_border: ^1.0.6
+
+  auto_size_text: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -32,3 +36,5 @@ flutter:
     - images/
     - images/svg_icons/
     - images/avatars/
+    - images/dashboard_icons/
+    - images/set_account_icons/
