@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 
 class EndDrawerExpansionTileChild extends StatelessWidget {
+
+  final String label;
+  final Function onTap;
+
   const EndDrawerExpansionTileChild({
-    Key key,
+    Key key, this.label, this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: onTap ?? (){},
       title: Text(
-        '0.1 Tell Us Your Story',
+        label,
         style: TextStyle(
           color: Color(0xFF333333),
           fontSize: 12.0,

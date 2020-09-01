@@ -68,29 +68,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                         SizedBox(
                           height: 10.0,
                         ),
-                        AutoSizeText(
-                          'Hey Batman, I thought your comment was really interesting. It got me thinking about a Hey Batman, I thought your comment was really interesting. It got me thinking about a Hey Batman, I thought your comment was really interesting. It got me thinking about a',
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
-                          minFontSize: 12.0,
-                          maxFontSize: 12.0,
-                          maxLines: 2,
-                          overflowReplacement: GestureDetector(
-                            onTap: () => print('See more'),
-                            child: Container(
-                              width: 20.0,
-                              height: 20.0,
-                              color: Colors.black,
-                              child: Text(
-                                'see more',
-                                style: TextStyle(
-                                  color: Color(0xFF999999),
-                                  fontSize: 12.0,
+                        Row(
+                          children: [
+                            AutoSizeText(
+                              'Hey Batman, I thought your comment was really interesting. It got me thinking about a Hey Batman, I thought your comment was really interesting. It got me thinking about a Hey Batman, I thought your comment was really interesting. It got me thinking about a',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                              minFontSize: 12.0,
+                              maxFontSize: 12.0,
+                              maxLines: 2,
+                              overflowReplacement: GestureDetector(
+                                onTap: () => print('See more'),
+                                child: Container(
+                                  width: 20.0,
+                                  height: 20.0,
+                                  color: Colors.black,
+                                  child: Text(
+                                    'see more',
+                                    style: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontSize: 12.0,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),

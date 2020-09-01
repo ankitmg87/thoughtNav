@@ -101,7 +101,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 EndDrawerExpansionTile(
                   title: 'Quick Intro',
                   children: [
-                    EndDrawerExpansionTileChild(),
+                    EndDrawerExpansionTileChild(
+                      label: '0.1 Tell Us Your Story',
+                      onTap: () => Navigator.of(context).pushNamed(TELL_US_YOUR_STORY_SCREEN),
+                    ),
                   ],
                 ),
               ],
@@ -244,7 +247,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: Color(0xFFE5E5E5),
                   width: double.infinity,
                 ),
-                GestureDetector(
+                InkWell(
+                  onTap: () => Navigator.of(context).pushNamed(USER_DETAILS_SCREEN),
                   child: Container(
                     width: double.infinity,
                     padding:

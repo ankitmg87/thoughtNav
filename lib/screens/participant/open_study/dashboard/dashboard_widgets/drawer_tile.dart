@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 class DrawerTile extends StatelessWidget {
   const DrawerTile({
-    Key key, this.image, this.title, this.width, this.onTap,
+    Key key,
+    this.image,
+    this.title,
+    this.width,
+    this.onTap,
   }) : super(key: key);
 
   final String image;
@@ -25,7 +29,7 @@ class DrawerTile extends StatelessWidget {
           color: Colors.black,
         ),
       ),
-      onTap: onTap ?? (){},
+      onTap: onTap ?? () {},
     );
   }
 }
