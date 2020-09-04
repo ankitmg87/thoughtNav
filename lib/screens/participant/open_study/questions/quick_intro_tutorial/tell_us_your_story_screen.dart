@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/screens/participant/open_study/questions/questions_widgets/question_and_description_container.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_tutorial_widgets/comment_widget.dart';
 
 import 'quick_intro_tutorial_widgets/user_post_widget.dart';
@@ -41,88 +42,17 @@ class _TellUsYouStoryScreenState extends State<TellUsYouStoryScreen> {
           Container(
             width: double.infinity,
             height: 10.0,
-            color: PROJECT_GREEN.withOpacity(0.4),
+            color: PROJECT_GREEN.withOpacity(0.2),
           ),
-          Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: screenSize.width * 0.1,
-                child: Transform.rotate(
-                  angle: 0.785398,
-                  child: Container(
-                    width: 40.0,
-                    height: 40.0,
-                    color: PROJECT_NAVY_BLUE,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.only(
-                  left: 30.0,
-                  right: 30.0,
-                  bottom: 30.0,
-                  top: 20.0,
-                ),
-                width: screenSize.width,
-                color: PROJECT_NAVY_BLUE,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Smartphone Study',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.0,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Text(
-                      '01. Tell Us Your Story',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.0,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 25.0,
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              'Thanks for joining us! The study officially starts today, Friday, Oct 1.',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10.0,
-                            ),
-                            Text(
-                              'To test the system, please tell us about yourself in a few sentences.\nPlease include any details about work, family, pets, hobbies, etc. ',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          QuestionAndDescriptionContainer(
+            screenSize: screenSize,
+            studyName: 'Power Wheelchair Study',
+            number: '0.1',
+            title: 'Tell Us Your Story',
+            question:
+                'Thanks for joining us! The study officially starts today, Friday, Oct 1.',
+            description:
+                'To test the system, please tell us about yourself in a few sentences.\nPlease include any details about work, family, pets, hobbies, etc. ',
           ),
           SizedBox(
             height: 30.0,
@@ -363,7 +293,8 @@ class _TellUsYouStoryScreenState extends State<TellUsYouStoryScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6.0),
                     ),
-                    onPressed: () => Navigator.of(context).pushNamed(QUICK_INTRO_COMPLETE_SCREEN),
+                    onPressed: () => Navigator.of(context)
+                        .pushNamed(QUICK_INTRO_COMPLETE_SCREEN),
                     color: PROJECT_GREEN,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

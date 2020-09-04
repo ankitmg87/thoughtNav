@@ -19,3 +19,10 @@ const String USER_DETAILS_SCREEN = 'user_details_screen';
 
 const String TELL_US_YOUR_STORY_SCREEN = 'tell_us_your_story_screen';
 const String QUICK_INTRO_COMPLETE_SCREEN = 'quick_intro_complete_screen';
+
+const String QUESTIONS_FIRST_DAY_SCREEN = 'questions_first_day_screen';
+const String QUESTION_SCREEN = 'question_screen';
+const String DAY_COMPLETED_SCREEN = 'day_completed_screen';
+
+const String REWARDS_DASHBOARD_SCREEN = 'rewards_dashboard_screen';
+const String STUDY_ENDED = 'study_ended';

@@ -3,12 +3,17 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/welcome_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/notifications_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/questions/day_completed_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/questions/question_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/questions/questions_first_day_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_complete_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/tell_us_your_story_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/set_account/contact_us_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/set_account/user_details.dart';
 import 'package:thoughtnav/screens/participant/open_study/set_account/user_peferences_screen.dart';
 import 'package:thoughtnav/screens/participant/post_study/post_study_reward_methods_screen.dart';
+import 'package:thoughtnav/screens/participant/post_study/rewards_dashboard_screen.dart';
+import 'package:thoughtnav/screens/participant/post_study/study_ended_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/confirm_display_profile_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/reward_method_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/select_avatar_screen.dart';
@@ -68,6 +73,21 @@ class MyApp extends StatelessWidget {
 
         TELL_US_YOUR_STORY_SCREEN: (context) => TellUsYouStoryScreen(),
         QUICK_INTRO_COMPLETE_SCREEN: (context) => QuickIntroCompleteScreen(),
+
+        //Questions Section
+
+        QUESTIONS_FIRST_DAY_SCREEN: (context) => QuestionsFirstDayScreen(),
+        QUESTION_SCREEN: (context) => QuestionScreen(),
+        DAY_COMPLETED_SCREEN: (context) => DayCompletedScreen(),
+
+        //Rewards Section
+
+        REWARDS_DASHBOARD_SCREEN: (context) => RewardsDashboardScreen(),
+
+        //Study End
+
+        STUDY_ENDED: (context) => StudyEndedScreen(),
+
       },
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thoughtnav/constants/color_constants.dart';
 
 class EndDrawerExpansionTile extends StatefulWidget {
   const EndDrawerExpansionTile({
@@ -28,7 +29,7 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
             title: Text(
               widget.title,
               style: TextStyle(
-                color: Color(0xFF333333),
+                color: TEXT_COLOR,
                 fontSize: 14.0,
               ),
             ),

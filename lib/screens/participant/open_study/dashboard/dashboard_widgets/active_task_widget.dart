@@ -69,7 +69,7 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.menu_sharp,
+                        Icons.menu,
                         color: Color(0xFFC6C5CC),
                         size: 12.0,
                       ),

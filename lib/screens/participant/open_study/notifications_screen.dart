@@ -146,7 +146,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
       actions: [
         IconButton(
           icon: Icon(
-            Icons.settings_outlined,
+            Icons.settings,
             color: PROJECT_GREEN,
           ),
           onPressed: () {},

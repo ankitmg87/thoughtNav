@@ -1,8 +1,9 @@
-import 'dart:html';
-
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/participant/post_study/rewards_dashboard_screen.dart';
 
 class PostStudyRewardMethodsScreen extends StatefulWidget {
   @override
@@ -14,13 +15,16 @@ class _PostStudyRewardMethodsScreenState
     extends State<PostStudyRewardMethodsScreen> {
   @override
   Widget build(BuildContext context) {
+
+    final Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: buildPhoneAppBar(context),
-      body: buildPhoneBody(),
+      body: buildPhoneBody(screenSize),
     );
   }
 
-  Widget buildPhoneBody() {
+  Widget buildPhoneBody(Size screenSize) {
     return ListView(
       children: [
         Padding(
@@ -148,6 +152,29 @@ class _PostStudyRewardMethodsScreenState
               fontSize: 14.0,
             ),
             textAlign: TextAlign.left,
+          ),
+        ),
+        SizedBox(height: 50.0,),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.2),
+          child: Row(
+            children: [
+              Expanded(
+                child: FlatButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  color: PROJECT_GREEN,
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).popAndPushNamed(REWARDS_DASHBOARD_SCREEN),
+                ),
+              ),
+            ],
           ),
         )
       ],

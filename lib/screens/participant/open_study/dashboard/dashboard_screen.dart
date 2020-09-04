@@ -107,6 +107,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
+                EndDrawerExpansionTile(
+                  title: 'Welcome to Day One',
+                  children: [
+                    EndDrawerExpansionTileChild(
+                      label: '1.1 Welcome to Day 1',
+                      onTap: () => Navigator.of(context).pushNamed(QUESTIONS_FIRST_DAY_SCREEN),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -290,7 +299,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           width: 10.0,
                         ),
                         Icon(
-                          Icons.logout,
+                          Icons.exit_to_app,
                           color: Color(0xFF333333).withOpacity(0.7),
                           size: 15.0,
                         ),
