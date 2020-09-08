@@ -6,11 +6,11 @@ import 'package:thoughtnav/constants/string_constants.dart';
 class StudyEndedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     final Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Text(
           APP_NAME,
@@ -192,18 +192,41 @@ class StudyEndedScreen extends StatelessWidget {
           SizedBox(
             height: 60.0,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.15),
-            child: Row(
-              children: [
-                Expanded(
+          screenSize.width < screenSize.height
+              ? Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: screenSize.width * 0.15),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          color: PROJECT_GREEN,
+                          child: Container(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Contact Administrator',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Align(
+                child: Container(
+            width: 200.0,
                   child: FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    color: PROJECT_GREEN,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      color: PROJECT_GREEN,
+                      onPressed: () {},
                       child: Text(
                         'Contact Administrator',
                         style: TextStyle(
@@ -211,12 +234,8 @@ class StudyEndedScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    onPressed: (){},
-                  ),
                 ),
-              ],
-            ),
-          )
+              ),
         ],
       ),
     );

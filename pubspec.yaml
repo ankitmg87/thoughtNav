@@ -40,3 +40,5 @@ flutter:
     - images/set_account_icons/
     - images/questions_icons/
     - images/reward_icons/
+    - images/homescreen_images/
+    - images/login_section_images/

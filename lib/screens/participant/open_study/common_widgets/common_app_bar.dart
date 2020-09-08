@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/string_constants.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
@@ -8,7 +9,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.white,
       centerTitle: true,
       title: Text(
-        'ThoughtNav',
+        APP_NAME,
         style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
       ),
       leading: GestureDetector(

@@ -9,6 +9,14 @@ class WelcomeScreen extends StatelessWidget {
     final Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
+      body: screenSize.height > screenSize.width
+          ? buildPhoneBody(screenSize, context)
+          : buildDesktopBody(screenSize, context),
+    );
+  }
+
+  Scaffold buildPhoneBody(Size screenSize, BuildContext context) {
+    return Scaffold(
       body: ListView(
         children: [
           SizedBox(
@@ -250,4 +258,225 @@ class WelcomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  Scaffold buildDesktopBody(Size screenSize, BuildContext context) {
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 20.0,
+          ),
+          Text(
+            'Welcome to\nPower Wheelchair Study',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: TEXT_COLOR.withOpacity(0.7),
+              fontWeight: FontWeight.bold,
+              fontSize: 20.0,
+            ),
+          ),
+          SizedBox(
+            height: 50.0,
+          ),
+          Align(
+            child: Container(
+              width: screenSize.width * 0.4,
+              child: Text(
+                'The purpose of this study is to get your honest feedback about your personal experiences with your power wheelchair.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: TEXT_COLOR,
+                  fontSize: 14.0,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 50.0,
+          ),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: TextStyle(
+                color: TEXT_COLOR.withOpacity(0.7),
+                fontSize: 14.0,
+              ),
+              children: [
+                TextSpan(
+                  text: 'It begins ',
+                ),
+                TextSpan(
+                  text: 'Monday, May 6',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: ' and ends ',
+                ),
+                TextSpan(
+                  text: 'Friday, May 10.',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 40.0,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Monday',
+                    style: TextStyle(
+                      color: TEXT_COLOR.withOpacity(0.7),
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Card(
+                    child: Container(
+                      padding: EdgeInsets.all(2.0),
+                      width: 60,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'May',
+                            style: TextStyle(
+                              color: TEXT_COLOR,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 2.0,
+                          ),
+                          Text(
+                            '6',
+                            style: TextStyle(
+                                color: TEXT_COLOR.withOpacity(0.7),
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 40.0,
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Friday',
+                    style: TextStyle(
+                      color: TEXT_COLOR.withOpacity(0.7),
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Card(
+                    child: Container(
+                      padding: EdgeInsets.all(2.0),
+                      width: 60,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'May',
+                            style: TextStyle(
+                              color: TEXT_COLOR,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 2.0,
+                          ),
+                          Text(
+                            '10',
+                            style: TextStyle(
+                                color: TEXT_COLOR.withOpacity(0.7),
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+          SizedBox(
+            height: 20.0,
+          ),
+          Align(
+            child: Container(
+              width: screenSize.width * 0.1,
+              height: 1.0,
+              color: TEXT_COLOR,
+            ),
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Align(
+            child: Container(
+              width: screenSize.width * 0.4,
+              child: Text(
+                'Login each day and post responses to the questions',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: TEXT_COLOR.withOpacity(0.7),
+                  fontSize: 14.0,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 40.0,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FlatButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                    onPressed: () =>
+                        Navigator.of(context).popAndPushNamed(DASHBOARD_SCREEN),
+                    color: PROJECT_GREEN,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'LET\'S GET STARTED',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }
+

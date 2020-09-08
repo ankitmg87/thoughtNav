@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: SCAFFOLD_BACKGROUND_COLOR,
         unselectedWidgetColor: Colors.white,
       ),
-      initialRoute: WELCOME_SCREEN,
+      initialRoute: TN_HOME_SCREEN_ROUTE,
       routes: {
         // Public Section
 

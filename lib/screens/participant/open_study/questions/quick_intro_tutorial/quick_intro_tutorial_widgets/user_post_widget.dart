@@ -115,19 +115,15 @@ class UserPostWidget extends StatelessWidget {
             height: 20.0,
           ),
           hasImage
-              ? Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Image(
-                          fit: BoxFit.fill,
-                          image: AssetImage('images/placeholder_image.jpg'),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+              ? Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Image(
+                    fit: BoxFit.fill,
+                    image: AssetImage('images/placeholder_image.jpg'),
+                  ),
+                ),
+              )
               : SizedBox(),
           hasImage
               ? SizedBox(
