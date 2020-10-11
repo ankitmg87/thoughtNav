@@ -24,6 +24,12 @@ dependencies:
 
   auto_size_text: ^2.1.0
 
+  google_fonts: ^1.1.0
+
+  percent_indicator: ^2.1.7+4
+
+  flutter_switch: ^0.1.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -42,3 +48,4 @@ flutter:
     - images/reward_icons/
     - images/homescreen_images/
     - images/login_section_images/
+    - images/researcher_images/researcher_dashboard/

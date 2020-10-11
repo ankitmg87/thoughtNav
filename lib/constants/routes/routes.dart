@@ -26,3 +26,12 @@ const String DAY_COMPLETED_SCREEN = 'day_completed_screen';
 
 const String REWARDS_DASHBOARD_SCREEN = 'rewards_dashboard_screen';
 const String STUDY_ENDED = 'study_ended';
+
+const String RESEARCHER_MAIN_SCREEN = 'researcher_main_screen';
+
+const String CLIENT_MODERATOR_STUDY_SCREEN = 'study_screen';
+
+const String CLIENT_MODERATOR_RESPONSES_SCREEN = 'responses_screen';
+
+//4594 5300 8752 7982
+// //829

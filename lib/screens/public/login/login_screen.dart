@@ -214,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: PROJECT_GREEN,
                           onPressed: () {
                             Navigator.of(context)
-                                .pushNamed(STUDY_DETAILS_SCREEN);
+                                .pushNamed(WELCOME_SCREEN);
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),

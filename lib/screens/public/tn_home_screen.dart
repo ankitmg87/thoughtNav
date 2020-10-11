@@ -408,7 +408,7 @@ class TNHomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 FlatButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.of(context).pushNamed(RESEARCHER_MAIN_SCREEN),
                   color: Color(0xFF50D2C3),
                   child: Text(
                     'RESEARCHER',

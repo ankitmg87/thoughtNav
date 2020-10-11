@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/welcome_screen.dart';
@@ -24,6 +25,9 @@ import 'package:thoughtnav/screens/public/login/forgot_password_screen.dart';
 import 'package:thoughtnav/screens/public/login/login_screen.dart';
 import 'package:thoughtnav/screens/public/login/reset_password_screen.dart';
 import 'package:thoughtnav/screens/public/tn_home_screen.dart';
+import 'package:thoughtnav/screens/researcher/researcher_main_screen.dart';
+import 'package:thoughtnav/screens/researcher/screens/responses_screen.dart';
+import 'package:thoughtnav/screens/researcher/screens/study_screen.dart';
 
 import 'constants/routes/routes.dart';
 
@@ -42,11 +46,14 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         scaffoldBackgroundColor: SCAFFOLD_BACKGROUND_COLOR,
         unselectedWidgetColor: Colors.white,
+        textTheme: GoogleFonts.latoTextTheme(
+          Theme.of(context).textTheme,
+        ),
       ),
       initialRoute: TN_HOME_SCREEN_ROUTE,
       routes: {
+        
         // Public Section
-
         TN_HOME_SCREEN_ROUTE: (context) => TNHomeScreen(),
         LOGIN_SCREEN: (context) => LoginScreen(),
         FORGOT_PASSWORD_SCREEN: (context) => ForgotPasswordScreen(),
@@ -60,7 +67,6 @@ class MyApp extends StatelessWidget {
         DASHBOARD_TIPS_SCREEN: (context) => DashboardTipsScreen(),
 
         //Participants Section
-
         WELCOME_SCREEN: (context) => WelcomeScreen(),
         DASHBOARD_SCREEN: (context) => DashboardScreen(),
         NOTIFICATIONS_SCREEN: (context) => NotificationsScreen(),
@@ -70,24 +76,28 @@ class MyApp extends StatelessWidget {
         USER_DETAILS_SCREEN: (context) => UserDetailsScreen(),
 
         //Study Navigator Section
-
         TELL_US_YOUR_STORY_SCREEN: (context) => TellUsYouStoryScreen(),
         QUICK_INTRO_COMPLETE_SCREEN: (context) => QuickIntroCompleteScreen(),
 
         //Questions Section
-
         QUESTIONS_FIRST_DAY_SCREEN: (context) => QuestionsFirstDayScreen(),
         QUESTION_SCREEN: (context) => QuestionScreen(),
         DAY_COMPLETED_SCREEN: (context) => DayCompletedScreen(),
 
         //Rewards Section
-
         REWARDS_DASHBOARD_SCREEN: (context) => RewardsDashboardScreen(),
 
         //Study End
-
         STUDY_ENDED: (context) => StudyEndedScreen(),
 
+        //Researcher Section
+        RESEARCHER_MAIN_SCREEN: (context) => ResearcherMainScreen(),
+
+        //Client and Moderator Study Dashboard
+        CLIENT_MODERATOR_STUDY_SCREEN: (context) => StudyScreen(),
+
+        //Client and Moderator Responses Screen
+        CLIENT_MODERATOR_RESPONSES_SCREEN: (context) => ResponsesScreen(),
       },
     );
   }
