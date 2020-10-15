@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/setup_complete_screen.dart';
+import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_dashboard.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_reports.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_setup.dart';
@@ -11,6 +14,7 @@ class StudyScreen extends StatefulWidget {
 }
 
 class _StudyScreenState extends State<StudyScreen> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   bool dashboardSelected = true;
   bool usersSelected = false;
@@ -21,21 +25,26 @@ class _StudyScreenState extends State<StudyScreen> {
 
   Widget dashboardScreen = StudyDashboard();
   Widget usersScreen = StudyUsers();
-  Widget setupScreen = StudySetup();
+  Widget setupScreen;
   Widget reportsScreen = StudyReports();
 
   @override
   void initState() {
     subScreen = dashboardScreen;
+
+    setupScreen = StudySetup(
+      firestore: firestore,
+    );
+
     super.initState();
   }
 
-  void setSubScreen(String label){
-    if(label == 'Studies'){
+  void setSubScreen(String label) {
+    if (label == 'Studies') {
       Navigator.of(context).pop();
       return;
     }
-    if(label == 'Dashboard'){
+    if (label == 'Dashboard') {
       dashboardSelected = true;
       usersSelected = false;
       setupSelected = false;
@@ -45,7 +54,7 @@ class _StudyScreenState extends State<StudyScreen> {
       setState(() {});
       return;
     }
-    if(label == 'Users'){
+    if (label == 'Users') {
       usersSelected = true;
       dashboardSelected = false;
       setupSelected = false;
@@ -55,7 +64,7 @@ class _StudyScreenState extends State<StudyScreen> {
       setState(() {});
       return;
     }
-    if(label == 'Setup'){
+    if (label == 'Setup') {
       setupSelected = true;
       dashboardSelected = false;
       usersSelected = false;
@@ -65,7 +74,7 @@ class _StudyScreenState extends State<StudyScreen> {
       setState(() {});
       return;
     }
-    if(label == 'Reports'){
+    if (label == 'Reports') {
       reportsSelected = true;
       dashboardSelected = false;
       usersSelected = false;

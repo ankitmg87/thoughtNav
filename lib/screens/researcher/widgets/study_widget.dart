@@ -5,13 +5,33 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 
 class StudyWidget extends StatelessWidget {
+  final String studyName;
+  final String studyStatus;
+  final String activeParticipants;
+  final String currentActive;
+  final String totalResponses;
+  final String startDate;
+  final String endDate;
+
+  const StudyWidget({
+    Key key,
+    this.studyName,
+    this.studyStatus,
+    this.activeParticipants,
+    this.currentActive,
+    this.totalResponses,
+    this.startDate,
+    this.endDate,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: Card(
         child: InkWell(
-          onTap: () => Navigator.pushNamed(context, CLIENT_MODERATOR_STUDY_SCREEN),
+          onTap: () =>
+              Navigator.pushNamed(context, CLIENT_MODERATOR_STUDY_SCREEN),
           child: Padding(
             padding: EdgeInsets.all(20.0),
             child: Row(
@@ -25,7 +45,7 @@ class StudyWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Study Name',
+                            studyName,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18.0,
@@ -35,7 +55,7 @@ class StudyWidget extends StatelessWidget {
                             width: 20.0,
                           ),
                           Text(
-                            '(Status)',
+                            '($studyStatus)',
                             style: TextStyle(
                               color: PROJECT_GREEN,
                               fontSize: 18.0,
@@ -44,13 +64,15 @@ class StudyWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 60.0,),
+                      SizedBox(
+                        height: 60.0,
+                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '% Active participants',
+                            '% $activeParticipants',
                             style: TextStyle(
                               color: Colors.black,
                               fontStyle: FontStyle.italic,
@@ -81,9 +103,7 @@ class StudyWidget extends StatelessWidget {
                   width: 140.0,
                 ),
                 Container(
-                  constraints: BoxConstraints(
-                    maxWidth: 400.0
-                  ),
+                  constraints: BoxConstraints(maxWidth: 400.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -94,20 +114,20 @@ class StudyWidget extends StatelessWidget {
                           Text(
                             'Current Active',
                             style: TextStyle(
-                              color: Color(0xFF437FEF),
-                              fontWeight: FontWeight.bold
-                            ),
+                                color: Color(0xFF437FEF),
+                                fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '0',
+                            '${currentActive ?? 0}',
                             style: TextStyle(
-                              color: Color(0xFF437FEF),
-                              fontWeight: FontWeight.bold
-                            ),
+                                color: Color(0xFF437FEF),
+                                fontWeight: FontWeight.bold),
                           )
                         ],
                       ),
-                      SizedBox(height: 16.0,),
+                      SizedBox(
+                        height: 16.0,
+                      ),
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,19 +136,19 @@ class StudyWidget extends StatelessWidget {
                             'Total Responses',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
-                                fontWeight: FontWeight.bold
-                            ),
+                                fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '0',
+                            '${totalResponses ?? 0}',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
-                                fontWeight: FontWeight.bold
-                            ),
+                                fontWeight: FontWeight.bold),
                           )
                         ],
                       ),
-                      SizedBox(height: 16.0,),
+                      SizedBox(
+                        height: 16.0,
+                      ),
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -137,19 +157,19 @@ class StudyWidget extends StatelessWidget {
                             'Start Date',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
-                                fontWeight: FontWeight.bold
-                            ),
+                                fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '15/2/2020',
+                            '$startDate',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
-                                fontWeight: FontWeight.bold
-                            ),
+                                fontWeight: FontWeight.bold),
                           )
                         ],
                       ),
-                      SizedBox(height: 16.0,),
+                      SizedBox(
+                        height: 16.0,
+                      ),
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -158,15 +178,13 @@ class StudyWidget extends StatelessWidget {
                             'End Date',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
-                                fontWeight: FontWeight.bold
-                            ),
+                                fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '15/2/2020',
+                            '$endDate',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
-                                fontWeight: FontWeight.bold
-                            ),
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),

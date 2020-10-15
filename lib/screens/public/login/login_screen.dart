@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/services/firebase_auth_service.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -213,8 +215,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           color: PROJECT_GREEN,
                           onPressed: () {
-                            Navigator.of(context)
-                                .pushNamed(WELCOME_SCREEN);
+                            // Navigator.of(context)
+                            //     .pushNamed(WELCOME_SCREEN);
+                            FirebaseAuthService authService =
+                                FirebaseAuthService();
+                            authService.handleAuth();
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -453,9 +458,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(6.0),
                                   ),
                                   color: PROJECT_GREEN,
-                                  onPressed: () => Navigator.of(context)
-                                      .pushNamedAndRemoveUntil(
-                                          WELCOME_SCREEN, (route) => false),
+                                  onPressed: () async {
+                                    FirebaseAuthService authService =
+                                        FirebaseAuthService();
+                                    FirebaseFirestoreService firestoreService =
+                                        FirebaseFirestoreService();
+                                    String uid;
+                                    String userType;
+                                    uid = await authService.handleAuth();
+                                    userType = await firestoreService.checkUserType(uid);
+                                    if (userType == 'moderator') {
+                                      Navigator.of(context)
+                                          .pushNamedAndRemoveUntil(
+                                              RESEARCHER_MAIN_SCREEN,
+                                              (route) => false);
+                                    }
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(

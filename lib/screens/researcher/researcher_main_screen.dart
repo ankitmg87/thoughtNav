@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -22,22 +23,96 @@ class ResearcherMainScreen extends StatefulWidget {
 }
 
 class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
+  FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+
   bool moderatorInvitesOnly = false;
 
   TextEditingController _searchController = TextEditingController();
 
   ListView studyListView = ListView();
 
-  List<Study> allStudies = [];
-  List<Study> activeStudies = [];
-  List<Study> completedStudies = [];
-  List<Study> draftStudies = [];
+  List<Study> allStudiesList = [];
+  List<Study> activeStudiesList = [];
+  List<Study> completedStudiesList = [];
+  List<Study> draftStudiesList = [];
+
+  bool allSelected = true;
+  bool activeSelected = false;
+  bool completedSelected = false;
+  bool draftSelected = false;
+
+  Widget listView;
+
+  Widget allStudies;
+  Widget activeStudies;
+  Widget completedStudies;
+  Widget draftStudies;
+
+  void initializeViews() {
+
+    allStudies = allStudiesFutureBuilder();
+    listView = allStudies;
+
+    activeStudies = ListView.separated(
+      itemCount: allStudiesList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return StudyWidget();
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return SizedBox(
+          height: 10.0,
+        );
+      },
+    );
+    completedStudies = ListView.separated(
+      itemCount: completedStudiesList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return StudyWidget();
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return SizedBox(
+          height: 10.0,
+        );
+      },
+    );
+    draftStudies = ListView.separated(
+      itemCount: draftStudiesList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return StudyWidget();
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return SizedBox(
+          height: 10.0,
+        );
+      },
+    );
+  }
+
+  void setListType(){
+    if(allSelected){
+      listView = allStudies;
+      return;
+    }
+    else if (activeSelected){
+      listView = activeStudies;
+      return;
+    }
+    else if (completedSelected){
+      listView = completedStudies;
+      return;
+    }
+    else if (draftSelected){
+      listView = draftStudies;
+      return;
+    }
+  }
 
   // TODO -> Tips written in diary.
 
   @override
   void initState() {
     super.initState();
+    initializeViews();
   }
 
   @override
@@ -200,45 +275,97 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      GestureDetector(
+                      InkWell(
+                        onTap: () {
+                          allSelected = true;
+                          activeSelected = false;
+                          completedSelected = false;
+                          draftSelected = false;
+
+                          setListType();
+
+                          setState(() {});
+
+                        },
                         child: Container(
                           color: Colors.transparent,
-                          child: Text('All', style: _SELECTED_TEXT_TEXT_STYLE),
+                          child: Text(
+                            'All',
+                            style: allSelected
+                                ? _SELECTED_TEXT_TEXT_STYLE
+                                : _UNSELECTED_TEXT_TEXT_STYLE,
+                          ),
                         ),
                       ),
                       SizedBox(
                         width: 20.0,
                       ),
-                      GestureDetector(
+                      InkWell(
+                        onTap: () {
+                          allSelected = false;
+                          activeSelected = true;
+                          completedSelected = false;
+                          draftSelected = false;
+
+                          setListType();
+
+                          setState(() {});
+                        },
                         child: Container(
                           color: Colors.transparent,
                           child: Text(
                             'Active',
-                            style: _UNSELECTED_TEXT_TEXT_STYLE,
+                            style: activeSelected
+                                ? _SELECTED_TEXT_TEXT_STYLE
+                                : _UNSELECTED_TEXT_TEXT_STYLE,
                           ),
                         ),
                       ),
                       SizedBox(
                         width: 20.0,
                       ),
-                      GestureDetector(
+                      InkWell(
+                        onTap: () {
+                          allSelected = false;
+                          activeSelected = false;
+                          completedSelected = true;
+                          draftSelected = false;
+
+                          setListType();
+
+                          setState(() {});
+                        },
                         child: Container(
                           color: Colors.transparent,
                           child: Text(
                             'Completed',
-                            style: _UNSELECTED_TEXT_TEXT_STYLE,
+                            style: completedSelected
+                                ? _SELECTED_TEXT_TEXT_STYLE
+                                : _UNSELECTED_TEXT_TEXT_STYLE,
                           ),
                         ),
                       ),
                       SizedBox(
                         width: 20.0,
                       ),
-                      GestureDetector(
+                      InkWell(
+                        onTap: () {
+                          allSelected = false;
+                          activeSelected = false;
+                          completedSelected = false;
+                          draftSelected = true;
+
+                          setListType();
+
+                          setState(() {});
+                        },
                         child: Container(
                           color: Colors.transparent,
                           child: Text(
                             'Draft',
-                            style: _UNSELECTED_TEXT_TEXT_STYLE,
+                            style: draftSelected
+                                ? _SELECTED_TEXT_TEXT_STYLE
+                                : _UNSELECTED_TEXT_TEXT_STYLE,
                           ),
                         ),
                       ),
@@ -253,7 +380,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           color: Colors.black,
                         ),
                       ),
-
+                      // TODO -> Change this switch
                       StatefulBuilder(
                         builder: (BuildContext context, StateSetter setState) {
                           return Transform.scale(
@@ -308,33 +435,57 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           height: 20.0,
         ),
         Expanded(
-          child: ListView(
-            children: [
-              StudyWidget(),
-              SizedBox(
-                height: 10.0,
-              ),
-              StudyWidget(),
-              SizedBox(
-                height: 10.0,
-              ),
-              StudyWidget(),
-            ],
-          ),
+          child: listView,
         ),
       ],
     );
   }
 
-  ListView buildStudyList() {
+  ListView _buildStudyList() {
     return studyListView;
   }
 
-  void showAllStudies() {}
+  FutureBuilder allStudiesFutureBuilder() {
+    return FutureBuilder(
+      initialData: allStudiesList,
+      future: queryAllStudies(),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> studiesSnapshot) {
+        return ListView.separated(
+          itemCount: studiesSnapshot.data.length,
+          itemBuilder: (BuildContext context, int index) {
+            return StudyWidget(
+              studyName: studiesSnapshot.data[index].studyName,
+              studyStatus: studiesSnapshot.data[index].studyStatus,
+              activeParticipants:
+                  studiesSnapshot.data[index].activeParticipants,
+              totalResponses: studiesSnapshot.data[index].totalResponses,
+              startDate: studiesSnapshot.data[index].startDate,
+              endDate: studiesSnapshot.data[index].endDate,
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) {
+            return SizedBox(
+              height: 10.0,
+            );
+          },
+        );
+      },
+    );
+  }
 
-  showActiveStudies() {}
+  Future<List<Study>> queryAllStudies() async {
+    allStudiesList = [];
+    CollectionReference studiesReference =
+        firestoreInstance.collection('studies');
+    QuerySnapshot studiesSnapshot = await studiesReference.get();
 
-  showCompletedStudies() {}
+    List<QueryDocumentSnapshot> snapshots = studiesSnapshot.docs;
 
-  showDraftStudies() {}
+    for (var snapshot in snapshots) {
+      Study study = Study.fromMap(snapshot.data());
+      allStudiesList.add(study);
+    }
+
+    return allStudiesList;
+  }
 }
