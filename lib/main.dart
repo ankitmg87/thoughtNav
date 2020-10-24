@@ -26,6 +26,7 @@ import 'package:thoughtnav/screens/public/login/login_screen.dart';
 import 'package:thoughtnav/screens/public/login/reset_password_screen.dart';
 import 'package:thoughtnav/screens/public/tn_home_screen.dart';
 import 'package:thoughtnav/screens/researcher/researcher_main_screen.dart';
+import 'package:thoughtnav/screens/researcher/screens/draft_study_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/responses_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/study_screen.dart';
 
@@ -98,6 +99,9 @@ class MyApp extends StatelessWidget {
 
         //Client and Moderator Responses Screen
         CLIENT_MODERATOR_RESPONSES_SCREEN: (context) => ResponsesScreen(),
+
+        //Draft Study Screen
+        DRAFT_STUDY_SCREEN: (context) => DraftStudyScreen(),
       },
     );
   }

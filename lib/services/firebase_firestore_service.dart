@@ -19,4 +19,8 @@ class FirebaseFirestoreService{
 
   }
 
+  Future saveStudy() async {
+
+  }
+
 }

@@ -31,6 +31,8 @@ const String RESEARCHER_MAIN_SCREEN = 'researcher_main_screen';
 
 const String CLIENT_MODERATOR_STUDY_SCREEN = 'study_screen';
 
+const String DRAFT_STUDY_SCREEN = 'draft_study_screen';
+
 const String CLIENT_MODERATOR_RESPONSES_SCREEN = 'responses_screen';
 
 //4594 5300 8752 7982

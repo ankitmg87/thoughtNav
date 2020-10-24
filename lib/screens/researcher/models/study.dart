@@ -1,6 +1,3 @@
-import 'package:thoughtnav/screens/researcher/models/group.dart';
-import 'package:thoughtnav/screens/researcher/models/topic.dart';
-
 class Study {
   String studyUID;
   String studyName;
@@ -48,7 +45,7 @@ class Study {
     Map<String, dynamic> study = Map<String, dynamic>();
 
     study['studyUID'] = this.studyUID ?? 'Null';
-    study['studyName'] = this.studyName ?? 'Study 4';
+    study['studyName'] = this.studyName ?? 'Study Name';
     study['internalStudyLabel'] =
         this.internalStudyLabel ?? 'Internal Study Label';
     study['studyStatus'] = this.studyStatus ?? 'Study Status';

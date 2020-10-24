@@ -3,21 +3,11 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 
 class GroupWidget extends StatefulWidget {
-  final TextEditingController groupNameController;
-  final TextEditingController internalGroupLabelController;
-  final Group group;
   final List<Group> groups;
-  final Function groupNameValidator;
-  final Function internalGroupLabelValidator;
 
   const GroupWidget({
     Key key,
-    this.groupNameController,
-    this.internalGroupLabelController,
-    this.group,
     this.groups,
-    this.groupNameValidator,
-    this.internalGroupLabelValidator,
   }) : super(key: key);
 
   @override
@@ -25,14 +15,25 @@ class GroupWidget extends StatefulWidget {
 }
 
 class _GroupWidgetState extends State<GroupWidget> {
+  final Group group = Group();
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: TextFormField(
-            controller: widget.groupNameController,
-            validator: widget.groupNameValidator,
+            validator: (value) {
+              if (value.isEmpty)
+                return 'Please set a group name';
+              else {
+                group.groupName = value;
+                if (group.groupName.isNotEmpty &&
+                    group.internalGroupLabel.isNotEmpty)
+                  widget.groups.add(group);
+                return null;
+              }
+            },
             cursorColor: PROJECT_NAVY_BLUE,
             decoration: InputDecoration(
               hintText: 'Group Name',
@@ -47,8 +48,16 @@ class _GroupWidgetState extends State<GroupWidget> {
         ),
         Expanded(
           child: TextFormField(
-            controller: widget.internalGroupLabelController,
-            validator: widget.internalGroupLabelValidator,
+            validator: (value) {
+              if (value.isEmpty)
+                return 'Please set an internal group label';
+              else {
+                if (group.groupName.isNotEmpty &&
+                    group.internalGroupLabel.isNotEmpty)
+                  widget.groups.add(group);
+                return null;
+              }
+            },
             cursorColor: PROJECT_NAVY_BLUE,
             decoration: InputDecoration(
               hintText: 'Internal Group Label',

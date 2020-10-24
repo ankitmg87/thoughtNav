@@ -6,12 +6,14 @@ class DynamicGroupAndQuestionAdditionWidget extends StatefulWidget {
   final Widget child;
   final Widget separatorWidget;
   final String title;
+  final List list;
 
   const DynamicGroupAndQuestionAdditionWidget({
     Key key,
     this.child,
     this.title,
     this.separatorWidget,
+    this.list,
   }) : super(key: key);
 
   @override
@@ -49,6 +51,7 @@ class _DynamicGroupAndQuestionAdditionWidgetState
                     numberOfChildren > 1
                         ? InkWell(
                             onTap: () {
+                              //widget.list.removeLast();
                               setState(() {
                                 numberOfChildren--;
                               });

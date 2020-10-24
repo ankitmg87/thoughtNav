@@ -3,25 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/study.dart';
 
 class StudyWidget extends StatelessWidget {
-  final String studyName;
-  final String studyStatus;
-  final String activeParticipants;
-  final String currentActive;
-  final String totalResponses;
-  final String startDate;
-  final String endDate;
+  final Study study;
 
   const StudyWidget({
     Key key,
-    this.studyName,
-    this.studyStatus,
-    this.activeParticipants,
-    this.currentActive,
-    this.totalResponses,
-    this.startDate,
-    this.endDate,
+    this.study,
   }) : super(key: key);
 
   @override
@@ -30,8 +19,18 @@ class StudyWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: Card(
         child: InkWell(
-          onTap: () =>
-              Navigator.pushNamed(context, CLIENT_MODERATOR_STUDY_SCREEN),
+          onTap: ()  {
+            if(study.isDraft){
+              Navigator.pushNamed(context, DRAFT_STUDY_SCREEN, arguments: study);
+            }
+            else {
+              Navigator.pushNamed(
+                context,
+                CLIENT_MODERATOR_STUDY_SCREEN,
+                arguments: study,
+              );
+            }
+          },
           child: Padding(
             padding: EdgeInsets.all(20.0),
             child: Row(
@@ -45,7 +44,7 @@ class StudyWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            studyName,
+                            study.studyName,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18.0,
@@ -55,7 +54,7 @@ class StudyWidget extends StatelessWidget {
                             width: 20.0,
                           ),
                           Text(
-                            '($studyStatus)',
+                            '(${study.isDraft ? 'Draft' : study.studyStatus})',
                             style: TextStyle(
                               color: PROJECT_GREEN,
                               fontSize: 18.0,
@@ -72,7 +71,7 @@ class StudyWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '% $activeParticipants',
+                            '% ${study.activeParticipants}',
                             style: TextStyle(
                               color: Colors.black,
                               fontStyle: FontStyle.italic,
@@ -118,7 +117,7 @@ class StudyWidget extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '${currentActive ?? 0}',
+                            '${study.activeParticipants ?? 0}',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
                                 fontWeight: FontWeight.bold),
@@ -139,7 +138,7 @@ class StudyWidget extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '${totalResponses ?? 0}',
+                            '${study.totalResponses ?? 0}',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
                                 fontWeight: FontWeight.bold),
@@ -160,7 +159,7 @@ class StudyWidget extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '$startDate',
+                            '${study.startDate}',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
                                 fontWeight: FontWeight.bold),
@@ -181,7 +180,7 @@ class StudyWidget extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '$endDate',
+                            '${study.endDate}',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
                                 fontWeight: FontWeight.bold),

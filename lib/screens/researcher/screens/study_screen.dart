@@ -88,12 +88,14 @@ class _StudyScreenState extends State<StudyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Study study = Study.fromMap(ModalRoute.of(context).settings.arguments);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: Column(
         children: [
-          Container(
+          Padding(
             padding: EdgeInsets.all(20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,13 +111,13 @@ class _StudyScreenState extends State<StudyScreen> {
                       width: 16.0,
                     ),
                     StudyScreenSecondaryAppBarWidget(
-                      label: 'Dashboard',
-                      selected: dashboardSelected,
-                      onTap: () => setSubScreen('Dashboard'),
-                    ),
+                            label: 'Dashboard',
+                            selected: dashboardSelected,
+                            onTap: () => setSubScreen('Dashboard'),
+                          ),
                     SizedBox(
-                      width: 16.0,
-                    ),
+                            width: 16.0,
+                          ),
                     StudyScreenSecondaryAppBarWidget(
                       label: 'Users',
                       selected: usersSelected,
@@ -133,10 +135,10 @@ class _StudyScreenState extends State<StudyScreen> {
                       width: 16.0,
                     ),
                     StudyScreenSecondaryAppBarWidget(
-                      label: 'Reports',
-                      selected: reportsSelected,
-                      onTap: () => setSubScreen('Reports'),
-                    ),
+                            label: 'Reports',
+                            selected: reportsSelected,
+                            onTap: () => setSubScreen('Reports'),
+                          ),
                   ],
                 ),
                 Text(

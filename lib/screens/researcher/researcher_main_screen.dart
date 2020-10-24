@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_widget.dart';
 
@@ -48,71 +49,30 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   Widget completedStudies;
   Widget draftStudies;
 
-  void initializeViews() {
-
-    allStudies = allStudiesFutureBuilder();
-    listView = allStudies;
-
-    activeStudies = ListView.separated(
-      itemCount: allStudiesList.length,
-      itemBuilder: (BuildContext context, int index) {
-        return StudyWidget();
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return SizedBox(
-          height: 10.0,
-        );
-      },
-    );
-    completedStudies = ListView.separated(
-      itemCount: completedStudiesList.length,
-      itemBuilder: (BuildContext context, int index) {
-        return StudyWidget();
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return SizedBox(
-          height: 10.0,
-        );
-      },
-    );
-    draftStudies = ListView.separated(
-      itemCount: draftStudiesList.length,
-      itemBuilder: (BuildContext context, int index) {
-        return StudyWidget();
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return SizedBox(
-          height: 10.0,
-        );
-      },
-    );
-  }
-
-  void setListType(){
-    if(allSelected){
-      listView = allStudies;
-      return;
-    }
-    else if (activeSelected){
-      listView = activeStudies;
-      return;
-    }
-    else if (completedSelected){
-      listView = completedStudies;
-      return;
-    }
-    else if (draftSelected){
-      listView = draftStudies;
-      return;
-    }
-  }
-
-  // TODO -> Tips written in diary.
-
   @override
   void initState() {
     super.initState();
     initializeViews();
+  }
+
+  void createStudy() async {
+    Study newStudy = Study();
+
+    newStudy.studyName = 'New Study';
+    newStudy.studyStatus = 'Draft';
+
+    await firestoreInstance
+        .collection('studies')
+        .add(
+          newStudy.toMap(),
+        )
+        .then((value) {
+      newStudy.studyUID = value.id;
+      Navigator.of(context).pushNamed(
+        DRAFT_STUDY_SCREEN,
+        arguments: newStudy.toMap(),
+      );
+    });
   }
 
   @override
@@ -226,7 +186,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 color: PROJECT_GREEN,
-                onPressed: () {},
+                onPressed: createStudy,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 8.0,
@@ -283,9 +243,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           draftSelected = false;
 
                           setListType();
-
-                          setState(() {});
-
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -296,6 +253,10 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                                 : _UNSELECTED_TEXT_TEXT_STYLE,
                           ),
                         ),
+                        highlightColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
                       ),
                       SizedBox(
                         width: 20.0,
@@ -308,8 +269,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           draftSelected = false;
 
                           setListType();
-
-                          setState(() {});
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -320,6 +279,10 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                                 : _UNSELECTED_TEXT_TEXT_STYLE,
                           ),
                         ),
+                        highlightColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
                       ),
                       SizedBox(
                         width: 20.0,
@@ -332,8 +295,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           draftSelected = false;
 
                           setListType();
-
-                          setState(() {});
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -344,6 +305,10 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                                 : _UNSELECTED_TEXT_TEXT_STYLE,
                           ),
                         ),
+                        highlightColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
                       ),
                       SizedBox(
                         width: 20.0,
@@ -356,8 +321,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           draftSelected = true;
 
                           setListType();
-
-                          setState(() {});
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -368,6 +331,10 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                                 : _UNSELECTED_TEXT_TEXT_STYLE,
                           ),
                         ),
+                        highlightColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
                       ),
                     ],
                   ),
@@ -441,8 +408,13 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
     );
   }
 
-  ListView _buildStudyList() {
-    return studyListView;
+  void initializeViews() {
+    allStudies = allStudiesFutureBuilder();
+    listView = allStudies;
+
+    activeStudies = SizedBox();
+    completedStudies = SizedBox();
+    draftStudies = SizedBox();
   }
 
   FutureBuilder allStudiesFutureBuilder() {
@@ -454,13 +426,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           itemCount: studiesSnapshot.data.length,
           itemBuilder: (BuildContext context, int index) {
             return StudyWidget(
-              studyName: studiesSnapshot.data[index].studyName,
-              studyStatus: studiesSnapshot.data[index].studyStatus,
-              activeParticipants:
-                  studiesSnapshot.data[index].activeParticipants,
-              totalResponses: studiesSnapshot.data[index].totalResponses,
-              startDate: studiesSnapshot.data[index].startDate,
-              endDate: studiesSnapshot.data[index].endDate,
+              study: studiesSnapshot.data[index],
             );
           },
           separatorBuilder: (BuildContext context, int index) {
@@ -483,9 +449,80 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
 
     for (var snapshot in snapshots) {
       Study study = Study.fromMap(snapshot.data());
+      study.studyUID = snapshot.id;
       allStudiesList.add(study);
     }
 
+    sortStudies();
+
     return allStudiesList;
+  }
+
+  void sortStudies() {
+    for (Study study in allStudiesList) {
+      if (study.studyStatus == 'Active') {
+        activeStudiesList.add(study);
+      }
+      if (study.studyStatus == 'Completed') {
+        completedStudiesList.add(study);
+      }
+      if (study.isDraft) {
+        draftStudiesList.add(study);
+      }
+    }
+  }
+
+  void setListType() {
+    setState(() {
+      if (allSelected) {
+        listView = allStudies;
+        return;
+      } else if (activeSelected) {
+        listView = ListView.separated(
+          itemCount: activeStudiesList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return StudyWidget(
+              study: activeStudiesList[index],
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) {
+            return SizedBox(
+              height: 10.0,
+            );
+          },
+        );
+        return;
+      } else if (completedSelected) {
+        listView = ListView.separated(
+          itemCount: completedStudiesList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return StudyWidget(
+              study: completedStudiesList[index],
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) {
+            return SizedBox(
+              height: 10.0,
+            );
+          },
+        );
+        return;
+      } else if (draftSelected) {
+        listView = ListView.separated(
+          itemCount: draftStudiesList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return StudyWidget(
+              study: draftStudiesList[index],
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) {
+            return SizedBox(
+              height: 10.0,
+            );
+          },
+        );
+        return;
+      }
+    });
   }
 }

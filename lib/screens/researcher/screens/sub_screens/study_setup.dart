@@ -5,7 +5,7 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
-import 'package:thoughtnav/screens/researcher/widgets/add_question_widget.dart';
+import 'package:thoughtnav/screens/researcher/widgets/draft_topic_widget.dart';
 import 'package:thoughtnav/screens/researcher/widgets/category_widget.dart';
 import 'package:thoughtnav/screens/researcher/widgets/dynamic_group_and_question_addition_widget.dart';
 import 'package:thoughtnav/screens/researcher/widgets/group_widget.dart';
@@ -45,7 +45,10 @@ class _StudySetupState extends State<StudySetup> {
 
   Future addStudy() async {
     CollectionReference reference = widget.firestore.collection('studies');
-    Study study = Study();
+    Study study = Study(
+      studyName: 'Study 4',
+      isDraft: true,
+    );
     await reference
         .add(study.toMap())
         .then((value) => print(value.id))
@@ -483,23 +486,7 @@ class _StudySetupState extends State<StudySetup> {
                             DynamicGroupAndQuestionAdditionWidget(
                               title: 'CREATE GROUPS',
                               child: GroupWidget(
-                                groupNameController: _groupNameController,
-                                internalGroupLabelController:
-                                    _internalGroupLabelController,
-                                group: Group(),
                                 groups: _groups,
-                                groupNameValidator: (value) {
-                                  if (value.isEmpty)
-                                    return 'Please set a group name';
-                                  else
-                                    return null;
-                                },
-                                internalGroupLabelValidator: (value) {
-                                  if (value.isEmpty)
-                                    return 'Please set a study closed message';
-                                  else
-                                    return null;
-                                },
                               ),
                               separatorWidget: SizedBox(
                                 height: 16.0,
@@ -508,16 +495,12 @@ class _StudySetupState extends State<StudySetup> {
                             SizedBox(
                               height: 20.0,
                             ),
-                            DynamicGroupAndQuestionAdditionWidget(
-                              title: 'ADD QUESTIONS',
-                              child: AddQuestionWidget(
-                                topicNameController: _topicNameController,
-                                questionNameController: _questionNameController,
-                                questionController: _questionController,
-                                topic: Topic(),
-                                topics: _topics,
-                              ),
-                            ),
+                            // DynamicGroupAndQuestionAdditionWidget(
+                            //   title: 'ADD QUESTIONS',
+                            //   child: AddQuestionWidget(
+                            //     topics: _topics,
+                            //   ),
+                            // ),
                             SizedBox(
                               height: 20.0,
                             ),
