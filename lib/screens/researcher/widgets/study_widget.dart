@@ -159,7 +159,7 @@ class StudyWidget extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '${study.startDate}',
+                            '${study.beginDate}',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
                                 fontWeight: FontWeight.bold),

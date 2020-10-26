@@ -10,4 +10,9 @@ class Group {
     this.internalGroupLabel,
     this.participants,
   });
+
+  Group.fromMap(Map<String, dynamic> group){
+
+  }
+
 }

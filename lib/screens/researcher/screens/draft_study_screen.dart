@@ -17,7 +17,7 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
   Widget draftStudySetup;
   Widget draftStudyUsers;
 
-  Study study;
+  Study study = Study();
 
   @override
   void initState() {
@@ -65,10 +65,6 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    if(study == null){
-      study = ModalRoute.of(context).settings.arguments;
-    }
 
     return Scaffold(
       backgroundColor: Colors.white,
