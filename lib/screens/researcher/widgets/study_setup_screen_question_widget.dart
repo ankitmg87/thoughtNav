@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:thoughtnav/screens/researcher/models/question.dart';
+import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class StudySetupScreenQuestionWidget extends StatefulWidget {
-  final int index;
+  final String studyUID;
+  final String topicUID;
+  final Question question;
   final Function onTap;
   final Widget hint;
 
   const StudySetupScreenQuestionWidget(
-      {Key key, @required this.index, this.onTap, this.hint})
+      {Key key,
+      this.onTap,
+      this.hint,
+      this.question,
+      this.topicUID,
+      this.studyUID})
       : super(key: key);
 
   @override
@@ -16,6 +26,33 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
 
 class _StudySetupScreenQuestionWidgetState
     extends State<StudySetupScreenQuestionWidget> {
+  final _firebaseFirestoreService = FirebaseFirestoreService();
+
+  final _questionTitleFocusNode = FocusNode();
+
+  String _questionStatement;
+  String _questionTitle;
+
+  void _getInitialValues() {
+    _questionTitle = widget.question.questionTitle;
+    _questionStatement = widget.question.questionStatement;
+  }
+
+  void _updateQuestionDetails() async {
+    await _firebaseFirestoreService.updateQuestion(
+        widget.studyUID, widget.topicUID, widget.question);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _questionTitleFocusNode.addListener(() {
+      if (_questionTitleFocusNode.hasFocus) {
+        _updateQuestionDetails();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,7 +63,7 @@ class _StudySetupScreenQuestionWidgetState
           Row(
             children: [
               Text(
-                '1.${widget.index}',
+                '1.${widget.question.questionIndex}',
                 style: TextStyle(
                   color: Colors.grey[700],
                   fontSize: 14.0,
@@ -38,6 +75,11 @@ class _StudySetupScreenQuestionWidgetState
               ),
               Expanded(
                 child: TextFormField(
+                  focusNode: _questionTitleFocusNode,
+                  onFieldSubmitted: (questionTitle){
+                    widget.question.questionTitle = questionTitle;
+                    _updateQuestionDetails();
+                  },
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 14.0,
@@ -80,7 +122,27 @@ class _StudySetupScreenQuestionWidgetState
                     ),
                   ),
                   child: InkWell(
-                    onTap: widget.onTap,
+                    onTap: () async {
+                      final questionStatement = await showGeneralDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        barrierLabel: MaterialLocalizations.of(context)
+                            .modalBarrierDismissLabel,
+                        barrierColor: Colors.black45,
+                        transitionDuration: const Duration(milliseconds: 200),
+                        pageBuilder: (BuildContext context,
+                            Animation<double> animation,
+                            Animation<double> secondaryAnimation) {
+                          return CustomTextEditingBox(
+                            hintText: 'Enter question statement',
+                            initialValue: widget.question.questionStatement,
+                          );
+                        },
+                      );
+                      _questionStatement = questionStatement.toString();
+                      widget.question.questionStatement = _questionStatement;
+                      _updateQuestionDetails();
+                    },
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 16.0,

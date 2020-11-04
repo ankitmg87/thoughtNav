@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
@@ -10,6 +11,9 @@ class DraftStudyScreen extends StatefulWidget {
 }
 
 class _DraftStudyScreenState extends State<DraftStudyScreen> {
+
+  String studyUID = '';
+
   bool setupSelected = true;
   bool usersSelected = false;
 
@@ -17,27 +21,20 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
   Widget draftStudySetup;
   Widget draftStudyUsers;
 
-  Study study = Study();
+  void _getStudyUID(){
+    final getStorage = GetStorage();
+    studyUID = getStorage.read('studyUID');
+  }
 
   @override
   void initState() {
+    _getStudyUID();
+    draftStudySetup = DraftStudySetup(studyUID: studyUID,);
+    draftStudyUsers = DraftStudyUsers(studyUID: studyUID, context: context,);
+
+    draftSubScreen = draftStudySetup;
+
     super.initState();
-
-    Future.delayed(Duration.zero, () {
-      study = ModalRoute.of(context).settings.arguments;
-    });
-
-    draftStudySetup = DraftStudySetup(
-      study: study,
-    );
-    draftStudyUsers = DraftStudyUsers(
-      study: study,
-    );
-
-    setState(() {
-      draftSubScreen = draftStudySetup;
-    });
-
   }
 
   void setSubScreen(String label) {
@@ -65,13 +62,10 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: buildAppBar(),
-      body: buildBody(
-        study: study,
-      ),
+      body: buildBody(),
     );
   }
 
@@ -138,7 +132,7 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
     );
   }
 
-  Widget buildBody({Study study}) {
+  Widget buildBody() {
     return Column(
       children: [
         Container(

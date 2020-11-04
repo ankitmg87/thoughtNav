@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_widget.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 const TextStyle _SELECTED_TEXT_TEXT_STYLE = TextStyle(
   color: Color(0xFF00B85C),
@@ -24,11 +26,12 @@ class ResearcherMainScreen extends StatefulWidget {
 }
 
 class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
-  FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+  final FirebaseFirestoreService _firebaseFirestoreService =
+      FirebaseFirestoreService();
 
   bool moderatorInvitesOnly = false;
 
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   ListView studyListView = ListView();
 
@@ -49,37 +52,29 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   Widget completedStudies;
   Widget draftStudies;
 
+  void _createStudyAndGoToSetupScreen() async {
+    var study = await _firebaseFirestoreService.createStudy();
+
+    final getStorage = GetStorage();
+    await getStorage.write('studyUID', study.studyUID);
+
+    if (study != null) {
+      await Navigator.of(context)
+          .pushNamed(DRAFT_STUDY_SCREEN);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     initializeViews();
   }
 
-  void createStudy() async {
-    Study newStudy = Study();
-
-    newStudy.studyName = 'New Study';
-    newStudy.studyStatus = 'Draft';
-
-    await firestoreInstance
-        .collection('studies')
-        .add(
-          newStudy.toMap(),
-        )
-        .then((value) {
-      newStudy.studyUID = value.id;
-      Navigator.of(context).pushNamed(
-        DRAFT_STUDY_SCREEN,
-        arguments: newStudy.toMap(),
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
 
-    if (screenSize.width < screenSize.height)
+    if (screenSize.width < screenSize.height) {
       return Scaffold(
         body: Center(
           child: Text(
@@ -92,12 +87,13 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           ),
         ),
       );
-    else
+    } else {
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: _buildAppBar(),
         body: buildBody(moderatorInvitesOnly),
       );
+    }
   }
 
   AppBar _buildAppBar() {
@@ -186,7 +182,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 color: PROJECT_GREEN,
-                onPressed: createStudy,
+                onPressed: () => _createStudyAndGoToSetupScreen(),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 8.0,
@@ -242,7 +238,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           completedSelected = false;
                           draftSelected = false;
 
-                          setListType();
+                          _setListType();
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -268,7 +264,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           completedSelected = false;
                           draftSelected = false;
 
-                          setListType();
+                          _setListType();
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -294,7 +290,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           completedSelected = true;
                           draftSelected = false;
 
-                          setListType();
+                          _setListType();
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -320,7 +316,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           completedSelected = false;
                           draftSelected = true;
 
-                          setListType();
+                          _setListType();
                         },
                         child: Container(
                           color: Colors.transparent,
@@ -419,60 +415,81 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
 
   FutureBuilder allStudiesFutureBuilder() {
     return FutureBuilder(
-      initialData: allStudiesList,
-      future: queryAllStudies(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> studiesSnapshot) {
-        return ListView.separated(
-          itemCount: studiesSnapshot.data.length,
-          itemBuilder: (BuildContext context, int index) {
-            return StudyWidget(
-              study: studiesSnapshot.data[index],
+      future: _firebaseFirestoreService.getAllStudies(allStudiesList),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.connectionState == ConnectionState.none) {
+          return Center(
+            child: Text(
+              'You\'re not connected to the internet',
+            ),
+          );
+        } else if (snapshot.connectionState == ConnectionState.active ||
+            snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: Text('Loading studies...'),
+          );
+        } else {
+          if (snapshot.hasData) {
+            return ListView.separated(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext context, int index) {
+                return StudyWidget(
+                  study: snapshot.data[index],
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(
+                  height: 10.0,
+                );
+              },
             );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              height: 10.0,
+          } else {
+            return Center(
+              child: Text(
+                'No studies found',
+              ),
             );
-          },
-        );
+          }
+        }
       },
     );
   }
 
-  Future<List<Study>> queryAllStudies() async {
-    allStudiesList = [];
-    CollectionReference studiesReference =
-        firestoreInstance.collection('studies');
-    QuerySnapshot studiesSnapshot = await studiesReference.get();
+  // Future<List<Study>> queryAllStudies() async {
+  //   allStudiesList = [];
+  //   var studiesReference = _firestoreInstance.collection('studies');
+  //   var studiesSnapshot = await studiesReference.get();
+  //
+  //   var snapshots = studiesSnapshot.docs;
+  //
+  //   // for (var snapshot in snapshots) {
+  //   //   var study = Study.fromMap(snapshot.data());
+  //   //   study.studyUID = snapshot.id;
+  //   //   allStudiesList.add(study);
+  //   // }
+  //   //
+  //   // sortStudies();
+  //
+  //   return allStudiesList;
+  // }
 
-    List<QueryDocumentSnapshot> snapshots = studiesSnapshot.docs;
-
-    for (var snapshot in snapshots) {
-      Study study = Study.fromMap(snapshot.data());
-      study.studyUID = snapshot.id;
-      allStudiesList.add(study);
-    }
-
-    sortStudies();
-
-    return allStudiesList;
-  }
-
-  void sortStudies() {
-    for (Study study in allStudiesList) {
+  void _sortStudies() {
+    for (var study in allStudiesList) {
       if (study.studyStatus == 'Active') {
         activeStudiesList.add(study);
       }
       if (study.studyStatus == 'Completed') {
         completedStudiesList.add(study);
       }
-      if (study.isDraft) {
+      if (study.studyStatus == 'draft') {
         draftStudiesList.add(study);
       }
     }
   }
 
-  void setListType() {
+
+  void _setListType() {
+    _sortStudies();
     setState(() {
       if (allSelected) {
         listView = allStudies;

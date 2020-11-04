@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
@@ -20,14 +21,18 @@ class StudyWidget extends StatelessWidget {
       child: Card(
         child: InkWell(
           onTap: ()  {
-            if(study.isDraft){
-              Navigator.pushNamed(context, DRAFT_STUDY_SCREEN, arguments: study);
+
+            final getStorage = GetStorage();
+
+            if(study.studyStatus == 'draft'){
+              getStorage.write('studyUID', study.studyUID);
+              Navigator.pushNamed(context, DRAFT_STUDY_SCREEN);
             }
             else {
               Navigator.pushNamed(
                 context,
                 CLIENT_MODERATOR_STUDY_SCREEN,
-                arguments: study,
+                arguments: study.studyUID,
               );
             }
           },
@@ -54,7 +59,7 @@ class StudyWidget extends StatelessWidget {
                             width: 20.0,
                           ),
                           Text(
-                            '(${study.isDraft ? 'Draft' : study.studyStatus})',
+                            '(${study.studyStatus == 'draft' ? 'Draft' : study.studyStatus})',
                             style: TextStyle(
                               color: PROJECT_GREEN,
                               fontSize: 18.0,
@@ -159,7 +164,7 @@ class StudyWidget extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '${study.beginDate}',
+                            '${study.startDate}',
                             style: TextStyle(
                                 color: Color(0xFF437FEF),
                                 fontWeight: FontWeight.bold),

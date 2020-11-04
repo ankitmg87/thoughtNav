@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_screen.dart';
@@ -32,7 +33,8 @@ import 'package:thoughtnav/screens/researcher/screens/study_screen.dart';
 
 import 'constants/routes/routes.dart';
 
-void main() {
+void main() async {
+  await GetStorage.init();
   runApp(MyApp());
 }
 

@@ -3,11 +3,13 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 
 class GroupWidget extends StatefulWidget {
-  final List<Group> groups;
+  final List<Map<String, dynamic>> groups;
+  final int index;
 
   const GroupWidget({
     Key key,
     this.groups,
+    this.index,
   }) : super(key: key);
 
   @override
@@ -21,16 +23,18 @@ class _GroupWidgetState extends State<GroupWidget> {
   Widget build(BuildContext context) {
     return Row(
       children: [
+
         Expanded(
           child: TextFormField(
             validator: (value) {
-              if (value.isEmpty)
+              if (value.isEmpty) {
                 return 'Please set a group name';
-              else {
+              } else {
                 group.groupName = value;
                 if (group.groupName.isNotEmpty &&
-                    group.internalGroupLabel.isNotEmpty)
-                  widget.groups.add(group);
+                    group.internalGroupLabel.isNotEmpty) {
+                  widget.groups.add(group.toMap());
+                }
                 return null;
               }
             },
@@ -49,12 +53,13 @@ class _GroupWidgetState extends State<GroupWidget> {
         Expanded(
           child: TextFormField(
             validator: (value) {
-              if (value.isEmpty)
+              if (value.isEmpty) {
                 return 'Please set an internal group label';
-              else {
+              } else {
                 if (group.groupName.isNotEmpty &&
-                    group.internalGroupLabel.isNotEmpty)
-                  widget.groups.add(group);
+                    group.internalGroupLabel.isNotEmpty) {
+                  widget.groups.add(group.toMap());
+                }
                 return null;
               }
             },

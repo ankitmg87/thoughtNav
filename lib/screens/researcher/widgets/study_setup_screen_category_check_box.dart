@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/categories.dart';
 
 class StudySetupScreenCategoryCheckBox extends StatefulWidget {
   final String categoryName;
-  final bool categorySelected;
+  final Categories categories;
 
   const StudySetupScreenCategoryCheckBox({
     Key key,
-    this.categoryName,
-    this.categorySelected,
+    this.categoryName, this.categories,
   }) : super(key: key);
 
   @override
@@ -18,12 +18,11 @@ class StudySetupScreenCategoryCheckBox extends StatefulWidget {
 
 class _StudySetupScreenCategoryCheckBoxState
     extends State<StudySetupScreenCategoryCheckBox> {
-  bool categorySelected;
+  bool categorySelected = false;
 
   @override
   void initState() {
     super.initState();
-    categorySelected = widget.categorySelected;
   }
 
   @override
@@ -55,10 +54,11 @@ class _StudySetupScreenCategoryCheckBoxState
                   ),
                   child: Checkbox(
                     // TODO -> Change tick colour
-                    value: categorySelected,
+                    value: widget.categories.checkCategoryStatus(widget.categoryName) ?? false,
                     onChanged: (bool value) {
                       setState(() {
-                        categorySelected = !categorySelected;
+                        categorySelected = value;
+                        widget.categories.setCategoryStatus(widget.categoryName, categorySelected);
                       });
                     },
                   ),

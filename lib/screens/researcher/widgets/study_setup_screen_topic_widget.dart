@@ -1,13 +1,25 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/question.dart';
+import 'package:thoughtnav/screens/researcher/models/topic.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 import 'custom_text_editing_box.dart';
 import 'study_setup_screen_question_widget.dart';
 
 class StudySetupScreenTopicWidget extends StatefulWidget {
   final Function onTap;
+  final String studyUID;
+  final Topic topic;
 
-  const StudySetupScreenTopicWidget({Key key, this.onTap}) : super(key: key);
+  const StudySetupScreenTopicWidget({
+    Key key,
+    this.onTap,
+    this.studyUID,
+    this.topic,
+  }) : super(key: key);
 
   @override
   _StudySetupScreenTopicWidgetState createState() =>
@@ -16,20 +28,44 @@ class StudySetupScreenTopicWidget extends StatefulWidget {
 
 class _StudySetupScreenTopicWidgetState
     extends State<StudySetupScreenTopicWidget> {
-  int numberOfQuestions = 1;
+  final FirebaseFirestoreService _firebaseFirestoreService =
+      FirebaseFirestoreService();
 
-  void addNumberOfQuestions() {
-    setState(() {
-      numberOfQuestions++;
-    });
+  Future<List<Question>> _futureQuestions;
+
+  List<Question> _questions = [];
+
+  String _topicDate;
+
+  final FocusNode _topicNameFocusNode = FocusNode();
+
+  void _getQuestions() async {
+    _futureQuestions =
+        _firebaseFirestoreService.getQuestions(widget.studyUID, widget.topic);
   }
 
-  void reduceNumberOfQuestions() {
-    if (numberOfQuestions > 1) {
-      setState(() {
-        numberOfQuestions--;
-      });
+  void _updateTopicDetails() async {
+    await _firebaseFirestoreService.updateTopic(widget.studyUID, widget.topic);
+  }
+
+  @override
+  void initState() {
+    if(widget.topic.topicDate != null) {
+      _topicDate = _formatTopicDate(widget.topic.topicDate);
     }
+    super.initState();
+    _topicNameFocusNode.addListener(() {
+      if (!_topicNameFocusNode.hasFocus) {
+        _updateTopicDetails();
+      }
+    });
+    _getQuestions();
+  }
+
+  String _formatTopicDate(Timestamp timestamp) {
+    var dateTime = timestamp.toDate();
+    var formatter = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
+    return formatter.format(dateTime);
   }
 
   @override
@@ -49,6 +85,15 @@ class _StudySetupScreenTopicWidgetState
             children: [
               Expanded(
                 child: TextFormField(
+                  initialValue: widget.topic.topicName,
+                  focusNode: _topicNameFocusNode,
+                  onChanged: (topicName) {
+                    widget.topic.topicName = topicName;
+                  },
+                  onFieldSubmitted: (topicName){
+                    widget.topic.topicName = topicName;
+                    _updateTopicDetails();
+                  },
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 14.0,
@@ -91,16 +136,31 @@ class _StudySetupScreenTopicWidgetState
                     ),
                   ),
                   child: InkWell(
-                    onTap: widget.onTap,
+                    onTap: () async {
+                      final beginDate = await showDatePicker(
+                        firstDate: DateTime(2020),
+                        initialDate: DateTime(2020),
+                        lastDate: DateTime(2025),
+                        context: context,
+                      );
+                      if (beginDate != null) {
+                        widget.topic.topicDate = Timestamp.fromDate(beginDate);
+                        _topicDate = _formatTopicDate(widget.topic.topicDate);
+                        _updateTopicDetails();
+                        setState(() {});
+                      }
+                    },
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 16.0,
                         horizontal: 10.0,
                       ),
                       child: Text(
-                        'Select Date',
+                        _topicDate ?? 'Select Date',
                         style: TextStyle(
-                          color: Colors.grey[400],
+                          color: _topicDate == null
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
                           fontWeight: FontWeight.bold,
                           fontSize: 14.0,
                         ),
@@ -115,17 +175,34 @@ class _StudySetupScreenTopicWidgetState
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  numberOfQuestions > 1
+                  _questions.length > 1
                       ? IconButton(
-                    onPressed: () => reduceNumberOfQuestions(),
-                    icon: Icon(
-                      Icons.clear_outlined,
-                    ),
-                    color: Colors.red[700],
-                  )
+                          onPressed: () async {
+                            await _firebaseFirestoreService.deleteQuestion(
+                                widget.studyUID,
+                                widget.topic.topicUID,
+                                _questions.last.questionUID);
+                            setState(() {
+                              _questions.removeLast();
+                            });
+                          },
+                          icon: Icon(
+                            Icons.clear_outlined,
+                          ),
+                          color: Colors.red[700],
+                        )
                       : SizedBox(),
                   IconButton(
-                    onPressed: () => addNumberOfQuestions(),
+                    onPressed: () async {
+                      var question =
+                          await _firebaseFirestoreService.createQuestion(
+                              widget.studyUID,
+                              _questions.length + 1,
+                              widget.topic.topicUID);
+                      setState(() {
+                        _questions.add(question);
+                      });
+                    },
                     icon: Icon(
                       Icons.add_circle_outlined,
                     ),
@@ -138,42 +215,38 @@ class _StudySetupScreenTopicWidgetState
           SizedBox(
             height: 10.0,
           ),
-          ListView.separated(
-            shrinkWrap: true,
-            separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(
-                height: 20.0,
-              );
+          FutureBuilder(
+            future: _futureQuestions,
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                _questions = snapshot.data;
+                return ListView.separated(
+                  shrinkWrap: true,
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox(
+                      height: 20.0,
+                    );
+                  },
+                  itemCount: _questions.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return StudySetupScreenQuestionWidget(
+                      question: _questions[index],
+                      hint: Text(
+                        'Set a Question',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              } else {
+                return SizedBox();
+              }
             },
-            itemCount: numberOfQuestions,
-            itemBuilder: (BuildContext context, int index) {
-              return StudySetupScreenQuestionWidget(
-                index: index + 1,
-                onTap: () async {
-                  await showGeneralDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      barrierLabel: MaterialLocalizations.of(context)
-                          .modalBarrierDismissLabel,
-                      barrierColor: Colors.black45,
-                      transitionDuration: const Duration(milliseconds: 200),
-                      pageBuilder: (BuildContext context,
-                          Animation<double> animation,
-                          Animation<double> secondaryAnimation) {
-                        return CustomTextEditingBox();
-                      });
-                },
-                hint: Text(
-                  'Set a Question',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14.0,
-                    color: Colors.grey[400],
-                  ),
-                ),
-              );
-            },
-          )
+          ),
         ],
       ),
     );

@@ -5,7 +5,6 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
-import 'package:thoughtnav/screens/researcher/widgets/draft_topic_widget.dart';
 import 'package:thoughtnav/screens/researcher/widgets/category_widget.dart';
 import 'package:thoughtnav/screens/researcher/widgets/dynamic_group_and_question_addition_widget.dart';
 import 'package:thoughtnav/screens/researcher/widgets/group_widget.dart';
@@ -43,17 +42,17 @@ class _StudySetupState extends State<StudySetup> {
   List<Group> _groups = [];
   List<Topic> _topics = [];
 
-  Future addStudy() async {
-    CollectionReference reference = widget.firestore.collection('studies');
-    Study study = Study(
-      studyName: 'Study 4',
-      isDraft: true,
-    );
-    await reference
-        .add(study.toMap())
-        .then((value) => print(value.id))
-        .catchError((onError) => print('Some error occurred | $onError'));
-  }
+  // Future addStudy() async {
+  //   CollectionReference reference = widget.firestore.collection('studies');
+  //   Study study = Study(
+  //     studyName: 'Study 4',
+  //     isDraft: true,
+  //   );
+  //   await reference
+  //       .add(study.toMap())
+  //       .then((value) => print(value.id))
+  //       .catchError((onError) => print('Some error occurred | $onError'));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +136,7 @@ class _StudySetupState extends State<StudySetup> {
                             borderRadius: BorderRadius.circular(4.0),
                           ),
                           color: PROJECT_GREEN,
-                          onPressed: addStudy,
+                          onPressed: (){},
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -486,7 +485,7 @@ class _StudySetupState extends State<StudySetup> {
                             DynamicGroupAndQuestionAdditionWidget(
                               title: 'CREATE GROUPS',
                               child: GroupWidget(
-                                groups: _groups,
+                                //groups: _groups,
                               ),
                               separatorWidget: SizedBox(
                                 height: 16.0,

@@ -7,10 +7,10 @@ import 'package:thoughtnav/constants/string_constants.dart';
 class TNHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    if (screenWidth < screenHeight)
+    if (screenWidth < screenHeight) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: PROJECT_GREEN,
@@ -210,7 +210,7 @@ class TNHomeScreen extends StatelessWidget {
           ),
         ),
       );
-    else
+    } else {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: PROJECT_GREEN,
@@ -404,49 +404,72 @@ class TNHomeScreen extends StatelessWidget {
             SizedBox(
               height: 30.0,
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FlatButton(
-                  onPressed: () => Navigator.of(context).pushNamed(RESEARCHER_MAIN_SCREEN),
-                  color: Color(0xFF50D2C3),
+
+            Align(
+              alignment: Alignment.center,
+              child: FlatButton(
+                onPressed: () => Navigator.of(context).pushNamed(LOGIN_SCREEN),
+                color: Color(0xFF50D2C3),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'RESEARCHER',
+                    'LOGIN',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 13.0,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold
                     ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
                 ),
-                SizedBox(
-                  width: 80.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
-                FlatButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(LOGIN_SCREEN);
-                  },
-                  color: Color(0xFF50D2C3),
-                  child: Text(
-                    'PARTICIPANT',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13.0,
-                    ),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                ),
-              ],
+              ),
             ),
+            // Row(
+            //   mainAxisSize: MainAxisSize.min,
+            //   children: [
+            //     FlatButton(
+            //       onPressed: () => Navigator.of(context).pushNamed(LOGIN_SCREEN),
+            //       color: Color(0xFF50D2C3),
+            //       child: Text(
+            //         'RESEARCHER',
+            //         style: TextStyle(
+            //           color: Colors.white,
+            //           fontSize: 13.0,
+            //         ),
+            //       ),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(4.0),
+            //       ),
+            //     ),
+            //     SizedBox(
+            //       width: 80.0,
+            //     ),
+            //     FlatButton(
+            //       onPressed: () {
+            //         Navigator.of(context).pushNamed(LOGIN_SCREEN);
+            //       },
+            //       color: Color(0xFF50D2C3),
+            //       child: Text(
+            //         'PARTICIPANT',
+            //         style: TextStyle(
+            //           color: Colors.white,
+            //           fontSize: 13.0,
+            //         ),
+            //       ),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(4.0),
+            //       ),
+            //     ),
+            //   ],
+            // ),
             SizedBox(
               height: 30.0,
             ),
           ],
         ),
       );
+    }
   }
 }

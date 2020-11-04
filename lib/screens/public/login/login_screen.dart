@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/models/user.dart';
 import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
@@ -14,12 +15,51 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
 
+  final FirebaseAuthService _firebaseAuthService = FirebaseAuthService();
+  final FirebaseFirestoreService _firebaseFirestoreService = FirebaseFirestoreService();
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  String _email;
+  String _password;
+
+  void _loginAndRedirectUser() async {
+
+    String userID;
+
+    if(_email != null && _password != null){
+      userID = await _firebaseAuthService.signInUser(_email, _password);
+
+      var user = await _firebaseFirestoreService.getUser(userID);
+
+      switch(user.userType){
+        case USER_TYPE_ROOT_USER:
+          await Navigator.of(context).pushNamedAndRemoveUntil(RESEARCHER_MAIN_SCREEN, (route) => false);
+          break;
+        case USER_TYPE_CLIENT:
+          // TODO -> Load data on the basis of study uid.
+          await Navigator.of(context).pushNamedAndRemoveUntil(CLIENT_MODERATOR_STUDY_SCREEN, (route) => false);
+          break;
+        case USER_TYPE_MODERATOR:
+          // TODO -> Load data on the basis of study uid.
+          await Navigator.of(context).pushNamedAndRemoveUntil(RESEARCHER_MAIN_SCREEN, (route) => false);
+          break;
+        case USER_TYPE_PARTICIPANT:
+          // TODO -> Check whether the participant is onboarded and redirect accordingly.
+          await Navigator.of(context).pushNamedAndRemoveUntil(WELCOME_SCREEN, (route) => false);
+          break;
+      }
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    if (screenWidth < screenHeight)
+    if (screenWidth < screenHeight) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: PROJECT_GREEN,
@@ -117,6 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       TextFormField(
+                        controller: _emailController,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -127,6 +168,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
+                        onChanged: (email){
+                          _email = email;
+                        },
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -140,6 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       TextFormField(
+                        controller: _passwordController,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -150,6 +195,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
+                        onChanged: (password){
+                          _password = password;
+                        },
                       ),
                     ],
                   ),
@@ -215,11 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           color: PROJECT_GREEN,
                           onPressed: () {
-                            // Navigator.of(context)
-                            //     .pushNamed(WELCOME_SCREEN);
-                            FirebaseAuthService authService =
-                                FirebaseAuthService();
-                            authService.handleAuth();
+                            
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -245,7 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       );
-    else
+    } else {
       return Scaffold(
         appBar: AppBar(
           elevation: 0.0,
@@ -362,6 +406,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 TextFormField(
+                                  controller: _emailController,
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.white,
@@ -372,6 +417,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                   ),
+                                  onChanged: (email) {
+                                    _email = email;
+                                  },
                                 ),
                                 Padding(
                                   padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -385,6 +433,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 TextFormField(
+                                  controller: _passwordController,
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.white,
@@ -395,6 +444,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                   ),
+                                  onChanged: (password){
+                                    _password = password;
+                                  },
                                 ),
                               ],
                             ),
@@ -458,22 +510,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(6.0),
                                   ),
                                   color: PROJECT_GREEN,
-                                  onPressed: () async {
-                                    FirebaseAuthService authService =
-                                        FirebaseAuthService();
-                                    FirebaseFirestoreService firestoreService =
-                                        FirebaseFirestoreService();
-                                    String uid;
-                                    String userType;
-                                    uid = await authService.handleAuth();
-                                    userType = await firestoreService.checkUserType(uid);
-                                    if (userType == 'moderator') {
-                                      Navigator.of(context)
-                                          .pushNamedAndRemoveUntil(
-                                              RESEARCHER_MAIN_SCREEN,
-                                              (route) => false);
-                                    }
-                                  },
+                                  onPressed: () => _loginAndRedirectUser(),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
@@ -512,5 +549,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
       );
+    }
   }
 }

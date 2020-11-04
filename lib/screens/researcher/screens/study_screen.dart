@@ -88,7 +88,7 @@ class _StudyScreenState extends State<StudyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Study study = Study.fromMap(ModalRoute.of(context).settings.arguments);
+    // final Study study = Study.fromMap(ModalRoute.of(context).settings.arguments);
 
     return Scaffold(
       backgroundColor: Colors.white,
