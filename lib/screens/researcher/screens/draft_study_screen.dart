@@ -1,7 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_users.dart';
 
@@ -11,7 +11,6 @@ class DraftStudyScreen extends StatefulWidget {
 }
 
 class _DraftStudyScreenState extends State<DraftStudyScreen> {
-
   String studyUID = '';
 
   bool setupSelected = true;
@@ -21,7 +20,7 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
   Widget draftStudySetup;
   Widget draftStudyUsers;
 
-  void _getStudyUID(){
+  void _getStudyUID() {
     final getStorage = GetStorage();
     studyUID = getStorage.read('studyUID');
   }
@@ -29,8 +28,13 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
   @override
   void initState() {
     _getStudyUID();
-    draftStudySetup = DraftStudySetup(studyUID: studyUID,);
-    draftStudyUsers = DraftStudyUsers(studyUID: studyUID, context: context,);
+    draftStudySetup = DraftStudySetup(
+      studyUID: studyUID,
+    );
+    draftStudyUsers = DraftStudyUsers(
+      studyUID: studyUID,
+      context: context,
+    );
 
     draftSubScreen = draftStudySetup;
 
@@ -174,6 +178,76 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
         ),
         Expanded(
           child: draftSubScreen,
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+          color: Colors.white,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              RaisedButton(
+                onPressed: () {},
+                elevation: 4.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                color: Colors.grey[200],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.checkmark_alt_circle,
+                      color: PROJECT_GREEN,
+                      size: 14.0,
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Text(
+                      'Set as Active',
+                      style: TextStyle(
+                        color: PROJECT_GREEN,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 20.0,
+              ),
+              RaisedButton(
+                onPressed: () {},
+                color: PROJECT_GREEN,
+                elevation: 4.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.tray_arrow_down_fill,
+                      color: Colors.white,
+                      size: 14.0,
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

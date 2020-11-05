@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 
 import 'full_screen_new_widgets/custom_flat_button.dart';

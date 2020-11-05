@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
-import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/widgets/category_widget.dart';
 import 'package:thoughtnav/screens/researcher/widgets/dynamic_group_and_question_addition_widget.dart';

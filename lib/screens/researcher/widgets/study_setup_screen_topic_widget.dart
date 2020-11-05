@@ -50,7 +50,7 @@ class _StudySetupScreenTopicWidgetState
 
   @override
   void initState() {
-    if(widget.topic.topicDate != null) {
+    if (widget.topic.topicDate != null) {
       _topicDate = _formatTopicDate(widget.topic.topicDate);
     }
     super.initState();
@@ -90,8 +90,7 @@ class _StudySetupScreenTopicWidgetState
                   onChanged: (topicName) {
                     widget.topic.topicName = topicName;
                   },
-                  onFieldSubmitted: (topicName){
-                    widget.topic.topicName = topicName;
+                  onFieldSubmitted: (topicName) {
                     _updateTopicDetails();
                   },
                   style: TextStyle(
@@ -232,11 +231,15 @@ class _StudySetupScreenTopicWidgetState
                     return StudySetupScreenQuestionWidget(
                       question: _questions[index],
                       hint: Text(
-                        'Set a Question',
+                        _questions[index].questionStatement == null
+                            ? 'Set a Question'
+                            : 'Question set',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.0,
-                          color: Colors.grey[400],
+                          color: _questions[index].questionStatement == null
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
                         ),
                       ),
                     );

@@ -1,4 +1,3 @@
-import 'package:thoughtnav/screens/researcher/models/comment.dart';
 
 class Response {
   String avatarURL;

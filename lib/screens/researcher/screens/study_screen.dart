@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/setup_complete_screen.dart';
-import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_dashboard.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_reports.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_setup.dart';

@@ -16,8 +16,6 @@ import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_custom_
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_topic_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
-// TODO -> Put futureBuilder in groups
-// TODO -> Put futureBuilder in topics
 
 class DraftStudySetup extends StatefulWidget {
   final String studyUID;
@@ -119,14 +117,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
     _categories =
         await _firebaseFirestoreService.getCategories(widget.studyUID);
 
-    _categories ??= Categories(
-        lifestyle: false,
-        health: false,
-        auto: false,
-        fashion: false,
-        advertising: false,
-        product: false,
-        futures: false);
   }
 
   Future<void> _getGroups() async {
@@ -298,11 +288,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         mStudy.studyName = studyName;
                                       },
                                       onFieldSubmitted: (studyName) {
-                                        _firebaseFirestoreService
-                                            .updateStudyBasicDetail(
-                                                widget.studyUID,
-                                                'studyName',
-                                                mStudy.studyName);
+                                        _updateStudyName();
                                       },
                                       decoration: InputDecoration(
                                         focusedBorder: OutlineInputBorder(
@@ -352,11 +338,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                             internalStudyLabel;
                                       },
                                       onFieldSubmitted: (internalStudyLabel) {
-                                        _firebaseFirestoreService
-                                            .updateStudyBasicDetail(
-                                                widget.studyUID,
-                                                'internalStudyLabel',
-                                                mStudy.internalStudyLabel);
+                                        _updateInternalStudyLabel();
                                       },
                                       decoration: InputDecoration(
                                         focusedBorder: OutlineInputBorder(
@@ -554,9 +536,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                       mStudy.introPageMessage,
                                                 );
                                               });
-
-                                      mStudy.introPageMessage =
-                                          introPageMessage.toString();
+                                      setState(() {
+                                        mStudy.introPageMessage =
+                                            introPageMessage.toString();
+                                      });
                                       await _updateStudyDetail(
                                           widget.studyUID,
                                           'introPageMessage',
@@ -564,11 +547,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     },
                                     heading: 'INTRO PAGE MESSAGE',
                                     subtitle: Text(
-                                      'Enter an intro page message',
+                                      mStudy.introPageMessage == null ? 'Enter an intro page message' : 'Intro page message set',
                                       textAlign: TextAlign.start,
-                                      // TODO -> Set a bool here, if date is selected then textStyle will be different
                                       style: TextStyle(
-                                        color: Colors.grey[400],
+                                        color: mStudy.introPageMessage == null ? Colors.grey[400] : Colors.grey[700],
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -606,8 +588,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                       mStudy.studyClosedMessage,
                                                 );
                                               });
-                                      mStudy.studyClosedMessage =
-                                          studyClosedMessage.toString();
+                                      setState(() {
+                                        mStudy.studyClosedMessage =
+                                            studyClosedMessage.toString();
+                                      });
                                       _updateStudyDetail(
                                           widget.studyUID,
                                           'studyClosedMessage',
@@ -615,11 +599,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     },
                                     heading: 'STUDY END MESSAGE',
                                     subtitle: Text(
-                                      'Enter a study end message',
+                                      mStudy.studyClosedMessage == null ? 'Enter a study end message' : 'Study end message set',
                                       textAlign: TextAlign.start,
-                                      // TODO -> Set a bool here, if date is selected then textStyle will be different
                                       style: TextStyle(
-                                        color: Colors.grey[400],
+                                        color: mStudy.studyClosedMessage == null ? Colors.grey[400] : Colors.grey[700],
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -657,8 +640,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                       .commonInviteMessage,
                                                 );
                                               });
-                                      mStudy.commonInviteMessage =
-                                          commonInviteMessage.toString();
+                                      setState(() {
+                                        mStudy.commonInviteMessage =
+                                            commonInviteMessage.toString();
+                                      });
                                       _updateStudyDetail(
                                           widget.studyUID,
                                           'commonInviteMessage',
@@ -666,10 +651,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     },
                                     heading: 'COMMON INVITE MESSAGE',
                                     subtitle: Text(
-                                      'Enter a common invite message',
+                                      mStudy.commonInviteMessage == null ? 'Enter a common invite message' : 'Common invite message set',
                                       textAlign: TextAlign.start,
                                       style: TextStyle(
-                                        color: Colors.grey[400],
+                                        color: mStudy.commonInviteMessage == null ? Colors.grey[400] : Colors.grey[700],
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -710,6 +695,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                               Row(
                                 children: [
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Lifestyle',
                                     categories: _categories,
                                   ),
@@ -717,6 +703,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     width: 40.0,
                                   ),
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Health',
                                     categories: _categories,
                                   ),
@@ -724,6 +711,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     width: 40.0,
                                   ),
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Auto',
                                     categories: _categories,
                                   ),
@@ -731,6 +719,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     width: 40.0,
                                   ),
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Fashion',
                                     categories: _categories,
                                   ),
@@ -742,6 +731,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                               Row(
                                 children: [
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Advertising',
                                     categories: _categories,
                                   ),
@@ -749,6 +739,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     width: 40.0,
                                   ),
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Product',
                                     categories: _categories,
                                   ),
@@ -756,6 +747,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     width: 40.0,
                                   ),
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Futures',
                                     categories: _categories,
                                   ),
@@ -763,6 +755,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     width: 40.0,
                                   ),
                                   StudySetupScreenCategoryCheckBox(
+                                    studyUID: widget.studyUID,
                                     categoryName: 'Others',
                                     categories: _categories,
                                   ),
@@ -848,6 +841,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       itemBuilder:
                                           (BuildContext context, int index) {
                                         return DraftScreenGroupWidget(
+                                          studyUID: widget.studyUID,
                                           group: _groups[index],
                                         );
                                       },
@@ -1035,9 +1029,28 @@ class DraftScreenGroupWidget extends StatefulWidget {
 }
 
 class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
+  final FirebaseFirestoreService _firebaseFirestoreService = FirebaseFirestoreService();
+
+  final FocusNode _groupNameFocusNode = FocusNode();
+  final FocusNode _internalGroupLabelFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
+    _groupNameFocusNode.addListener(() {
+      if(!_groupNameFocusNode.hasFocus){
+        _updateGroupDetails();
+      }
+    });
+    _internalGroupLabelFocusNode.addListener(() {
+      if(!_internalGroupLabelFocusNode.hasFocus){
+        _updateGroupDetails();
+      }
+    });
+  }
+
+  void _updateGroupDetails() async {
+    await _firebaseFirestoreService.updateGroup(widget.studyUID, widget.group);
   }
 
   @override
@@ -1057,7 +1070,14 @@ class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
         ),
         Expanded(
           child: TextFormField(
+            focusNode: _groupNameFocusNode,
             initialValue: widget.group.groupName,
+            onChanged: (groupName){
+              widget.group.groupName = groupName;
+            },
+            onFieldSubmitted: (groupName){
+              _updateGroupDetails();
+            },
             decoration: InputDecoration(
                 hintText: 'Enter Group Name',
                 hintStyle: TextStyle(
@@ -1079,7 +1099,14 @@ class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
         ),
         Expanded(
           child: TextFormField(
+            focusNode: _internalGroupLabelFocusNode,
             initialValue: widget.group.internalGroupLabel,
+            onChanged: (internalGroupLabel){
+              widget.group.internalGroupLabel = internalGroupLabel;
+            },
+            onFieldSubmitted: (internalGroupLabel){
+              _updateGroupDetails();
+            },
             decoration: InputDecoration(
                 hintText: 'Enter Internal Group Label',
                 hintStyle: TextStyle(

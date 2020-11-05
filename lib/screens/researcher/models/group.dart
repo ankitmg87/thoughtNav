@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:thoughtnav/screens/researcher/models/participant.dart';
 
 class Group {
   String groupUID;

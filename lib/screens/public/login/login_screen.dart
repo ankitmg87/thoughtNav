@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
-import 'package:thoughtnav/models/user.dart';
 import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 

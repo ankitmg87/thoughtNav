@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
-import 'package:thoughtnav/screens/participant/post_study/rewards_dashboard_screen.dart';
 
 class PostStudyRewardMethodsScreen extends StatefulWidget {
   @override

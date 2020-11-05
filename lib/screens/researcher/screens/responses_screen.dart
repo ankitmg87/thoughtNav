@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/constants/misc_constants.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/question_and_responses_sub_screen.dart';
 
 class ResponsesScreen extends StatefulWidget {

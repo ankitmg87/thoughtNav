@@ -29,11 +29,14 @@ class _StudySetupScreenQuestionWidgetState
   final _firebaseFirestoreService = FirebaseFirestoreService();
 
   final _questionTitleFocusNode = FocusNode();
+  final _questionNumberFocusNode = FocusNode();
 
   String _questionStatement;
   String _questionTitle;
+  String _questionNumber;
 
   void _getInitialValues() {
+    _questionNumber = widget.question.questionNumber;
     _questionTitle = widget.question.questionTitle;
     _questionStatement = widget.question.questionStatement;
   }
@@ -45,9 +48,15 @@ class _StudySetupScreenQuestionWidgetState
 
   @override
   void initState() {
+    _getInitialValues();
     super.initState();
     _questionTitleFocusNode.addListener(() {
       if (_questionTitleFocusNode.hasFocus) {
+        _updateQuestionDetails();
+      }
+    });
+    _questionNumberFocusNode.addListener(() {
+      if (!_questionNumberFocusNode.hasFocus) {
         _updateQuestionDetails();
       }
     });
@@ -62,12 +71,42 @@ class _StudySetupScreenQuestionWidgetState
         children: [
           Row(
             children: [
-              Text(
-                '1.${widget.question.questionIndex}',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
+              SizedBox(
+                width: 60.0,
+                child: TextFormField(
+                  initialValue: _questionNumber,
+                  focusNode: _questionNumberFocusNode,
+                  onFieldSubmitted: (questionNumber) {
+                    _updateQuestionDetails();
+                  },
+                  onChanged: (questionNumber) {
+                    _questionNumber = questionNumber;
+                    widget.question.questionNumber = _questionNumber;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'No.',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2.0),
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2.0),
+                      borderSide: BorderSide(
+                        color: Colors.grey[400],
+                        width: 0.5,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2.0),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(
@@ -75,9 +114,11 @@ class _StudySetupScreenQuestionWidgetState
               ),
               Expanded(
                 child: TextFormField(
+                  initialValue: _questionTitle,
                   focusNode: _questionTitleFocusNode,
-                  onFieldSubmitted: (questionTitle){
-                    widget.question.questionTitle = questionTitle;
+                  onFieldSubmitted: (questionTitle) {
+                    _questionTitle = questionTitle;
+                    widget.question.questionTitle = _questionTitle;
                     _updateQuestionDetails();
                   },
                   style: TextStyle(
@@ -87,9 +128,10 @@ class _StudySetupScreenQuestionWidgetState
                   decoration: InputDecoration(
                     hintText: 'Question Title',
                     hintStyle: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.grey[400],
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(2.0),
                       borderSide: BorderSide(
@@ -139,9 +181,14 @@ class _StudySetupScreenQuestionWidgetState
                           );
                         },
                       );
-                      _questionStatement = questionStatement.toString();
-                      widget.question.questionStatement = _questionStatement;
-                      _updateQuestionDetails();
+                      if (questionStatement.toString().isNotEmpty) {
+                        _questionStatement = questionStatement.toString();
+                        setState(() {
+                          widget.question.questionStatement =
+                              _questionStatement;
+                        });
+                        _updateQuestionDetails();
+                      }
                     },
                     child: Padding(
                       padding: EdgeInsets.symmetric(

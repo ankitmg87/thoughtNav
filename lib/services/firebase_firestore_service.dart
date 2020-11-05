@@ -88,6 +88,7 @@ class FirebaseFirestoreService {
     }
     else {
       categories = Categories();
+      await saveCategories(studyUID, categories);
     }
 
     return categories;

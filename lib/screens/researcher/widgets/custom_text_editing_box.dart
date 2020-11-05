@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/screens/researcher/models/question.dart';
 
 class CustomTextEditingBox extends StatefulWidget {
   final String hintText;
@@ -18,6 +17,12 @@ class CustomTextEditingBox extends StatefulWidget {
 
 class _CustomTextEditingBoxState extends State<CustomTextEditingBox> {
   String _text;
+
+  @override
+  void initState() {
+    super.initState();
+    _text = widget.initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +44,7 @@ class _CustomTextEditingBoxState extends State<CustomTextEditingBox> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
-                    initialValue: widget.initialValue,
+                    initialValue: _text,
                     minLines: 5,
                     maxLines: 10,
                     onChanged: (text) {
@@ -47,7 +52,7 @@ class _CustomTextEditingBoxState extends State<CustomTextEditingBox> {
                       setState(() {});
                     },
                     decoration: InputDecoration(
-                      hintText: widget.hintText,
+                      hintText: _text ?? widget.hintText,
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(2.0),
                         borderSide: BorderSide(
