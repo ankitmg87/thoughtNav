@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
@@ -8,15 +9,9 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
   final String topicUID;
   final Question question;
   final Function onTap;
-  final Widget hint;
 
   const StudySetupScreenQuestionWidget(
-      {Key key,
-      this.onTap,
-      this.hint,
-      this.question,
-      this.topicUID,
-      this.studyUID})
+      {Key key, this.onTap, this.question, this.topicUID, this.studyUID})
       : super(key: key);
 
   @override
@@ -35,6 +30,8 @@ class _StudySetupScreenQuestionWidgetState
   String _questionTitle;
   String _questionNumber;
 
+  int _selectedRadio;
+
   void _getInitialValues() {
     _questionNumber = widget.question.questionNumber;
     _questionTitle = widget.question.questionTitle;
@@ -46,18 +43,71 @@ class _StudySetupScreenQuestionWidgetState
         widget.studyUID, widget.topicUID, widget.question);
   }
 
+  void _setSelectedRadio(int value) {
+    setState(() {
+      _selectedRadio = value;
+    });
+    _setQuestionType();
+  }
+
+  void _setQuestionType() {
+    switch (_selectedRadio) {
+      case 1:
+        widget.question.questionType = 'Standard';
+        _updateQuestionDetails();
+        break;
+      case 2:
+        widget.question.questionType = 'Uninfluenced';
+        _updateQuestionDetails();
+        break;
+      case 3:
+        widget.question.questionType = 'Private';
+        _updateQuestionDetails();
+        break;
+    }
+  }
+
+  int _getQuestionType() {
+    int questionType;
+
+    switch (widget.question.questionType) {
+      case 'Standard':
+        questionType = 1;
+        break;
+      case 'Uninfluenced':
+        questionType = 2;
+        break;
+      case 'Private':
+        questionType = 3;
+        break;
+      default:
+        questionType = 1;
+    }
+
+    return questionType;
+  }
+
   @override
   void initState() {
+    _selectedRadio = _getQuestionType();
     _getInitialValues();
     super.initState();
     _questionTitleFocusNode.addListener(() {
       if (_questionTitleFocusNode.hasFocus) {
-        _updateQuestionDetails();
+        if (_questionTitle != null) {
+          if (_questionTitle.isNotEmpty) {
+            _updateQuestionDetails();
+          }
+        }
       }
     });
     _questionNumberFocusNode.addListener(() {
       if (!_questionNumberFocusNode.hasFocus) {
-        _updateQuestionDetails();
+        if (_questionNumber != null) {
+          if (_questionNumber.isNotEmpty) {
+            _updateQuestionDetails();
+          }
+        }
       }
     });
   }
@@ -77,7 +127,9 @@ class _StudySetupScreenQuestionWidgetState
                   initialValue: _questionNumber,
                   focusNode: _questionNumberFocusNode,
                   onFieldSubmitted: (questionNumber) {
-                    _updateQuestionDetails();
+                    if (questionNumber != null || questionNumber.isNotEmpty) {
+                      _updateQuestionDetails();
+                    }
                   },
                   onChanged: (questionNumber) {
                     _questionNumber = questionNumber;
@@ -110,16 +162,18 @@ class _StudySetupScreenQuestionWidgetState
                 ),
               ),
               SizedBox(
-                width: 16.0,
+                width: 40.0,
               ),
               Expanded(
                 child: TextFormField(
                   initialValue: _questionTitle,
                   focusNode: _questionTitleFocusNode,
                   onFieldSubmitted: (questionTitle) {
-                    _questionTitle = questionTitle;
-                    widget.question.questionTitle = _questionTitle;
-                    _updateQuestionDetails();
+                    if (questionTitle.isNotEmpty || questionTitle != null) {
+                      _questionTitle = questionTitle;
+                      widget.question.questionTitle = _questionTitle;
+                      _updateQuestionDetails();
+                    }
                   },
                   style: TextStyle(
                     color: Colors.black,
@@ -167,7 +221,6 @@ class _StudySetupScreenQuestionWidgetState
                     onTap: () async {
                       final questionStatement = await showGeneralDialog(
                         context: context,
-                        barrierDismissible: true,
                         barrierLabel: MaterialLocalizations.of(context)
                             .modalBarrierDismissLabel,
                         barrierColor: Colors.black45,
@@ -181,13 +234,15 @@ class _StudySetupScreenQuestionWidgetState
                           );
                         },
                       );
-                      if (questionStatement.toString().isNotEmpty) {
-                        _questionStatement = questionStatement.toString();
-                        setState(() {
-                          widget.question.questionStatement =
-                              _questionStatement;
-                        });
-                        _updateQuestionDetails();
+                      if (questionStatement != null) {
+                        if (questionStatement.toString().trim().isNotEmpty) {
+                          _questionStatement = questionStatement.toString();
+                          setState(() {
+                            widget.question.questionStatement =
+                                _questionStatement;
+                          });
+                          _updateQuestionDetails();
+                        }
                       }
                     },
                     child: Padding(
@@ -195,9 +250,105 @@ class _StudySetupScreenQuestionWidgetState
                         vertical: 16.0,
                         horizontal: 10.0,
                       ),
-                      child: widget.hint ?? SizedBox(),
+                      child: Text(
+                        widget.question.questionStatement == null
+                            ? 'Set a Question'
+                            : 'Question set',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0,
+                          color: widget.question.questionStatement == null
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
+                        ),
+                      ),
                     ),
                   ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Row(
+            children: [
+              Theme(
+                data: ThemeData(
+                  unselectedWidgetColor: Colors.grey[500],
+                  accentColor: PROJECT_NAVY_BLUE,
+                ),
+                child: Radio(
+                  value: 1,
+                  groupValue: _selectedRadio,
+                  onChanged: (int value) {
+                    _setSelectedRadio(value);
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 5.0,
+              ),
+              Text(
+                'Standard',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.0,
+                ),
+              ),
+              SizedBox(
+                width: 10.0,
+              ),
+              Theme(
+                data: ThemeData(
+                  unselectedWidgetColor: Colors.grey[500],
+                  accentColor: PROJECT_NAVY_BLUE,
+                ),
+                child: Radio(
+                  value: 2,
+                  groupValue: _selectedRadio,
+                  onChanged: (int value) {
+                    _setSelectedRadio(value);
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 5.0,
+              ),
+              Text(
+                'Un-Influenced',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.0,
+                ),
+              ),
+              SizedBox(
+                width: 10.0,
+              ),
+              Theme(
+                data: ThemeData(
+                  unselectedWidgetColor: Colors.grey[500],
+                  accentColor: PROJECT_NAVY_BLUE,
+                ),
+                child: Radio(
+                  value: 3,
+                  groupValue: _selectedRadio,
+                  onChanged: (int value) {
+                    _setSelectedRadio(value);
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 5.0,
+              ),
+              Text(
+                'Private',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.0,
                 ),
               ),
             ],

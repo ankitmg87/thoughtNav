@@ -6,15 +6,19 @@ class QuestionAndResponsesSubScreen extends StatefulWidget {
   const QuestionAndResponsesSubScreen({
     Key key,
     @required this.screenSize,
+    this.studyUID,
   }) : super(key: key);
 
   final Size screenSize;
+  final String studyUID;
 
   @override
-  _QuestionAndResponsesSubScreenState createState() => _QuestionAndResponsesSubScreenState();
+  _QuestionAndResponsesSubScreenState createState() =>
+      _QuestionAndResponsesSubScreenState();
 }
 
-class _QuestionAndResponsesSubScreenState extends State<QuestionAndResponsesSubScreen> {
+class _QuestionAndResponsesSubScreenState
+    extends State<QuestionAndResponsesSubScreen> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -22,7 +26,9 @@ class _QuestionAndResponsesSubScreenState extends State<QuestionAndResponsesSubS
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              vertical: 20.0, horizontal: 30.0,),
+              vertical: 20.0,
+              horizontal: 30.0,
+            ),
             color: Colors.grey[100],
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,8 +84,7 @@ class _QuestionAndResponsesSubScreenState extends State<QuestionAndResponsesSubS
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Responses',
@@ -103,8 +108,7 @@ class _QuestionAndResponsesSubScreenState extends State<QuestionAndResponsesSubS
                         height: 10.0,
                       ),
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Comments',
@@ -148,4 +152,3 @@ class _QuestionAndResponsesSubScreenState extends State<QuestionAndResponsesSubS
     );
   }
 }
-

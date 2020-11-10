@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/question_and_responses_sub_screen.dart';
 
 class ResponsesScreen extends StatefulWidget {
+
   @override
   _ResponsesScreenState createState() => _ResponsesScreenState();
 }
@@ -14,9 +17,24 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
   bool isExpanded = false;
 
+  String studyUID;
+
+  Future<void> _getTopics;
+
+
+
+  @override
+  void initState() {
+
+    var getStorage = GetStorage();
+    studyUID = getStorage.read('studyUID');
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -51,6 +69,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                   child: Column(
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
                             icon: Icon(
@@ -64,6 +83,9 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                             },
                           ),
                         ],
+                      ),
+                      Expanded(
+                        child: Container(color: Colors.white,),
                       ),
                     ],
                   ),

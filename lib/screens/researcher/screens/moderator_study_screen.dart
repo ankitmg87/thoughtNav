@@ -1,18 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_dashboard.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_reports.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_users.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
-class StudyScreen extends StatefulWidget {
+class ModeratorStudyScreen extends StatefulWidget {
   @override
-  _StudyScreenState createState() => _StudyScreenState();
+  _ModeratorStudyScreenState createState() => _ModeratorStudyScreenState();
 }
 
-class _StudyScreenState extends State<StudyScreen> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
+
+  final _firebaseFirestoreService = FirebaseFirestoreService();
 
   bool dashboardSelected = true;
   bool usersSelected = false;
@@ -21,18 +23,24 @@ class _StudyScreenState extends State<StudyScreen> {
 
   Widget subScreen;
 
-  Widget dashboardScreen = StudyDashboard();
-  Widget usersScreen = StudyUsers();
+  Widget dashboardScreen;
+  Widget usersScreen;
   Widget setupScreen;
-  Widget reportsScreen = StudyReports();
+  Widget reportsScreen;
 
   @override
   void initState() {
-    subScreen = dashboardScreen;
 
-    setupScreen = StudySetup(
-      firestore: firestore,
-    );
+    final getStorage = GetStorage();
+
+    var studyUID = getStorage.read('studyUID');
+
+    dashboardScreen = StudyDashboard(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
+    usersScreen = StudyUsers(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
+    setupScreen = StudySetup();
+    reportsScreen = StudyReports();
+
+    subScreen = dashboardScreen;
 
     super.initState();
   }
@@ -140,7 +148,7 @@ class _StudyScreenState extends State<StudyScreen> {
                   ],
                 ),
                 Text(
-                  'ACCESS TYPE',
+                  'MODERATOR ACCESS',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w900,

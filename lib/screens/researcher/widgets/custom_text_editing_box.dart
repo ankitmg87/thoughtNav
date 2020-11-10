@@ -78,7 +78,7 @@ class _CustomTextEditingBoxState extends State<CustomTextEditingBox> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       FlatButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => Navigator.pop(context, _text),
                         child: Text(
                           'CANCEL',
                           style: TextStyle(

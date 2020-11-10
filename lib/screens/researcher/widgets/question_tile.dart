@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/question.dart';
 
 class QuestionTile extends StatelessWidget {
+
+  final Question question;
+
   const QuestionTile({
-    Key key,
+    Key key, this.question,
   }) : super(key: key);
 
   @override
@@ -16,7 +20,7 @@ class QuestionTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '1.1 Getting to know you',
+              '${question.questionNumber} ${question.questionTitle}',
               style: TextStyle(
                 color: PROJECT_GREEN,
                 fontSize: 14.0,

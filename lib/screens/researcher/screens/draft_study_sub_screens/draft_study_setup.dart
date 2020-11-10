@@ -16,7 +16,6 @@ import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_custom_
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_topic_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
-
 class DraftStudySetup extends StatefulWidget {
   final String studyUID;
 
@@ -52,7 +51,15 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
 
   Study mStudy;
 
-  Categories _categories = Categories();
+  Categories _categories = Categories(
+    lifestyle: false,
+    health: false,
+    auto: false,
+    fashion: false,
+    advertising: false,
+    product: false,
+    futures: false,
+  );
 
   List<Group> _groups = [];
   List<Topic> _topics = [];
@@ -75,17 +82,24 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   void _initializeFocusNodes() {
     _studyNameFocusNode.addListener(() {
       if (!_studyNameFocusNode.hasFocus) {
-        _updateStudyName();
+        if (mStudy.studyName.isNotEmpty || mStudy.studyName != null) {
+          _updateStudyName();
+        }
       }
     });
     _internalStudyLabelFocusNode.addListener(() {
       if (!_internalStudyLabelFocusNode.hasFocus) {
-        _updateInternalStudyLabel();
+        if (mStudy.internalStudyLabel.isNotEmpty ||
+            mStudy.internalStudyLabel != null) {
+          _updateInternalStudyLabel();
+        }
       }
     });
     _masterPasswordFocusNode.addListener(() {
       if (!_masterPasswordFocusNode.hasFocus) {
-        _updateMasterPassword();
+        if (mStudy.masterPassword.isNotEmpty || mStudy.masterPassword != null) {
+          _updateMasterPassword();
+        }
       }
     });
   }
@@ -116,19 +130,22 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   void _getCategories() async {
     _categories =
         await _firebaseFirestoreService.getCategories(widget.studyUID);
-
   }
 
   Future<void> _getGroups() async {
     _groups = await _firebaseFirestoreService.getGroups(widget.studyUID);
-
     _groups ??= <Group>[];
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _getTopics() async {
     _topics = await _firebaseFirestoreService.getTopics(widget.studyUID);
-
     _topics ??= <Topic>[];
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -288,7 +305,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         mStudy.studyName = studyName;
                                       },
                                       onFieldSubmitted: (studyName) {
-                                        _updateStudyName();
+                                        if (mStudy.studyName.isNotEmpty ||
+                                            mStudy.studyName != null) {
+                                          _updateStudyName();
+                                        }
                                       },
                                       decoration: InputDecoration(
                                         focusedBorder: OutlineInputBorder(
@@ -338,7 +358,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                             internalStudyLabel;
                                       },
                                       onFieldSubmitted: (internalStudyLabel) {
-                                        _updateInternalStudyLabel();
+                                        if (mStudy.internalStudyLabel
+                                                .isNotEmpty ||
+                                            mStudy.internalStudyLabel != null) {
+                                          _updateInternalStudyLabel();
+                                        }
                                       },
                                       decoration: InputDecoration(
                                         focusedBorder: OutlineInputBorder(
@@ -395,9 +419,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         mStudy.masterPassword = masterPassword;
                                       },
                                       onFieldSubmitted: (masterPassword) {
-                                        _updateMasterPassword();
+                                        if (mStudy.masterPassword.isNotEmpty ||
+                                            mStudy.masterPassword != null) {
+                                          _updateMasterPassword();
+                                        }
                                       },
-                                      obscureText: true,
                                       decoration: InputDecoration(
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius:
@@ -490,7 +516,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     subtitle: Text(
                                       mStudy.endDate ?? 'Select a date',
                                       textAlign: TextAlign.start,
-                                      // TODO -> Set a bool here, if date is selected then textStyle will be different
                                       style: TextStyle(
                                         color: mStudy.endDate == null
                                             ? Colors.grey[400]
@@ -512,10 +537,9 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                 children: [
                                   StudySetupScreenCustomInputField(
                                     onTap: () async {
-                                      final introPageMessage =
+                                      var introPageMessage =
                                           await showGeneralDialog(
                                               context: context,
-                                              barrierDismissible: true,
                                               barrierLabel:
                                                   MaterialLocalizations.of(
                                                           context)
@@ -536,21 +560,30 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                       mStudy.introPageMessage,
                                                 );
                                               });
-                                      setState(() {
-                                        mStudy.introPageMessage =
-                                            introPageMessage.toString();
-                                      });
-                                      await _updateStudyDetail(
-                                          widget.studyUID,
-                                          'introPageMessage',
-                                          mStudy.introPageMessage);
+                                      if (introPageMessage != null ||
+                                          introPageMessage
+                                              .toString()
+                                              .isNotEmpty) {
+                                        setState(() {
+                                          mStudy.introPageMessage =
+                                              introPageMessage.toString();
+                                        });
+                                        await _updateStudyDetail(
+                                            widget.studyUID,
+                                            'introPageMessage',
+                                            mStudy.introPageMessage);
+                                      }
                                     },
                                     heading: 'INTRO PAGE MESSAGE',
                                     subtitle: Text(
-                                      mStudy.introPageMessage == null ? 'Enter an intro page message' : 'Intro page message set',
+                                      mStudy.introPageMessage == null
+                                          ? 'Enter an intro page message'
+                                          : 'Intro page message set',
                                       textAlign: TextAlign.start,
                                       style: TextStyle(
-                                        color: mStudy.introPageMessage == null ? Colors.grey[400] : Colors.grey[700],
+                                        color: mStudy.introPageMessage == null
+                                            ? Colors.grey[400]
+                                            : Colors.grey[700],
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -567,7 +600,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       final studyClosedMessage =
                                           await showGeneralDialog(
                                               context: context,
-                                              barrierDismissible: true,
                                               barrierLabel:
                                                   MaterialLocalizations.of(
                                                           context)
@@ -588,21 +620,30 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                       mStudy.studyClosedMessage,
                                                 );
                                               });
-                                      setState(() {
-                                        mStudy.studyClosedMessage =
-                                            studyClosedMessage.toString();
-                                      });
-                                      _updateStudyDetail(
-                                          widget.studyUID,
-                                          'studyClosedMessage',
-                                          mStudy.studyClosedMessage);
+                                      if (studyClosedMessage != null ||
+                                          studyClosedMessage
+                                              .toString()
+                                              .isNotEmpty) {
+                                        setState(() {
+                                          mStudy.studyClosedMessage =
+                                              studyClosedMessage.toString();
+                                        });
+                                        _updateStudyDetail(
+                                            widget.studyUID,
+                                            'studyClosedMessage',
+                                            mStudy.studyClosedMessage);
+                                      }
                                     },
                                     heading: 'STUDY END MESSAGE',
                                     subtitle: Text(
-                                      mStudy.studyClosedMessage == null ? 'Enter a study end message' : 'Study end message set',
+                                      mStudy.studyClosedMessage == null
+                                          ? 'Enter a study end message'
+                                          : 'Study end message set',
                                       textAlign: TextAlign.start,
                                       style: TextStyle(
-                                        color: mStudy.studyClosedMessage == null ? Colors.grey[400] : Colors.grey[700],
+                                        color: mStudy.studyClosedMessage == null
+                                            ? Colors.grey[400]
+                                            : Colors.grey[700],
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -640,21 +681,31 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                       .commonInviteMessage,
                                                 );
                                               });
-                                      setState(() {
-                                        mStudy.commonInviteMessage =
-                                            commonInviteMessage.toString();
-                                      });
-                                      _updateStudyDetail(
-                                          widget.studyUID,
-                                          'commonInviteMessage',
-                                          mStudy.commonInviteMessage);
+                                      if (commonInviteMessage != null ||
+                                          commonInviteMessage
+                                              .toString()
+                                              .isNotEmpty) {
+                                        setState(() {
+                                          mStudy.commonInviteMessage =
+                                              commonInviteMessage.toString();
+                                        });
+                                        _updateStudyDetail(
+                                            widget.studyUID,
+                                            'commonInviteMessage',
+                                            mStudy.commonInviteMessage);
+                                      }
                                     },
                                     heading: 'COMMON INVITE MESSAGE',
                                     subtitle: Text(
-                                      mStudy.commonInviteMessage == null ? 'Enter a common invite message' : 'Common invite message set',
+                                      mStudy.commonInviteMessage == null
+                                          ? 'Enter a common invite message'
+                                          : 'Common invite message set',
                                       textAlign: TextAlign.start,
                                       style: TextStyle(
-                                        color: mStudy.commonInviteMessage == null ? Colors.grey[400] : Colors.grey[700],
+                                        color:
+                                            mStudy.commonInviteMessage == null
+                                                ? Colors.grey[400]
+                                                : Colors.grey[700],
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -836,6 +887,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                   if (snapshot.connectionState ==
                                       ConnectionState.done) {
                                     return ListView.separated(
+                                      physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount: _groups.length,
                                       itemBuilder:
@@ -860,65 +912,26 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                               SizedBox(
                                 height: 40.0,
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                              color: Colors.grey, width: 1.0),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'ADD QUESTIONS',
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20.0,
-                                        ),
-                                      ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  padding: EdgeInsets.only(bottom: 5.0),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                          color: Colors.grey, width: 1.0),
                                     ),
                                   ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      _topics.length > 1
-                                          ? IconButton(
-                                              onPressed: () async {
-                                                await _firebaseFirestoreService
-                                                    .deleteTopic(
-                                                        widget.studyUID,
-                                                        _topics.last.topicUID);
-                                                setState(() {
-                                                  _topics.removeLast();
-                                                });
-                                              },
-                                              icon: Icon(Icons.close_outlined),
-                                              color: Colors.red[700],
-                                            )
-                                          : SizedBox(),
-                                      IconButton(
-                                        onPressed: () async {
-                                          var topic =
-                                              await _firebaseFirestoreService
-                                                  .createTopic(widget.studyUID,
-                                                      _topics.length + 1);
-                                          setState(() {
-                                            _topics.add(topic);
-                                          });
-                                        },
-                                        icon: Icon(Icons.add),
-                                        color: PROJECT_GREEN,
-                                      ),
-                                    ],
+                                  child: Text(
+                                    'ADD QUESTIONS',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20.0,
+                                    ),
                                   ),
-                                ],
+                                ),
                               ),
                               SizedBox(
                                 height: 20.0,
@@ -930,6 +943,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                   if (snapshot.connectionState ==
                                       ConnectionState.done) {
                                     return ListView.separated(
+                                      physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount: _topics.length,
                                       itemBuilder:
@@ -952,48 +966,50 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                 },
                               ),
                               SizedBox(
-                                height: 40.0,
+                                height: 10.0,
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _topics.length > 1
+                                        ? IconButton(
+                                      onPressed: () async {
+                                        await _firebaseFirestoreService
+                                            .deleteTopic(
+                                            widget.studyUID,
+                                            _topics.last.topicUID);
+                                        setState(() {
+                                          _topics.removeLast();
+                                        });
+                                      },
+                                      icon: Icon(Icons.close_outlined),
+                                      color: Colors.red[700],
+                                    )
+                                        : SizedBox(),
+                                    IconButton(
+                                      onPressed: () async {
+                                        var topic =
+                                        await _firebaseFirestoreService
+                                            .createTopic(widget.studyUID,
+                                            _topics.length + 1);
+                                        setState(() {
+                                          _topics.add(topic);
+                                        });
+                                      },
+                                      icon: Icon(Icons.add),
+                                      color: PROJECT_GREEN,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 30.0,
                               ),
                               Container(
                                 height: 0.75,
                                 color: Colors.grey[400],
-                              ),
-                              SizedBox(
-                                height: 40.0,
-                              ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: FlatButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(2.0),
-                                  ),
-                                  color: PROJECT_GREEN,
-                                  onPressed: () {},
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.save_alt,
-                                          color: Colors.white,
-                                          size: 16.0,
-                                        ),
-                                        SizedBox(
-                                          width: 16.0,
-                                        ),
-                                        Text(
-                                          'SAVE',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
                               ),
                               SizedBox(
                                 height: 50.0,
@@ -1029,7 +1045,8 @@ class DraftScreenGroupWidget extends StatefulWidget {
 }
 
 class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
-  final FirebaseFirestoreService _firebaseFirestoreService = FirebaseFirestoreService();
+  final FirebaseFirestoreService _firebaseFirestoreService =
+      FirebaseFirestoreService();
 
   final FocusNode _groupNameFocusNode = FocusNode();
   final FocusNode _internalGroupLabelFocusNode = FocusNode();
@@ -1038,13 +1055,19 @@ class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
   void initState() {
     super.initState();
     _groupNameFocusNode.addListener(() {
-      if(!_groupNameFocusNode.hasFocus){
-        _updateGroupDetails();
+      if (!_groupNameFocusNode.hasFocus) {
+        if (widget.group.groupName.isNotEmpty ||
+            widget.group.groupName != null) {
+          _updateGroupDetails();
+        }
       }
     });
     _internalGroupLabelFocusNode.addListener(() {
-      if(!_internalGroupLabelFocusNode.hasFocus){
-        _updateGroupDetails();
+      if (!_internalGroupLabelFocusNode.hasFocus) {
+        if (widget.group.internalGroupLabel.isNotEmpty ||
+            widget.group.groupName != null) {
+          _updateGroupDetails();
+        }
       }
     });
   }
@@ -1072,26 +1095,33 @@ class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
           child: TextFormField(
             focusNode: _groupNameFocusNode,
             initialValue: widget.group.groupName,
-            onChanged: (groupName){
+            onChanged: (groupName) {
               widget.group.groupName = groupName;
             },
-            onFieldSubmitted: (groupName){
-              _updateGroupDetails();
+            onFieldSubmitted: (groupName) {
+              if (groupName != null || groupName.isNotEmpty) {
+                _updateGroupDetails();
+              }
             },
             decoration: InputDecoration(
-                hintText: 'Enter Group Name',
-                hintStyle: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
+              hintText: 'Enter Group Name',
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(2.0),
+                borderSide: BorderSide(
+                  color: Colors.black,
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0),
-                  borderSide: BorderSide(
-                    color: Colors.grey[300],
-                    width: 0.5,
-                  ),
-                )),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(2.0),
+                borderSide: BorderSide(
+                  color: Colors.grey[400],
+                  width: 0.5,
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(2.0),
+              ),
+            ),
           ),
         ),
         SizedBox(
@@ -1101,26 +1131,33 @@ class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
           child: TextFormField(
             focusNode: _internalGroupLabelFocusNode,
             initialValue: widget.group.internalGroupLabel,
-            onChanged: (internalGroupLabel){
+            onChanged: (internalGroupLabel) {
               widget.group.internalGroupLabel = internalGroupLabel;
             },
-            onFieldSubmitted: (internalGroupLabel){
-              _updateGroupDetails();
+            onFieldSubmitted: (internalGroupLabel) {
+              if (internalGroupLabel != null || internalGroupLabel.isNotEmpty) {
+                _updateGroupDetails();
+              }
             },
             decoration: InputDecoration(
-                hintText: 'Enter Internal Group Label',
-                hintStyle: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
+              hintText: 'Enter Internal Group Label',
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(2.0),
+                borderSide: BorderSide(
+                  color: Colors.black,
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0),
-                  borderSide: BorderSide(
-                    color: Colors.grey[300],
-                    width: 0.5,
-                  ),
-                )),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(2.0),
+                borderSide: BorderSide(
+                  color: Colors.grey[400],
+                  width: 0.5,
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(2.0),
+              ),
+            ),
           ),
         ),
       ],

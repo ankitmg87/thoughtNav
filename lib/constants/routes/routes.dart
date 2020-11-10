@@ -29,7 +29,7 @@ const String STUDY_ENDED = 'study_ended';
 
 const String RESEARCHER_MAIN_SCREEN = 'researcher_main_screen';
 
-const String CLIENT_MODERATOR_STUDY_SCREEN = 'study_screen';
+const String MODERATOR_STUDY_SCREEN = 'moderator_active_study_screen';
 
 const String DRAFT_STUDY_SCREEN = 'draft_study_screen';
 

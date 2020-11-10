@@ -16,6 +16,10 @@ class StudyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    var percentInt = study.activeParticipants;
+    var percentDouble = percentInt / 100;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: Card(
@@ -24,14 +28,15 @@ class StudyWidget extends StatelessWidget {
 
             final getStorage = GetStorage();
 
-            if(study.studyStatus == 'draft'){
+            if(study.studyStatus == 'Draft'){
               getStorage.write('studyUID', study.studyUID);
               Navigator.pushNamed(context, DRAFT_STUDY_SCREEN);
             }
             else {
+              getStorage.write('studyUID', study.studyUID);
               Navigator.pushNamed(
                 context,
-                CLIENT_MODERATOR_STUDY_SCREEN,
+                MODERATOR_STUDY_SCREEN,
                 arguments: study.studyUID,
               );
             }
@@ -59,7 +64,7 @@ class StudyWidget extends StatelessWidget {
                             width: 20.0,
                           ),
                           Text(
-                            '(${study.studyStatus == 'draft' ? 'Draft' : study.studyStatus})',
+                            '(${study.studyStatus})',
                             style: TextStyle(
                               color: PROJECT_GREEN,
                               fontSize: 18.0,
@@ -76,7 +81,7 @@ class StudyWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '% ${study.activeParticipants}',
+                            '$percentInt % active participants',
                             style: TextStyle(
                               color: Colors.black,
                               fontStyle: FontStyle.italic,
@@ -87,15 +92,10 @@ class StudyWidget extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20.0),
                             child: LinearPercentIndicator(
                               lineHeight: 30.0,
-                              percent: 0.5,
+                              percent: percentDouble,
                               padding: EdgeInsets.symmetric(horizontal: 0.0),
                               backgroundColor: Colors.black12,
-                              linearGradient: LinearGradient(
-                                colors: [
-                                  Color(0xFF437FEF),
-                                  PROJECT_NAVY_BLUE,
-                                ],
-                              ),
+                              progressColor: Color(0xFF437FEF),
                             ),
                           ),
                         ],

@@ -68,6 +68,7 @@ class _StudySetupScreenCategoryCheckBoxState
                       setState(() {
                         categorySelected = value;
                         widget.categories.setCategoryStatus(widget.categoryName, categorySelected);
+                        _saveCategories();
                       });
                     },
                   ),

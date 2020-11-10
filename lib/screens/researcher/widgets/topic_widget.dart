@@ -1,16 +1,34 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/widgets/question_tile.dart';
 
 class TopicWidget extends StatefulWidget {
+  final Topic topic;
+
+  const TopicWidget({Key key, this.topic}) : super(key: key);
+
   @override
   _TopicWidgetState createState() => _TopicWidgetState();
 }
 
 class _TopicWidgetState extends State<TopicWidget> {
   bool isExpanded = false;
+
+  String date = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    var dateFromTimeStamp = widget.topic.topicDate.toDate();
+    var formatter = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
+    date = formatter.format(dateFromTimeStamp);
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +48,7 @@ class _TopicWidgetState extends State<TopicWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Topic Name',
+                      widget.topic.topicName,
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -41,7 +59,7 @@ class _TopicWidgetState extends State<TopicWidget> {
                       height: 5.0,
                     ),
                     Text(
-                      'Date',
+                      date,
                       style: TextStyle(
                         color: Color(0xFF7F7F7F),
                         fontSize: 14.0,
@@ -67,49 +85,7 @@ class _TopicWidgetState extends State<TopicWidget> {
           Container(
             color: Color(0xFFDFE2ED).withOpacity(0.2),
             child: ExpansionTile(
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.person,
-                    color: Colors.grey[600],
-                    size: 14.0,
-                  ),
-                  SizedBox(
-                    width: 2.0,
-                  ),
-                  Text(
-                    '5/10',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 8.0,
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.message,
-                        color: Colors.grey[600],
-                        size: 14.0,
-                      ),
-                      SizedBox(
-                        width: 2.0,
-                      ),
-                      Text(
-                        '3',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              title: SizedBox(),
               trailing: isExpanded
                   ? Text(
                       'Hide Details',
@@ -152,16 +128,15 @@ class _TopicWidgetState extends State<TopicWidget> {
                       SizedBox(
                         height: 20.0,
                       ),
-                      ListView(
+                      ListView.builder(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
-                          QuestionTile(),
-                          QuestionTile(),
-                          QuestionTile(),
-                          QuestionTile(),
-                        ],
-                      )
+                        itemCount: widget.topic.questions.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return QuestionTile(
+                            question: widget.topic.questions[index],
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),

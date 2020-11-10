@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/models/user.dart';
 import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
@@ -15,7 +16,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
 
   final FirebaseAuthService _firebaseAuthService = FirebaseAuthService();
-  final FirebaseFirestoreService _firebaseFirestoreService = FirebaseFirestoreService();
+  final FirebaseFirestoreService _firebaseFirestoreService =
+      FirebaseFirestoreService();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -23,33 +25,70 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email;
   String _password;
 
+  void unAwaited(Future<void> future) {}
+
   void _loginAndRedirectUser() async {
+    BuildContext dialogContext;
+    User user;
+
+    unAwaited(showGeneralDialog(
+      context: context,
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        dialogContext = context;
+        return Center(
+          child: Material(
+            borderRadius: BorderRadius.circular(4.0),
+            color: Colors.white,
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+              child: Text(
+                'Signing In...',
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    ));
 
     String userID;
 
-    if(_email != null && _password != null){
+    if (_email != null && _password != null) {
       userID = await _firebaseAuthService.signInUser(_email, _password);
 
-      var user = await _firebaseFirestoreService.getUser(userID);
+      user = await _firebaseFirestoreService.getUser(userID);
 
-      switch(user.userType){
+      Navigator.of(dialogContext).pop();
+
+      switch (user.userType) {
         case USER_TYPE_ROOT_USER:
-          await Navigator.of(context).pushNamedAndRemoveUntil(RESEARCHER_MAIN_SCREEN, (route) => false);
+          await Navigator.of(context).pushNamedAndRemoveUntil(
+              RESEARCHER_MAIN_SCREEN, (route) => false);
           break;
         case USER_TYPE_CLIENT:
           // TODO -> Load data on the basis of study uid.
-          await Navigator.of(context).pushNamedAndRemoveUntil(CLIENT_MODERATOR_STUDY_SCREEN, (route) => false);
+          await Navigator.of(context).pushNamedAndRemoveUntil(
+              MODERATOR_STUDY_SCREEN, (route) => false);
           break;
         case USER_TYPE_MODERATOR:
           // TODO -> Load data on the basis of study uid.
-          await Navigator.of(context).pushNamedAndRemoveUntil(RESEARCHER_MAIN_SCREEN, (route) => false);
+          await Navigator.of(context).pushNamedAndRemoveUntil(
+              RESEARCHER_MAIN_SCREEN, (route) => false);
           break;
         case USER_TYPE_PARTICIPANT:
           // TODO -> Check whether the participant is onboarded and redirect accordingly.
-          await Navigator.of(context).pushNamedAndRemoveUntil(WELCOME_SCREEN, (route) => false);
+          await Navigator.of(context)
+              .pushNamedAndRemoveUntil(WELCOME_SCREEN, (route) => false);
           break;
       }
-      return;
     }
   }
 
@@ -167,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        onChanged: (email){
+                        onChanged: (email) {
                           _email = email;
                         },
                       ),
@@ -194,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        onChanged: (password){
+                        onChanged: (password) {
                           _password = password;
                         },
                       ),
@@ -261,9 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           color: PROJECT_GREEN,
-                          onPressed: () {
-                            
-                          },
+                          onPressed: () {},
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Text(
@@ -433,6 +470,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 TextFormField(
                                   controller: _passwordController,
+                                  obscureText: true,
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.white,
@@ -443,7 +481,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                   ),
-                                  onChanged: (password){
+                                  onChanged: (password) {
                                     _password = password;
                                   },
                                 ),

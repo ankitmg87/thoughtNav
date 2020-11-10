@@ -31,18 +31,13 @@ class _StudySetupScreenTopicWidgetState
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
-  Future<List<Question>> _futureQuestions;
+  //Future<void> _futureQuestions;
 
-  List<Question> _questions = [];
+  List<Question> _questions;
 
   String _topicDate;
 
   final FocusNode _topicNameFocusNode = FocusNode();
-
-  void _getQuestions() async {
-    _futureQuestions =
-        _firebaseFirestoreService.getQuestions(widget.studyUID, widget.topic);
-  }
 
   void _updateTopicDetails() async {
     await _firebaseFirestoreService.updateTopic(widget.studyUID, widget.topic);
@@ -59,7 +54,10 @@ class _StudySetupScreenTopicWidgetState
         _updateTopicDetails();
       }
     });
-    _getQuestions();
+
+    _questions = widget.topic.questions;
+
+    // _futureQuestions = _getQuestions();
   }
 
   String _formatTopicDate(Timestamp timestamp) {
@@ -71,7 +69,11 @@ class _StudySetupScreenTopicWidgetState
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10.0),
+      padding: EdgeInsets.only(
+        top: 10.0,
+        left: 10.0,
+        bottom: 5.0,
+      ),
       decoration: BoxDecoration(
         border: Border.all(
           color: Colors.grey[300],
@@ -88,10 +90,14 @@ class _StudySetupScreenTopicWidgetState
                   initialValue: widget.topic.topicName,
                   focusNode: _topicNameFocusNode,
                   onChanged: (topicName) {
-                    widget.topic.topicName = topicName;
+                    if (topicName != null || topicName.isNotEmpty) {
+                      widget.topic.topicName = topicName;
+                    }
                   },
                   onFieldSubmitted: (topicName) {
-                    _updateTopicDetails();
+                    if (topicName != null || topicName.isNotEmpty) {
+                      _updateTopicDetails();
+                    }
                   },
                   style: TextStyle(
                     color: Colors.black,
@@ -171,84 +177,92 @@ class _StudySetupScreenTopicWidgetState
               Expanded(
                 child: Row(),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _questions.length > 1
-                      ? IconButton(
-                          onPressed: () async {
-                            await _firebaseFirestoreService.deleteQuestion(
-                                widget.studyUID,
-                                widget.topic.topicUID,
-                                _questions.last.questionUID);
-                            setState(() {
-                              _questions.removeLast();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.clear_outlined,
-                          ),
-                          color: Colors.red[700],
-                        )
-                      : SizedBox(),
-                  IconButton(
-                    onPressed: () async {
-                      var question =
-                          await _firebaseFirestoreService.createQuestion(
-                              widget.studyUID,
-                              _questions.length + 1,
-                              widget.topic.topicUID);
-                      setState(() {
-                        _questions.add(question);
-                      });
-                    },
-                    icon: Icon(
-                      Icons.add_circle_outlined,
-                    ),
-                    color: PROJECT_GREEN,
-                  ),
-                ],
-              ),
             ],
           ),
           SizedBox(
             height: 10.0,
           ),
-          FutureBuilder(
-            future: _futureQuestions,
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                _questions = snapshot.data;
-                return ListView.separated(
-                  shrinkWrap: true,
-                  separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(
-                      height: 20.0,
-                    );
-                  },
-                  itemCount: _questions.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return StudySetupScreenQuestionWidget(
-                      question: _questions[index],
-                      hint: Text(
-                        _questions[index].questionStatement == null
-                            ? 'Set a Question'
-                            : 'Question set',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.0,
-                          color: _questions[index].questionStatement == null
-                              ? Colors.grey[400]
-                              : Colors.grey[700],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              } else {
-                return SizedBox();
-              }
+          ListView.separated(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                height: 20.0,
+              );
             },
+            itemCount: _questions.length,
+            itemBuilder: (BuildContext context, int index) {
+              return StudySetupScreenQuestionWidget(
+                studyUID: widget.studyUID,
+                topicUID: widget.topic.topicUID,
+                question: _questions[index],
+              );
+            },
+          ),
+          // FutureBuilder(
+          //   future: _futureQuestions,
+          //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          //     if (snapshot.connectionState == ConnectionState.done) {
+          //       return
+          //     } else {
+          //       return SizedBox();
+          //     }
+          //   },
+          // ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _questions.length > 1
+                    ? IconButton(
+                        onPressed: () async {
+                          await _firebaseFirestoreService.deleteQuestion(
+                              widget.studyUID,
+                              widget.topic.topicUID,
+                              _questions.last.questionUID);
+                          setState(() {
+                            _questions.removeLast();
+                          });
+                        },
+                        icon: Container(
+                          width: 20.0,
+                          height: 20.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.red[700],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.close_outlined,
+                              color: Colors.white,
+                              size: 14.0,
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
+                IconButton(
+                  onPressed: () async {
+                    var question =
+                        await _firebaseFirestoreService.createQuestion(
+                            widget.studyUID,
+                            _questions.length + 1,
+                            widget.topic.topicUID);
+                    setState(() {
+                      _questions.add(question);
+                    });
+                  },
+                  icon: Icon(
+                    Icons.add_circle_outlined,
+                  ),
+                  color: PROJECT_GREEN,
+                ),
+              ],
+            ),
           ),
         ],
       ),

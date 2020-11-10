@@ -33,7 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
 
-    if (screenSize.width < screenSize.height)
+    if (screenSize.width < screenSize.height) {
       return Scaffold(
         key: _dashboardScaffoldKey,
         appBar: buildPhoneAppBar(),
@@ -60,11 +60,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       );
-    else
+    } else {
       return Scaffold(
         appBar: buildDesktopAppBar(),
         body: buildDesktopBody(screenSize, context),
       );
+    }
   }
 
   Stack buildDesktopBody(Size screenSize, BuildContext context) {
@@ -504,7 +505,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     _DropdownMenuOptionsRow(
                       image1: 'images/dashboard_icons/dashboard.png',
-                      image2: 'images/dashboard_icons/preferences.png',
+                      image2: 'images/dashboard_icons/dashboard.png',
                       label1: 'Dashboard',
                       label2: 'Preferences',
                       onTap2: () => Navigator.of(context)
@@ -849,7 +850,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Navigator.of(context).pushNamed(CONTACT_US_SCREEN),
                 ),
                 DrawerTile(
-                  image: 'images/dashboard_icons/preferences.png',
+                  image: 'images/dashboard_icons/dashboard.png',
                   title: 'Preferences',
                   onTap: () =>
                       Navigator.of(context).pushNamed(USER_PREFERENCES_SCREEN),

@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_users.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class DraftStudyScreen extends StatefulWidget {
   @override
@@ -11,6 +12,9 @@ class DraftStudyScreen extends StatefulWidget {
 }
 
 class _DraftStudyScreenState extends State<DraftStudyScreen> {
+
+  final _firebaseFirestoreService = FirebaseFirestoreService();
+
   String studyUID = '';
 
   bool setupSelected = true;
@@ -25,6 +29,12 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
     studyUID = getStorage.read('studyUID');
   }
 
+  void _setStudyAsActive() async {
+    await _firebaseFirestoreService.updateStudyStatus(studyUID, 'Active').then((value){
+      Navigator.of(context).pop();
+    });
+  }
+
   @override
   void initState() {
     _getStudyUID();
@@ -33,7 +43,6 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
     );
     draftStudyUsers = DraftStudyUsers(
       studyUID: studyUID,
-      context: context,
     );
 
     draftSubScreen = draftStudySetup;
@@ -186,7 +195,7 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               RaisedButton(
-                onPressed: () {},
+                onPressed: () => _setStudyAsActive(),
                 elevation: 4.0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4.0),
@@ -209,38 +218,6 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
                         color: PROJECT_GREEN,
                         fontSize: 14.0,
                         fontWeight: FontWeight.bold
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 20.0,
-              ),
-              RaisedButton(
-                onPressed: () {},
-                color: PROJECT_GREEN,
-                elevation: 4.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      CupertinoIcons.tray_arrow_down_fill,
-                      color: Colors.white,
-                      size: 14.0,
-                    ),
-                    SizedBox(
-                      width: 10.0,
-                    ),
-                    Text(
-                      'Save',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],

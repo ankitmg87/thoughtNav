@@ -58,8 +58,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
     await getStorage.write('studyUID', study.studyUID);
 
     if (study != null) {
-      await Navigator.of(context)
-          .pushNamed(DRAFT_STUDY_SCREEN);
+      await Navigator.of(context).pushNamed(DRAFT_STUDY_SCREEN);
     }
   }
 
@@ -473,6 +472,11 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   // }
 
   void _sortStudies() {
+
+    activeStudiesList = [];
+    completedStudiesList = [];
+    draftStudiesList = [];
+
     for (var study in allStudiesList) {
       if (study.studyStatus == 'Active') {
         activeStudiesList.add(study);
@@ -486,7 +490,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
     }
   }
 
-
   void _setListType() {
     _sortStudies();
     setState(() {
@@ -494,49 +497,73 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
         listView = allStudies;
         return;
       } else if (activeSelected) {
-        listView = ListView.separated(
-          itemCount: activeStudiesList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return StudyWidget(
-              study: activeStudiesList[index],
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              height: 10.0,
-            );
-          },
-        );
+        if (activeStudiesList.isEmpty) {
+          listView = Center(
+            child: Text(
+              'No active studies',
+            ),
+          );
+        } else {
+          listView = ListView.separated(
+            itemCount: activeStudiesList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return StudyWidget(
+                study: activeStudiesList[index],
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                height: 10.0,
+              );
+            },
+          );
+        }
         return;
       } else if (completedSelected) {
-        listView = ListView.separated(
-          itemCount: completedStudiesList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return StudyWidget(
-              study: completedStudiesList[index],
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              height: 10.0,
-            );
-          },
-        );
+        if (completedStudiesList.isEmpty) {
+          listView = Center(
+            child: Text(
+              'No completed studies',
+            ),
+          );
+        } else {
+          listView = ListView.separated(
+            itemCount: completedStudiesList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return StudyWidget(
+                study: completedStudiesList[index],
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                height: 10.0,
+              );
+            },
+          );
+        }
         return;
       } else if (draftSelected) {
-        listView = ListView.separated(
-          itemCount: draftStudiesList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return StudyWidget(
-              study: draftStudiesList[index],
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              height: 10.0,
-            );
-          },
-        );
+        if (draftStudiesList.isEmpty) {
+          listView = Center(
+            child: Text(
+              'No draft studies',
+            ),
+          );
+        } else {
+          listView = ListView.separated(
+            itemCount: draftStudiesList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return StudyWidget(
+                study: draftStudiesList[index],
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                height: 10.0,
+              );
+            },
+          );
+        }
         return;
       }
     });

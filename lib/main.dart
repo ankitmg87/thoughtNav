@@ -29,7 +29,7 @@ import 'package:thoughtnav/screens/public/tn_home_screen.dart';
 import 'package:thoughtnav/screens/researcher/researcher_main_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/responses_screen.dart';
-import 'package:thoughtnav/screens/researcher/screens/study_screen.dart';
+import 'package:thoughtnav/screens/researcher/screens/moderator_study_screen.dart';
 
 import 'constants/routes/routes.dart';
 
@@ -97,7 +97,7 @@ class MyApp extends StatelessWidget {
         RESEARCHER_MAIN_SCREEN: (context) => ResearcherMainScreen(),
 
         //Client and Moderator Study Dashboard
-        CLIENT_MODERATOR_STUDY_SCREEN: (context) => StudyScreen(),
+        MODERATOR_STUDY_SCREEN: (context) => ModeratorStudyScreen(),
 
         //Client and Moderator Responses Screen
         CLIENT_MODERATOR_RESPONSES_SCREEN: (context) => ResponsesScreen(),
