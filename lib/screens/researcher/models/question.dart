@@ -8,6 +8,8 @@ class Question{
   String questionStatement;
   String questionType;
   List<Response> responses;
+  int totalResponses;
+  int totalComments;
 
   Question({
     this.questionIndex,
@@ -17,6 +19,8 @@ class Question{
     this.questionStatement,
     this.questionType,
     this.responses,
+    this.totalResponses,
+    this.totalComments,
   });
 
   Map<String, dynamic> toMap () {
@@ -28,6 +32,8 @@ class Question{
     question['questionTitle'] = questionTitle;
     question['questionStatement'] = questionStatement;
     question['questionType'] = questionType;
+    question['totalResponses'] = totalResponses;
+    question['totalComments'] = totalComments;
 
     return question;
   }
@@ -40,6 +46,8 @@ class Question{
     questionTitle = question['questionTitle'];
     questionStatement = question['questionStatement'];
     questionType = question['questionType'];
+    totalResponses = question['totalResponses'];
+    totalComments = question['totalComments'];
   }
 
 }

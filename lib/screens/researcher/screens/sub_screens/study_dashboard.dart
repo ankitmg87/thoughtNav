@@ -132,7 +132,9 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     return TopicWidget(
+                                      studyUID: widget.studyUID,
                                       topic: snapshot.data[index],
+                                      firebaseFirestoreService: widget.firebaseFirestoreService,
                                     );
                                   },
                                   separatorBuilder:

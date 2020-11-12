@@ -190,7 +190,6 @@ class FirebaseFirestoreService {
     for (var participantDocument in participantsCollection.docs) {
       participants.add(Participant.fromMap(participantDocument.data()));
     }
-    print(participants.length);
     return participants;
   }
 
@@ -230,6 +229,43 @@ class FirebaseFirestoreService {
     }
 
     return moderators;
+  }
+
+  Stream getQuestion(String studyUID, String topicUID, String questionUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .snapshots();
+  }
+
+  Stream getResponses(String studyUID, String topicUID, String questionUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .orderBy('responseTimeStamp', descending: true)
+        .snapshots();
+  }
+
+  Stream getComments(String studyUID, String topicUID, String questionUID,
+      String responseUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .doc(responseUID)
+        .collection(_COMMENTS_COLLECTION)
+        .orderBy('commentTimeStamp', descending: true)
+        .snapshots();
   }
 
   /// Create section
@@ -499,6 +535,19 @@ class FirebaseFirestoreService {
     );
   }
 
+  Future<void> setTopicAsActive(String studyUID, String topicUID) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .set(
+      {
+        'isActive': true,
+      },
+      SetOptions(merge: true),
+    );
+  }
+
   Future<void> updateQuestion(
       String studyUID, String topicUID, Question question) async {
     var lastSaveTime = Timestamp.now();
@@ -523,6 +572,18 @@ class FirebaseFirestoreService {
       {
         'lastSaveTime': lastSaveTime,
       },
+      SetOptions(merge: true),
+    );
+  }
+
+  Future<void> updateParticipantDetails(String studyUID, String participantUID,
+      String detailKey, dynamic detail) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participantUID)
+        .set(
+      {detailKey: detail},
       SetOptions(merge: true),
     );
   }

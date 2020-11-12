@@ -41,18 +41,6 @@ class _StudySetupState extends State<StudySetup> {
   List<Group> _groups = [];
   List<Topic> _topics = [];
 
-  // Future addStudy() async {
-  //   CollectionReference reference = widget.firestore.collection('studies');
-  //   Study study = Study(
-  //     studyName: 'Study 4',
-  //     isDraft: true,
-  //   );
-  //   await reference
-  //       .add(study.toMap())
-  //       .then((value) => print(value.id))
-  //       .catchError((onError) => print('Some error occurred | $onError'));
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Expanded(

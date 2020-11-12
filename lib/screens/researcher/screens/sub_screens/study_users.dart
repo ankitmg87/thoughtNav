@@ -62,7 +62,11 @@ class _StudyUsersState extends State<StudyUsers> {
             return ListView.separated(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return ParticipantDetailsWidget();
+                return ParticipantDetailsWidget(
+                  participant: snapshot.data[index],
+                  firebaseFirestoreService: widget.firebaseFirestoreService,
+                  studyUID: widget.studyUID,
+                );
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -102,7 +106,7 @@ class _StudyUsersState extends State<StudyUsers> {
             return ListView.separated(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return ParticipantDetailsWidget();
+                return SizedBox();
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -354,3 +358,19 @@ class _StudyUsersState extends State<StudyUsers> {
     );
   }
 }
+
+class _ClientAndModeratorDetailsCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.0,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0,),
+        child: Row(
+          children: [],
+        ),
+      ),
+    );
+  }
+}
+

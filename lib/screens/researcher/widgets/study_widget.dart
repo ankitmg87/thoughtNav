@@ -34,6 +34,8 @@ class StudyWidget extends StatelessWidget {
             }
             else {
               getStorage.write('studyUID', study.studyUID);
+              getStorage.write('studyName', study.studyName);
+              getStorage.write('internalStudyLabel', study.internalStudyLabel);
               Navigator.pushNamed(
                 context,
                 MODERATOR_STUDY_SCREEN,

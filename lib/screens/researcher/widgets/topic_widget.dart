@@ -5,11 +5,16 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/widgets/question_tile.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class TopicWidget extends StatefulWidget {
+  final String studyUID;
   final Topic topic;
+  final FirebaseFirestoreService firebaseFirestoreService;
 
-  const TopicWidget({Key key, this.topic}) : super(key: key);
+  const TopicWidget(
+      {Key key, this.topic, this.firebaseFirestoreService, this.studyUID})
+      : super(key: key);
 
   @override
   _TopicWidgetState createState() => _TopicWidgetState();
@@ -27,7 +32,26 @@ class _TopicWidgetState extends State<TopicWidget> {
     var dateFromTimeStamp = widget.topic.topicDate.toDate();
     var formatter = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
     date = formatter.format(dateFromTimeStamp);
+  }
 
+  void _setTopicAsActive() async {
+    if (!widget.topic.isActive) {
+      setState(() {
+        widget.topic.isActive = true;
+      });
+      await widget.firebaseFirestoreService
+          .setTopicAsActive(widget.studyUID, widget.topic.topicUID);
+    }
+  }
+
+  void _viewResponses() {
+    if (widget.topic.isActive) {
+      Navigator.of(context)
+          .pushNamed(CLIENT_MODERATOR_RESPONSES_SCREEN, arguments: {
+        'questionUID': widget.topic.questions.first.questionUID,
+        'topicUID': widget.topic.topicUID,
+      });
+    }
   }
 
   @override
@@ -69,11 +93,15 @@ class _TopicWidgetState extends State<TopicWidget> {
                 ),
                 FlatButton(
                   color: PROJECT_GREEN,
-                  onPressed: () => Navigator.of(context).pushNamed(
-                    CLIENT_MODERATOR_RESPONSES_SCREEN,
-                  ),
+                  onPressed: () {
+                    if (!widget.topic.isActive) {
+                      _setTopicAsActive();
+                    } else {
+                      _viewResponses();
+                    }
+                  },
                   child: Text(
-                    'View Responses',
+                    widget.topic.isActive ? 'View Responses' : 'Set Active',
                     style: TextStyle(
                       color: Colors.white,
                     ),

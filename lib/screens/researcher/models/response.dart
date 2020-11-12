@@ -1,5 +1,7 @@
+import 'package:thoughtnav/screens/researcher/models/comment.dart';
 
 class Response {
+  String responseUID;
   String avatarURL;
   String alias;
   String userName;
@@ -7,9 +9,11 @@ class Response {
   String date;
   String responseStatement;
   int claps;
-  List<Map<String, dynamic>> comments;
+  int comments;
+  List<Comment> commentStatements;
 
   Response({
+    this.responseUID,
     this.avatarURL,
     this.alias,
     this.userName,
@@ -18,11 +22,13 @@ class Response {
     this.responseStatement,
     this.claps,
     this.comments,
+    this.commentStatements,
   });
 
   Map<String, dynamic> toMap () {
     var response = <String, dynamic>{};
 
+    response['responseUID'] = responseUID;
     response['avatarURL'] = avatarURL;
     response['alias'] = alias;
     response['userName'] = userName;
@@ -36,6 +42,7 @@ class Response {
   }
 
   Response.fromMap(Map<String, dynamic> response){
+    responseUID = response['responseUID'];
     avatarURL = response['avatarURL'];
     alias = response['alias'];
     userName = response['userName'];
