@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/misc_constants.dart';
@@ -7,22 +8,15 @@ import 'package:thoughtnav/services/firebase_firestore_service.dart';
 class QuestionAndResponsesSubScreen extends StatefulWidget {
   const QuestionAndResponsesSubScreen({
     Key key,
-    @required this.screenSize,
     this.studyUID,
     this.topicUID,
     this.questionUID,
-    this.studyName,
-    this.topicName,
-    this.firebaseFirestoreService, this.internalStudyLabel,
+    this.firebaseFirestoreService,
   }) : super(key: key);
 
-  final Size screenSize;
   final String studyUID;
   final String topicUID;
   final String questionUID;
-  final String studyName;
-  final String internalStudyLabel;
-  final String topicName;
   final FirebaseFirestoreService firebaseFirestoreService;
 
   @override
@@ -36,19 +30,33 @@ class _QuestionAndResponsesSubScreenState
   Stream _getResponses;
   Stream _getComments;
 
-  void _getQuestionStream() {
-    _getQuestion = widget.firebaseFirestoreService
-        .getQuestion(widget.studyUID, widget.questionUID, widget.topicUID);
+  String topicUID;
+  String _topicName;
+
+  void _getTopicName() async {
+    _topicName = await widget.firebaseFirestoreService.getTopicName(widget.studyUID, widget.topicUID);
+  }
+
+  Stream _getQuestionStream(String studyUID, String topicUID, String questionUID) {
+    _getTopicName();
+    return widget.firebaseFirestoreService
+        .getQuestionAsStream(studyUID, topicUID, questionUID);
   }
 
   void _getResponsesStream() {
     _getResponses = widget.firebaseFirestoreService
-        .getQuestion(widget.studyUID, widget.topicUID, widget.questionUID);
+        .getQuestionAsStream(widget.studyUID, widget.topicUID, widget.questionUID);
   }
 
-  // void _getCommentsStream(){
-  //   _getComments = widget.firebaseFirestoreService.get
-  // }
+  @override
+  void initState() {
+
+    topicUID = widget.topicUID;
+
+    _getResponsesStream();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +64,28 @@ class _QuestionAndResponsesSubScreenState
     return Expanded(
       child: Column(
         children: [
-          _QuestionDisplayBar(),
+          StreamBuilder(
+            stream: _getQuestionStream(widget.studyUID, widget.topicUID, widget.questionUID),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if(snapshot.connectionState == ConnectionState.active){
+                if(snapshot.hasData){
+                  return _QuestionDisplayBar(
+                    topicName: _topicName,
+                    questionTitle: snapshot.data['questionTitle'],
+                    questionStatement: snapshot.data['questionStatement'],
+                    responses: snapshot.data['responses'],
+                    comments: snapshot.data['comments'],
+                  );
+                }
+                else {
+                  return SizedBox();
+                }
+              }
+              else {
+                return SizedBox();
+              }
+            },
+          ),
           Expanded(
             child: Container(
               padding: EdgeInsets.symmetric(
@@ -77,8 +106,6 @@ class _QuestionAndResponsesSubScreenState
 }
 
 class _QuestionDisplayBar extends StatelessWidget {
-  final String studyName;
-  final String internalStudyLabel;
   final String topicName;
   final String questionTitle;
   final String questionStatement;
@@ -87,8 +114,6 @@ class _QuestionDisplayBar extends StatelessWidget {
 
   const _QuestionDisplayBar(
       {Key key,
-      this.studyName,
-      this.internalStudyLabel,
       this.topicName,
       this.questionTitle,
       this.questionStatement,
@@ -117,7 +142,7 @@ class _QuestionDisplayBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Study Name (Internal study label)',
+                  topicName,
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 14.0,
@@ -125,20 +150,10 @@ class _QuestionDisplayBar extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: 4.0,
-                ),
-                Text(
-                  'Welcome to "Topic name"',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14.0,
-                  ),
-                ),
-                SizedBox(
                   height: 10.0,
                 ),
                 Text(
-                  'Question title',
+                  questionTitle,
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 18.0,
@@ -149,7 +164,7 @@ class _QuestionDisplayBar extends StatelessWidget {
                   height: 20.0,
                 ),
                 Text(
-                  TEMPORARY_QUESTION,
+                  questionStatement,
                   style: TextStyle(color: Colors.black),
                 ),
               ],
@@ -171,7 +186,7 @@ class _QuestionDisplayBar extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '0',
+                      '$responses',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 16.0,
@@ -195,7 +210,7 @@ class _QuestionDisplayBar extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '0',
+                      '$comments',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 16.0,

@@ -37,7 +37,7 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
     dashboardScreen = StudyDashboard(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
     usersScreen = StudyUsers(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
-    setupScreen = StudySetup();
+    setupScreen = StudySetup(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
     reportsScreen = StudyReports();
 
     subScreen = dashboardScreen;

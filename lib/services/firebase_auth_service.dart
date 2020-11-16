@@ -25,4 +25,9 @@ class FirebaseAuthService {
     return userUID;
   }
 
+  Future changeUserPassword(String newPassword) async {
+    var user = await _firebaseAuth.currentUser;
+    await user.updatePassword(newPassword);
+  }
+
 }

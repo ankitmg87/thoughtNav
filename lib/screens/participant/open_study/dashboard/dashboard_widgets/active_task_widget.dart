@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/topic.dart';
 
 class ActiveTaskWidget extends StatefulWidget {
+  final Topic topic;
+
+  const ActiveTaskWidget({Key key, @required this.topic}) : super(key: key);
+
   @override
   _ActiveTaskWidgetState createState() => _ActiveTaskWidgetState();
 }
@@ -12,10 +18,8 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
   @override
   Widget build(BuildContext context) {
 
-    final Size screenSize = MediaQuery.of(context).size;
-
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
+      margin: EdgeInsets.symmetric(horizontal: 15.0),
       child: Card(
         elevation: 4.0,
         child: Column(
@@ -28,31 +32,25 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Quick Intro',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5.0,
-                      ),
-                      Text(
-                        'Pre Study',
-                        style: TextStyle(
-                          color: Color(0xFF7F7F7F),
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    widget.topic.topicName,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   FlatButton(
                     color: PROJECT_GREEN,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(
+                        PARTICIPANT_RESPONSES_SCREEN,
+                        arguments: {
+                          'topicUID': widget.topic.topicUID,
+                          'questionUID':
+                              widget.topic.questions.first.questionUID,
+                        },
+                      );
+                    },
                     child: Text(
                       'Start',
                       style: TextStyle(
@@ -70,42 +68,20 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.menu,
-                      color: Color(0xFFC6C5CC),
-                      size: 12.0,
+                      Icons.list,
+                      size: 14.0,
+                      color: Colors.grey[400],
                     ),
                     SizedBox(
-                      width: 2.0,
+                      width: 4.0,
                     ),
                     Text(
-                      '0/1',
+                      '${widget.topic.questions.length}',
                       style: TextStyle(
-                        color: Color(0xFFC6C5CC),
-                        fontSize: 10.0,
+                        color: Colors.grey[400],
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                    SizedBox(
-                      width: 8.0,
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.message,
-                          color: Color(0xFFC6C5CC),
-                          size: 12.0,
-                        ),
-                        SizedBox(
-                          width: 2.0,
-                        ),
-                        Text(
-                          '3',
-                          style: TextStyle(
-                            color: Color(0xFFC6C5CC),
-                            fontSize: 10.0,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -138,43 +114,6 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Row(
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  '1',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 8.0,
-                                ),
-                                Text(
-                                  'Questions\nRemaining',
-                                  style: TextStyle(
-                                      color: Color(0xFFC6C5CC),
-                                      fontSize: 12.0),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: 40.0,
-                            ),
-                            Expanded(
-                              child: Container(
-                                height: 10.0,
-                                color: Color(0xFFDFE2ED),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 40.0,
-                        ),
-                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -194,25 +133,49 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                             ),
                           ],
                         ),
-                        Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '0.1 Getting to know you',
-                              style: TextStyle(
-                                color: PROJECT_GREEN,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.arrow_forward,
-                                color: PROJECT_GREEN,
-                              ),
-                              onPressed: () {},
-                            ),
-                          ],
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey,
+                          margin: EdgeInsets.symmetric(vertical: 10.0),
+                        ),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: widget.topic.questions.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${widget.topic.questions[index].questionNumber} ${widget.topic.questions[index].questionTitle}',
+                                  style: TextStyle(
+                                    color: PROJECT_GREEN,
+                                    fontSize: 12.0,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.arrow_forward,
+                                    color: PROJECT_GREEN,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed(
+                                      PARTICIPANT_RESPONSES_SCREEN,
+                                      arguments: {
+                                        'topicUID': widget.topic.topicUID,
+                                        'questionUID': widget
+                                            .topic.questions[index].questionUID,
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
                         ),
                       ],
                     ),

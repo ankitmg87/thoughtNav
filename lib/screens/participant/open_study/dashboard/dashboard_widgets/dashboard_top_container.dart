@@ -3,17 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/misc_constants.dart';
 
-import 'custom_tab_bar.dart';
 import 'progress_containers.dart';
 import 'study_details_bottom_sheet.dart';
 
 class DashboardTopContainer extends StatelessWidget {
   const DashboardTopContainer({
     Key key,
-    this.scaffoldKey,
+    this.scaffoldKey, this.studyName, this.nextTopicName,
   }) : super(key: key);
 
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final String studyName;
+  final String nextTopicName;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +65,7 @@ class DashboardTopContainer extends StatelessWidget {
           SizedBox(
             height: 20.0,
           ),
+
           Row(
             children: [
               StartProgressContainer(),
@@ -105,10 +107,6 @@ class DashboardTopContainer extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(
-            height: 20.0,
-          ),
-          CustomTabBar()
         ],
       ),
     );

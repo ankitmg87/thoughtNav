@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:thoughtnav/screens/researcher/models/topic.dart';
 
 class LockedTaskWidget extends StatelessWidget {
+
+  final Topic topic;
+
+  const LockedTaskWidget({Key key, @required this.topic}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -17,7 +23,7 @@ class LockedTaskWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome to Day One',
+                topic.topicName,
                 style: TextStyle(
                   color: Color(0xFF333333).withOpacity(0.3),
                   fontWeight: FontWeight.bold,
@@ -28,7 +34,7 @@ class LockedTaskWidget extends StatelessWidget {
                 height: 4.0,
               ),
               Text(
-                'Feb. 4',
+                topic.topicDate.toDate().toString(),
                 style: TextStyle(
                   color: Color(0xFF333333).withOpacity(0.3),
                   fontSize: 12.0,

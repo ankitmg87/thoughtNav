@@ -21,13 +21,22 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
   bool isExpanded = false;
 
   String _studyUID;
-  String _studyName;
-  String _internalStudyLabel;
   String _topicUID;
   String _questionUID;
   String _topicName;
 
+  Future<void> _getStudyAndTopicUIDs;
+
   Future<List<Topic>> _getTopicsAndQuestions;
+
+  Future<void> _getStudyUIDAndTopicUID() async {
+    await Future.delayed(Duration(seconds: 0), () {
+      Map arguments = ModalRoute.of(context).settings.arguments;
+      _topicUID = arguments['topicUID'];
+      _questionUID = arguments['questionUID'];
+    });
+
+  }
 
   void _getTopics() {
     _getTopicsAndQuestions = _firebaseFirestoreService.getTopics(_studyUID);
@@ -38,17 +47,11 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     studyNavigatorWidth = minMenuWidth;
     var getStorage = GetStorage();
     _studyUID = getStorage.read('studyUID');
-    _studyName = getStorage.read('studyName');
-    _internalStudyLabel = getStorage.read('internalStudyLabel');
 
-    Future.delayed(Duration(seconds: 0), () {
-      Map arguments = ModalRoute.of(context).settings.arguments;
-      _topicUID = arguments['topicUID'];
-      _questionUID = arguments['questionUID'];
-    });
+    _getTopics();
+    _getStudyAndTopicUIDs = _getStudyUIDAndTopicUID();
 
     super.initState();
-    _getTopics();
   }
 
   @override
@@ -167,7 +170,8 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                               int topicIndex) {
                                             return ExpansionTile(
                                               title: Text(
-                                                snapshot.data[topicIndex].topicName,
+                                                snapshot
+                                                    .data[topicIndex].topicName,
                                                 style: TextStyle(
                                                   color: Colors.grey[700],
                                                   fontWeight: FontWeight.bold,
@@ -193,10 +197,16 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                                           int questionIndex) {
                                                     return InkWell(
                                                       onTap: () {
-                                                        _topicName = snapshot.data[topicIndex].topicName;
-                                                        _topicUID = snapshot.data[topicIndex].topicUID;
-                                                        _questionUID = snapshot.data[questionIndex].questions[questionIndex].questionUID;
-                                                        setState(() {});
+                                                        setState(() {
+                                                          _topicUID = snapshot
+                                                              .data[topicIndex]
+                                                              .topicUID;
+                                                          _questionUID = snapshot
+                                                              .data[topicIndex]
+                                                              .questions[
+                                                          questionIndex]
+                                                              .questionUID;
+                                                        });
                                                       },
                                                       splashColor:
                                                           Colors.transparent,
@@ -251,21 +261,31 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                     ],
                   ),
                 ),
-                QuestionAndResponsesSubScreen(
-                  screenSize: screenSize,
-                  firebaseFirestoreService: _firebaseFirestoreService,
-                  studyUID: _studyUID,
-                  topicUID: _topicUID,
-                  questionUID: _questionUID,
-                  studyName: _studyName,
-                  internalStudyLabel: _internalStudyLabel,
-                  topicName: _topicName,
-                ),
+                _questionsAndResponsesFutureBuilder(),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  FutureBuilder _questionsAndResponsesFutureBuilder() {
+    return FutureBuilder(
+      future: _getStudyAndTopicUIDs,
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if(snapshot.connectionState == ConnectionState.done){
+          return QuestionAndResponsesSubScreen(
+            firebaseFirestoreService: _firebaseFirestoreService,
+            studyUID: _studyUID,
+            topicUID: _topicUID,
+            questionUID: _questionUID,
+          );
+        }
+        else{
+          return SizedBox();
+        }
+      },
     );
   }
 

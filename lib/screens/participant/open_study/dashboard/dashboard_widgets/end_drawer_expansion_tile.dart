@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/end_drawer_expansion_tile_child.dart';
+import 'package:thoughtnav/screens/researcher/models/question.dart';
 
 class EndDrawerExpansionTile extends StatefulWidget {
   const EndDrawerExpansionTile({
     Key key,
-    this.title, this.children,
+    this.title,
+    this.questions,
   }) : super(key: key);
 
   final String title;
-  final List<Widget> children;
+  final List<Question> questions;
 
   @override
   _EndDrawerExpansionTileState createState() => _EndDrawerExpansionTileState();
@@ -25,7 +28,8 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
       child: Column(
         children: [
           ExpansionTile(
-            tilePadding: EdgeInsets.only(right: 16.0, left: _isExpanded ? 16.0 : 10.0),
+            tilePadding:
+                EdgeInsets.only(right: 16.0, left: _isExpanded ? 16.0 : 10.0),
             title: Text(
               widget.title,
               style: TextStyle(
@@ -42,12 +46,23 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                     Icons.keyboard_arrow_right,
                     color: Colors.black,
                   ),
-            onExpansionChanged: (value){
+            onExpansionChanged: (value) {
               setState(() {
                 _isExpanded = value;
               });
             },
-            children: widget.children ?? [],
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.questions.length ,
+                itemBuilder: (BuildContext context, int index) {
+                  return EndDrawerExpansionTileChild(
+                    label: '${widget.questions[index].questionNumber} ${widget.questions[index].questionTitle}',
+                    onTap: (){},
+                  );
+                },
+              ),
+            ],
           ),
           Container(
             height: 0.5,

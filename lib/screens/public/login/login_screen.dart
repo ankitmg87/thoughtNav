@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
@@ -84,9 +85,23 @@ class _LoginScreenState extends State<LoginScreen> {
               RESEARCHER_MAIN_SCREEN, (route) => false);
           break;
         case USER_TYPE_PARTICIPANT:
-          // TODO -> Check whether the participant is onboarded and redirect accordingly.
-          await Navigator.of(context)
-              .pushNamedAndRemoveUntil(WELCOME_SCREEN, (route) => false);
+          var participant = await _firebaseFirestoreService.getParticipant(
+              user.studyUID, userID);
+          if (participant.isOnboarded) {
+            var getStorage = GetStorage();
+            await getStorage.write('studyUID', user.studyUID);
+            await getStorage.write('participantUID', user.userUID);
+            await Navigator.of(context)
+                .pushNamedAndRemoveUntil(DASHBOARD_SCREEN, (route) => false);
+            break;
+          }
+          if(!participant.isOnboarded){
+            var getStorage = GetStorage();
+            await getStorage.write('studyUID', user.studyUID);
+            await getStorage.write('participantUID', user.userUID);
+            await Navigator.of(context).pushNamedAndRemoveUntil(STUDY_DETAILS_SCREEN, (route) => false);
+            break;
+          }
           break;
       }
     }

@@ -114,7 +114,9 @@ class QuestionsFirstDayScreen extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    onPressed: () => Navigator.of(context).pushNamed(QUESTION_SCREEN),
+                    onPressed: () {
+                      // Navigator.of(context).pushNamed(QUESTION_SCREEN);
+                    },
                   ),
                 ),
               ],

@@ -1,13 +1,18 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/participant.dart';
+import 'package:thoughtnav/screens/researcher/models/study.dart';
+import 'package:thoughtnav/screens/researcher/models/topic.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 import 'dashboard_widgets/active_task_widget.dart';
 import 'dashboard_widgets/dashboard_top_container.dart';
 import 'dashboard_widgets/drawer_tile.dart';
-import 'dashboard_widgets/end_drawer_expansion_tile_child.dart';
 import 'dashboard_widgets/locked_task_widget.dart';
 import 'dashboard_widgets/end_drawer_expansion_tile.dart';
 
@@ -20,6 +25,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _dashboardScaffoldKey =
       GlobalKey<ScaffoldState>();
 
+  final _firebaseFireStoreService = FirebaseFirestoreService();
+
   double value = 50.0;
   double initialWidth = 50.0;
   double finalWidth = 300.0;
@@ -29,9 +36,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   bool showDrawer = false;
 
+  Size screenSize;
+
+  String _studyUID;
+  String _participantUID;
+
+  Study _study;
+  Participant _participant;
+  List<Topic> _topics;
+
+  Future<void> _futureStudy;
+  Future<void> _futureTopics;
+
+  Stream _notificationsStream;
+
+  Future<void> _getFutureStudy() async {
+    await _getFutureParticipant();
+    _study = await _firebaseFireStoreService.getStudy(_studyUID);
+  }
+
+  Future<void> _getFutureParticipant() async {
+    _participant = await _firebaseFireStoreService.getParticipant(
+        _studyUID, _participantUID);
+  }
+
+  Future<void> _getFutureTopics() async {
+    _topics = await _firebaseFireStoreService.getTopics(_studyUID);
+  }
+
+  void _getNotifications() {
+    _notificationsStream =
+        _firebaseFireStoreService.getNotifications(_studyUID);
+  }
+
+  @override
+  void initState() {
+    var getStorage = GetStorage();
+    _studyUID = getStorage.read('studyUID');
+    _participantUID = getStorage.read('participantUID');
+
+    _futureStudy = _getFutureStudy();
+    _futureTopics = _getFutureTopics();
+
+    _getNotifications();
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
+    screenSize = MediaQuery.of(context).size;
 
     if (screenSize.width < screenSize.height) {
       return Scaffold(
@@ -45,13 +99,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
               scaffoldKey: _dashboardScaffoldKey,
             ),
             Expanded(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  ActiveTaskWidget(),
-                  LockedTaskWidget(),
-                  LockedTaskWidget(),
-                ],
+              child: FutureBuilder(
+                future: _futureTopics,
+                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                    case ConnectionState.waiting:
+                    case ConnectionState.active:
+                      return Center(
+                        child: Text('Loading Topics...'),
+                      );
+                      break;
+                    case ConnectionState.done:
+                      return ListView.builder(
+                        itemCount: _topics.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          if (_topics[index].isActive) {
+                            return ActiveTaskWidget(
+                              topic: _topics[index],
+                            );
+                          } else {
+                            return LockedTaskWidget(
+                              topic: _topics[index],
+                            );
+                          }
+                        },
+                      );
+                      break;
+                    default:
+                      return SizedBox();
+                  }
+                },
               ),
             ),
             SizedBox(
@@ -61,11 +139,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       );
     } else {
-      return Scaffold(
-        appBar: buildDesktopAppBar(),
-        body: buildDesktopBody(screenSize, context),
-      );
+      return _buildDesktopDashboardFutureBuilder();
     }
+  }
+
+  FutureBuilder _buildDesktopDashboardFutureBuilder() {
+    return FutureBuilder(
+      future: _futureStudy,
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Material(
+              child: Center(
+                child: Text('No Internet Connection'),
+              ),
+            );
+            break;
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            return Material(
+              child: Center(
+                child: Text('Loading Study...'),
+              ),
+            );
+            break;
+          case ConnectionState.done:
+            return Scaffold(
+                appBar: buildDesktopAppBar(),
+                body: buildDesktopBody(screenSize, context));
+            break;
+          default:
+            return Material(
+              child: Center(
+                child: Text(
+                  'Something went wrong!',
+                ),
+              ),
+            );
+        }
+      },
+    );
   }
 
   Stack buildDesktopBody(Size screenSize, BuildContext context) {
@@ -94,7 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Power Wheelchair Study',
+                            _study.studyName,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.0,
@@ -213,15 +326,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           Align(
                             child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 20.0),
                               width: screenSize.width * 0.6,
-                              child: ListView(
-                                children: [
-                                  ActiveTaskWidget(),
-                                  LockedTaskWidget(),
-                                  LockedTaskWidget(),
-                                  LockedTaskWidget(),
-                                  LockedTaskWidget(),
-                                ],
+                              child: FutureBuilder(
+                                future: _futureTopics,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<void> snapshot) {
+                                  switch (snapshot.connectionState) {
+                                    case ConnectionState.none:
+                                    case ConnectionState.waiting:
+                                    case ConnectionState.active:
+                                      return Center(
+                                        child: Text('Loading Topics...'),
+                                      );
+                                      break;
+                                    case ConnectionState.done:
+                                      return ListView.separated(
+                                        itemCount: _topics.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          if (_topics[index].isActive) {
+                                            return ActiveTaskWidget(
+                                              topic: _topics[index],
+                                            );
+                                          } else {
+                                            return LockedTaskWidget(
+                                                topic: _topics[index]);
+                                          }
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return SizedBox(
+                                            height: 10.0,
+                                          );
+                                        },
+                                      );
+                                      break;
+                                    default:
+                                      return SizedBox();
+                                  }
+                                },
                               ),
                             ),
                           ),
@@ -248,16 +392,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     color: TEXT_COLOR.withOpacity(0.2),
                                   ),
                                   Expanded(
-                                    child: ListView(
-                                      children: [
-                                        _DesktopNotificationWidget(),
-                                        _DesktopNotificationWidget(),
-                                        _DesktopNotificationWidget(),
-                                        _DesktopNotificationWidget(),
-                                        _DesktopNotificationWidget(),
-                                        _DesktopNotificationWidget(),
-                                        _DesktopNotificationWidget(),
-                                      ],
+                                    child: StreamBuilder(
+                                      stream: _notificationsStream,
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<dynamic> snapshot) {
+                                        switch (snapshot.connectionState) {
+                                          case ConnectionState.none:
+                                            if (snapshot.hasError) {
+                                              print(snapshot.error);
+                                            }
+                                            return SizedBox();
+                                            break;
+                                          case ConnectionState.waiting:
+                                          case ConnectionState.active:
+                                            if (snapshot.hasData) {
+                                              var notifications =
+                                                  snapshot.data.documents;
+
+                                              return ListView.separated(
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return _DesktopNotificationWidget(
+                                                    time: notifications[index]
+                                                        ['time'],
+                                                    participantAvatar:
+                                                        notifications[index][
+                                                            'participantAvatar'],
+                                                    participantAlias:
+                                                        notifications[index][
+                                                            'participantAlias'],
+                                                    questionNumber:
+                                                        notifications[index]
+                                                            ['questionNumber'],
+                                                    questionTitle:
+                                                        notifications[index]
+                                                            ['questionTitle'],
+                                                  );
+                                                },
+                                                separatorBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return SizedBox(
+                                                    height: 10.0,
+                                                  );
+                                                },
+                                                itemCount: notifications.length,
+                                              );
+                                            } else {
+                                              return SizedBox(
+                                                child: Text('Loading...'),
+                                              );
+                                            }
+                                            break;
+                                          case ConnectionState.done:
+                                            if (snapshot.hasError) {
+                                              print(snapshot.error);
+                                            }
+                                            return SizedBox();
+                                            break;
+                                          default:
+                                            if (snapshot.hasError) {
+                                              print(snapshot.error);
+                                            }
+                                            return SizedBox();
+                                        }
+                                      },
                                     ),
                                   ),
                                 ],
@@ -312,14 +512,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(
                   child: Container(
                     alignment: Alignment.center,
-                    child: showDrawer ? Text(
-                      'Study Navigator',
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: TEXT_COLOR,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ) : SizedBox(),
+                    child: showDrawer
+                        ? Text(
+                            'Study Navigator',
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: TEXT_COLOR,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : SizedBox(),
                   ),
                 ),
                 IconButton(
@@ -342,43 +544,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ],
             ),
-            showDrawer ?
-            Expanded(
-              child: ListView(
-                children: [
-                  EndDrawerExpansionTile(
-                    title: 'Quick Intro',
-                    children: [
-                      EndDrawerExpansionTileChild(
-                        label: 'Tell Us About You',
-                        onTap: () => Navigator.of(context).pushNamed(TELL_US_YOUR_STORY_SCREEN),
-                      )
-                    ],
-                  ),
-                  EndDrawerExpansionTile(
-                    title: 'Welcome to Day 1',
-                    children: [
-                      EndDrawerExpansionTileChild(
-                        label: '1.1 Welcome to Day 1',
-                        onTap: () {},
-                      ),
-                      EndDrawerExpansionTileChild(
-                        label: '1.2 Getting to know you',
-                        onTap: () {},
-                      ),
-                      EndDrawerExpansionTileChild(
-                        label: '1.3 Describe your PWC',
-                        onTap: () {},
-                      ),
-                      EndDrawerExpansionTileChild(
-                        label: '1.4 Caregiver',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ) : SizedBox(),
+            showDrawer
+                ? Expanded(
+                    child: FutureBuilder(
+                      future: _futureTopics,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<dynamic> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                          case ConnectionState.waiting:
+                          case ConnectionState.active:
+                            return Center(
+                              child: Text('Loading Topics...'),
+                            );
+                            break;
+                          case ConnectionState.done:
+                            if (_topics != null) {
+                              return ListView.builder(
+                                itemCount: _topics.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return EndDrawerExpansionTile(
+                                    title: _topics[index].topicName,
+                                    questions: _topics[index].questions,
+                                  );
+                                },
+                              );
+                            } else {
+                              return Center(
+                                child: Text('Some error occurred'),
+                              );
+                            }
+                            break;
+                          default:
+                            return SizedBox();
+                        }
+                      },
+                    ),
+                  )
+                : SizedBox(),
           ],
         ),
       ),
@@ -590,7 +793,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       actions: [
         Center(
           child: Text(
-            'Hello Sarah',
+            'Hello ${_participant.userName}',
             style: TextStyle(
               color: TEXT_COLOR.withOpacity(0.7),
               fontSize: 12.0,
@@ -604,17 +807,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
               dropDownOpened = !dropDownOpened;
             });
           },
-          child: Container(
-            padding: EdgeInsets.all(6.0),
-            margin: EdgeInsets.symmetric(horizontal: 8.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: PROJECT_LIGHT_GREEN,
-            ),
-            child: Image(
-              width: 20.0,
-              image: AssetImage('images/avatars/batman.png'),
-            ),
+          child: CachedNetworkImage(
+            imageUrl: _participant.profilePhotoURL,
+            imageBuilder: (context, imageProvider){
+              return Container(
+                padding: EdgeInsets.all(6.0),
+                margin: EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: PROJECT_LIGHT_GREEN,
+                ),
+                child: Image(
+                  width: 20.0,
+                  image: imageProvider,
+                ),
+              );
+            },
           ),
         ),
         Container(
@@ -625,6 +833,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         Center(
           child: InkWell(
+            onTap: () {
+              Navigator.of(context).pushNamed(PARTICIPANT_RESPONSES_SCREEN);
+            },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -695,30 +906,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           Expanded(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                EndDrawerExpansionTile(
-                  title: 'Quick Intro',
-                  children: [
-                    EndDrawerExpansionTileChild(
-                      label: '0.1 Tell Us Your Story',
-                      onTap: () => Navigator.of(context)
-                          .pushNamed(TELL_US_YOUR_STORY_SCREEN),
-                    ),
-                  ],
-                ),
-                EndDrawerExpansionTile(
-                  title: 'Welcome to Day One',
-                  children: [
-                    EndDrawerExpansionTileChild(
-                      label: '1.1 Welcome to Day 1',
-                      onTap: () => Navigator.of(context)
-                          .pushNamed(QUESTIONS_FIRST_DAY_SCREEN),
-                    ),
-                  ],
-                ),
-              ],
+            child: FutureBuilder(
+              future: _futureTopics,
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                  case ConnectionState.waiting:
+                  case ConnectionState.active:
+                    return Center(
+                      child: Text('Loading Topics...'),
+                    );
+                    break;
+                  case ConnectionState.done:
+                    if (_topics != null) {
+                      return ListView.builder(
+                        itemCount: _topics.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return EndDrawerExpansionTile(
+                            title: _topics[index].topicName,
+                            questions: _topics[index].questions,
+                          );
+                        },
+                      );
+                    } else {
+                      return Center(
+                        child: Text('Some error occurred'),
+                      );
+                    }
+                    break;
+                  default:
+                    return SizedBox();
+                }
+              },
             ),
           ),
         ],
@@ -964,8 +1183,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _DesktopNotificationWidget extends StatelessWidget {
+  final String time;
+  final String participantAvatar;
+  final String participantAlias;
+  final String questionNumber;
+  final String questionTitle;
+
   const _DesktopNotificationWidget({
     Key key,
+    this.time,
+    this.participantAvatar,
+    this.participantAlias,
+    this.questionNumber,
+    this.questionTitle,
   }) : super(key: key);
 
   @override
@@ -975,7 +1205,7 @@ class _DesktopNotificationWidget extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            '5:28 pm',
+            time,
             style: TextStyle(
               color: TEXT_COLOR.withOpacity(0.6),
               fontSize: 13.0,
@@ -993,7 +1223,7 @@ class _DesktopNotificationWidget extends StatelessWidget {
             child: Image(
               width: 20.0,
               image: AssetImage(
-                'images/avatars/batman.png',
+                participantAvatar,
               ),
             ),
           ),
@@ -1010,9 +1240,10 @@ class _DesktopNotificationWidget extends StatelessWidget {
                     style: TextStyle(
                         color: TEXT_COLOR.withOpacity(0.7), fontSize: 13.0),
                     children: [
-                      TextSpan(text: 'Spiderman responded to the question '),
                       TextSpan(
-                        text: '1.2 Describe your Power Wheelchair.',
+                          text: '$participantAlias responded to the question '),
+                      TextSpan(
+                        text: '$questionNumber $questionTitle.',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),

@@ -7,15 +7,12 @@ class QuestionAndDescriptionContainer extends StatelessWidget {
     @required this.screenSize,
     this.number,
     this.title,
-    this.question,
-    this.description, this.studyName,
+    this.description, // this.studyName,
   }) : super(key: key);
 
   final Size screenSize;
-  final String studyName;
   final String number;
   final String title;
-  final String question;
   final String description;
 
   @override
@@ -48,16 +45,6 @@ class QuestionAndDescriptionContainer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                studyName,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10.0,
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              Text(
                 '$number. $title',
                 textAlign: TextAlign.start,
                 style: TextStyle(
@@ -72,20 +59,10 @@ class QuestionAndDescriptionContainer extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(
                   left: 25.0,
+                  right: 50.0,
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      question,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.0,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
                     Text(
                       description,
                       style: TextStyle(

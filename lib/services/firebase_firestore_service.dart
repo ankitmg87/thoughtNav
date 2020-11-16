@@ -148,6 +148,16 @@ class FirebaseFirestoreService {
     return topics;
   }
 
+  Future<String> getTopicName(String studyUID, String topicUID) async {
+    var topicSnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .get();
+    String topicName = topicSnapshot.data()['topicName'];
+    return topicName;
+  }
+
   Future<List<Question>> getQuestions(String studyUID, Topic topic) async {
     var questions = <Question>[];
 
@@ -169,10 +179,35 @@ class FirebaseFirestoreService {
     return questions;
   }
 
+  Future<Question> getQuestion(
+      String studyUID, String topicUID, String questionUID) async {
+    var questionSnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .get();
+
+    var question = Question.fromMap(questionSnapshot.data());
+    return question;
+  }
+
   Future<String> getMasterPassword(String studyUID) async {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
     var masterPassword = studySnapshot.data()['masterPassword'];
     return masterPassword;
+  }
+
+  Future<Participant> getParticipant(
+      String studyUID, String participantUID) async {
+    var participantSnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participantUID)
+        .get();
+    var participant = Participant.fromMap(participantSnapshot.data());
+    return participant;
   }
 
   Future<List<Participant>> getParticipants(String studyUID) async {
@@ -231,7 +266,8 @@ class FirebaseFirestoreService {
     return moderators;
   }
 
-  Stream getQuestion(String studyUID, String topicUID, String questionUID) {
+  Stream getQuestionAsStream(
+      String studyUID, String topicUID, String questionUID) {
     return _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -241,7 +277,13 @@ class FirebaseFirestoreService {
         .snapshots();
   }
 
-  Stream getResponses(String studyUID, String topicUID, String questionUID) {
+  Stream<QuerySnapshot> getResponsesAsStream(
+      String studyUID, String topicUID, String questionUID) {
+
+    print(studyUID);
+    print(topicUID);
+    print(questionUID);
+
     return _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -249,7 +291,6 @@ class FirebaseFirestoreService {
         .collection(_QUESTIONS_COLLECTION)
         .doc(questionUID)
         .collection(_RESPONSES_COLLECTION)
-        .orderBy('responseTimeStamp', descending: true)
         .snapshots();
   }
 
@@ -401,25 +442,13 @@ class FirebaseFirestoreService {
     return user;
   }
 
-  Future<Participant> createParticipant(
+  Future<void> createParticipant(
       String studyUID, Participant participant) async {
     await _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
-        .add(participant.toMap())
-        .then((participantReference) {
-      participant.participantUID = participantReference.id;
-      participantReference.set(
-        {
-          'participantUID': participantReference.id,
-        },
-        SetOptions(
-          merge: true,
-        ),
-      );
-    });
-
-    return participant;
+        .doc(participant.participantUID)
+        .set(participant.toMap());
   }
 
   Future<Client> createClient(String studyUID, Client client) async {
@@ -574,6 +603,15 @@ class FirebaseFirestoreService {
       },
       SetOptions(merge: true),
     );
+  }
+
+  Future<void> updateParticipant(
+      String studyUID, Participant participant) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participant.participantUID)
+        .set(participant.toMap(), SetOptions(merge: true));
   }
 
   Future<void> updateParticipantDetails(String studyUID, String participantUID,

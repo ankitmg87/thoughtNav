@@ -1,4 +1,5 @@
 class Client {
+  String id;
   String uid;
   String email;
   String password;
@@ -6,6 +7,7 @@ class Client {
   String userGroupName;
 
   Client({
+    this.id,
     this.uid,
     this.email,
     this.password,
@@ -16,6 +18,7 @@ class Client {
   Map<String, dynamic> toMap(){
     var clientMap = <String, dynamic>{};
 
+    clientMap['id'] = id;
     clientMap['uid'] = uid;
     clientMap['email'] = email;
     clientMap['password'] = password;
@@ -25,12 +28,13 @@ class Client {
     return clientMap;
   }
 
-  Client.fromMap(Map<String, dynamic> client){
-    uid = client['uid'];
-    email = client['email'];
-    password = client['password'];
-    phone = client['phone'];
-    userGroupName = client['userGroupName'];
+  Client.fromMap(Map<String, dynamic> clientMap){
+    id = clientMap['id'];
+    uid = clientMap['uid'];
+    email = clientMap['email'];
+    password = clientMap['password'];
+    phone = clientMap['phone'];
+    userGroupName = clientMap['userGroupName'];
   }
 
 }

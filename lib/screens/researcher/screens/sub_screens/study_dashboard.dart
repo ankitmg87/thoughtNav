@@ -94,13 +94,7 @@ class _StudyDashboardState extends State<StudyDashboard> {
                     return _StudyDetailsBar();
                     break;
                   default:
-                    if (snapshot.hasError) {
-                      print(snapshot.error);
-                    }
-                    return SizedBox(
-                      child:
-                          Text('Default : ${snapshot.data['totalResponses']}'),
-                    );
+                    return SizedBox();
                 }
               },
             ),
@@ -233,10 +227,7 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                     if (snapshot.hasError) {
                                       print(snapshot.error);
                                     }
-                                    return SizedBox(
-                                      child: Text(
-                                          'Default : ${snapshot.data['totalResponses']}'),
-                                    );
+                                    return SizedBox();
                                 }
                               },
                             ),

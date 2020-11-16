@@ -1,4 +1,5 @@
 class Moderator {
+  String id;
   String uid;
   String email;
   String password;
@@ -6,6 +7,7 @@ class Moderator {
   String userGroupName;
 
   Moderator({
+    this.id,
     this.uid,
     this.email,
     this.password,
@@ -17,6 +19,7 @@ class Moderator {
 
     var moderatorMap = <String, dynamic>{};
 
+    moderatorMap['id'] = id;
     moderatorMap['uid'] = uid;
     moderatorMap['email'] = email;
     moderatorMap['password'] = password;
@@ -27,6 +30,7 @@ class Moderator {
   }
 
   Moderator.fromMap(Map<String, dynamic> moderatorMap){
+    id = moderatorMap['id'];
     uid = moderatorMap['uid'];
     email = moderatorMap['email'];
     password = moderatorMap['password'];

@@ -29,24 +29,26 @@ class _StudyUsersState extends State<StudyUsers> {
   Future<List<Client>> _clientsFutureList;
   Future<List<Moderator>> _moderatorsFutureList;
 
-
   void _getParticipants() {
-    _participantsFutureList = widget.firebaseFirestoreService.getParticipants(widget.studyUID);
+    _participantsFutureList =
+        widget.firebaseFirestoreService.getParticipants(widget.studyUID);
   }
 
   void _getClients() {
-    _clientsFutureList = widget.firebaseFirestoreService.getClients(widget.studyUID);
+    _clientsFutureList =
+        widget.firebaseFirestoreService.getClients(widget.studyUID);
   }
 
   void _getModerators() {
-    _moderatorsFutureList = widget.firebaseFirestoreService.getModerators(widget.studyUID);
+    _moderatorsFutureList =
+        widget.firebaseFirestoreService.getModerators(widget.studyUID);
   }
 
   FutureBuilder _participantsFutureBuilder() {
     return FutureBuilder(
       future: _participantsFutureList,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch(snapshot.connectionState){
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
             return Center(
               child: Text('Some error occurred'),
@@ -90,7 +92,7 @@ class _StudyUsersState extends State<StudyUsers> {
     return FutureBuilder(
       future: _clientsFutureList,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch(snapshot.connectionState){
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
             return Center(
               child: Text('Some error occurred'),
@@ -106,7 +108,7 @@ class _StudyUsersState extends State<StudyUsers> {
             return ListView.separated(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return SizedBox();
+                return _ClientDetailsCard(client: snapshot.data[index],);
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -130,7 +132,7 @@ class _StudyUsersState extends State<StudyUsers> {
     return FutureBuilder(
       future: _moderatorsFutureList,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch(snapshot.connectionState){
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
             return Center(
               child: Text('Some error occurred'),
@@ -146,7 +148,9 @@ class _StudyUsersState extends State<StudyUsers> {
             return ListView.separated(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return ParticipantDetailsWidget();
+                return _ModeratorDetailsCard(
+                  moderator: snapshot.data[index],
+                );
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -359,18 +363,78 @@ class _StudyUsersState extends State<StudyUsers> {
   }
 }
 
-class _ClientAndModeratorDetailsCard extends StatelessWidget {
+class _ClientDetailsCard extends StatelessWidget {
+  final Client client;
+
+  const _ClientDetailsCard({Key key, this.client}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2.0,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0,),
+        padding: EdgeInsets.symmetric(
+          horizontal: 30.0,
+          vertical: 20.0,
+        ),
         child: Row(
-          children: [],
+          children: [
+            Text(
+              client.id,
+            ),
+            SizedBox(
+              width: 40.0,
+            ),
+            Expanded(
+              child: Text(client.email),
+            ),
+            SizedBox(
+              width: 40.0,
+            ),
+            Expanded(
+              child: Text(client.userGroupName ?? 'Unassigned'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+class _ModeratorDetailsCard extends StatelessWidget {
+  final Moderator moderator;
+
+  const _ModeratorDetailsCard({Key key, this.moderator}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.0,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 30.0,
+          vertical: 20.0,
+        ),
+        child: Row(
+          children: [
+            Text(
+              moderator.id,
+            ),
+            SizedBox(
+              width: 40.0,
+            ),
+            Expanded(
+              child: Text(moderator.email),
+            ),
+            SizedBox(
+              width: 40.0,
+            ),
+            Expanded(
+              child: Text(moderator.userGroupName ?? 'Unassigned'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

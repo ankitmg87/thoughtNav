@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/response.dart';
 
-class UserPostWidget extends StatelessWidget {
-  final String avatar;
-  final String alias;
-  final String date;
-  final String time;
-  final bool hasImage;
-  final String imageURL;
-  final String post;
-  final String likes;
-  final String comments;
-  final Size screenSize;
+class UserResponseWidget extends StatelessWidget {
 
-  const UserPostWidget({
+  final Response response;
+
+  // final String avatar;
+  // final String alias;
+  // final String date;
+  // final String time;
+  // final bool hasImage;
+  // final String imageURL;
+  // final String post;
+  // final String likes;
+  // final String comments;
+  // final Size screenSize;
+
+  const UserResponseWidget({
     Key key,
-    this.avatar,
-    this.alias,
-    this.date,
-    this.time,
-    @required this.hasImage,
-    this.imageURL,
-    this.post,
-    this.likes,
-    this.comments,
-    @required this.screenSize,
+    // this.avatar,
+    // this.alias,
+    // this.date,
+    // this.time,
+    // @required this.hasImage,
+    // this.imageURL,
+    // this.post,
+    // this.likes,
+    // this.comments,
+    // @required this.screenSize,
+    this.response,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
+    print(response.userName);
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 5.0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -114,22 +122,22 @@ class UserPostWidget extends StatelessWidget {
           SizedBox(
             height: 20.0,
           ),
-          hasImage
-              ? Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: Image(
-                    fit: BoxFit.fill,
-                    image: AssetImage('images/placeholder_image.jpg'),
-                  ),
-                ),
-              )
-              : SizedBox(),
-          hasImage
-              ? SizedBox(
-                  height: 20.0,
-                )
-              : SizedBox(),
+          // hasImage
+          //     ? Center(
+          //       child: ClipRRect(
+          //         borderRadius: BorderRadius.circular(10.0),
+          //         child: Image(
+          //           fit: BoxFit.fill,
+          //           image: AssetImage('images/placeholder_image.jpg'),
+          //         ),
+          //       ),
+          //     )
+          //     : SizedBox(),
+          // hasImage
+          //     ? SizedBox(
+          //         height: 20.0,
+          //       )
+          //     : SizedBox(),
           Row(
             children: [
               Image(

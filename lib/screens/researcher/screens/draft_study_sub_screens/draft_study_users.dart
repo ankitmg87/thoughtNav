@@ -7,6 +7,9 @@ import 'package:thoughtnav/models/user.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
 import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
+import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/client_tile.dart';
+import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/moderator_tile.dart';
+import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/participant_tile.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class DraftStudyUsers extends StatefulWidget {
@@ -44,8 +47,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
   String _masterPassword;
 
+  bool _editing = false;
+
   void _addUserToFirebase(
-      String email, String masterPassword, String userType) async {
+      String email, String masterPassword, String userType, String id) async {
     var user = User(
       userEmail: email,
       userPassword: masterPassword,
@@ -53,20 +58,24 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
       studyUID: widget.studyUID,
     );
 
-    await _firebaseFirestoreService.createUser(user);
+    var createdUser = await _firebaseFirestoreService.createUser(user);
 
     if (userType == 'participant') {
       var participant = Participant(
+        id: id,
         email: email,
         password: masterPassword,
+        isOnboarded: false,
+        participantUID: createdUser.userUID,
       );
-      participant = await _firebaseFirestoreService.createParticipant(
+      await _firebaseFirestoreService.createParticipant(
           widget.studyUID, participant);
       _participants.add(participant);
       return;
     }
     if (userType == 'client') {
       var client = Client(
+        id: id,
         email: email,
         password: masterPassword,
       );
@@ -77,6 +86,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     }
     if (userType == 'moderator') {
       var moderator = Moderator(
+        id: id,
         email: email,
         password: masterPassword,
       );
@@ -147,7 +157,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     return RaisedButton(
       onPressed: () async {
         await _buildGeneralDialog('Participants', MediaQuery.of(context).size,
-            'Participant Name', 'participant', _masterPassword);
+            'Participant Email', 'participant', _masterPassword);
         setState(() {});
       },
       color: PROJECT_GREEN,
@@ -252,21 +262,20 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     return FutureBuilder(
       future: _futureParticipants,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if(snapshot.connectionState == ConnectionState.waiting || snapshot.connectionState == ConnectionState.active){
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.connectionState == ConnectionState.active) {
           return Center(
-            child: Text(
-              'Loading participants...'
-            ),
+            child: Text('Loading participants...'),
           );
         }
-        if(snapshot.connectionState == ConnectionState.none){
+        if (snapshot.connectionState == ConnectionState.none) {
           return Center(
             child: Text(
               'Please connect to the internet and try again',
             ),
           );
         }
-        if(snapshot.connectionState == ConnectionState.done){
+        if (snapshot.connectionState == ConnectionState.done) {
           return Column(
             children: [
               SizedBox(
@@ -279,19 +288,21 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     return SizedBox(
                       height: 10.0,
                     );
-                  }, itemBuilder: (BuildContext context, int index) {
-                  return _UserTile();
-                },
+                  },
+                  itemBuilder: (BuildContext context, int index) {
+                    return ParticipantTile(
+                      participant: _participants[index],
+                      editing: _editing,
+                    );
+                  },
                 ),
               ),
             ],
           );
-        }
-        else {
+        } else {
           return Center(
             child: Text(
-              'Something went wrong. Please try again or contact your administrator.'
-            ),
+                'Something went wrong. Please try again or contact your administrator.'),
           );
         }
       },
@@ -302,21 +313,20 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     return FutureBuilder(
       future: _futureClients,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if(snapshot.connectionState == ConnectionState.waiting || snapshot.connectionState == ConnectionState.active){
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.connectionState == ConnectionState.active) {
           return Center(
-            child: Text(
-                'Loading clients...'
-            ),
+            child: Text('Loading clients...'),
           );
         }
-        if(snapshot.connectionState == ConnectionState.none){
+        if (snapshot.connectionState == ConnectionState.none) {
           return Center(
             child: Text(
               'Please connect to the internet and try again',
             ),
           );
         }
-        if(snapshot.connectionState == ConnectionState.done){
+        if (snapshot.connectionState == ConnectionState.done) {
           return Column(
             children: [
               SizedBox(
@@ -329,19 +339,21 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     return SizedBox(
                       height: 10.0,
                     );
-                  }, itemBuilder: (BuildContext context, int index) {
-                  return _UserTile();
-                },
+                  },
+                  itemBuilder: (BuildContext context, int index) {
+                    return ClientTile(
+                      client: _clients[index],
+                      editing: _editing,
+                    );
+                  },
                 ),
               ),
             ],
           );
-        }
-        else {
+        } else {
           return Center(
             child: Text(
-                'Something went wrong. Please try again or contact your administrator.'
-            ),
+                'Something went wrong. Please try again or contact your administrator.'),
           );
         }
       },
@@ -352,21 +364,20 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     return FutureBuilder(
       future: _futureModerators,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if(snapshot.connectionState == ConnectionState.waiting || snapshot.connectionState == ConnectionState.active){
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.connectionState == ConnectionState.active) {
           return Center(
-            child: Text(
-                'Loading moderators...'
-            ),
+            child: Text('Loading moderators...'),
           );
         }
-        if(snapshot.connectionState == ConnectionState.none){
+        if (snapshot.connectionState == ConnectionState.none) {
           return Center(
             child: Text(
               'Please connect to the internet and try again',
             ),
           );
         }
-        if(snapshot.connectionState == ConnectionState.done){
+        if (snapshot.connectionState == ConnectionState.done) {
           return Column(
             children: [
               SizedBox(
@@ -379,19 +390,21 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     return SizedBox(
                       height: 10.0,
                     );
-                  }, itemBuilder: (BuildContext context, int index) {
-                  return _UserTile();
-                },
+                  },
+                  itemBuilder: (BuildContext context, int index) {
+                    return ModeratorTile(
+                      moderator: _moderators[index],
+                      editing: _editing,
+                    );
+                  },
                 ),
               ),
             ],
           );
-        }
-        else {
+        } else {
           return Center(
             child: Text(
-                'Something went wrong. Please try again or contact your administrator.'
-            ),
+                'Something went wrong. Please try again or contact your administrator.'),
           );
         }
       },
@@ -419,8 +432,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-
     return Column(
       children: [
         Container(
@@ -460,6 +471,18 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     _addUserButton,
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit,
+                        color: PROJECT_GREEN,
+                        size: 16.0,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _editing = !_editing;
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -490,6 +513,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   void _buildGeneralDialog(String heading, Size screenSize, String hintText,
       String userType, String masterPassword) async {
     var email = '';
+    var id = '';
     await showGeneralDialog(
       context: context,
       barrierLabel: heading,
@@ -497,245 +521,202 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (BuildContext context, Animation<double> animation,
           Animation<double> secondaryAnimation) {
-        return Center(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 10.0),
-            width: screenSize.width * 0.4,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            child: Material(
-              color: Colors.white,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        heading,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Container(
-                    height: 1.0,
-                    color: Colors.grey[300],
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0),
-                    child: TextFormField(
-                      onChanged: (value) {
-                        email = value;
-                      },
-                      decoration: InputDecoration(
-                        hintText: hintText,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(2.0),
-                          borderSide: BorderSide(
-                            color: Colors.black,
+        return StatefulBuilder(
+          builder: (BuildContext context,
+              void Function(void Function()) _setState) {
+            return Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                width: screenSize.width * 0.4,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Material(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Text(
+                            heading,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(2.0),
-                          borderSide: BorderSide(
-                            color: Colors.grey[400],
-                            width: 0.5,
-                          ),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(2.0),
-                        ),
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.0,
-                    ),
-                    child: InkWell(
-                      onTap: () => _pickFile(),
-                      hoverColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                CupertinoIcons.tray_arrow_down_fill,
-                                color: PROJECT_GREEN,
-                                size: 14.0,
-                              ),
-                              SizedBox(
-                                width: 10.0,
-                              ),
-                              Text(
-                                'Import .csv file',
-                                style: TextStyle(
-                                  color: Colors.grey[500],
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.bold,
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Container(
+                        height: 1.0,
+                        color: Colors.grey[300],
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 60.0,
+                              child: TextFormField(
+                                onChanged: (value) {
+
+                                  _setState((){
+                                    id = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'No.',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
                                 ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  _setState((){
+                                    email = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: hintText,
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.0,
+                        ),
+                        child: InkWell(
+                          onTap: () => _pickFile(),
+                          hoverColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.tray_arrow_down_fill,
+                                    color: PROJECT_GREEN,
+                                    size: 14.0,
+                                  ),
+                                  SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  Text(
+                                    'Import .csv file',
+                                    style: TextStyle(
+                                      color: Colors.grey[500],
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  ButtonBar(
-                    children: [
-                      FlatButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        color: Colors.grey[200],
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
-                          ),
                         ),
                       ),
-                      FlatButton(
-                        onPressed: email.isNotEmpty || email != null
-                            ? () async {
-                                await _addUserToFirebase(
-                                    email, masterPassword, userType);
-                                Navigator.of(context).pop();
-                              }
-                            : null,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(2.0),
-                        ),
-                        color: PROJECT_GREEN,
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: Text(
-                            'Add',
-                            style: TextStyle(
-                                color: Colors.white,
+                      ButtonBar(
+                        children: [
+                          FlatButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            color: Colors.grey[200],
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
                                 fontSize: 12.0,
-                                fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700],
+                              ),
+                            ),
                           ),
-                        ),
+                          FlatButton(
+                            onPressed: email.isNotEmpty && id.isNotEmpty
+                                ? () async {
+                              await _addUserToFirebase(
+                                  email, masterPassword, userType, id);
+                              Navigator.of(context).pop();
+                            }
+                                : null,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(2.0),
+                            ),
+                            color: PROJECT_GREEN,
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Text(
+                                'Add',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
-    );
-  }
-}
-
-class _UserTile extends StatefulWidget {
-  final User user;
-
-  const _UserTile({Key key, this.user}) : super(key: key);
-
-  @override
-  __UserTileState createState() => __UserTileState();
-}
-
-class __UserTileState extends State<_UserTile> {
-  bool _selected;
-
-  @override
-  void initState() {
-    _selected = false;
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(left: 20.0),
-      child: Row(
-        children: [
-          Theme(
-            data: ThemeData(
-              accentColor: PROJECT_NAVY_BLUE,
-              unselectedWidgetColor: Colors.grey[400],
-            ),
-            child: Checkbox(
-              value: _selected,
-              onChanged: (value) {
-                setState(() {
-                  _selected = value;
-                });
-              },
-            ),
-          ),
-          SizedBox(
-            width: 40.0,
-          ),
-          Expanded(
-            child: Text('User email'),
-          ),
-          SizedBox(
-            width: 40.0,
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () {},
-              child: Container(
-                padding: EdgeInsets.all(
-                  10.0,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                    4.0,
-                  ),
-                  border: Border.all(
-                    color: Colors.grey[300],
-                    width: 0.5,
-                  ),
-                ),
-                child: Text(
-                  'Unassigned',
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 40.0,
-          ),
-          IconButton(
-            icon: Icon(
-              CupertinoIcons.ellipsis_vertical,
-              size: 14.0,
-              color: Colors.grey[600],
-            ),
-            onPressed: () {},
-          ),
-          SizedBox(
-            width: 20.0,
-          ),
-        ],
-      ),
     );
   }
 }

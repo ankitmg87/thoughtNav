@@ -255,8 +255,9 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           focusColor: Colors.transparent,
                           hoverColor: Colors.transparent,
                           splashColor: Colors.transparent,
-                          onTap: () {
-                            showGeneralDialog(
+
+                          onTap: () async {
+                            await showGeneralDialog(
                               barrierDismissible: true,
                               barrierLabel: 'Delete Participant',
                               context: context,
@@ -356,7 +357,9 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                                         BorderRadius.circular(
                                                             4.0),
                                                   ),
-                                                  onPressed: () async {
+                                                  onPressed: widget.participant.isDeleted ? null : () async {
+                                                    widget.participant.isDeleted = true;
+                                                    widget.participant.isActive = false;
                                                     await _updateParticipantDetails(
                                                         'isDeleted', true);
                                                     await _updateParticipantDetails(
@@ -388,7 +391,11 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                   ),
                                 );
                               },
-                            );
+                            ).then((value){
+                              setState(() {
+
+                              });
+                            });
                           },
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
