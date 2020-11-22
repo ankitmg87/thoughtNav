@@ -1,8 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/comment.dart';
 
 class CommentWidget extends StatelessWidget {
+  final Comment comment;
+
+  const CommentWidget({Key key, this.comment}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -11,6 +17,10 @@ class CommentWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Color(0xFF27A6B6),
         borderRadius: BorderRadius.circular(4.0),
+        border: Border.all(
+          color: Color(0xFF27A6B6).withOpacity(0.05),
+          width: 0.25,
+        )
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -31,16 +41,21 @@ class CommentWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  padding: EdgeInsets.all(4.0),
-                  decoration: BoxDecoration(
-                    color: Colors.pink[100],
-                    shape: BoxShape.circle,
-                  ),
-                  child: Image(
-                    width: 20.0,
-                    image: AssetImage('images/avatars/spiderman.png'),
-                  ),
+                CachedNetworkImage(
+                  imageUrl: comment.avatarURL,
+                  imageBuilder: (context, imageProvider){
+                    return Container(
+                      padding: EdgeInsets.all(4.0),
+                      decoration: BoxDecoration(
+                        color: Colors.pink[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image(
+                        width: 20.0,
+                        image: imageProvider,
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(
                   width: 10.0,
@@ -48,37 +63,22 @@ class CommentWidget extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Stephen Colbert',
-                          style: TextStyle(
-                            color: TEXT_COLOR.withOpacity(0.6),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12.0,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10.0,
-                        ),
-                        Text(
-                          '(Admin)',
-                          style: TextStyle(
-                            color: Color(0xFF27A6B6),
-                            fontSize: 12.0,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      comment.alias,
+                      style: TextStyle(
+                        color: TEXT_COLOR.withOpacity(0.8),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.0,
+                      ),
                     ),
                     SizedBox(
                       height: 2.0,
                     ),
                     Text(
-                      'May 01, 2019',
+                      comment.date,
                       style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.6),
-                        fontSize: 10.0,
+                        color: TEXT_COLOR.withOpacity(0.8),
+                        fontSize: 12.0,
                       ),
                     ),
                   ],
@@ -87,10 +87,10 @@ class CommentWidget extends StatelessWidget {
                   child: Container(),
                 ),
                 Text(
-                  '5 hours ago',
+                  comment.timeElapsed,
                   style: TextStyle(
-                    color: TEXT_COLOR.withOpacity(0.6),
-                    fontSize: 10.0,
+                    color: TEXT_COLOR.withOpacity(0.8),
+                    fontSize: 12.0,
                   ),
                 ),
               ],
@@ -98,20 +98,12 @@ class CommentWidget extends StatelessWidget {
             SizedBox(
               height: 10.0,
             ),
-            RichText(
-              text: TextSpan(
-                text: 'Hey Spiderman I thought your comment was really interesting. It got me thinking that I would like to ask you one more question:',
-                style: TextStyle(color: TEXT_COLOR, fontSize: 12.0, ),
-                children: [
-                  TextSpan(
-                    text: '\n\nWhat is your favorite type of phone?',
-                    style: TextStyle(
-                      color: TEXT_COLOR,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.bold,
-                    )
-                  )
-                ]
+            Text(
+              comment.commentStatement,
+              style: TextStyle(
+                color: TEXT_COLOR,
+                fontSize: 14.0,
+
               ),
             ),
           ],

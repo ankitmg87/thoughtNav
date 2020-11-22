@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
@@ -13,12 +14,13 @@ class StudySetupScreenTopicWidget extends StatefulWidget {
   final Function onTap;
   final String studyUID;
   final Topic topic;
+  final List<Group> groups;
 
   const StudySetupScreenTopicWidget({
     Key key,
     this.onTap,
     this.studyUID,
-    this.topic,
+    this.topic, this.groups,
   }) : super(key: key);
 
   @override
@@ -30,8 +32,6 @@ class _StudySetupScreenTopicWidgetState
     extends State<StudySetupScreenTopicWidget> {
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
-
-  //Future<void> _futureQuestions;
 
   List<Question> _questions;
 
@@ -57,7 +57,8 @@ class _StudySetupScreenTopicWidgetState
 
     _questions = widget.topic.questions;
 
-    // _futureQuestions = _getQuestions();
+    _questions ??= <Question>[];
+
   }
 
   String _formatTopicDate(Timestamp timestamp) {
@@ -149,7 +150,8 @@ class _StudySetupScreenTopicWidgetState
                         context: context,
                       );
                       if (beginDate != null) {
-                        widget.topic.topicDate = Timestamp.fromDate(beginDate);
+                        var editedTime = beginDate.add(Duration(hours: 6));
+                        widget.topic.topicDate = Timestamp.fromDate(editedTime);
                         _topicDate = _formatTopicDate(widget.topic.topicDate);
                         _updateTopicDetails();
                         setState(() {});
@@ -196,19 +198,10 @@ class _StudySetupScreenTopicWidgetState
                 studyUID: widget.studyUID,
                 topicUID: widget.topic.topicUID,
                 question: _questions[index],
+                groups: widget.groups,
               );
             },
           ),
-          // FutureBuilder(
-          //   future: _futureQuestions,
-          //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          //     if (snapshot.connectionState == ConnectionState.done) {
-          //       return
-          //     } else {
-          //       return SizedBox();
-          //     }
-          //   },
-          // ),
           SizedBox(
             height: 10.0,
           ),

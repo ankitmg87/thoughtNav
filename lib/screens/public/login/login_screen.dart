@@ -16,6 +16,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
 
+  bool _showPassword = true;
+
   final FirebaseAuthService _firebaseAuthService = FirebaseAuthService();
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
@@ -32,33 +34,35 @@ class _LoginScreenState extends State<LoginScreen> {
     BuildContext dialogContext;
     User user;
 
-    unAwaited(showGeneralDialog(
-      context: context,
-      pageBuilder: (BuildContext context, Animation<double> animation,
-          Animation<double> secondaryAnimation) {
-        dialogContext = context;
-        return Center(
-          child: Material(
-            borderRadius: BorderRadius.circular(4.0),
-            color: Colors.white,
-            child: Container(
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: Text(
-                'Signing In...',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
+    unAwaited(
+      showGeneralDialog(
+        context: context,
+        pageBuilder: (BuildContext context, Animation<double> animation,
+            Animation<double> secondaryAnimation) {
+          dialogContext = context;
+          return Center(
+            child: Material(
+              borderRadius: BorderRadius.circular(4.0),
+              color: Colors.white,
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Text(
+                  'Signing In...',
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
-    ));
+          );
+        },
+      ),
+    );
 
     String userID;
 
@@ -77,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
         case USER_TYPE_CLIENT:
           // TODO -> Load data on the basis of study uid.
           await Navigator.of(context).pushNamedAndRemoveUntil(
-              MODERATOR_STUDY_SCREEN, (route) => false);
+              RESEARCHER_MAIN_SCREEN, (route) => false);
           break;
         case USER_TYPE_MODERATOR:
           // TODO -> Load data on the basis of study uid.
@@ -95,11 +99,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 .pushNamedAndRemoveUntil(DASHBOARD_SCREEN, (route) => false);
             break;
           }
-          if(!participant.isOnboarded){
+          if (!participant.isOnboarded) {
             var getStorage = GetStorage();
             await getStorage.write('studyUID', user.studyUID);
             await getStorage.write('participantUID', user.userUID);
-            await Navigator.of(context).pushNamedAndRemoveUntil(STUDY_DETAILS_SCREEN, (route) => false);
+            await Navigator.of(context).pushNamedAndRemoveUntil(
+                STUDY_DETAILS_SCREEN, (route) => false);
             break;
           }
           break;
@@ -237,8 +242,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       TextFormField(
-                        controller: _passwordController,
+                        obscureText: _showPassword,
                         decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            hoverColor: Colors.transparent,
+                            splashColor: Colors.transparent,
+                            focusColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            icon:  Icon(
+                                _showPassword ? Icons.visibility_off : Icons.visibility,
+                              size: 16.0,
+                              color: Colors.grey[700],
+                            ),
+                            onPressed: (){
+                              setState(() {
+                                _showPassword = !_showPassword;
+                              });
+                            },
+                          ),
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
@@ -263,14 +284,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            tristate: false,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value;
-                              });
-                            },
+                          Theme(
+                            data: ThemeData(accentColor: PROJECT_NAVY_BLUE),
+                            child: Checkbox(
+                              value: _rememberMe,
+                              onChanged: (value) {
+                                setState(() {
+                                  _rememberMe = value;
+                                });
+                              },
+                            ),
                           ),
                           SizedBox(
                             width: 4.0,
@@ -315,7 +338,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           color: PROJECT_GREEN,
-                          onPressed: () {},
+                          onPressed: () {
+                            _loginAndRedirectUser();
+                          },
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Text(
@@ -457,7 +482,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.white,
@@ -484,9 +509,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: _passwordController,
-                                  obscureText: true,
+                                  obscureText: _showPassword,
                                   decoration: InputDecoration(
+                                    suffixIcon: IconButton(
+                                      hoverColor: Colors.transparent,
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      icon:  Icon(
+                                        _showPassword ? Icons.visibility_off : Icons.visibility,
+                                        size: 16.0,
+                                        color: Colors.grey[700],
+                                      ),
+                                      onPressed: (){
+                                        setState(() {
+                                          _showPassword = !_showPassword;
+                                        });
+                                      },
+                                    ),
                                     filled: true,
                                     fillColor: Colors.white,
                                     border: OutlineInputBorder(
@@ -511,14 +551,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Checkbox(
-                                      value: _rememberMe,
-                                      tristate: false,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _rememberMe = value;
-                                        });
-                                      },
+                                    Theme(
+                                      data: ThemeData(
+                                          accentColor: PROJECT_NAVY_BLUE),
+                                      child: Checkbox(
+                                        value: _rememberMe,
+                                        tristate: false,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _rememberMe = value;
+                                          });
+                                        },
+                                      ),
                                     ),
                                     SizedBox(
                                       width: 4.0,
@@ -562,7 +606,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(6.0),
                                   ),
                                   color: PROJECT_GREEN,
-                                  onPressed: () => _loginAndRedirectUser(),
+                                  onPressed: () {
+                                    _loginAndRedirectUser();
+                                    // sendMail();
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(

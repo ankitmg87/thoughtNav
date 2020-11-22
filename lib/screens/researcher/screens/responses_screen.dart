@@ -64,22 +64,22 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: screenSize.width,
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-            color: Colors.white,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'ACCESS TYPE',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
+          // Container(
+          //   width: screenSize.width,
+          //   padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          //   color: Colors.white,
+          //   child: Align(
+          //     alignment: Alignment.centerRight,
+          //     child: Text(
+          //       'ACCESS TYPE',
+          //       style: TextStyle(
+          //         color: Colors.black,
+          //         fontSize: 16.0,
+          //         fontWeight: FontWeight.bold,
+          //       ),
+          //     ),
+          //   ),
+          // ),
           Expanded(
             child: Row(
               children: [

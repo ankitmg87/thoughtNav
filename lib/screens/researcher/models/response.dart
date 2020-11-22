@@ -8,12 +8,13 @@ class Response {
   String alias;
   String userName;
   String timeElapsed;
-  String date;
   String responseStatement;
-  int claps;
+  List<dynamic> claps;
   int comments;
   Timestamp responseTimestamp;
   List<Comment> commentStatements;
+  String questionNumber;
+  String questionTitle;
 
   Response({
     this.responseUID,
@@ -22,12 +23,13 @@ class Response {
     this.alias,
     this.userName,
     this.timeElapsed,
-    this.date,
     this.responseStatement,
     this.claps,
     this.comments,
     this.responseTimestamp,
     this.commentStatements,
+    this.questionNumber,
+    this.questionTitle,
   });
 
   Map<String, dynamic> toMap () {
@@ -39,11 +41,12 @@ class Response {
     response['alias'] = alias;
     response['userName'] = userName;
     response['timeElapsed'] = timeElapsed;
-    response['date'] = date;
     response['responseStatement'] = responseStatement;
     response['claps'] = claps;
     response['comments'] = comments;
     response['responseTimestamp'] = responseTimestamp;
+    response['questionNumber'] = questionNumber;
+    response['questionTitle'] = questionTitle;
 
     return response;
   }
@@ -55,7 +58,6 @@ class Response {
     alias = response['alias'];
     userName = response['userName'];
     timeElapsed = response['timeElapsed'];
-    date = response['date'];
     responseStatement = response['responseStatement'];
     claps = response['claps'];
     comments = response['comments'];

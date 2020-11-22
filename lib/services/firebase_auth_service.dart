@@ -30,4 +30,8 @@ class FirebaseAuthService {
     await user.updatePassword(newPassword);
   }
 
+  Future signOutUser() async {
+    await _firebaseAuth.signOut();
+  }
+
 }

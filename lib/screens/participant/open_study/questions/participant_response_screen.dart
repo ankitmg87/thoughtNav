@@ -9,6 +9,7 @@ import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/end_drawer_expansion_tile.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/questions_widgets/question_and_description_container.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_tutorial_widgets/comment_widget.dart';
+import 'package:thoughtnav/screens/researcher/models/comment.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
@@ -24,6 +25,9 @@ class ParticipantResponseScreen extends StatefulWidget {
 }
 
 class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
+  final GlobalKey<ScaffoldState> _participantResponseScreenScaffoldKey =
+      GlobalKey<ScaffoldState>();
+
   final _firebaseFirestoreService = FirebaseFirestoreService();
 
   String _studyUID;
@@ -31,8 +35,18 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   String _topicUID;
   String _questionUID;
 
+  double value = 40.5;
+  double minMenuWidth = 40.5;
+  double maxMenuWidth = 300.0;
+  double studyNavigatorWidth;
+
+  bool isExpanded = false;
+  bool showDrawer = false;
+
   Participant _participant;
   Question _question;
+  Response _response = Response();
+  Comment _comment = Comment();
 
   List<Topic> _topics;
 
@@ -41,8 +55,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   Future<void> _futureQuestion;
 
   Stream<QuerySnapshot> _responsesStream;
-
-  Future<void> _getQuestionUIDAndTopicUID() async {}
 
   Future<void> _getTopics(String studyUID) async {
     _topics = await _firebaseFirestoreService.getTopics(studyUID);
@@ -60,15 +72,34 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
     _topicUID = arguments['topicUID'];
     _questionUID = arguments['questionUID'];
 
-    _responsesStream = _getResponsesStream(studyUID);
+    _getParticipantResponse();
+
+    // _responsesStream = _getResponsesStream(studyUID);
 
     _question = await _firebaseFirestoreService.getQuestion(
         studyUID, _topicUID, _questionUID);
   }
 
-  Stream<QuerySnapshot> _getResponsesStream(String studyUID) {
+  Stream<QuerySnapshot> _getResponsesStream(
+      String studyUID, String topicUID, String questionUID) {
     return _firebaseFirestoreService.getResponsesAsStream(
-        studyUID, _topicUID, _questionUID);
+        studyUID, topicUID, questionUID);
+  }
+
+  Future<void> _postResponse() async {
+    _response = await _firebaseFirestoreService.postResponse(
+        _studyUID, _topicUID, _questionUID, _response);
+  }
+
+  Future<void> _postComment(String studyUID, String topicUID,
+      String questionUID, String responseUID, Comment comment) async {
+    _comment = await _firebaseFirestoreService.postComment(
+        studyUID, topicUID, questionUID, responseUID, comment);
+  }
+
+  void _getParticipantResponse() async {
+    _response = await _firebaseFirestoreService.getParticipantResponse(
+        _studyUID, _topicUID, _questionUID, _participantUID);
   }
 
   @override
@@ -80,7 +111,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
     _futureTopics = _getTopics(_studyUID);
     _futureParticipant = _getParticipant(_studyUID, _participantUID);
-    _responsesStream = _getResponsesStream(_studyUID);
+    // _responsesStream = _getResponsesStream(_studyUID);
 
     super.initState();
   }
@@ -104,6 +135,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
   Scaffold buildPhoneScaffold(BuildContext context, Size screenSize) {
     return Scaffold(
+      key: _participantResponseScreenScaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
@@ -121,282 +153,202 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
           ),
         ),
         centerTitle: true,
-      ),
-      body: ListView(
-        children: [
-          Container(
-            width: double.infinity,
-            height: 10.0,
-            color: PROJECT_GREEN.withOpacity(0.2),
-          ),
-          QuestionAndDescriptionContainer(
-            screenSize: screenSize,
-            // studyName: 'Power Wheelchair Study',
-            number: '0.1',
-            title: 'Tell Us Your Story',
-            description:
-                'To test the system, please tell us about yourself in a few sentences.\nPlease include any details about work, family, pets, hobbies, etc. ',
-          ),
-          SizedBox(
-            height: 30.0,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Image(
-                  width: 16.0,
-                  image: AssetImage(
-                    'images/eye_icon.png',
-                  ),
-                ),
-                SizedBox(
-                  width: 8.0,
-                ),
-                Text(
-                  'Will be visible to Everyone',
-                  style: TextStyle(
-                      color: TEXT_COLOR.withOpacity(0.6),
-                      fontSize: 10.0,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.menu,
+              color: PROJECT_GREEN,
             ),
+            onPressed: () => _participantResponseScreenScaffoldKey.currentState
+                .openEndDrawer(),
           ),
-          Padding(
-            padding: EdgeInsets.only(
-                left: 30.0, right: 30.0, top: 8.0, bottom: 20.0),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: Column(
+        ],
+      ),
+      endDrawer: _buildPhoneEndDrawer(),
+      body: FutureBuilder(
+        future: _futureQuestion,
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return Center(
+                child: Text(
+                  'Something went wrong.',
+                ),
+              );
+              break;
+            case ConnectionState.waiting:
+            case ConnectionState.active:
+              return Center(
+                child: Text('Loading...'),
+              );
+              break;
+            case ConnectionState.done:
+              return ListView(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(4.0),
-                        topRight: Radius.circular(4.0),
+                    width: double.infinity,
+                    height: 10.0,
+                    color: PROJECT_GREEN.withOpacity(0.2),
+                  ),
+                  QuestionAndDescriptionContainer(
+                    screenSize: MediaQuery.of(context).size,
+                    number: _question.questionNumber,
+                    title: _question.questionTitle,
+                    description: _question.questionStatement,
+                  ),
+                  SizedBox(
+                    height: 30.0,
+                  ),
+                  _ResponseTextField(
+                    participant: _participant,
+                    response: _response,
+                    onTap: () async {
+                      _response.timeElapsed = '0';
+                      _response.alias = _participant.alias;
+                      _response.claps = [];
+                      _response.participantUID = _participantUID;
+                      _response.responseTimestamp = Timestamp.now();
+                      _response.userName = _participant.userName;
+                      _response.avatarURL = _participant.profilePhotoURL;
+                      _response.comments = 0;
+                      _response.questionNumber = _question.questionNumber;
+                      _response.questionTitle = _question.questionTitle;
+                      await _postResponse();
+                    },
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
+                    child: Text(
+                      'All responses',
+                      style: TextStyle(
+                        color: TEXT_COLOR.withOpacity(0.5),
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(4.0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: PROJECT_LIGHT_GREEN,
-                              ),
-                              child: Center(
-                                child: Image(
-                                  width: 20.0,
-                                  image: AssetImage(
-                                    'images/avatars/batman.png',
+                  ),
+                  StreamBuilder(
+                    stream: _responsesStream,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<dynamic> snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.none:
+                          return SizedBox();
+                          break;
+                        case ConnectionState.waiting:
+                        case ConnectionState.active:
+                          if (snapshot.hasData) {
+                            var responses = snapshot.data.documents;
+
+                            return ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: responses.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return UserResponseWidget(
+                                  firebaseFirestoreService:
+                                      _firebaseFirestoreService,
+                                  participantUID: _participantUID,
+                                  studyUID: _studyUID,
+                                  topicUID: _topicUID,
+                                  questionUID: _questionUID,
+                                  comment: _comment,
+                                  postCommentFunction: () async {
+                                    _comment.alias = responses[index]['alias'];
+                                    _comment.userName =
+                                        responses[index]['userName'];
+                                    _comment.avatarURL =
+                                        responses[index]['avatarURL'];
+                                    _comment.date = 'current date';
+                                    _comment.timeElapsed = 'time elapsed';
+                                    _comment.commentTimestamp = Timestamp.now();
+                                    _comment.userUID = _participantUID;
+
+                                    await _postComment(
+                                        _studyUID,
+                                        _topicUID,
+                                        _questionUID,
+                                        responses[index]['responseUID'],
+                                        _comment);
+                                  },
+                                  response: Response(
+                                    responseUID: responses[index]
+                                        ['responseUID'],
+                                    participantUID: responses[index]
+                                        ['participantUID'],
+                                    avatarURL: responses[index]['avatarURL'],
+                                    alias: responses[index]['alias'],
+                                    userName: responses[index]['userName'],
+                                    timeElapsed: responses[index]
+                                        ['timeElapsed'],
+                                    responseStatement: responses[index]
+                                        ['responseStatement'],
+                                    claps: responses[index]['claps'],
+                                    comments: responses[index]['comments'],
+                                    responseTimestamp: responses[index]
+                                        ['responseTimestamp'],
                                   ),
+                                );
+                              },
+                            );
+                          } else if (snapshot.data == null) {
+                            return Center(
+                              child: Text('No responses yet'),
+                            );
+                          } else {
+                            return Center(
+                              child: Text('No responses yet'),
+                            );
+                          }
+                          break;
+                        case ConnectionState.done:
+                        default:
+                          return Center(
+                            child: Text('No responses yet'),
+                          );
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6.0),
+                            ),
+                            onPressed: () => Navigator.of(context)
+                                .pushNamed(TOPIC_COMPLETE_SCREEN),
+                            color: PROJECT_GREEN,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Continue',
+                                style: TextStyle(
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              width: 10.0,
-                            ),
-                            Text(
-                              'Batman (me)',
-                              style: TextStyle(
-                                color: TEXT_COLOR.withOpacity(0.8),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(8.0)),
-                          child: TextField(
-                            maxLines: 3,
-                            minLines: 3,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Write your response',
-                              hintStyle: TextStyle(
-                                color: TEXT_COLOR.withOpacity(0.4),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.0,
-                              ),
-                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Row(
-                          children: [
-                            Transform.rotate(
-                              angle: 2.35619,
-                              child: Icon(
-                                Icons.attach_file,
-                                color: PROJECT_GREEN,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 10.0,
-                            ),
-                            Text(
-                              'Add an attachment',
-                              style: TextStyle(
-                                  color: TEXT_COLOR.withOpacity(0.4),
-                                  fontSize: 10.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
                         ),
                       ],
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Material(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(4.0),
-                            bottomRight: Radius.circular(4.0),
-                          ),
-                          color: PROJECT_GREEN,
-                          child: InkWell(
-                            highlightColor: Colors.black.withOpacity(0.2),
-                            splashColor: Colors.black.withOpacity(0.1),
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(4.0),
-                              bottomRight: Radius.circular(4.0),
-                            ),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Post',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            onTap: () {},
-                          ),
-                        ),
-                      ),
-                    ],
+                  SizedBox(
+                    height: 40.0,
                   ),
                 ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'All responses',
-                  style: TextStyle(
-                    color: TEXT_COLOR.withOpacity(0.5),
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Sort By',
-                      style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.5),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12.0,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 4.0,
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Recent',
-                            style: TextStyle(
-                              color: Colors.lightBlue,
-                              fontSize: 12.0,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 2.0,
-                          ),
-                          Transform.rotate(
-                            angle: 1.5708,
-                            child: Icon(
-                              CupertinoIcons.right_chevron,
-                              color: Colors.lightBlue,
-                              size: 10.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // UserResponseWidget(
-          //   hasImage: true,
-          //   screenSize: screenSize,
-          // ),
-          CommentWidget(),
-          // UserResponseWidget(hasImage: false, screenSize: screenSize),
-          SizedBox(
-            height: 10.0,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed(TOPIC_COMPLETE_SCREEN),
-                    color: PROJECT_GREEN,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 40.0,
-          ),
-        ],
+              );
+              break;
+            default:
+              return SizedBox();
+          }
+        },
       ),
     );
   }
@@ -476,75 +428,255 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
               ),
               body: Row(
                 children: [
-                  Container(
-                    constraints: BoxConstraints(
-                      maxWidth: 300.0,
-                    ),
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 30.0, vertical: 20.0),
-                          child: Text(
-                            'Study Navigator',
-                            style: TextStyle(
-                              color: TEXT_COLOR.withOpacity(0.7),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.0,
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 1.0,
-                                color: TEXT_COLOR.withOpacity(0.2),
+                  // Container(
+                  //   constraints: BoxConstraints(
+                  //     maxWidth: 300.0,
+                  //   ),
+                  //   color: Colors.white,
+                  //   child: Column(
+                  //     mainAxisSize: MainAxisSize.max,
+                  //     children: [
+                  //       Container(
+                  //         alignment: Alignment.center,
+                  //         padding: EdgeInsets.symmetric(
+                  //             horizontal: 30.0, vertical: 20.0),
+                  //         child: Text(
+                  //           'Study Navigator',
+                  //           style: TextStyle(
+                  //             color: TEXT_COLOR.withOpacity(0.7),
+                  //             fontWeight: FontWeight.bold,
+                  //             fontSize: 12.0,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Row(
+                  //         children: [
+                  //           Expanded(
+                  //             child: Container(
+                  //               height: 1.0,
+                  //               color: TEXT_COLOR.withOpacity(0.2),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       Expanded(
+                  //         child: FutureBuilder(
+                  //           future: _futureTopics,
+                  //           builder: (BuildContext context,
+                  //               AsyncSnapshot<dynamic> snapshot) {
+                  //             switch (snapshot.connectionState) {
+                  //               case ConnectionState.none:
+                  //               case ConnectionState.waiting:
+                  //               case ConnectionState.active:
+                  //                 return Center(
+                  //                   child: Text('Loading Topics...'),
+                  //                 );
+                  //                 break;
+                  //               case ConnectionState.done:
+                  //                 if (_topics != null) {
+                  //                   return ListView.builder(
+                  //                     itemCount: _topics.length,
+                  //                     itemBuilder:
+                  //                         (BuildContext context, int index) {
+                  //                       return EndDrawerExpansionTile(
+                  //                         title: _topics[index].topicName,
+                  //                         questions: _topics[index].questions,
+                  //                       );
+                  //                     },
+                  //                   );
+                  //                 } else {
+                  //                   return Center(
+                  //                     child: Text('Some error occurred'),
+                  //                   );
+                  //                 }
+                  //                 break;
+                  //               default:
+                  //                 return SizedBox();
+                  //             }
+                  //           },
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  Align(
+                    child: AnimatedContainer(
+                      curve: Curves.ease,
+                      height: double.maxFinite,
+                      width: value,
+                      color: Colors.white,
+                      duration: Duration(milliseconds: 200),
+                      onEnd: () {
+                        setState(() {
+                          if (isExpanded) {
+                            showDrawer = true;
+                          }
+                        });
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              SizedBox(),
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  child: showDrawer
+                                      ? Text(
+                                          'Study Navigator',
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            color: TEXT_COLOR,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      : SizedBox(),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Expanded(
-                          child: FutureBuilder(
-                            future: _futureTopics,
-                            builder: (BuildContext context,
-                                AsyncSnapshot<dynamic> snapshot) {
-                              switch (snapshot.connectionState) {
-                                case ConnectionState.none:
-                                case ConnectionState.waiting:
-                                case ConnectionState.active:
-                                  return Center(
-                                    child: Text('Loading Topics...'),
-                                  );
-                                  break;
-                                case ConnectionState.done:
-                                  if (_topics != null) {
-                                    return ListView.builder(
-                                      itemCount: _topics.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return EndDrawerExpansionTile(
-                                          title: _topics[index].topicName,
-                                          questions: _topics[index].questions,
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    return Center(
-                                      child: Text('Some error occurred'),
-                                    );
-                                  }
-                                  break;
-                                default:
-                                  return SizedBox();
-                              }
-                            },
+                              IconButton(
+                                icon: Icon(
+                                  showDrawer ? Icons.close : Icons.menu,
+                                  color: PROJECT_GREEN,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    if (!isExpanded) {
+                                      value = maxMenuWidth;
+                                      isExpanded = !isExpanded;
+                                    } else {
+                                      value = minMenuWidth;
+                                      isExpanded = !isExpanded;
+                                      showDrawer = false;
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          showDrawer
+                              ? Expanded(
+                                  child: FutureBuilder(
+                                    future: _futureTopics,
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<dynamic> snapshot) {
+                                      switch (snapshot.connectionState) {
+                                        case ConnectionState.none:
+                                          return SizedBox();
+                                          break;
+                                        case ConnectionState.waiting:
+                                        case ConnectionState.active:
+                                          return Center(
+                                            child: Text('Loading topics...'),
+                                          );
+                                          break;
+                                        case ConnectionState.done:
+                                          if (_topics.isNotEmpty) {
+                                            return ListView.builder(
+                                              itemCount: _topics.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int topicIndex) {
+                                                return ExpansionTile(
+                                                  title: Text(
+                                                    _topics[topicIndex]
+                                                        .topicName,
+                                                    style: TextStyle(
+                                                      color: Colors.grey[700],
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14.0,
+                                                    ),
+                                                  ),
+                                                  children: [
+                                                    SizedBox(
+                                                      height: 10.0,
+                                                    ),
+                                                    ListView.separated(
+                                                      padding: EdgeInsets.only(
+                                                        left: 20.0,
+                                                        right: 10.0,
+                                                      ),
+                                                      shrinkWrap: true,
+                                                      itemCount:
+                                                          _topics[topicIndex]
+                                                              .questions
+                                                              .length,
+                                                      itemBuilder: (BuildContext
+                                                              context,
+                                                          int questionIndex) {
+                                                        return InkWell(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              _topicUID = _topics[
+                                                                      topicIndex]
+                                                                  .topicUID;
+                                                              _questionUID = _topics[
+                                                                      topicIndex]
+                                                                  .questions[
+                                                                      questionIndex]
+                                                                  .questionUID;
+                                                            });
+
+                                                            print(_topicUID);
+                                                            print(_questionUID);
+                                                          },
+                                                          splashColor: Colors
+                                                              .transparent,
+                                                          hoverColor: Colors
+                                                              .transparent,
+                                                          focusColor: Colors
+                                                              .transparent,
+                                                          highlightColor: Colors
+                                                              .transparent,
+                                                          child: Row(
+                                                            children: [
+                                                              Text(
+                                                                '${_topics[topicIndex].questions[questionIndex].questionNumber}  ${_topics[topicIndex].questions[questionIndex].questionTitle}',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      800],
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize:
+                                                                      13.0,
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                      separatorBuilder:
+                                                          (BuildContext context,
+                                                              int index) {
+                                                        return SizedBox(
+                                                            height: 20.0);
+                                                      },
+                                                    ),
+                                                    SizedBox(
+                                                      height: 20.0,
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          } else {
+                                            return SizedBox();
+                                          }
+                                          break;
+                                        default:
+                                          return SizedBox();
+                                      }
+                                    },
+                                  ),
+                                )
+                              : SizedBox(),
+                        ],
+                      ),
                     ),
                   ),
                   Expanded(
@@ -581,8 +713,31 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                 SizedBox(
                                   height: 40.0,
                                 ),
+                                _ResponseTextField(
+                                  participant: _participant,
+                                  response: _response,
+                                  onTap: () async {
+                                    _response.timeElapsed = '0';
+                                    _response.alias = _participant.alias;
+                                    _response.claps = [];
+                                    _response.participantUID = _participantUID;
+                                    _response.responseTimestamp =
+                                        Timestamp.now();
+                                    _response.userName = _participant.userName;
+                                    _response.avatarURL =
+                                        _participant.profilePhotoURL;
+                                    _response.comments = 0;
+                                    _response.questionTitle = _question.questionTitle;
+                                    _response.questionNumber = _question.questionNumber;
+                                    await _postResponse();
+                                  },
+                                ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
                                 StreamBuilder(
-                                  stream: _responsesStream,
+                                  stream: _getResponsesStream(
+                                      _studyUID, _topicUID, _questionUID),
                                   builder: (BuildContext context,
                                       AsyncSnapshot<dynamic> snapshot) {
                                     switch (snapshot.connectionState) {
@@ -592,29 +747,74 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                       case ConnectionState.waiting:
                                       case ConnectionState.active:
                                         if (snapshot.hasData) {
-
-                                          var responses = snapshot.data.documents;
+                                          var responses =
+                                              snapshot.data.documents;
 
                                           return ListView.builder(
                                             physics:
                                                 NeverScrollableScrollPhysics(),
                                             shrinkWrap: true,
-                                            itemCount:
-                                                responses.length,
+                                            itemCount: responses.length,
                                             itemBuilder: (BuildContext context,
                                                 int index) {
-
-                                              print(responses[index]);
-                                              print(responses[index]['alias']);
-
                                               return UserResponseWidget(
+                                                firebaseFirestoreService:
+                                                    _firebaseFirestoreService,
+                                                participantUID: _participantUID,
+                                                studyUID: _studyUID,
+                                                topicUID: _topicUID,
+                                                questionUID: _questionUID,
+                                                comment: _comment,
+                                                postCommentFunction: () async {
+                                                  _comment.alias =
+                                                      responses[index]['alias'];
+                                                  _comment.userName =
+                                                      responses[index]
+                                                          ['userName'];
+                                                  _comment.avatarURL =
+                                                      responses[index]
+                                                          ['avatarURL'];
+                                                  _comment.date =
+                                                      'current date';
+                                                  _comment.timeElapsed =
+                                                      'time elapsed';
+                                                  _comment.commentTimestamp =
+                                                      Timestamp.now();
+                                                  _comment.userUID =
+                                                      _participantUID;
+
+                                                  await _postComment(
+                                                      _studyUID,
+                                                      _topicUID,
+                                                      _questionUID,
+                                                      responses[index]
+                                                          ['responseUID'],
+                                                      _comment);
+                                                },
                                                 response: Response(
-                                                  responseUID: responses[index]['responseUID'],
-                                                  participantUID: responses[index]['participantUID'],
-                                                  avatarURL: responses[index]['avatarURL'],
-                                                  alias: responses[index]['alias'],
-                                                  userName: responses[index]['userName'],
-                                                  // timeElapsed: responses[index]['timeElapsed']
+                                                  responseUID: responses[index]
+                                                      ['responseUID'],
+                                                  participantUID:
+                                                      responses[index]
+                                                          ['participantUID'],
+                                                  avatarURL: responses[index]
+                                                      ['avatarURL'],
+                                                  alias: responses[index]
+                                                      ['alias'],
+                                                  userName: responses[index]
+                                                      ['userName'],
+                                                  timeElapsed: responses[index]
+                                                      ['timeElapsed'],
+                                                  responseStatement:
+                                                      responses[index]
+                                                          ['responseStatement'],
+                                                  claps: responses[index]
+                                                      ['claps'],
+                                                  comments: responses[index]
+                                                      ['comments'],
+                                                  responseTimestamp:
+                                                      responses[index]
+                                                          ['responseTimestamp'],
                                                 ),
                                               );
                                             },
@@ -637,6 +837,9 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                     }
                                   },
                                 ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
                               ],
                             );
                             break;
@@ -657,357 +860,79 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
     );
   }
 
-  Scaffold _buildDesktopScaffold(BuildContext context, Size screenSize) {
-    return Scaffold(
-      body: Row(
+  Drawer _buildPhoneEndDrawer() {
+    return Drawer(
+      child: Column(
         children: [
-          // Container(
-          //   constraints: BoxConstraints(
-          //     maxWidth: 300.0,
-          //   ),
-          //   color: Colors.white,
-          //   child: Column(
-          //     mainAxisSize: MainAxisSize.max,
-          //     children: [
-          //       Container(
-          //         alignment: Alignment.center,
-          //         padding:
-          //             EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-          //         child: Text(
-          //           'Study Navigator',
-          //           style: TextStyle(
-          //             color: TEXT_COLOR.withOpacity(0.7),
-          //             fontWeight: FontWeight.bold,
-          //             fontSize: 12.0,
-          //           ),
-          //         ),
-          //       ),
-          //       Row(
-          //         children: [
-          //           Expanded(
-          //             child: Container(
-          //               height: 1.0,
-          //               color: TEXT_COLOR.withOpacity(0.2),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       Expanded(
-          //         child: FutureBuilder(
-          //           future: _futureTopics,
-          //           builder: (BuildContext context,
-          //               AsyncSnapshot<dynamic> snapshot) {
-          //             switch (snapshot.connectionState) {
-          //               case ConnectionState.none:
-          //               case ConnectionState.waiting:
-          //               case ConnectionState.active:
-          //                 return Center(
-          //                   child: Text('Loading Topics...'),
-          //                 );
-          //                 break;
-          //               case ConnectionState.done:
-          //                 if (_topics != null) {
-          //                   return ListView.builder(
-          //                     itemCount: _topics.length,
-          //                     itemBuilder: (BuildContext context, int index) {
-          //                       return EndDrawerExpansionTile(
-          //                         title: _topics[index].topicName,
-          //                         questions: _topics[index].questions,
-          //                       );
-          //                     },
-          //                   );
-          //                 } else {
-          //                   return Center(
-          //                     child: Text('Some error occurred'),
-          //                   );
-          //                 }
-          //                 break;
-          //               default:
-          //                 return SizedBox();
-          //             }
-          //           },
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.close,
+                  color: Color(0xFF333333),
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+              Expanded(
+                child: Text(
+                  'Study Navigator',
+                  style: TextStyle(
+                    color: Color(0xFF333333),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            width: double.infinity,
+            height: 1.0,
+            color: Color(0xFFE5E5E5),
+            margin: EdgeInsets.only(
+              top: 5.0,
+            ),
+          ),
           Expanded(
-            child: ListView(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 10.0,
-                  color: PROJECT_GREEN.withOpacity(0.2),
-                ),
-                QuestionAndDescriptionContainer(
-                  screenSize: screenSize,
-                  //studyName: 'Power Wheelchair Study',
-                  number: '0.1',
-                  title: 'Tell Us Your Story',
-                  description:
-                      'To test the system, please tell us about yourself in a few sentences.\nPlease include any details about work, family, pets, hobbies, etc. ',
-                ),
-                SizedBox(
-                  height: 30.0,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Image(
-                        width: 16.0,
-                        image: AssetImage(
-                          'images/eye_icon.png',
-                        ),
-                      ),
-                      SizedBox(
-                        width: 8.0,
-                      ),
-                      Text(
-                        'Will be visible to Everyone',
-                        style: TextStyle(
-                            color: TEXT_COLOR.withOpacity(0.6),
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: 30.0, right: 30.0, top: 8.0, bottom: 20.0),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(20.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(4.0),
-                              topRight: Radius.circular(4.0),
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(4.0),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: PROJECT_LIGHT_GREEN,
-                                    ),
-                                    child: Center(
-                                      child: Image(
-                                        width: 20.0,
-                                        image: AssetImage(
-                                          'images/avatars/batman.png',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 10.0,
-                                  ),
-                                  Text(
-                                    'Batman (me)',
-                                    style: TextStyle(
-                                      color: TEXT_COLOR.withOpacity(0.8),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13.0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(8.0)),
-                                child: TextField(
-                                  maxLines: 3,
-                                  minLines: 3,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Write your response',
-                                    hintStyle: TextStyle(
-                                      color: TEXT_COLOR.withOpacity(0.4),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Row(
-                                children: [
-                                  Transform.rotate(
-                                    angle: 2.35619,
-                                    child: Icon(
-                                      Icons.attach_file,
-                                      color: PROJECT_GREEN,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 10.0,
-                                  ),
-                                  Text(
-                                    'Add an attachment',
-                                    style: TextStyle(
-                                        color: TEXT_COLOR.withOpacity(0.4),
-                                        fontSize: 10.0,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Material(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(4.0),
-                                  bottomRight: Radius.circular(4.0),
-                                ),
-                                color: PROJECT_GREEN,
-                                child: InkWell(
-                                  highlightColor: Colors.black.withOpacity(0.2),
-                                  splashColor: Colors.black.withOpacity(0.1),
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(4.0),
-                                    bottomRight: Radius.circular(4.0),
-                                  ),
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'Post',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  onTap: () {},
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'All responses',
-                        style: TextStyle(
-                          color: TEXT_COLOR.withOpacity(0.5),
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Sort By',
-                            style: TextStyle(
-                              color: TEXT_COLOR.withOpacity(0.5),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.0,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 4.0,
-                          ),
-                          InkWell(
-                            onTap: () {},
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Recent',
-                                  style: TextStyle(
-                                    color: Colors.lightBlue,
-                                    fontSize: 12.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 2.0,
-                                ),
-                                Transform.rotate(
-                                  angle: 1.5708,
-                                  child: Icon(
-                                    CupertinoIcons.right_chevron,
-                                    color: Colors.lightBlue,
-                                    size: 10.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // UserResponseWidget(
-                //   hasImage: true,
-                //   screenSize: screenSize,
-                // ),
-                CommentWidget(),
-                // UserResponseWidget(hasImage: false, screenSize: screenSize),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6.0),
-                          ),
-                          onPressed: () => Navigator.of(context)
-                              .pushNamed(TOPIC_COMPLETE_SCREEN),
-                          color: PROJECT_GREEN,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Continue',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 40.0,
-                ),
-              ],
+            child: FutureBuilder(
+              future: _futureTopics,
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                  case ConnectionState.waiting:
+                  case ConnectionState.active:
+                    return Center(
+                      child: Text('Loading Topics...'),
+                    );
+                    break;
+                  case ConnectionState.done:
+                    if (_topics != null) {
+                      return ListView.builder(
+                        itemCount: _topics.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return EndDrawerExpansionTile(
+                            title: _topics[index].topicName,
+                            questions: _topics[index].questions,
+                          );
+                        },
+                      );
+                    } else {
+                      return Center(
+                        child: Text('Some error occurred'),
+                      );
+                    }
+                    break;
+                  default:
+                    return SizedBox();
+                }
+              },
             ),
           ),
         ],
@@ -1016,147 +941,254 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   }
 }
 
-class _ResponseTextField extends StatelessWidget {
+class _ResponseTextField extends StatefulWidget {
+  final Participant participant;
+  final Response response;
+  final Function onTap;
+
   const _ResponseTextField({
     Key key,
+    this.participant,
+    this.onTap,
+    this.response,
   }) : super(key: key);
 
   @override
+  __ResponseTextFieldState createState() => __ResponseTextFieldState();
+}
+
+class __ResponseTextFieldState extends State<_ResponseTextField> {
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 30.0, right: 30.0, top: 8.0, bottom: 20.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(4.0),
-                  topRight: Radius.circular(4.0),
+    if (widget.participant.participantUID == widget.response.participantUID) {
+      return Padding(
+        padding:
+            EdgeInsets.only(left: 30.0, right: 30.0, top: 8.0, bottom: 20.0),
+        child: Card(
+          elevation: 2.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(4.0),
+                    topRight: Radius.circular(4.0),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl: widget.response.avatarURL,
+                              imageBuilder: (context, imageProvider) {
+                                return Container(
+                                  padding: EdgeInsets.all(4.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.indigo[300],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Image(
+                                    width: 20.0,
+                                    image: imageProvider,
+                                  ),
+                                );
+                              },
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.response.alias,
+                                  style: TextStyle(
+                                    color: TEXT_COLOR.withOpacity(0.6),
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 2.0,
+                                ),
+                                Text(
+                                  '${widget.response.responseTimestamp}',
+                                  style: TextStyle(
+                                    color: TEXT_COLOR.withOpacity(0.6),
+                                    fontSize: 10.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Text(
+                          widget.response.timeElapsed,
+                          style: TextStyle(
+                            color: PROJECT_GREEN,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(10.0),
+                      alignment: Alignment.centerLeft,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Text(
+                        widget.response.responseStatement,
+                        style: TextStyle(
+                          color: Colors.grey[900],
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(4.0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: PROJECT_LIGHT_GREEN,
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Padding(
+        padding:
+            EdgeInsets.only(left: 30.0, right: 30.0, top: 8.0, bottom: 20.0),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(4.0),
+                    topRight: Radius.circular(4.0),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: widget.participant.profilePhotoURL,
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              padding: EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: PROJECT_LIGHT_GREEN,
+                              ),
+                              child: Center(
+                                child: Image(
+                                  width: 20.0,
+                                  image: imageProvider,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                        child: Center(
-                          child: Image(
-                            width: 20.0,
-                            image: AssetImage(
-                              'images/avatars/batman.png',
-                            ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Text(
+                          widget.participant.alias,
+                          style: TextStyle(
+                            color: TEXT_COLOR.withOpacity(0.8),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8.0)),
+                      child: TextField(
+                        maxLines: 3,
+                        minLines: 3,
+                        onChanged: (responseStatement) {
+                          widget.response.responseStatement = responseStatement;
+                        },
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Write your response',
+                          hintStyle: TextStyle(
+                            color: TEXT_COLOR.withOpacity(0.4),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
                           ),
                         ),
                       ),
-                      SizedBox(
-                        width: 10.0,
-                      ),
-                      Text(
-                        'Batman (me)',
-                        style: TextStyle(
-                          color: TEXT_COLOR.withOpacity(0.8),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8.0)),
-                    child: TextField(
-                      maxLines: 3,
-                      minLines: 3,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Write your response',
-                        hintStyle: TextStyle(
-                          color: TEXT_COLOR.withOpacity(0.4),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.0,
-                        ),
-                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Row(
-                    children: [
-                      Transform.rotate(
-                        angle: 2.35619,
-                        child: Icon(
-                          Icons.attach_file,
-                          color: PROJECT_GREEN,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10.0,
-                      ),
-                      Text(
-                        'Add an attachment',
-                        style: TextStyle(
-                            color: TEXT_COLOR.withOpacity(0.4),
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Material(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(4.0),
-                      bottomRight: Radius.circular(4.0),
-                    ),
-                    color: PROJECT_GREEN,
-                    child: InkWell(
-                      highlightColor: Colors.black.withOpacity(0.2),
-                      splashColor: Colors.black.withOpacity(0.1),
+              Row(
+                children: [
+                  Expanded(
+                    child: Material(
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(4.0),
                         bottomRight: Radius.circular(4.0),
                       ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Post',
-                            style: TextStyle(
-                              color: Colors.white,
+                      color: PROJECT_GREEN,
+                      child: InkWell(
+                        highlightColor: Colors.black.withOpacity(0.2),
+                        splashColor: Colors.black.withOpacity(0.1),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(4.0),
+                          bottomRight: Radius.circular(4.0),
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Post',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
+                        onTap: widget.onTap,
                       ),
-                      onTap: () {},
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 }

@@ -10,6 +10,7 @@ class Question{
   List<Response> responses;
   int totalResponses;
   int totalComments;
+  List groups;
 
   Question({
     this.questionIndex,
@@ -21,6 +22,7 @@ class Question{
     this.responses,
     this.totalResponses,
     this.totalComments,
+    this.groups
   });
 
   Map<String, dynamic> toMap () {
@@ -34,6 +36,7 @@ class Question{
     question['questionType'] = questionType;
     question['totalResponses'] = totalResponses;
     question['totalComments'] = totalComments;
+    question['groups'] = groups;
 
     return question;
   }
@@ -48,6 +51,7 @@ class Question{
     questionType = question['questionType'];
     totalResponses = question['totalResponses'];
     totalComments = question['totalComments'];
+    groups = question['groups'];
   }
 
 }

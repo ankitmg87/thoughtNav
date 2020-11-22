@@ -419,28 +419,53 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           return Center(
             child: Text(
               'You\'re not connected to the internet',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.bold,
+              ),
             ),
           );
         } else if (snapshot.connectionState == ConnectionState.active ||
             snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-            child: Text('Loading studies...'),
+            child: Text(
+              'Loading studies...',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           );
         } else {
           if (snapshot.hasData) {
-            return ListView.separated(
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext context, int index) {
-                return StudyWidget(
-                  study: snapshot.data[index],
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return SizedBox(
-                  height: 10.0,
-                );
-              },
-            );
+            if (snapshot.data.length > 0) {
+              return ListView.separated(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return StudyWidget(
+                    study: snapshot.data[index],
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return SizedBox(
+                    height: 10.0,
+                  );
+                },
+              );
+            } else {
+              return Center(
+                child: Text(
+                  'Please create a new study',
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            }
           } else {
             return Center(
               child: Text(
@@ -453,26 +478,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
     );
   }
 
-  // Future<List<Study>> queryAllStudies() async {
-  //   allStudiesList = [];
-  //   var studiesReference = _firestoreInstance.collection('studies');
-  //   var studiesSnapshot = await studiesReference.get();
-  //
-  //   var snapshots = studiesSnapshot.docs;
-  //
-  //   // for (var snapshot in snapshots) {
-  //   //   var study = Study.fromMap(snapshot.data());
-  //   //   study.studyUID = snapshot.id;
-  //   //   allStudiesList.add(study);
-  //   // }
-  //   //
-  //   // sortStudies();
-  //
-  //   return allStudiesList;
-  // }
-
   void _sortStudies() {
-
     activeStudiesList = [];
     completedStudiesList = [];
     draftStudiesList = [];
@@ -501,6 +507,11 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           listView = Center(
             child: Text(
               'No active studies',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.bold,
+              ),
             ),
           );
         } else {
@@ -524,6 +535,11 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           listView = Center(
             child: Text(
               'No completed studies',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.bold,
+              ),
             ),
           );
         } else {
@@ -547,6 +563,11 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           listView = Center(
             child: Text(
               'No draft studies',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.bold,
+              ),
             ),
           );
         } else {

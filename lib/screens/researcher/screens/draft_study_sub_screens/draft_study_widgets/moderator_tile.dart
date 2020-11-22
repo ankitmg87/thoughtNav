@@ -6,9 +6,8 @@ import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 class ModeratorTile extends StatelessWidget {
 
   final Moderator moderator;
-  final bool editing;
 
-  const ModeratorTile({Key key, this.moderator, this.editing}) : super(key: key);
+  const ModeratorTile({Key key, this.moderator}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +18,6 @@ class ModeratorTile extends StatelessWidget {
       padding: EdgeInsets.only(left: 20.0),
       child: Row(
         children: [
-          editing ?
           Theme(
             data: ThemeData(
               accentColor: PROJECT_NAVY_BLUE,
@@ -31,12 +29,12 @@ class ModeratorTile extends StatelessWidget {
                 _selected = !_selected;
               },
             ),
-          ) : SizedBox(),
+          ),
           SizedBox(
             width: 40.0,
           ),
           Expanded(
-            child: Text('User email'),
+            child: Text(moderator.email),
           ),
           SizedBox(
             width: 40.0,

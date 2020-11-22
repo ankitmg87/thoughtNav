@@ -1,7 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
   @override
@@ -10,17 +12,34 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> with SingleTickerProviderStateMixin {
 
+  final _firebaseFirestoreService = FirebaseFirestoreService();
+
   TabController _tabController;
+
+  String _studyUID;
 
   @override
   void initState() {
+
+    var getStorage = GetStorage();
+
+    _studyUID = getStorage.read('studyUID');
+
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
+    _getNotifications();
+  }
+
+  Stream _notificationsStream;
+
+  void _getNotifications() {
+    _notificationsStream =
+        _firebaseFirestoreService.getNotifications(_studyUID);
   }
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    var screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: buildPhoneAppBar(),
@@ -35,101 +54,72 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
   }
 
   Widget buildPhoneBody(Size screenSize) {
-    return ListView(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-          child: Card(
-            elevation: 6.0,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.grey[100],
-                          backgroundImage:
-                              AssetImage('images/avatars/batman.png'),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Text(
-                          'Tim Johnson posted a new follow up question',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12.0,
-                            color: Color(0xFF333333),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Row(
-                          children: [
-                            AutoSizeText(
-                              'Hey Batman, I thought your comment was really interesting. It got me thinking about a Hey Batman, I thought your comment was really interesting. It got me thinking about a Hey Batman, I thought your comment was really interesting. It got me thinking about a',
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                              minFontSize: 12.0,
-                              maxFontSize: 12.0,
-                              maxLines: 2,
-                              overflowReplacement: GestureDetector(
-                                onTap: () => print('See more'),
-                                child: Container(
-                                  width: 20.0,
-                                  height: 20.0,
-                                  color: Colors.black,
-                                  child: Text(
-                                    'see more',
-                                    style: TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontSize: 12.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    height: screenSize.height * 0.2,
-                    color: Colors.grey[200],
-                    padding: EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Center(
-                      child: Container(
-                        padding: EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: PROJECT_GREEN,
-                        ),
-                        child: Text(
-                          '?',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return StreamBuilder(
+      stream: _notificationsStream,
+      builder: (BuildContext context,
+          AsyncSnapshot<dynamic> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            if (snapshot.hasError) {
+              print(snapshot.error);
+            }
+            return SizedBox();
+            break;
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            if (snapshot.hasData) {
+              var notifications =
+                  snapshot.data.documents;
+
+              return ListView.separated(
+                itemBuilder:
+                    (BuildContext context,
+                    int index) {
+                  return _DesktopNotificationWidget(
+                    time: notifications[index]
+                    ['time'],
+                    participantAvatar:
+                    notifications[index][
+                    'participantAvatar'],
+                    participantAlias:
+                    notifications[index][
+                    'participantAlias'],
+                    questionNumber:
+                    notifications[index]
+                    ['questionNumber'],
+                    questionTitle:
+                    notifications[index]
+                    ['questionTitle'],
+                  );
+                },
+                separatorBuilder:
+                    (BuildContext context,
+                    int index) {
+                  return SizedBox(
+                    height: 10.0,
+                  );
+                },
+                itemCount: notifications.length,
+              );
+            } else {
+              return SizedBox(
+                child: Text('Loading...'),
+              );
+            }
+            break;
+          case ConnectionState.done:
+            if (snapshot.hasError) {
+              print(snapshot.error);
+            }
+            return SizedBox();
+            break;
+          default:
+            if (snapshot.hasError) {
+              print(snapshot.error);
+            }
+            return SizedBox();
+        }
+      },
     );
   }
 
@@ -161,6 +151,85 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
           ),
           Tab(
             text: 'Announcements',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class _DesktopNotificationWidget extends StatelessWidget {
+  final String time;
+  final String participantAvatar;
+  final String participantAlias;
+  final String questionNumber;
+  final String questionTitle;
+
+  const _DesktopNotificationWidget({
+    Key key,
+    this.time,
+    this.participantAvatar,
+    this.participantAlias,
+    this.questionNumber,
+    this.questionTitle,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 6.0),
+      child: Row(
+        children: [
+          Text(
+            time,
+            style: TextStyle(
+              color: TEXT_COLOR.withOpacity(0.6),
+              fontSize: 13.0,
+            ),
+          ),
+          SizedBox(
+            width: 5.0,
+          ),
+          Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: PROJECT_LIGHT_GREEN,
+            ),
+            child: Image(
+              width: 20.0,
+              image: AssetImage(
+                participantAvatar,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 8.0,
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                RichText(
+                  textAlign: TextAlign.start,
+                  maxLines: 2,
+                  text: TextSpan(
+                    style: TextStyle(
+                        color: TEXT_COLOR.withOpacity(0.7), fontSize: 13.0),
+                    children: [
+                      TextSpan(
+                          text: '$participantAlias responded to the question '),
+                      TextSpan(
+                        text: '$questionNumber $questionTitle.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

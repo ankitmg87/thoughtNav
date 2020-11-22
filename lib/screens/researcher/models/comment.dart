@@ -8,6 +8,7 @@ class Comment {
   String timeElapsed;
   String date;
   String commentStatement;
+  String userUID;
   Timestamp commentTimestamp;
 
   Comment({
@@ -18,6 +19,7 @@ class Comment {
     this.timeElapsed,
     this.date,
     this.commentStatement,
+    this.userUID,
     this.commentTimestamp,
   });
 
@@ -31,6 +33,7 @@ class Comment {
     comment['timeElapsed'] = timeElapsed;
     comment['date'] = date;
     comment['commentStatement'] = commentStatement;
+    comment['userUID'] = userUID;
     comment['commentTimestamp'] = commentTimestamp;
 
     return comment;
@@ -45,6 +48,7 @@ class Comment {
     date = comment['date'];
     commentStatement = comment['commentStatement'];
     commentTimestamp = comment['commentTimestamp'];
+    userUID = comment['userUID'];
   }
 
 }

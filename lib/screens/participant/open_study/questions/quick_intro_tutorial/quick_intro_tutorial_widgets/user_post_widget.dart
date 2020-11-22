@@ -1,42 +1,56 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_tutorial_widgets/comment_widget.dart';
+import 'package:thoughtnav/screens/researcher/models/comment.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
-class UserResponseWidget extends StatelessWidget {
-
+class UserResponseWidget extends StatefulWidget {
+  final FirebaseFirestoreService firebaseFirestoreService;
+  final String studyUID;
+  final String topicUID;
+  final String questionUID;
+  final String participantUID;
   final Response response;
-
-  // final String avatar;
-  // final String alias;
-  // final String date;
-  // final String time;
-  // final bool hasImage;
-  // final String imageURL;
-  // final String post;
-  // final String likes;
-  // final String comments;
-  // final Size screenSize;
+  final Comment comment;
+  final Function postCommentFunction;
 
   const UserResponseWidget({
     Key key,
-    // this.avatar,
-    // this.alias,
-    // this.date,
-    // this.time,
-    // @required this.hasImage,
-    // this.imageURL,
-    // this.post,
-    // this.likes,
-    // this.comments,
-    // @required this.screenSize,
     this.response,
+    this.participantUID,
+    this.postCommentFunction,
+    this.comment,
+    this.firebaseFirestoreService,
+    this.studyUID,
+    this.topicUID,
+    this.questionUID,
   }) : super(key: key);
 
   @override
+  _UserResponseWidgetState createState() => _UserResponseWidgetState();
+}
+
+class _UserResponseWidgetState extends State<UserResponseWidget> {
+  Stream<QuerySnapshot> _commentsStream;
+
+  Stream<QuerySnapshot> _getCommentsAsStream() {
+    return widget.firebaseFirestoreService.getCommentsAsStream(widget.studyUID,
+        widget.topicUID, widget.questionUID, widget.response.responseUID);
+  }
+
+  @override
+  void initState() {
+    _commentsStream = _getCommentsAsStream();
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-
-    print(response.userName);
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 5.0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -54,18 +68,21 @@ class UserResponseWidget extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(4.0),
-                    decoration: BoxDecoration(
-                      color: Colors.indigo[300],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Image(
-                      width: 20.0,
-                      image: AssetImage(
-                        'images/avatars/spiderman.png',
-                      ),
-                    ),
+                  CachedNetworkImage(
+                    imageUrl: widget.response.avatarURL,
+                    imageBuilder: (context, imageProvider) {
+                      return Container(
+                        padding: EdgeInsets.all(4.0),
+                        decoration: BoxDecoration(
+                          color: Colors.indigo[300],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image(
+                          width: 20.0,
+                          image: imageProvider,
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(
                     width: 10.0,
@@ -74,7 +91,7 @@ class UserResponseWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Spiderman',
+                        widget.response.alias,
                         style: TextStyle(
                           color: TEXT_COLOR.withOpacity(0.6),
                           fontSize: 12.0,
@@ -85,7 +102,7 @@ class UserResponseWidget extends StatelessWidget {
                         height: 2.0,
                       ),
                       Text(
-                        'May 01, 2019',
+                        '${widget.response.responseTimestamp}',
                         style: TextStyle(
                           color: TEXT_COLOR.withOpacity(0.6),
                           fontSize: 10.0,
@@ -99,7 +116,7 @@ class UserResponseWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '5 hours ago',
+                    widget.response.timeElapsed,
                     style: TextStyle(
                       color: TEXT_COLOR.withOpacity(0.6),
                       fontSize: 10.0,
@@ -113,7 +130,7 @@ class UserResponseWidget extends StatelessWidget {
             height: 20.0,
           ),
           Text(
-            'They would say I\'m the go to person for tech. I buy nearly every device that comes to the market, because I run my own YouTube tech channel.  I\'m up on all the latest technology, and I\'m online 24/7. Currently using the Nexus 6P as my daily driver.',
+            widget.response.responseStatement,
             style: TextStyle(
               color: TEXT_COLOR,
               fontSize: 12.0,
@@ -122,38 +139,262 @@ class UserResponseWidget extends StatelessWidget {
           SizedBox(
             height: 20.0,
           ),
-          // hasImage
-          //     ? Center(
-          //       child: ClipRRect(
-          //         borderRadius: BorderRadius.circular(10.0),
-          //         child: Image(
-          //           fit: BoxFit.fill,
-          //           image: AssetImage('images/placeholder_image.jpg'),
-          //         ),
-          //       ),
-          //     )
-          //     : SizedBox(),
-          // hasImage
-          //     ? SizedBox(
-          //         height: 20.0,
-          //       )
-          //     : SizedBox(),
           Row(
             children: [
-              Image(
-                image: AssetImage('images/questions_icons/clap_icon.png'),
-                width: 30.0,
-                color: TEXT_COLOR.withOpacity(0.8),
+              InkWell(
+                onTap: () async {
+                  if (widget.response.claps.contains(widget.participantUID)) {
+                    setState(() {
+                      widget.response.claps.remove(widget.participantUID);
+                    });
+                    await widget.firebaseFirestoreService.decrementClap(
+                        widget.studyUID,
+                        widget.topicUID,
+                        widget.questionUID,
+                        widget.response.responseUID,
+                        widget.participantUID);
+                  } else {
+                    setState(() {
+                      widget.response.claps.add(widget.participantUID);
+                    });
+                    await widget.firebaseFirestoreService.incrementClap(
+                        widget.studyUID,
+                        widget.topicUID,
+                        widget.questionUID,
+                        widget.response.responseUID,
+                        widget.participantUID);
+                  }
+                },
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                focusColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                child: Image(
+                  image: AssetImage('images/questions_icons/clap_icon.png'),
+                  width: 30.0,
+                  color: TEXT_COLOR.withOpacity(0.8),
+                ),
               ),
-              Text('1', style: TextStyle(color: TEXT_COLOR.withOpacity(0.8),fontSize: 12.0),),
-              SizedBox(width: 16.0,),
-              Image(
-                image: AssetImage('images/questions_icons/comment_icon.png'),
-                width: 15.0,
-                color: TEXT_COLOR.withOpacity(0.8),
+              Text(
+                '${widget.response.claps.length}',
+                style: TextStyle(
+                    color: TEXT_COLOR.withOpacity(0.8), fontSize: 12.0),
               ),
-              SizedBox(width: 6.0,),
-              Text('1', style: TextStyle(color: TEXT_COLOR.withOpacity(0.8),fontSize: 12.0),),
+              SizedBox(
+                width: 16.0,
+              ),
+              InkWell(
+                onTap: () {},
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                focusColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                child: Image(
+                  image: AssetImage('images/questions_icons/comment_icon.png'),
+                  width: 15.0,
+                  color: TEXT_COLOR.withOpacity(0.8),
+                ),
+              ),
+              SizedBox(
+                width: 6.0,
+              ),
+              Text(
+                '${widget.response.comments}',
+                style: TextStyle(
+                  color: TEXT_COLOR.withOpacity(0.8),
+                  fontSize: 12.0,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          ExpansionTile(
+            title: Text(
+              'Comments',
+              style: TextStyle(
+                  color: PROJECT_NAVY_BLUE,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.0),
+            ),
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: widget.response.avatarURL,
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              padding: EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                color: Colors.indigo[300],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Image(
+                                width: 20.0,
+                                image: imageProvider,
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.response.alias,
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 4.0,
+                            ),
+                            Text(
+                              'current Date',
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: TextField(
+                        maxLines: 3,
+                        minLines: 3,
+                        onChanged: (commentStatement) {
+                          setState(() {
+                            widget.comment.commentStatement = commentStatement;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Write your comment',
+                          hintStyle: TextStyle(
+                            color: TEXT_COLOR.withOpacity(0.4),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: FlatButton(
+                        onPressed: widget.comment.commentStatement != null &&
+                                widget.comment.commentStatement.isNotEmpty
+                            ? widget.postCommentFunction
+                            : null,
+                        disabledColor: Colors.grey[400],
+                        color: PROJECT_GREEN,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Text(
+                            'Comment',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              Container(
+                height: 1.0,
+                color: Colors.grey[300],
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              StreamBuilder(
+                stream: _commentsStream,
+                builder:
+                    (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                      return SizedBox();
+                      break;
+                    case ConnectionState.waiting:
+                    case ConnectionState.active:
+                      if (snapshot.hasData) {
+                        var commentDocs = snapshot.data.documents;
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: commentDocs.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return CommentWidget(
+                              comment: Comment(
+                                  commentUID: commentDocs[index]['commentUID'],
+                                  avatarURL: commentDocs[index]['avatarURL'],
+                                  alias: commentDocs[index]['alias'],
+                                  userName: commentDocs[index]['userName'],
+                                  timeElapsed: commentDocs[index]
+                                      ['timeElapsed'],
+                                  date: commentDocs[index]['date'],
+                                  commentStatement: commentDocs[index]
+                                      ['commentStatement'],
+                                  userUID: commentDocs[index]['userUID'],
+                                  commentTimestamp: commentDocs[index]
+                                      ['commentTimestamp']),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
+                        );
+                      } else {
+                        return SizedBox();
+                      }
+
+                      break;
+                    case ConnectionState.done:
+                      return SizedBox();
+                      break;
+                    default:
+                      return SizedBox();
+                  }
+                },
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
             ],
           ),
         ],

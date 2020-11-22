@@ -19,6 +19,7 @@ class StudyUsers extends StatefulWidget {
 }
 
 class _StudyUsersState extends State<StudyUsers> {
+
   bool _participantsVisible = true;
   bool _clientsVisible = false;
   bool _moderatorsVisible = false;
@@ -108,7 +109,9 @@ class _StudyUsersState extends State<StudyUsers> {
             return ListView.separated(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return _ClientDetailsCard(client: snapshot.data[index],);
+                return _ClientDetailsCard(
+                  client: snapshot.data[index],
+                );
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -352,6 +355,19 @@ class _StudyUsersState extends State<StudyUsers> {
                   child: Container(
                     color: Colors.yellow[100],
                     width: screenSize.width * 0.3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Send a message',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

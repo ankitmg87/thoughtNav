@@ -61,7 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _getFutureTopics() async {
-    _topics = await _firebaseFireStoreService.getTopics(_studyUID);
+    _topics = await _firebaseFireStoreService.getParticipantTopics(_studyUID);
   }
 
   void _getNotifications() {
@@ -834,7 +834,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Center(
           child: InkWell(
             onTap: () {
-              Navigator.of(context).pushNamed(PARTICIPANT_RESPONSES_SCREEN);
+              //Navigator.of(context).pushNamed(PARTICIPANT_RESPONSES_SCREEN);
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -954,36 +954,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  radius: 30.0,
-                  backgroundColor: Color(0xFFB6ECC7),
-                  child: Image(
-                    width: 40.0,
-                    image: AssetImage(
-                      'images/avatars/batman.png',
-                    ),
-                  ),
+                child: CachedNetworkImage(
+                  imageUrl: _participant.profilePhotoURL,
+                  imageBuilder: (context, imageProvider){
+                    return Container(
+                      padding: EdgeInsets.all(6.0),
+                      margin: EdgeInsets.symmetric(horizontal: 8.0),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: PROJECT_LIGHT_GREEN,
+                      ),
+                      child: Image(
+                        width: 20.0,
+                        image: imageProvider,
+                      ),
+                    );
+                  },
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Sarah Baker',
+                    _participant.userName,
                     style: TextStyle(
                       color: Color(0xFF333333),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    '@batman_789',
+                    _participant.alias,
                     style: TextStyle(
                       fontSize: 10.0,
                       color: Color(0xFF666666),
                     ),
                   ),
                   Text(
-                    'Group 2 - Smartphone users',
+                    _participant.userGroupName ?? 'Unassigned',
                     style: TextStyle(
                       fontSize: 10.0,
                       color: Color(0xFF666666),
@@ -1013,28 +1020,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             color: Color(0xFFE5E5E5),
             width: double.infinity,
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text(
-                  'Continue Study - Question 1.2',
-                  style: TextStyle(
-                    color: PROJECT_GREEN,
-                    fontSize: 14.0,
-                  ),
-                ),
-                SizedBox(
-                  width: 5.0,
-                ),
-                Icon(
-                  Icons.arrow_forward,
-                  color: PROJECT_GREEN,
-                  size: 12.0,
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Row(
+          //     children: [
+          //       Text(
+          //         'Continue Study - Question 1.2',
+          //         style: TextStyle(
+          //           color: PROJECT_GREEN,
+          //           fontSize: 14.0,
+          //         ),
+          //       ),
+          //       SizedBox(
+          //         width: 5.0,
+          //       ),
+          //       Icon(
+          //         Icons.arrow_forward,
+          //         color: PROJECT_GREEN,
+          //         size: 12.0,
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Container(
             height: 1.0,
             color: Color(0xFFE5E5E5),

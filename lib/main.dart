@@ -49,9 +49,9 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         scaffoldBackgroundColor: SCAFFOLD_BACKGROUND_COLOR,
         unselectedWidgetColor: Colors.white,
-        textTheme: GoogleFonts.latoTextTheme(
-          Theme.of(context).textTheme,
-        ),
+        // textTheme: GoogleFonts.latoTextTheme(
+        //   Theme.of(context).textTheme,
+        // ),
       ),
       initialRoute: TN_HOME_SCREEN_ROUTE,
       routes: {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
@@ -9,9 +10,15 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
   final String topicUID;
   final Question question;
   final Function onTap;
+  final List<Group> groups;
 
   const StudySetupScreenQuestionWidget(
-      {Key key, this.onTap, this.question, this.topicUID, this.studyUID})
+      {Key key,
+      this.onTap,
+      this.question,
+      this.topicUID,
+      this.studyUID,
+      this.groups})
       : super(key: key);
 
   @override
@@ -266,6 +273,145 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                 ),
               ),
+              SizedBox(
+                width: 40.0,
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2.0),
+                    border: Border.all(
+                      width: 0.75,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      await showGeneralDialog(
+                        context: context,
+                        barrierLabel: MaterialLocalizations.of(context)
+                            .modalBarrierDismissLabel,
+                        barrierColor: Colors.black45,
+                        transitionDuration: const Duration(milliseconds: 200),
+                        pageBuilder: (BuildContext context,
+                            Animation<double> animation,
+                            Animation<double> secondaryAnimation) {
+                          return StatefulBuilder(
+                            builder: (BuildContext context,
+                                void Function(void Function()) setState) {
+                              return Center(
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  child: Container(
+                                    padding: EdgeInsets.all(20.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                    constraints: BoxConstraints(
+                                      maxWidth:
+                                          MediaQuery.of(context).size.width *
+                                              0.4,
+                                      maxHeight:
+                                          MediaQuery.of(context).size.height *
+                                              0.4,
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GridView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: widget.groups.length,
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 5,
+                                            mainAxisSpacing: 20.0,
+                                            crossAxisSpacing: 20.0,
+                                          ),
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return _AssignedGroupWidget(
+                                              widget: widget,
+                                              index: index,
+                                              groups:
+                                                  widget.question.groups ?? [],
+                                              studyUID: widget.studyUID,
+                                              topicUID: widget.topicUID,
+                                              questionUID:
+                                                  widget.question.questionUID,
+                                              firebaseFirestoreService:
+                                                  _firebaseFirestoreService,
+                                            );
+                                          },
+                                        ),
+                                        SizedBox(
+                                          height: 20.0,
+                                        ),
+                                        ButtonBar(
+                                          children: [
+                                            FlatButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text(
+                                                'CANCEL',
+                                                style: TextStyle(
+                                                  color: Colors.grey[700],
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 20.0,
+                                            ),
+                                            FlatButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                'DONE',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              color: PROJECT_GREEN,
+                                              disabledColor: Colors.grey,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
+                        horizontal: 10.0,
+                      ),
+                      child: Text(
+                        widget.question.groups == null || widget.question.groups.isEmpty
+                            ? 'Select groups'
+                            : 'Groups selected',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0,
+                          color: widget.question.groups == null || widget.question.groups.isEmpty
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
           SizedBox(
@@ -354,6 +500,88 @@ class _StudySetupScreenQuestionWidgetState
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AssignedGroupWidget extends StatefulWidget {
+  const _AssignedGroupWidget({
+    Key key,
+    @required this.widget,
+    this.index,
+    this.groups,
+    this.firebaseFirestoreService,
+    this.studyUID,
+    this.topicUID,
+    this.questionUID,
+  }) : super(key: key);
+
+  final StudySetupScreenQuestionWidget widget;
+  final int index;
+  final List groups;
+  final FirebaseFirestoreService firebaseFirestoreService;
+  final String studyUID;
+  final String topicUID;
+  final String questionUID;
+
+  @override
+  _AssignedGroupWidgetState createState() => _AssignedGroupWidgetState();
+}
+
+class _AssignedGroupWidgetState extends State<_AssignedGroupWidget> {
+  bool _isSelected = false;
+
+  String _groupUID;
+
+  @override
+  void initState() {
+    _groupUID = widget.widget.groups[widget.index].groupUID;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        if (_isSelected == true) {
+          setState(() {
+            _isSelected = false;
+            widget.groups.remove(_groupUID);
+          });
+          await widget.firebaseFirestoreService.removeAssignedGroup(
+              widget.studyUID, widget.topicUID, widget.questionUID, _groupUID);
+        } else {
+          setState(() {
+            _isSelected = true;
+            widget.groups.add(_groupUID);
+          });
+          await widget.firebaseFirestoreService.addAssignedGroup(
+              widget.studyUID, widget.topicUID, widget.questionUID, _groupUID);
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: _isSelected ? PROJECT_LIGHT_GREEN : Colors.white,
+          border: Border.all(
+            color: PROJECT_LIGHT_GREEN,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: Center(
+          child: Text(
+            widget.widget.groups[widget.index].groupName,
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        // constraints: BoxConstraints(
+        //   maxWidth: 100.0,
+        //   maxHeight: 40.0,
+        // ),
       ),
     );
   }

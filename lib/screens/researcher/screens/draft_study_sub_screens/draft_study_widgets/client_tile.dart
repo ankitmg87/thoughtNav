@@ -6,9 +6,8 @@ import 'package:thoughtnav/screens/researcher/models/client.dart';
 class ClientTile extends StatelessWidget {
 
   final Client client;
-  final bool editing;
 
-  const ClientTile({Key key, this.client, this.editing}) : super(key: key);
+  const ClientTile({Key key, this.client}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +18,6 @@ class ClientTile extends StatelessWidget {
       padding: EdgeInsets.only(left: 20.0),
       child: Row(
         children: [
-          editing ?
           Theme(
             data: ThemeData(
               accentColor: PROJECT_NAVY_BLUE,
@@ -31,12 +29,12 @@ class ClientTile extends StatelessWidget {
                 _selected = !_selected;
               },
             ),
-          ) : SizedBox(),
+          ),
           SizedBox(
             width: 40.0,
           ),
           Expanded(
-            child: Text('User email'),
+            child: Text(client.email),
           ),
           SizedBox(
             width: 40.0,

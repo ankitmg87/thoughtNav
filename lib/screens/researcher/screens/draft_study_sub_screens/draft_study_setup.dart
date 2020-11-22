@@ -26,6 +26,12 @@ class DraftStudySetup extends StatefulWidget {
 }
 
 class _DraftStudySetupState extends State<DraftStudySetup> {
+
+  final studyInfoKey = GlobalKey();
+  final selectCategoryKey = GlobalKey();
+  final createGroupsKey = GlobalKey();
+  final addQuestionsKey = GlobalKey();
+
   Future<void> _futureDraftStudy;
   Future<void> _futureGroups;
   Future<void> _futureTopics;
@@ -180,46 +186,64 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'STUDY INFO',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 20.0,
+                InkWell(
+                  onTap: (){
+                    Scrollable.ensureVisible(studyInfoKey.currentContext);
+                  },
+                  child: Text(
+                    'STUDY INFO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 20.0,
+                    ),
                   ),
                 ),
                 SizedBox(
                   height: 20.0,
                 ),
-                Text(
-                  'SELECT CATEGORY',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: GoogleFonts.montserrat().fontFamily,
-                    fontSize: 20.0,
+                InkWell(
+                  onTap: (){
+                    Scrollable.ensureVisible(selectCategoryKey.currentContext);
+                  },
+                  child: Text(
+                    'SELECT CATEGORY',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                    ),
                   ),
                 ),
                 SizedBox(
                   height: 20.0,
                 ),
-                Text(
-                  'CREATE GROUPS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 20.0,
+                InkWell(
+                  onTap: (){
+                    Scrollable.ensureVisible(createGroupsKey.currentContext);
+                  },
+                  child: Text(
+                    'CREATE GROUPS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 20.0,
+                    ),
                   ),
                 ),
                 SizedBox(
                   height: 20.0,
                 ),
-                Text(
-                  'ADD QUESTIONS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 20.0,
+                InkWell(
+                  onTap: (){
+                    Scrollable.ensureVisible(addQuestionsKey.currentContext);
+                  },
+                  child: Text(
+                    'ADD QUESTIONS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 20.0,
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -256,765 +280,774 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 40.0),
                         child: Form(
-                          child: ListView(
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  padding: EdgeInsets.only(bottom: 5.0),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                          color: Colors.grey, width: 1.0),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    padding: EdgeInsets.only(bottom: 5.0),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey, width: 1.0),
+                                      ),
                                     ),
-                                  ),
-                                  child: Text(
-                                    'STUDY INFO',
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20.0,
+                                    child: Text(
+                                      'STUDY INFO',
+                                      key: studyInfoKey,
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20.0,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Row(
-                                children: [
-                                  DraftScreenCustomTextField(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text: 'STUDY NAME',
-                                        style: headingTextStyle,
-                                        children: [
-                                          TextSpan(
-                                            text: ' *',
-                                            style:
-                                                compulsoryFieldIndicatorTextStyle,
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                Row(
+                                  children: [
+                                    DraftScreenCustomTextField(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          text: 'STUDY NAME',
+                                          style: headingTextStyle,
+                                          children: [
+                                            TextSpan(
+                                              text: ' *',
+                                              style:
+                                                  compulsoryFieldIndicatorTextStyle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      textFormField: TextFormField(
+                                        focusNode: _studyNameFocusNode,
+                                        initialValue: mStudy.studyName,
+                                        onChanged: (studyName) {
+                                          mStudy.studyName = studyName;
+                                        },
+                                        onFieldSubmitted: (studyName) {
+                                          if (mStudy.studyName.isNotEmpty ||
+                                              mStudy.studyName != null) {
+                                            _updateStudyName();
+                                          }
+                                        },
+                                        decoration: InputDecoration(
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.black,
+                                            ),
                                           ),
-                                        ],
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[400],
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    textFormField: TextFormField(
-                                      focusNode: _studyNameFocusNode,
-                                      initialValue: mStudy.studyName,
-                                      onChanged: (studyName) {
-                                        mStudy.studyName = studyName;
-                                      },
-                                      onFieldSubmitted: (studyName) {
-                                        if (mStudy.studyName.isNotEmpty ||
-                                            mStudy.studyName != null) {
-                                          _updateStudyName();
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    DraftScreenCustomTextField(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          text: 'INTERNAL STUDY LABEL',
+                                          style: headingTextStyle,
+                                          children: [
+                                            TextSpan(
+                                              text: ' *',
+                                              style:
+                                                  compulsoryFieldIndicatorTextStyle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      textFormField: TextFormField(
+                                        focusNode: _internalStudyLabelFocusNode,
+                                        initialValue: mStudy.internalStudyLabel,
+                                        onChanged: (internalStudyLabel) {
+                                          mStudy.internalStudyLabel =
+                                              internalStudyLabel;
+                                        },
+                                        onFieldSubmitted: (internalStudyLabel) {
+                                          if (mStudy.internalStudyLabel
+                                                  .isNotEmpty ||
+                                              mStudy.internalStudyLabel != null) {
+                                            _updateInternalStudyLabel();
+                                          }
+                                        },
+                                        decoration: InputDecoration(
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[400],
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
+                                Row(
+                                  children: [
+                                    DraftScreenCustomTextField(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          text: 'MASTER PASSWORD',
+                                          style: TextStyle(
                                             color: Colors.black,
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold,
                                           ),
+                                          children: [
+                                            TextSpan(
+                                              text: ' *',
+                                              style:
+                                                  compulsoryFieldIndicatorTextStyle,
+                                            ),
+                                          ],
                                         ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
+                                      ),
+                                      textFormField: TextFormField(
+                                        focusNode: _masterPasswordFocusNode,
+                                        initialValue: mStudy.masterPassword,
+                                        onChanged: (masterPassword) {
+                                          mStudy.masterPassword = masterPassword;
+                                        },
+                                        onFieldSubmitted: (masterPassword) {
+                                          if (mStudy.masterPassword.isNotEmpty ||
+                                              mStudy.masterPassword != null) {
+                                            _updateMasterPassword();
+                                          }
+                                        },
+                                        decoration: InputDecoration(
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.black,
+                                            ),
                                           ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[400],
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  DraftScreenCustomTextField(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text: 'INTERNAL STUDY LABEL',
-                                        style: headingTextStyle,
-                                        children: [
-                                          TextSpan(
-                                            text: ' *',
-                                            style:
-                                                compulsoryFieldIndicatorTextStyle,
-                                          ),
-                                        ],
-                                      ),
+                                    SizedBox(
+                                      width: 40.0,
                                     ),
-                                    textFormField: TextFormField(
-                                      focusNode: _internalStudyLabelFocusNode,
-                                      initialValue: mStudy.internalStudyLabel,
-                                      onChanged: (internalStudyLabel) {
-                                        mStudy.internalStudyLabel =
-                                            internalStudyLabel;
-                                      },
-                                      onFieldSubmitted: (internalStudyLabel) {
-                                        if (mStudy.internalStudyLabel
-                                                .isNotEmpty ||
-                                            mStudy.internalStudyLabel != null) {
-                                          _updateInternalStudyLabel();
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 40.0,
-                              ),
-                              Row(
-                                children: [
-                                  DraftScreenCustomTextField(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text: 'MASTER PASSWORD',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: ' *',
-                                            style:
-                                                compulsoryFieldIndicatorTextStyle,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    textFormField: TextFormField(
-                                      focusNode: _masterPasswordFocusNode,
-                                      initialValue: mStudy.masterPassword,
-                                      onChanged: (masterPassword) {
-                                        mStudy.masterPassword = masterPassword;
-                                      },
-                                      onFieldSubmitted: (masterPassword) {
-                                        if (mStudy.masterPassword.isNotEmpty ||
-                                            mStudy.masterPassword != null) {
-                                          _updateMasterPassword();
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCustomInputField(
-                                    onTap: () async {
-                                      final beginDate = await showDatePicker(
-                                        firstDate: DateTime(2020),
-                                        initialDate: DateTime(2020),
-                                        lastDate: DateTime(2025),
-                                        context: context,
-                                      );
-                                      if (beginDate != null) {
-                                        var formatter = DateFormat(
-                                            DateFormat.YEAR_ABBR_MONTH_DAY);
-                                        mStudy.startDate =
-                                            formatter.format(beginDate);
-                                        setState(() {});
-                                        await _firebaseFirestoreService
-                                            .updateStudyBasicDetail(
-                                          widget.studyUID,
-                                          'startDate',
-                                          mStudy.startDate,
+                                    StudySetupScreenCustomInputField(
+                                      onTap: () async {
+                                        final beginDate = await showDatePicker(
+                                          firstDate: DateTime(2020),
+                                          initialDate: DateTime(2020),
+                                          lastDate: DateTime(2025),
+                                          context: context,
                                         );
-                                      }
-                                    },
-                                    heading: 'START DATE',
-                                    subtitle: Text(
-                                      mStudy.startDate ?? 'Select a date',
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        color: mStudy.startDate == null
-                                            ? Colors.grey[400]
-                                            : Colors.grey[700],
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    headingTextStyle: headingTextStyle,
-                                    compulsoryFieldIndicatorTextStyle:
-                                        compulsoryFieldIndicatorTextStyle,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCustomInputField(
-                                    onTap: () async {
-                                      final endDate = await showDatePicker(
-                                        firstDate: DateTime(2020),
-                                        initialDate: DateTime(2020),
-                                        lastDate: DateTime(2025),
-                                        context: context,
-                                      );
-                                      if (endDate != null) {
-                                        var formatter = DateFormat(
-                                            DateFormat.YEAR_ABBR_MONTH_DAY);
-                                        mStudy.endDate =
-                                            formatter.format(endDate);
-                                        setState(() {});
-                                        await _firebaseFirestoreService
-                                            .updateStudyBasicDetail(
-                                                widget.studyUID,
-                                                'endDate',
-                                                mStudy.endDate);
-                                      }
-                                    },
-                                    heading: 'END DATE',
-                                    subtitle: Text(
-                                      mStudy.endDate ?? 'Select a date',
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        color: mStudy.endDate == null
-                                            ? Colors.grey[400]
-                                            : Colors.grey[700],
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    headingTextStyle: headingTextStyle,
-                                    compulsoryFieldIndicatorTextStyle:
-                                        compulsoryFieldIndicatorTextStyle,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 40.0,
-                              ),
-                              Row(
-                                children: [
-                                  StudySetupScreenCustomInputField(
-                                    onTap: () async {
-                                      var introPageMessage =
-                                          await showGeneralDialog(
-                                              context: context,
-                                              barrierLabel:
-                                                  MaterialLocalizations.of(
-                                                          context)
-                                                      .modalBarrierDismissLabel,
-                                              barrierColor: Colors.black45,
-                                              transitionDuration:
-                                                  const Duration(
-                                                      milliseconds: 200),
-                                              pageBuilder: (BuildContext
-                                                      context,
-                                                  Animation<double> animation,
-                                                  Animation<double>
-                                                      secondaryAnimation) {
-                                                return CustomTextEditingBox(
-                                                  hintText:
-                                                      'Enter intro page message',
-                                                  initialValue:
-                                                      mStudy.introPageMessage,
-                                                );
-                                              });
-                                      if (introPageMessage != null ||
-                                          introPageMessage
-                                              .toString()
-                                              .isNotEmpty) {
-                                        setState(() {
-                                          mStudy.introPageMessage =
-                                              introPageMessage.toString();
-                                        });
-                                        await _updateStudyDetail(
+                                        if (beginDate != null) {
+                                          var formatter = DateFormat(
+                                              DateFormat.YEAR_ABBR_MONTH_DAY);
+                                          mStudy.startDate =
+                                              formatter.format(beginDate);
+                                          setState(() {});
+                                          await _firebaseFirestoreService
+                                              .updateStudyBasicDetail(
                                             widget.studyUID,
-                                            'introPageMessage',
-                                            mStudy.introPageMessage);
-                                      }
-                                    },
-                                    heading: 'INTRO PAGE MESSAGE',
-                                    subtitle: Text(
-                                      mStudy.introPageMessage == null
-                                          ? 'Enter an intro page message'
-                                          : 'Intro page message set',
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        color: mStudy.introPageMessage == null
-                                            ? Colors.grey[400]
-                                            : Colors.grey[700],
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    headingTextStyle: headingTextStyle,
-                                    compulsoryFieldIndicatorTextStyle:
-                                        compulsoryFieldIndicatorTextStyle,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCustomInputField(
-                                    onTap: () async {
-                                      final studyClosedMessage =
-                                          await showGeneralDialog(
-                                              context: context,
-                                              barrierLabel:
-                                                  MaterialLocalizations.of(
-                                                          context)
-                                                      .modalBarrierDismissLabel,
-                                              barrierColor: Colors.black45,
-                                              transitionDuration:
-                                                  const Duration(
-                                                      milliseconds: 200),
-                                              pageBuilder: (BuildContext
-                                                      context,
-                                                  Animation<double> animation,
-                                                  Animation<double>
-                                                      secondaryAnimation) {
-                                                return CustomTextEditingBox(
-                                                  hintText:
-                                                      'Enter a study end message',
-                                                  initialValue:
-                                                      mStudy.studyClosedMessage,
-                                                );
-                                              });
-                                      if (studyClosedMessage != null ||
-                                          studyClosedMessage
-                                              .toString()
-                                              .isNotEmpty) {
-                                        setState(() {
-                                          mStudy.studyClosedMessage =
-                                              studyClosedMessage.toString();
-                                        });
-                                        _updateStudyDetail(
-                                            widget.studyUID,
-                                            'studyClosedMessage',
-                                            mStudy.studyClosedMessage);
-                                      }
-                                    },
-                                    heading: 'STUDY END MESSAGE',
-                                    subtitle: Text(
-                                      mStudy.studyClosedMessage == null
-                                          ? 'Enter a study end message'
-                                          : 'Study end message set',
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        color: mStudy.studyClosedMessage == null
-                                            ? Colors.grey[400]
-                                            : Colors.grey[700],
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    headingTextStyle: headingTextStyle,
-                                    compulsoryFieldIndicatorTextStyle:
-                                        compulsoryFieldIndicatorTextStyle,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCustomInputField(
-                                    onTap: () async {
-                                      final commonInviteMessage =
-                                          await showGeneralDialog(
-                                              context: context,
-                                              barrierDismissible: true,
-                                              barrierLabel:
-                                                  MaterialLocalizations.of(
-                                                          context)
-                                                      .modalBarrierDismissLabel,
-                                              barrierColor: Colors.black45,
-                                              transitionDuration:
-                                                  const Duration(
-                                                      milliseconds: 200),
-                                              pageBuilder: (BuildContext
-                                                      context,
-                                                  Animation<double> animation,
-                                                  Animation<double>
-                                                      secondaryAnimation) {
-                                                return CustomTextEditingBox(
-                                                  hintText:
-                                                      'Enter a common invite message',
-                                                  initialValue: mStudy
-                                                      .commonInviteMessage,
-                                                );
-                                              });
-                                      if (commonInviteMessage != null ||
-                                          commonInviteMessage
-                                              .toString()
-                                              .isNotEmpty) {
-                                        setState(() {
-                                          mStudy.commonInviteMessage =
-                                              commonInviteMessage.toString();
-                                        });
-                                        _updateStudyDetail(
-                                            widget.studyUID,
-                                            'commonInviteMessage',
-                                            mStudy.commonInviteMessage);
-                                      }
-                                    },
-                                    heading: 'COMMON INVITE MESSAGE',
-                                    subtitle: Text(
-                                      mStudy.commonInviteMessage == null
-                                          ? 'Enter a common invite message'
-                                          : 'Common invite message set',
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        color:
-                                            mStudy.commonInviteMessage == null
-                                                ? Colors.grey[400]
-                                                : Colors.grey[700],
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    headingTextStyle: headingTextStyle,
-                                    compulsoryFieldIndicatorTextStyle:
-                                        compulsoryFieldIndicatorTextStyle,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 40.0,
-                              ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  padding: EdgeInsets.only(bottom: 5.0),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                          color: Colors.grey, width: 1.0),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'SELECT CATEGORY',
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Row(
-                                children: [
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Lifestyle',
-                                    categories: _categories,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Health',
-                                    categories: _categories,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Auto',
-                                    categories: _categories,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Fashion',
-                                    categories: _categories,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 30.0,
-                              ),
-                              Row(
-                                children: [
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Advertising',
-                                    categories: _categories,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Product',
-                                    categories: _categories,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Futures',
-                                    categories: _categories,
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                  ),
-                                  StudySetupScreenCategoryCheckBox(
-                                    studyUID: widget.studyUID,
-                                    categoryName: 'Others',
-                                    categories: _categories,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 40.0,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                              color: Colors.grey, width: 1.0),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'CREATE GROUPS',
+                                            'startDate',
+                                            mStudy.startDate,
+                                          );
+                                        }
+                                      },
+                                      heading: 'START DATE',
+                                      subtitle: Text(
+                                        mStudy.startDate ?? 'Select a date',
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
-                                          color: Colors.black,
+                                          color: mStudy.startDate == null
+                                              ? Colors.grey[400]
+                                              : Colors.grey[700],
+                                          fontSize: 14.0,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 20.0,
                                         ),
+                                      ),
+                                      headingTextStyle: headingTextStyle,
+                                      compulsoryFieldIndicatorTextStyle:
+                                          compulsoryFieldIndicatorTextStyle,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCustomInputField(
+                                      onTap: () async {
+                                        final endDate = await showDatePicker(
+                                          firstDate: DateTime(2020),
+                                          initialDate: DateTime(2020),
+                                          lastDate: DateTime(2025),
+                                          context: context,
+                                        );
+                                        if (endDate != null) {
+                                          var formatter = DateFormat(
+                                              DateFormat.YEAR_ABBR_MONTH_DAY);
+                                          mStudy.endDate =
+                                              formatter.format(endDate);
+                                          setState(() {});
+                                          await _firebaseFirestoreService
+                                              .updateStudyBasicDetail(
+                                                  widget.studyUID,
+                                                  'endDate',
+                                                  mStudy.endDate);
+                                        }
+                                      },
+                                      heading: 'END DATE',
+                                      subtitle: Text(
+                                        mStudy.endDate ?? 'Select a date',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          color: mStudy.endDate == null
+                                              ? Colors.grey[400]
+                                              : Colors.grey[700],
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      headingTextStyle: headingTextStyle,
+                                      compulsoryFieldIndicatorTextStyle:
+                                          compulsoryFieldIndicatorTextStyle,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
+                                Row(
+                                  children: [
+                                    StudySetupScreenCustomInputField(
+                                      onTap: () async {
+                                        var introPageMessage =
+                                            await showGeneralDialog(
+                                                context: context,
+                                                barrierLabel:
+                                                    MaterialLocalizations.of(
+                                                            context)
+                                                        .modalBarrierDismissLabel,
+                                                barrierColor: Colors.black45,
+                                                transitionDuration:
+                                                    const Duration(
+                                                        milliseconds: 200),
+                                                pageBuilder: (BuildContext
+                                                        context,
+                                                    Animation<double> animation,
+                                                    Animation<double>
+                                                        secondaryAnimation) {
+                                                  return CustomTextEditingBox(
+                                                    hintText:
+                                                        'Enter intro page message',
+                                                    initialValue:
+                                                        mStudy.introPageMessage,
+                                                  );
+                                                });
+                                        if (introPageMessage != null ||
+                                            introPageMessage
+                                                .toString()
+                                                .isNotEmpty) {
+                                          setState(() {
+                                            mStudy.introPageMessage =
+                                                introPageMessage.toString();
+                                          });
+                                          await _updateStudyDetail(
+                                              widget.studyUID,
+                                              'introPageMessage',
+                                              mStudy.introPageMessage);
+                                        }
+                                      },
+                                      heading: 'INTRO PAGE MESSAGE',
+                                      subtitle: Text(
+                                        mStudy.introPageMessage == null
+                                            ? 'Enter an intro page message'
+                                            : 'Intro page message set',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          color: mStudy.introPageMessage == null
+                                              ? Colors.grey[400]
+                                              : Colors.grey[700],
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      headingTextStyle: headingTextStyle,
+                                      compulsoryFieldIndicatorTextStyle:
+                                          compulsoryFieldIndicatorTextStyle,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCustomInputField(
+                                      onTap: () async {
+                                        final studyClosedMessage =
+                                            await showGeneralDialog(
+                                                context: context,
+                                                barrierLabel:
+                                                    MaterialLocalizations.of(
+                                                            context)
+                                                        .modalBarrierDismissLabel,
+                                                barrierColor: Colors.black45,
+                                                transitionDuration:
+                                                    const Duration(
+                                                        milliseconds: 200),
+                                                pageBuilder: (BuildContext
+                                                        context,
+                                                    Animation<double> animation,
+                                                    Animation<double>
+                                                        secondaryAnimation) {
+                                                  return CustomTextEditingBox(
+                                                    hintText:
+                                                        'Enter a study end message',
+                                                    initialValue:
+                                                        mStudy.studyClosedMessage,
+                                                  );
+                                                });
+                                        if (studyClosedMessage != null ||
+                                            studyClosedMessage
+                                                .toString()
+                                                .isNotEmpty) {
+                                          setState(() {
+                                            mStudy.studyClosedMessage =
+                                                studyClosedMessage.toString();
+                                          });
+                                          _updateStudyDetail(
+                                              widget.studyUID,
+                                              'studyClosedMessage',
+                                              mStudy.studyClosedMessage);
+                                        }
+                                      },
+                                      heading: 'STUDY END MESSAGE',
+                                      subtitle: Text(
+                                        mStudy.studyClosedMessage == null
+                                            ? 'Enter a study end message'
+                                            : 'Study end message set',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          color: mStudy.studyClosedMessage == null
+                                              ? Colors.grey[400]
+                                              : Colors.grey[700],
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      headingTextStyle: headingTextStyle,
+                                      compulsoryFieldIndicatorTextStyle:
+                                          compulsoryFieldIndicatorTextStyle,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCustomInputField(
+                                      onTap: () async {
+                                        final commonInviteMessage =
+                                            await showGeneralDialog(
+                                                context: context,
+                                                barrierDismissible: true,
+                                                barrierLabel:
+                                                    MaterialLocalizations.of(
+                                                            context)
+                                                        .modalBarrierDismissLabel,
+                                                barrierColor: Colors.black45,
+                                                transitionDuration:
+                                                    const Duration(
+                                                        milliseconds: 200),
+                                                pageBuilder: (BuildContext
+                                                        context,
+                                                    Animation<double> animation,
+                                                    Animation<double>
+                                                        secondaryAnimation) {
+                                                  return CustomTextEditingBox(
+                                                    hintText:
+                                                        'Enter a common invite message',
+                                                    initialValue: mStudy
+                                                        .commonInviteMessage,
+                                                  );
+                                                });
+                                        if (commonInviteMessage != null ||
+                                            commonInviteMessage
+                                                .toString()
+                                                .isNotEmpty) {
+                                          setState(() {
+                                            mStudy.commonInviteMessage =
+                                                commonInviteMessage.toString();
+                                          });
+                                          _updateStudyDetail(
+                                              widget.studyUID,
+                                              'commonInviteMessage',
+                                              mStudy.commonInviteMessage);
+                                        }
+                                      },
+                                      heading: 'COMMON INVITE MESSAGE',
+                                      subtitle: Text(
+                                        mStudy.commonInviteMessage == null
+                                            ? 'Enter a common invite message'
+                                            : 'Common invite message set',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          color:
+                                              mStudy.commonInviteMessage == null
+                                                  ? Colors.grey[400]
+                                                  : Colors.grey[700],
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      headingTextStyle: headingTextStyle,
+                                      compulsoryFieldIndicatorTextStyle:
+                                          compulsoryFieldIndicatorTextStyle,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    padding: EdgeInsets.only(bottom: 5.0),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey, width: 1.0),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'SELECT CATEGORY',
+                                      key: selectCategoryKey,
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20.0,
                                       ),
                                     ),
                                   ),
-                                  Row(
+                                ),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                Row(
+                                  children: [
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Lifestyle',
+                                      categories: _categories,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Health',
+                                      categories: _categories,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Auto',
+                                      categories: _categories,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Fashion',
+                                      categories: _categories,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 30.0,
+                                ),
+                                Row(
+                                  children: [
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Advertising',
+                                      categories: _categories,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Product',
+                                      categories: _categories,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Futures',
+                                      categories: _categories,
+                                    ),
+                                    SizedBox(
+                                      width: 40.0,
+                                    ),
+                                    StudySetupScreenCategoryCheckBox(
+                                      studyUID: widget.studyUID,
+                                      categoryName: 'Others',
+                                      categories: _categories,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        padding: EdgeInsets.only(bottom: 5.0),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.grey, width: 1.0),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'CREATE GROUPS',
+                                          key: createGroupsKey,
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _groups.length > 1
+                                            ? IconButton(
+                                                onPressed: () async {
+                                                  var groupUID =
+                                                      _groups.last.groupUID;
+                                                  setState(() {
+                                                    _groups.removeLast();
+                                                  });
+                                                  await _firebaseFirestoreService
+                                                      .deleteGroup(
+                                                          widget.studyUID,
+                                                          groupUID);
+                                                },
+                                                icon: Icon(Icons.close_outlined),
+                                                color: Colors.red[700],
+                                              )
+                                            : SizedBox(),
+                                        IconButton(
+                                          onPressed: () async {
+                                            var group =
+                                                await _firebaseFirestoreService
+                                                    .createGroup(widget.studyUID,
+                                                        _groups.length + 1);
+                                            setState(() {
+                                              _groups.add(group);
+                                            });
+                                          },
+                                          icon: Icon(Icons.add),
+                                          color: PROJECT_GREEN,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                FutureBuilder(
+                                  future: _futureGroups,
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<dynamic> snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                      return ListView.separated(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: _groups.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return DraftScreenGroupWidget(
+                                            studyUID: widget.studyUID,
+                                            group: _groups[index],
+                                          );
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return SizedBox(
+                                            height: 30.0,
+                                          );
+                                        },
+                                      );
+                                    } else {
+                                      return SizedBox();
+                                    }
+                                  },
+                                ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    padding: EdgeInsets.only(bottom: 5.0),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey, width: 1.0),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'ADD QUESTIONS',
+                                      key: addQuestionsKey,
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                FutureBuilder(
+                                  future: _futureTopics,
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<dynamic> snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                      return ListView.separated(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: _topics.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return StudySetupScreenTopicWidget(
+                                            topic: _topics[index],
+                                            studyUID: widget.studyUID,
+                                            groups: _groups,
+                                          );
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return SizedBox(
+                                            height: 30.0,
+                                          );
+                                        },
+                                      );
+                                    } else {
+                                      return SizedBox();
+                                    }
+                                  },
+                                ),
+                                SizedBox(
+                                  height: 10.0,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      _groups.length > 1
+                                      _topics.length > 1
                                           ? IconButton(
-                                              onPressed: () async {
-                                                var groupUID =
-                                                    _groups.last.groupUID;
-                                                setState(() {
-                                                  _groups.removeLast();
-                                                });
-                                                await _firebaseFirestoreService
-                                                    .deleteGroup(
-                                                        widget.studyUID,
-                                                        groupUID);
-                                              },
-                                              icon: Icon(Icons.close_outlined),
-                                              color: Colors.red[700],
-                                            )
+                                        onPressed: () async {
+                                          await _firebaseFirestoreService
+                                              .deleteTopic(
+                                              widget.studyUID,
+                                              _topics.last.topicUID);
+                                          setState(() {
+                                            _topics.removeLast();
+                                          });
+                                        },
+                                        icon: Icon(Icons.close_outlined),
+                                        color: Colors.red[700],
+                                      )
                                           : SizedBox(),
                                       IconButton(
                                         onPressed: () async {
-                                          var group =
-                                              await _firebaseFirestoreService
-                                                  .createGroup(widget.studyUID,
-                                                      _groups.length + 1);
-                                          setState(() {
-                                            _groups.add(group);
+                                          await _firebaseFirestoreService
+                                              .createTopic(widget.studyUID,
+                                              _topics.length + 1).then((topic){
+                                            setState(() {
+                                              _topics.add(topic);
+                                            });
                                           });
+
+
                                         },
                                         icon: Icon(Icons.add),
                                         color: PROJECT_GREEN,
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              FutureBuilder(
-                                future: _futureGroups,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<dynamic> snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    return ListView.separated(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: _groups.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return DraftScreenGroupWidget(
-                                          studyUID: widget.studyUID,
-                                          group: _groups[index],
-                                        );
-                                      },
-                                      separatorBuilder:
-                                          (BuildContext context, int index) {
-                                        return SizedBox(
-                                          height: 30.0,
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    return SizedBox();
-                                  }
-                                },
-                              ),
-                              SizedBox(
-                                height: 40.0,
-                              ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  padding: EdgeInsets.only(bottom: 5.0),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                          color: Colors.grey, width: 1.0),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'ADD QUESTIONS',
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20.0,
-                                    ),
-                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              FutureBuilder(
-                                future: _futureTopics,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<dynamic> snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    return ListView.separated(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: _topics.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return StudySetupScreenTopicWidget(
-                                          topic: _topics[index],
-                                          studyUID: widget.studyUID,
-                                        );
-                                      },
-                                      separatorBuilder:
-                                          (BuildContext context, int index) {
-                                        return SizedBox(
-                                          height: 30.0,
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    return SizedBox();
-                                  }
-                                },
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _topics.length > 1
-                                        ? IconButton(
-                                      onPressed: () async {
-                                        await _firebaseFirestoreService
-                                            .deleteTopic(
-                                            widget.studyUID,
-                                            _topics.last.topicUID);
-                                        setState(() {
-                                          _topics.removeLast();
-                                        });
-                                      },
-                                      icon: Icon(Icons.close_outlined),
-                                      color: Colors.red[700],
-                                    )
-                                        : SizedBox(),
-                                    IconButton(
-                                      onPressed: () async {
-                                        var topic =
-                                        await _firebaseFirestoreService
-                                            .createTopic(widget.studyUID,
-                                            _topics.length + 1);
-                                        setState(() {
-                                          _topics.add(topic);
-                                        });
-                                      },
-                                      icon: Icon(Icons.add),
-                                      color: PROJECT_GREEN,
-                                    ),
-                                  ],
+                                SizedBox(
+                                  height: 30.0,
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.0,
-                              ),
-                              Container(
-                                height: 0.75,
-                                color: Colors.grey[400],
-                              ),
-                              SizedBox(
-                                height: 50.0,
-                              ),
-                            ],
+                                Container(
+                                  height: 0.75,
+                                  color: Colors.grey[400],
+                                ),
+                                SizedBox(
+                                  height: 50.0,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

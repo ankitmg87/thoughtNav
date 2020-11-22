@@ -1,13 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class ParticipantTile extends StatefulWidget {
   final Participant participant;
-  final bool editing;
+  final List<Group> groups;
+  final FirebaseFirestoreService firebaseFirestoreService;
 
-  const ParticipantTile({Key key, this.participant, this.editing}) : super(key: key);
+  const ParticipantTile({
+    Key key,
+    this.participant,
+    this.groups,
+    this.firebaseFirestoreService,
+  }) : super(key: key);
 
   @override
   _ParticipantTileState createState() => _ParticipantTileState();
@@ -16,11 +24,14 @@ class ParticipantTile extends StatefulWidget {
 class _ParticipantTileState extends State<ParticipantTile> {
   bool _selected;
 
+  void _updateParticipant(Participant participant) async {}
+
   @override
   void initState() {
     _selected = false;
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -28,26 +39,12 @@ class _ParticipantTileState extends State<ParticipantTile> {
       padding: EdgeInsets.only(left: 20.0),
       child: Row(
         children: [
-          widget.editing ?
-          Theme(
-            data: ThemeData(
-              accentColor: PROJECT_NAVY_BLUE,
-              unselectedWidgetColor: Colors.grey[400],
-            ),
-            child: Checkbox(
-              value: _selected,
-              onChanged: (value) {
-                setState(() {
-                  _selected = value;
-                });
-              },
-            ),
-          ) : SizedBox(),
+          Text(widget.participant.id),
           SizedBox(
             width: 40.0,
           ),
           Expanded(
-            child: Text('User email'),
+            child: Text(widget.participant.email),
           ),
           SizedBox(
             width: 40.0,
@@ -81,9 +78,9 @@ class _ParticipantTileState extends State<ParticipantTile> {
             icon: Icon(
               CupertinoIcons.ellipsis_vertical,
               size: 14.0,
-              color: Colors.grey[600],
+              color: Colors.white,
             ),
-            onPressed: () {},
+            onPressed: null,
           ),
           SizedBox(
             width: 20.0,

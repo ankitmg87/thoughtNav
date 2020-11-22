@@ -1,7 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/participant.dart';
+import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
 class UserPreferencesScreen extends StatefulWidget {
   @override
@@ -9,10 +13,29 @@ class UserPreferencesScreen extends StatefulWidget {
 }
 
 class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
+  final _firebaseFirestoreService = FirebaseFirestoreService();
+
+  String _studyUID;
+  String _participantUID;
+
+  Future<Participant> _getParticipant() async {
+    var _participant = await _firebaseFirestoreService.getParticipant(
+        _studyUID, _participantUID);
+    return _participant;
+  }
+
+  @override
+  void initState() {
+    var getStorage = GetStorage();
+    _studyUID = getStorage.read('studyUID');
+    _participantUID = getStorage.read('participantUID');
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    final Size screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
@@ -26,139 +49,158 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ListView(
-        children: [
-          Align(
-            child: Container(
-              width: screenSize.height > screenSize.width ? double.maxFinite : screenSize.width * 0.5,
-              padding: EdgeInsets.symmetric(
-                horizontal: 40.0,
-                vertical: 20.0,
-              ),
-              child: Row(
+      body: FutureBuilder(
+        future: _getParticipant(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          switch(snapshot.connectionState){
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+            case ConnectionState.active:
+              return SizedBox();
+              break;
+            case ConnectionState.done:
+              return ListView(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: PROJECT_LIGHT_GREEN,
-                    ),
-                    padding: EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Image(
-                        image: AssetImage(
-                          'images/avatars/batman.png',
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10.0,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ralph Joe',
-                        style: TextStyle(
-                          color: TEXT_COLOR,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 2.0,
-                      ),
-                      Text(
-                        '@batman-0816',
-                        style: TextStyle(
-                          color: TEXT_COLOR,
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            child: Container(
-              color: Colors.white,
-              width: screenSize.height > screenSize.width ? double.maxFinite : screenSize.width * 0.5,
-              padding: EdgeInsets.only(
-                left: 30.0,
-                right: 30.0,
-                top: 30.0,
-                bottom: 50.0,
-              ),
-              child: Column(
-                children: [
-                  _CustomRow(
-                    label: 'Display Name',
-                    value: '@batman-0816',
-                  ),
-                  _CustomRow(
-                    label: 'Email Address',
-                    value: 'sarah@gmail.com',
-                  ),
-                  _CustomRow(
-                    label: 'Group',
-                    value: 'Group 2 - PWC Users',
-                  ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  DottedBorder(
-                    dashPattern: [10, 1],
-                    strokeWidth: 0.08,
-                    padding: EdgeInsets.all(0.0),
+                  Align(
                     child: Container(
-                      width: double.infinity,
+                      width: screenSize.height > screenSize.width ? double.maxFinite : screenSize.width * 0.5,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 40.0,
+                        vertical: 20.0,
+                      ),
+                      child: Row(
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: snapshot.data.profilePhotoURL,
+                            imageBuilder: (context, imageProvider){
+                              return Container(
+                                padding: EdgeInsets.all(6.0),
+                                margin: EdgeInsets.symmetric(horizontal: 8.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: PROJECT_LIGHT_GREEN,
+                                ),
+                                child: Image(
+                                  width: 20.0,
+                                  image: imageProvider,
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                snapshot.data.userName,
+                                style: TextStyle(
+                                  color: TEXT_COLOR,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 2.0,
+                              ),
+                              Text(
+                                snapshot.data.alias,
+                                style: TextStyle(
+                                  color: TEXT_COLOR,
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  _CustomRow(
-                    label: 'Full Name',
-                    value: 'Sarah Baker',
-                  ),
-                  _CustomRow(
-                    label: 'Date of Birth',
-                    value: 'January 31, 1975',
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            child: Container(
-              width: screenSize.height > screenSize.width ? double.maxFinite : screenSize.width * 0.5,
-              padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 60.0,),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
+                  Align(
+                    child: Container(
+                      color: Colors.white,
+                      width: screenSize.height > screenSize.width ? double.maxFinite : screenSize.width * 0.5,
+                      padding: EdgeInsets.only(
+                        left: 30.0,
+                        right: 30.0,
+                        top: 30.0,
+                        bottom: 50.0,
                       ),
-                      color: PROJECT_GREEN,
-                      child: Text(
-                        'Edit Info',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.0,
-                        ),
+                      child: Column(
+                        children: [
+                          _CustomRow(
+                            label: 'Display Name',
+                            value: snapshot.data.alias,
+                          ),
+                          _CustomRow(
+                            label: 'Email Address',
+                            value: snapshot.data.email,
+                          ),
+                          _CustomRow(
+                            label: 'Group',
+                            value: 'Unassigned',
+                          ),
+                          SizedBox(
+                            height: 5.0,
+                          ),
+                          DottedBorder(
+                            dashPattern: [10, 1],
+                            strokeWidth: 0.08,
+                            padding: EdgeInsets.all(0.0),
+                            child: Container(
+                              width: double.infinity,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5.0,
+                          ),
+                          _CustomRow(
+                            label: 'Full Name',
+                            value: snapshot.data.userName,
+                          ),
+                          _CustomRow(
+                            label: 'Age',
+                            value: snapshot.data.age,
+                          ),
+                        ],
                       ),
-                      onPressed: (){},
                     ),
                   ),
+                  // Align(
+                  //   child: Container(
+                  //     width: screenSize.height > screenSize.width ? double.maxFinite : screenSize.width * 0.5,
+                  //     padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 60.0,),
+                  //     child: Row(
+                  //       children: [
+                  //         Expanded(
+                  //           child: FlatButton(
+                  //             shape: RoundedRectangleBorder(
+                  //               borderRadius: BorderRadius.circular(5.0),
+                  //             ),
+                  //             color: PROJECT_GREEN,
+                  //             child: Text(
+                  //               'Edit Info',
+                  //               style: TextStyle(
+                  //                 color: Colors.white,
+                  //                 fontSize: 12.0,
+                  //               ),
+                  //             ),
+                  //             onPressed: (){},
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                 ],
-              ),
-            ),
-          ),
-        ],
+              );
+              break;
+            default:
+              return SizedBox();
+          }
+        },
       ),
     );
   }

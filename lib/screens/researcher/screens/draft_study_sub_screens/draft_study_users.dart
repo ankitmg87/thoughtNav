@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/models/user.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
+import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/client_tile.dart';
@@ -25,9 +26,13 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
+  List<Group> _groups = [];
+
   List<Participant> _participants = [];
   List<Client> _clients = [];
   List<Moderator> _moderators = [];
+
+  List<String> _selectedUserUID = [];
 
   bool _participantsListSelected;
   bool _clientsListSelected;
@@ -49,6 +54,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
   bool _editing = false;
 
+  void _getGroups() async {
+    _groups = await _firebaseFirestoreService.getGroups(widget.studyUID);
+  }
+
   void _addUserToFirebase(
       String email, String masterPassword, String userType, String id) async {
     var user = User(
@@ -65,12 +74,13 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         id: id,
         email: email,
         password: masterPassword,
+        isActive: false,
+        isDeleted: false,
         isOnboarded: false,
         participantUID: createdUser.userUID,
       );
       await _firebaseFirestoreService.createParticipant(
           widget.studyUID, participant);
-      _participants.add(participant);
       return;
     }
     if (userType == 'client') {
@@ -96,10 +106,17 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
       _moderators.add(moderator);
       return;
     }
+
+    setState(() {
+
+    });
   }
 
   @override
   void initState() {
+
+    _getGroups();
+
     _participantsListSelected = true;
     _clientsListSelected = false;
     _moderatorsListSelected = false;
@@ -128,6 +145,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
         _list = _participantsFutureBuilder;
         _addUserButton = _addParticipantsButton();
+
       });
       return;
     }
@@ -153,12 +171,18 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     }
   }
 
+  RaisedButton _addUsersToGroupButton() {
+    return RaisedButton(
+      onPressed: () async {},
+
+    );
+  }
+
   RaisedButton _addParticipantsButton() {
     return RaisedButton(
       onPressed: () async {
         await _buildGeneralDialog('Participants', MediaQuery.of(context).size,
             'Participant Email', 'participant', _masterPassword);
-        setState(() {});
       },
       color: PROJECT_GREEN,
       child: Padding(
@@ -226,8 +250,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   RaisedButton _addModeratorsButton() {
     return RaisedButton(
       onPressed: () async {
-        await _buildGeneralDialog('Moderators', MediaQuery.of(context).size,
+        var userDetails = await _buildGeneralDialog('Moderators', MediaQuery.of(context).size,
             'Moderator Name', 'moderator', _masterPassword);
+
+
         setState(() {});
       },
       color: PROJECT_GREEN,
@@ -262,6 +288,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     return FutureBuilder(
       future: _futureParticipants,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.connectionState == ConnectionState.active) {
           return Center(
@@ -282,20 +309,24 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                 height: 20.0,
               ),
               Expanded(
-                child: ListView.separated(
-                  itemCount: _participants.length,
-                  separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(
-                      height: 10.0,
-                    );
-                  },
-                  itemBuilder: (BuildContext context, int index) {
-                    return ParticipantTile(
-                      participant: _participants[index],
-                      editing: _editing,
-                    );
-                  },
-                ),
+                child: _participants.isNotEmpty
+                    ? ListView.separated(
+                        itemCount: _participants.length,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 10.0,
+                          );
+                        },
+                        itemBuilder: (BuildContext context, int index) {
+                          return ParticipantTile(
+                            participant: _participants[index],
+                            groups: _groups,
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Text('Please add participants'),
+                      ),
               ),
             ],
           );
@@ -333,20 +364,23 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                 height: 20.0,
               ),
               Expanded(
-                child: ListView.separated(
-                  itemCount: _clients.length,
-                  separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(
-                      height: 10.0,
-                    );
-                  },
-                  itemBuilder: (BuildContext context, int index) {
-                    return ClientTile(
-                      client: _clients[index],
-                      editing: _editing,
-                    );
-                  },
-                ),
+                child: _clients.isNotEmpty
+                    ? ListView.separated(
+                        itemCount: _clients.length,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 10.0,
+                          );
+                        },
+                        itemBuilder: (BuildContext context, int index) {
+                          return ClientTile(
+                            client: _clients[index],
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Text('Please add clients'),
+                      ),
               ),
             ],
           );
@@ -384,20 +418,23 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                 height: 20.0,
               ),
               Expanded(
-                child: ListView.separated(
-                  itemCount: _moderators.length,
-                  separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(
-                      height: 10.0,
-                    );
-                  },
-                  itemBuilder: (BuildContext context, int index) {
-                    return ModeratorTile(
-                      moderator: _moderators[index],
-                      editing: _editing,
-                    );
-                  },
-                ),
+                child: _moderators.isNotEmpty
+                    ? ListView.separated(
+                        itemCount: _moderators.length,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 10.0,
+                          );
+                        },
+                        itemBuilder: (BuildContext context, int index) {
+                          return ModeratorTile(
+                            moderator: _moderators[index],
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Text('Please add moderators'),
+                      ),
               ),
             ],
           );
@@ -510,7 +547,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     }
   }
 
-  void _buildGeneralDialog(String heading, Size screenSize, String hintText,
+  Future _buildGeneralDialog(String heading, Size screenSize, String hintText,
       String userType, String masterPassword) async {
     var email = '';
     var id = '';
@@ -522,8 +559,8 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
       pageBuilder: (BuildContext context, Animation<double> animation,
           Animation<double> secondaryAnimation) {
         return StatefulBuilder(
-          builder: (BuildContext context,
-              void Function(void Function()) _setState) {
+          builder:
+              (BuildContext context, void Function(void Function()) _setState) {
             return Center(
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -569,8 +606,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                               width: 60.0,
                               child: TextFormField(
                                 onChanged: (value) {
-
-                                  _setState((){
+                                  _setState(() {
                                     id = value;
                                   });
                                 },
@@ -601,7 +637,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                             Expanded(
                               child: TextFormField(
                                 onChanged: (value) {
-                                  _setState((){
+                                  _setState(() {
                                     email = value;
                                   });
                                 },
@@ -687,10 +723,11 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                           FlatButton(
                             onPressed: email.isNotEmpty && id.isNotEmpty
                                 ? () async {
-                              await _addUserToFirebase(
-                                  email, masterPassword, userType, id);
-                              Navigator.of(context).pop();
-                            }
+                                    await _addUserToFirebase(
+                                        email, masterPassword, userType, id);
+                                    Navigator.of(context).pop();
+                                    setState(() {});
+                                  }
                                 : null,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(2.0),
@@ -718,6 +755,17 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         );
       },
     );
+
+    if(email.isNotEmpty && id.isNotEmpty){
+      return {
+        'email': email,
+        'id': id,
+      };
+    }
+    else {
+      return;
+    }
+
   }
 }
 
@@ -756,446 +804,3 @@ class __DraftStudySecondaryAppBarWidgetState
   }
 }
 
-// Widget _buildTitleRow() {
-//   return Row(
-//     children: [
-//       SizedBox(
-//         width: 20.0,
-//       ),
-//       Expanded(
-//         child: Align(
-//           alignment: Alignment.centerLeft,
-//           child: Text(
-//             'Email',
-//             style: TextStyle(
-//               color: Colors.grey,
-//               fontSize: 14.0,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//         ),
-//       ),
-//       SizedBox(
-//         width: 10.0,
-//       ),
-//       Expanded(
-//         child: Align(
-//           alignment: Alignment.centerLeft,
-//           child: Text(
-//             'Phone',
-//             style: TextStyle(
-//               color: Colors.grey,
-//               fontSize: 14.0,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//         ),
-//       ),
-//       SizedBox(
-//         width: 10.0,
-//       ),
-//       Expanded(
-//         child: Align(
-//           alignment: Alignment.centerLeft,
-//           child: Text(
-//             'Group',
-//             style: TextStyle(
-//               color: Colors.grey,
-//               fontSize: 14.0,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//         ),
-//       ),
-//     ],
-//   );
-// }
-
-// Widget _previousBody () {
-//   return Padding(
-//     padding: EdgeInsets.symmetric(horizontal: 30.0),
-//     child: ListView(
-//       children: [
-//         SizedBox(
-//           height: 20.0,
-//         ),
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//             Text(
-//               'Participants',
-//               style: TextStyle(
-//                 color: Colors.black,
-//                 fontSize: 16.0,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             FlatButton(
-//               onPressed: () => _buildGeneralDialog('Add Participants',
-//                   screenSize, 'Enter participant\'s email',
-//                   onTap: () {}),
-//               color: PROJECT_GREEN,
-//               child: Padding(
-//                 padding: EdgeInsets.symmetric(
-//                   vertical: 6.0,
-//                   horizontal: 8.0,
-//                 ),
-//                 child: Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     Icon(
-//                       CupertinoIcons.add_circled,
-//                       color: Colors.white,
-//                       size: 16.0,
-//                     ),
-//                     SizedBox(
-//                       width: 10.0,
-//                     ),
-//                     Text(
-//                       'Participant',
-//                       style: TextStyle(
-//                         color: Colors.white,
-//                         fontSize: 14.0,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         Container(
-//           height: 1.0,
-//           color: Colors.grey[300],
-//         ),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         //_buildTitleRow(),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         FutureBuilder(
-//           future: _futureParticipants,
-//           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-//             if (snapshot.connectionState == ConnectionState.done) {
-//               return ListView.separated(
-//                 shrinkWrap: true,
-//                 itemCount: _participants.length,
-//                 separatorBuilder: (BuildContext context, int index) {
-//                   return SizedBox(
-//                     height: 10.0,
-//                   );
-//                 },
-//                 itemBuilder: (BuildContext context, int index) {
-//                   return Row(
-//                     children: [
-//                       SizedBox(
-//                         width: 20.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_participants[index].email}',
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: 10.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_participants[index].phone}',
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: 10.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_participants[index].userGroupName}',
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   );
-//                 },
-//               );
-//             } else {
-//               return SizedBox();
-//             }
-//           },
-//         ),
-//         SizedBox(
-//           height: 20.0,
-//         ),
-//         Container(
-//           height: 1.0,
-//           color: Colors.grey[300],
-//         ),
-//         SizedBox(
-//           height: 20.0,
-//         ),
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//             Text(
-//               'Clients',
-//               style: TextStyle(
-//                 color: Colors.black,
-//                 fontSize: 16.0,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             FlatButton(
-//               onPressed: () => _buildGeneralDialog(
-//                   'Add Clients', screenSize, 'Enter client\'s email',
-//                   onTap: () {}),
-//               color: PROJECT_GREEN,
-//               child: Padding(
-//                 padding: EdgeInsets.symmetric(
-//                   vertical: 6.0,
-//                   horizontal: 8.0,
-//                 ),
-//                 child: Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     Icon(
-//                       CupertinoIcons.add_circled,
-//                       color: Colors.white,
-//                       size: 16.0,
-//                     ),
-//                     SizedBox(
-//                       width: 10.0,
-//                     ),
-//                     Text(
-//                       'Client',
-//                       style: TextStyle(
-//                         color: Colors.white,
-//                         fontSize: 14.0,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         Container(
-//           height: 1.0,
-//           color: Colors.grey[300],
-//         ),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         //_buildTitleRow(),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         FutureBuilder(
-//           future: _futureClients,
-//           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-//             if (snapshot.connectionState == ConnectionState.done) {
-//               return ListView.separated(
-//                 shrinkWrap: true,
-//                 physics: NeverScrollableScrollPhysics(),
-//                 itemBuilder: (BuildContext context, int index) {
-//                   return Row(
-//                     children: [
-//                       SizedBox(
-//                         width: 20.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_clients[index].email}',
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: 10.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_clients[index].phone}',
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: 10.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_clients[index].userGroupName}',
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   );
-//                 },
-//                 separatorBuilder: (BuildContext context, int index) {
-//                   return SizedBox(
-//                     height: 10.0,
-//                   );
-//                 },
-//                 itemCount: _clients.length,
-//               );
-//             } else {
-//               return SizedBox();
-//             }
-//           },
-//         ),
-//         SizedBox(
-//           height: 20.0,
-//         ),
-//         Container(
-//           height: 1.0,
-//           color: Colors.grey[300],
-//         ),
-//         SizedBox(
-//           height: 20.0,
-//         ),
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//             Text(
-//               'Moderators',
-//               style: TextStyle(
-//                 color: Colors.black,
-//                 fontSize: 16.0,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             FlatButton(
-//               onPressed: () => _buildGeneralDialog(
-//                   'Add Moderators', screenSize, 'Enter moderator\'s email',
-//                   onTap: () {}),
-//               color: PROJECT_GREEN,
-//               child: Padding(
-//                 padding: EdgeInsets.symmetric(
-//                   vertical: 6.0,
-//                   horizontal: 8.0,
-//                 ),
-//                 child: Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     Icon(
-//                       CupertinoIcons.add_circled,
-//                       color: Colors.white,
-//                       size: 16.0,
-//                     ),
-//                     SizedBox(
-//                       width: 10.0,
-//                     ),
-//                     Text(
-//                       'Moderator',
-//                       style: TextStyle(
-//                         color: Colors.white,
-//                         fontSize: 14.0,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         Container(
-//           height: 1.0,
-//           color: Colors.grey[300],
-//         ),
-//         SizedBox(
-//           height: 20.0,
-//         ),
-//         //_buildTitleRow(),
-//         SizedBox(
-//           height: 10.0,
-//         ),
-//         FutureBuilder(
-//           future: _futureModerators,
-//           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-//             if (snapshot.connectionState == ConnectionState.done) {
-//               return ListView.separated(
-//                 shrinkWrap: true,
-//                 physics: NeverScrollableScrollPhysics(),
-//                 itemBuilder: (BuildContext context, int index) {
-//                   return Row(
-//                     children: [
-//                       SizedBox(
-//                         width: 20.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_moderators[index].email}',
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: 10.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_moderators[index].phone}',
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: 10.0,
-//                       ),
-//                       Expanded(
-//                         child: Container(
-//                           alignment: Alignment.centerLeft,
-//                           child: Text(
-//                             '${_moderators[index].userGroupName}',
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   );
-//                 },
-//                 separatorBuilder: (BuildContext context, int index) {
-//                   return SizedBox(
-//                     height: 10.0,
-//                   );
-//                 },
-//                 itemCount: _clients.length,
-//               );
-//             } else {
-//               return SizedBox();
-//             }
-//           },
-//         ),
-//         SizedBox(
-//           height: 20.0,
-//         ),
-//       ],
-//     ),
-//   );
-// }
