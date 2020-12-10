@@ -1,14 +1,41 @@
+import 'dart:html';
+import 'dart:ui' as ui;
+import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:simple_html_css/simple_html_css.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 
 class StudyDetailsBottomSheet extends StatelessWidget {
+  final String studyBeginDate;
+  final String studyEndDate;
+  final String rewardAmount;
+  final String studyName;
+  final String introMessage;
+
   const StudyDetailsBottomSheet({
     Key key,
+    this.studyBeginDate,
+    this.studyEndDate,
+    this.rewardAmount,
+    this.studyName,
+    this.introMessage,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var textSpan = HTML.toTextSpan(
+      context,
+      introMessage,
+      // defaultTextStyle: TextStyle(color: Colors.grey[700]),
+      // overrideStyle: {
+      //   'p': TextStyle(fontSize: 14),
+      //   'a': TextStyle(wordSpacing: 2),
+      //   // specify any tag not just the supported ones,
+      //   // and apply TextStyles to them and/override them
+      // },
+    );
+
     return Container(
       padding: EdgeInsets.only(
         left: 20.0,
@@ -52,7 +79,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                     padding: EdgeInsets.only(
                         left: 20.0, right: 20.0, top: 5.0, bottom: 20.0),
                     child: Text(
-                      'You\'re participating in the Power Wheelchair Study.',
+                      'You\'re participating in the $studyName.',
                       style: TextStyle(
                         color: Color(0xFF333333),
                         fontWeight: FontWeight.bold,
@@ -87,7 +114,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                                 ),
                               ),
                               TextSpan(
-                                text: 'Monday, May 6\n',
+                                text: '$studyBeginDate\n',
                                 style: TextStyle(
                                     fontSize: 14.0,
                                     color: Color(0xFF333333),
@@ -101,7 +128,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                                 ),
                               ),
                               TextSpan(
-                                text: 'Friday, May 10.',
+                                text: '$studyEndDate.',
                                 style: TextStyle(
                                   fontSize: 14.0,
                                   color: Color(0xFF333333),
@@ -122,7 +149,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                         Image(
                           width: 30.0,
                           image: AssetImage(
-                            'images/svg_icons/amazon_icon.png',
+                            'images/svg_icons/gift_card.png',
                           ),
                         ),
                         SizedBox(
@@ -140,7 +167,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                                 ),
                               ),
                               TextSpan(
-                                text: '\$150 giftcard.',
+                                text: '\$$rewardAmount giftcard.',
                                 style: TextStyle(
                                   fontSize: 14.0,
                                   color: Color(0xFF333333),
@@ -158,11 +185,22 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                     height: 0.5,
                     color: Colors.grey[200],
                   ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0,),
+                    child: RichText(
+                      text: textSpan,
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 0.5,
+                    color: Colors.grey[200],
+                  ),
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
                     child: Text(
-                      'About Power Wheelchair Study',
+                      'About $studyName',
                       style: TextStyle(
                         color: Color(0xFF7F7F7F),
                       ),
@@ -249,7 +287,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                           width: 8.0,
                         ),
                         Text(
-                          'Login each day and respond to questions.',
+                          'Comment on other posts. ',
                           style: TextStyle(
                             color: Color(0xFF333333),
                             fontSize: 12.0,
@@ -275,7 +313,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                           width: 8.0,
                         ),
                         Text(
-                          'Login each day and respond to questions.',
+                          'Set up your preferred reward method.',
                           style: TextStyle(
                             color: PROJECT_GREEN,
                             fontSize: 12.0,
@@ -316,7 +354,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                           width: 8.0,
                         ),
                         Text(
-                          'Login each day and respond to questions.',
+                          'All posts are anonymous. Your personal info is confidential.',
                           style: TextStyle(
                             color: Color(0xFF333333),
                             fontSize: 12.0,
@@ -342,7 +380,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                           width: 8.0,
                         ),
                         Text(
-                          'Login each day and respond to questions.',
+                          'Be open and honest with your answers.',
                           style: TextStyle(
                             color: Color(0xFF333333),
                             fontSize: 12.0,
@@ -368,7 +406,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                           width: 8.0,
                         ),
                         Text(
-                          'Login each day and respond to questions.',
+                          'Have fun!',
                           style: TextStyle(
                             color: Color(0xFF333333),
                             fontSize: 12.0,
@@ -382,23 +420,28 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                       vertical: 40.0,
                       horizontal: 20.0,
                     ),
-                    child: RichText(
-                      text: TextSpan(children: [
-                        TextSpan(
-                          text: 'Contact Us ',
-                          style: TextStyle(
-                            color: PROJECT_GREEN,
-                            fontSize: 13.0,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: RichText(
+                        text: TextSpan(children: [
+                          TextSpan(
+                            text: 'Contact Us ',
+                            style: TextStyle(
+                              color: PROJECT_GREEN,
+                              fontSize: 13.0,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: 'for any additional questions or concerns',
-                          style: TextStyle(
-                            color: Color(0xFF333333),
-                            fontSize: 13.0,
+                          TextSpan(
+                            text: 'for any additional questions or concerns',
+                            style: TextStyle(
+                              color: Color(0xFF333333),
+                              fontSize: 13.0,
+                            ),
                           ),
-                        ),
-                      ]),
+                        ]),
+                      ),
                     ),
                   ),
                 ],

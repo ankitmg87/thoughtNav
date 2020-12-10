@@ -5,8 +5,10 @@ import 'package:thoughtnav/screens/researcher/models/topic.dart';
 
 class ActiveTaskWidget extends StatefulWidget {
   final Topic topic;
+  final String participantUID;
 
-  const ActiveTaskWidget({Key key, @required this.topic}) : super(key: key);
+  const ActiveTaskWidget({Key key, @required this.topic, this.participantUID})
+      : super(key: key);
 
   @override
   _ActiveTaskWidgetState createState() => _ActiveTaskWidgetState();
@@ -15,9 +17,23 @@ class ActiveTaskWidget extends StatefulWidget {
 class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
   bool _isExpanded = false;
 
+
+  int _answeredQuestions () {
+    var answeredQuestions = 0;
+
+    for(var question in widget.topic.questions){
+      if(question.respondedBy != null){
+        if(question.respondedBy.contains(widget.participantUID)){
+          answeredQuestions++;
+        }
+      }
+    }
+    return answeredQuestions;
+  }
+
+
   @override
   Widget build(BuildContext context) {
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 15.0),
       child: Card(
@@ -76,7 +92,7 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                       width: 4.0,
                     ),
                     Text(
-                      '${widget.topic.questions.length}',
+                      '${_answeredQuestions()} / ${widget.topic.questions.length}',
                       style: TextStyle(
                         color: Colors.grey[400],
                         fontSize: 12.0,
@@ -154,7 +170,14 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                                 ),
                                 IconButton(
                                   icon: Icon(
-                                    Icons.arrow_forward,
+                                    widget.topic.questions[index].respondedBy ==
+                                            null
+                                        ? Icons.arrow_forward
+                                        : widget.topic.questions[index]
+                                                .respondedBy
+                                                .contains(widget.participantUID)
+                                            ? Icons.check_circle_outline_rounded
+                                            : Icons.arrow_forward,
                                     color: PROJECT_GREEN,
                                   ),
                                   onPressed: () {

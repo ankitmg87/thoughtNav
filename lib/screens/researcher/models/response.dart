@@ -5,7 +5,7 @@ class Response {
   String responseUID;
   String participantUID;
   String avatarURL;
-  String alias;
+  String participantDisplayName;
   String userName;
   String timeElapsed;
   String responseStatement;
@@ -20,7 +20,7 @@ class Response {
     this.responseUID,
     this.participantUID,
     this.avatarURL,
-    this.alias,
+    this.participantDisplayName,
     this.userName,
     this.timeElapsed,
     this.responseStatement,
@@ -38,7 +38,7 @@ class Response {
     response['responseUID'] = responseUID;
     response['participantUID'] = participantUID;
     response['avatarURL'] = avatarURL;
-    response['alias'] = alias;
+    response['alias'] = participantDisplayName;
     response['userName'] = userName;
     response['timeElapsed'] = timeElapsed;
     response['responseStatement'] = responseStatement;
@@ -55,7 +55,7 @@ class Response {
     responseUID = response['responseUID'];
     participantUID = response['participantUID'];
     avatarURL = response['avatarURL'];
-    alias = response['alias'];
+    participantDisplayName = response['alias'];
     userName = response['userName'];
     timeElapsed = response['timeElapsed'];
     responseStatement = response['responseStatement'];

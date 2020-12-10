@@ -9,12 +9,22 @@ import 'study_details_bottom_sheet.dart';
 class DashboardTopContainer extends StatelessWidget {
   const DashboardTopContainer({
     Key key,
-    this.scaffoldKey, this.studyName, this.nextTopicName,
+    this.scaffoldKey,
+    this.studyName,
+    this.nextTopicName,
+    this.studyBeginDate,
+    this.studyEndDate,
+    this.rewardAmount,
+    this.introMessage,
   }) : super(key: key);
 
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String studyName;
   final String nextTopicName;
+  final String studyBeginDate;
+  final String studyEndDate;
+  final String rewardAmount;
+  final String introMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +36,7 @@ class DashboardTopContainer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Power Wheelchair Study',
+            studyName,
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -48,7 +58,13 @@ class DashboardTopContainer extends StatelessWidget {
                   ),
                   onTap: () => scaffoldKey.currentState.showBottomSheet(
                     (context) {
-                      return StudyDetailsBottomSheet();
+                      return StudyDetailsBottomSheet(
+                        studyBeginDate: studyBeginDate,
+                        studyEndDate: studyEndDate,
+                        studyName: studyName,
+                        rewardAmount: rewardAmount,
+                        introMessage: introMessage,
+                      );
                     },
                     backgroundColor: Colors.transparent,
                     elevation: 16.0,
@@ -65,7 +81,6 @@ class DashboardTopContainer extends StatelessWidget {
           SizedBox(
             height: 20.0,
           ),
-
           Row(
             children: [
               StartProgressContainer(),
@@ -112,4 +127,3 @@ class DashboardTopContainer extends StatelessWidget {
     );
   }
 }
-

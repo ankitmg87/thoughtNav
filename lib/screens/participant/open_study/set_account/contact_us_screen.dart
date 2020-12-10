@@ -10,18 +10,19 @@ class ContactUsScreen extends StatefulWidget {
 class _ContactUsScreenState extends State<ContactUsScreen> {
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
 
-    if (screenSize.height > screenSize.width)
-
-    return Scaffold(
+    if (screenSize.height > screenSize.width) {
+      return Scaffold(
       appBar: buildPhoneAppBar(),
       body: buildPhoneBody(screenSize),
     );
-    else return Scaffold(
+    } else {
+      return Scaffold(
       appBar: buildDesktopAppBar(),
       body: buildDesktopBody(screenSize),
     );
+    }
   }
 
   Stack buildDesktopBody(Size screenSize) {
@@ -509,22 +510,6 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: Colors.white,
-      leading: IconButton(
-        onPressed: () {},
-        icon: Container(
-          padding: EdgeInsets.all(4.0),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: PROJECT_LIGHT_GREEN,
-          ),
-          child: Image(
-            width: 24.0,
-            image: AssetImage(
-              'images/avatars/batman.png',
-            ),
-          ),
-        ),
-      ),
       title: Text(
         APP_NAME,
         style: TextStyle(
@@ -532,15 +517,6 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
         ),
       ),
       centerTitle: true,
-      actions: [
-        IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: PROJECT_GREEN,
-          ),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:thoughtnav/models/avatar_and_display_name.dart';
 import 'package:thoughtnav/models/user.dart';
+import 'package:thoughtnav/screens/researcher/models/all_avatars_and_display_names.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
@@ -25,6 +26,7 @@ const String _PARTICIPANTS_COLLECTION = 'participants';
 const String _CLIENTS_COLLECTION = 'clients';
 const String _MODERATORS_COLLECTION = 'moderators';
 const String _NOTIFICATIONS_COLLECTION = 'notifications';
+const String _AVATAR_AND_DISPLAY_NAMES_COLLECTION = 'avatarsAndDisplayNames';
 
 class FirebaseFirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -34,12 +36,6 @@ class FirebaseFirestoreService {
       FirebaseFirestore.instance.collection(_USERS_COLLECTION);
 
   final FirebaseAuthService _firebaseAuthService = FirebaseAuthService();
-
-  Future saveStudy(String studyUID) async {}
-
-  Future saveTopics(String studyUID) async {}
-
-  Future saveParticipants(String studyUID) async {}
 
   /// Get section
 
@@ -86,7 +82,7 @@ class FirebaseFirestoreService {
     return _studiesReference
         .doc(studyUID)
         .collection(_NOTIFICATIONS_COLLECTION)
-        .orderBy('notificationTimeStamp', descending: true)
+        .orderBy('notificationTimestamp', descending: true)
         .snapshots();
   }
 
@@ -151,6 +147,31 @@ class FirebaseFirestoreService {
     return topics;
   }
 
+  Future<List<Topic>> getParticipantStudyNavigatorTopics(
+    String studyUID,
+  ) async {
+    var topics = <Topic>[];
+
+    var topicsReference = await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .orderBy('topicIndex', descending: false)
+        .get();
+
+    for (var topicSnapshot in topicsReference.docs) {
+      var topic = Topic.fromMap(topicSnapshot.data());
+
+      if (topic.isActive) {
+        var questions = await getQuestions(studyUID, topic);
+
+        topic.questions = questions;
+
+        topics.add(topic);
+      }
+    }
+    return topics;
+  }
+
   Future<List<Topic>> getParticipantTopics(String studyUID) async {
     var topics = <Topic>[];
 
@@ -163,14 +184,13 @@ class FirebaseFirestoreService {
     for (var topicSnapshot in topicsReference.docs) {
       var topic = Topic.fromMap(topicSnapshot.data());
 
-      if(topic.isActive){
-        var questions = await getQuestions(studyUID, topic);
+      var questions = await getQuestions(studyUID, topic);
 
-        topic.questions = questions;
+      topic.questions = questions;
 
-        topics.add(topic);
-      }
+      topics.add(topic);
     }
+
     return topics;
   }
 
@@ -192,7 +212,7 @@ class FirebaseFirestoreService {
         .collection(_TOPICS_COLLECTION)
         .doc(topic.topicUID)
         .collection(_QUESTIONS_COLLECTION)
-        .orderBy('questionIndex', descending: false)
+        .orderBy('questionNumber', descending: false)
         .get();
 
     if (questionsCollection.size > 0) {
@@ -360,6 +380,29 @@ class FirebaseFirestoreService {
     return response;
   }
 
+  Future<List<AvatarAndDisplayName>> getAvatarsAndDisplayNames(
+      String studyUID) async {
+    var avatarAndDisplayNameList = <AvatarAndDisplayName>[];
+
+    var avatarAndDisplayNameQuerySnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
+        .where(
+          'selected',
+          isEqualTo: false,
+        )
+        .get();
+
+    for (var avatarAndDisplayNameDocumentSnapshot
+        in avatarAndDisplayNameQuerySnapshot.docs) {
+      var avatarAndDisplayName = AvatarAndDisplayName.fromMap(
+          avatarAndDisplayNameDocumentSnapshot.data());
+      avatarAndDisplayNameList.add(avatarAndDisplayName);
+    }
+
+    return avatarAndDisplayNameList;
+  }
+
   /// Create section
 
   Future<void> saveCategories(String studyUID, Categories categories) async {
@@ -406,86 +449,22 @@ class FirebaseFirestoreService {
       );
     });
 
+    await createAvatarAndDisplayNameList(study.studyUID);
+
     return study;
   }
 
-  Future<Group> createGroup(String studyUID, int index) async {
-    var group = Group(
-      groupIndex: index,
-    );
+  Future<void> createAvatarAndDisplayNameList(String studyUID) async {
+    var avatarAndDisplayNameList =
+        AllAvatarsAndDisplayNames().getAvatarAndDisplayNameList();
 
-    var groupMap = group.toMap();
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_GROUPS_COLLECTION)
-        .add(groupMap)
-        .then((groupReference) {
-      group.groupUID = groupReference.id;
-      groupReference.set(
-        {
-          'groupUID': groupReference.id,
-        },
-        SetOptions(merge: true),
-      );
-    });
-
-    return group;
-  }
-
-  Future<Topic> createTopic(String studyUID, int index) async {
-    var topic = Topic(
-      topicIndex: index,
-      isActive: false,
-    );
-
-    var topicMap = topic.toMap();
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .add(topicMap)
-        .then((topicReference) {
-      topic.topicUID = topicReference.id;
-      topicReference.set(
-        {
-          'topicUID': topicReference.id,
-        },
-        SetOptions(merge: true),
-      );
-    });
-
-    return topic;
-  }
-
-  Future<Question> createQuestion(
-      String studyUID, int index, String topicUID) async {
-    var question = Question(
-        questionIndex: index,
-        questionType: 'Standard',
-        totalComments: 0,
-        totalResponses: 0);
-
-    var questionMap = question.toMap();
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .add(questionMap)
-        .then((questionReference) {
-      question.questionUID = questionReference.id;
-      questionReference.set(
-        {
-          'questionUID': questionReference.id,
-        },
-        SetOptions(
-          merge: true,
-        ),
-      );
-    });
-
-    return question;
+    for (var avatarAndDisplayName in avatarAndDisplayNameList) {
+      await _studiesReference
+          .doc(studyUID)
+          .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
+          .doc(avatarAndDisplayName.id)
+          .set(avatarAndDisplayName.toMap());
+    }
   }
 
   Future<User> createUser(User user) async {
@@ -512,18 +491,8 @@ class FirebaseFirestoreService {
     await _studiesReference
         .doc(studyUID)
         .collection(_CLIENTS_COLLECTION)
-        .add(client.toMap())
-        .then((clientReference) {
-      client.uid = clientReference.id;
-      clientReference.set(
-        {
-          'clientUID': clientReference.id,
-        },
-        SetOptions(
-          merge: true,
-        ),
-      );
-    });
+        .doc(client.clientUID)
+        .set(client.toMap());
 
     return client;
   }
@@ -533,18 +502,8 @@ class FirebaseFirestoreService {
     await _studiesReference
         .doc(studyUID)
         .collection(_MODERATORS_COLLECTION)
-        .add(moderator.toMap())
-        .then((moderatorReference) {
-      moderator.uid = moderatorReference.id;
-      moderatorReference.set(
-        {
-          'moderatorUID': moderatorReference.id,
-        },
-        SetOptions(
-          merge: true,
-        ),
-      );
-    });
+        .doc(moderator.moderatorUID)
+        .set(moderator.toMap());
 
     return moderator;
   }
@@ -571,10 +530,22 @@ class FirebaseFirestoreService {
 
     await _studiesReference
         .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .update(
+      {
+        'respondedBy': FieldValue.arrayUnion([response.participantUID])
+      },
+    );
+
+    await _studiesReference
+        .doc(studyUID)
         .collection(_NOTIFICATIONS_COLLECTION)
         .add({
       'notificationTimestamp': response.responseTimestamp,
-      'participantAlias': response.userName,
+      'participantDisplayName': response.participantDisplayName,
       'participantAvatar': response.avatarURL,
       'questionNumber': response.questionNumber,
       'questionTitle': response.questionTitle,
@@ -726,34 +697,6 @@ class FirebaseFirestoreService {
     );
   }
 
-  Future<void> updateQuestion(
-      String studyUID, String topicUID, Question question) async {
-    var lastSaveTime = Timestamp.now();
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(question.questionUID)
-        .set(
-      {
-        'questionNumber': question.questionNumber,
-        'questionStatement': question.questionStatement,
-        'questionTitle': question.questionTitle,
-        'questionType': question.questionType,
-      },
-      SetOptions(merge: true),
-    );
-
-    await _studiesReference.doc(studyUID).set(
-      {
-        'lastSaveTime': lastSaveTime,
-      },
-      SetOptions(merge: true),
-    );
-  }
-
   Future<void> updateParticipant(
       String studyUID, Participant participant) async {
     await _studiesReference
@@ -807,32 +750,6 @@ class FirebaseFirestoreService {
     });
   }
 
-  Future<void> addAssignedGroup(String studyUID, String topicUID,
-      String questionUID, String groupUID) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .update({
-      'groups': FieldValue.arrayUnion([groupUID])
-    });
-  }
-
-  Future<void> removeAssignedGroup(
-      String studyUID, String topicUID, questionUID, String groupUID) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .update({
-      'groups': FieldValue.arrayRemove([groupUID])
-    });
-  }
-
   Future<void> addUserToGroup(
       String studyUID, String groupUID, String userUID) async {
     await _studiesReference
@@ -840,6 +757,27 @@ class FirebaseFirestoreService {
         .collection(_GROUPS_COLLECTION)
         .doc(groupUID)
         .update({'users': userUID});
+  }
+
+  Future<void> updateAvatarAndDisplayNameStatus(
+      String studyUID, String avatarURL) async {
+    var avatarAndDisplayNameQuerySnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
+        .where('avatarURL', isEqualTo: avatarURL)
+        .limit(1)
+        .get();
+
+    for (var avatarAndDisplayNameDocumentSnapshot
+        in avatarAndDisplayNameQuerySnapshot.docs) {
+      await _studiesReference
+          .doc(studyUID)
+          .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
+          .doc(avatarAndDisplayNameDocumentSnapshot.id)
+          .update({
+        'selected': true,
+      });
+    }
   }
 
   /// Delete section

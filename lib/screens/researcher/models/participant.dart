@@ -1,22 +1,26 @@
+import 'package:flutter/cupertino.dart';
+
 class Participant {
   String id;
   String participantUID;
-  String alias;
-  String userName;
+  String displayName;
+  String userFirstName;
+  String userLastName;
   String userGroupName;
   String lastSeen;
   String email;
   String phone;
   String password;
-  String age;
   String gender;
   int responses;
   int comments;
+  String paymentMode;
   String groupUID;
   String profilePhotoURL;
   int topicsCompleted;
   String currentTopic;
   String currentQuestion;
+  String rewardAmount;
 
   bool isActive;
   bool isDeleted;
@@ -25,17 +29,18 @@ class Participant {
   Participant({
     this.id,
     this.participantUID,
-    this.alias,
-    this.userName,
+    this.displayName,
+    this.userFirstName,
+    this.userLastName,
     this.userGroupName,
     this.lastSeen,
     this.email,
     this.phone,
     this.password,
-    this.age,
     this.gender,
     this.responses,
     this.comments,
+    this.paymentMode,
     this.isActive,
     this.isDeleted,
     this.isOnboarded,
@@ -44,6 +49,7 @@ class Participant {
     this.topicsCompleted,
     this.currentTopic,
     this.currentQuestion,
+    this.rewardAmount,
   });
 
   Map<String, dynamic> toMap() {
@@ -51,17 +57,18 @@ class Participant {
 
     participant['id'] = id;
     participant['participantUID'] = participantUID;
-    participant['alias'] = alias;
-    participant['userName'] = userName;
+    participant['displayName'] = displayName;
+    participant['userFirstName'] = userFirstName;
+    participant['userLastName'] = userLastName;
     participant['userGroupName'] = userGroupName;
     participant['lastSeen'] = lastSeen;
     participant['email'] = email;
     participant['phone'] = phone;
     participant['password'] = password;
-    participant['age'] = age;
     participant['gender'] = gender;
     participant['responses'] = responses;
     participant['comments'] = comments;
+    participant['paymentMode'] = paymentMode;
     participant['isActive'] = isActive;
     participant['isDeleted'] = isDeleted;
     participant['groupUID'] = groupUID;
@@ -70,6 +77,7 @@ class Participant {
     participant['topicsCompleted'] = topicsCompleted;
     participant['currentTopic'] = currentTopic;
     participant['currentQuestion'] = currentQuestion;
+    participant['rewardAmount'] = rewardAmount;
 
     return participant;
   }
@@ -77,17 +85,18 @@ class Participant {
   Participant.fromMap(Map<String, dynamic> participant){
     id = participant['id'];
     participantUID = participant['participantUID'];
-    alias = participant['alias'];
-    userName = participant['userName'];
+    displayName = participant['displayName'];
+    userFirstName = participant['userFirstName'];
+    userLastName = participant['userLastName'];
     userGroupName = participant['userGroupName'];
     lastSeen = participant['lastSeen'];
     email = participant['email'];
     phone = participant['phone'];
     password = participant['password'];
-    age = participant['age'];
     gender = participant['gender'];
     responses = participant['responses'];
     comments = participant['comments'];
+    paymentMode = participant['paymentMode'];
     isActive = participant['isActive'];
     isDeleted = participant['isDeleted'];
     isOnboarded = participant['isOnboarded'];
@@ -95,5 +104,6 @@ class Participant {
     profilePhotoURL = participant['profilePhotoURL'];
     currentTopic = participant['currentTopic'];
     currentQuestion = participant['currentQuestion'];
+    rewardAmount = participant['rewardAmount'];
   }
 }

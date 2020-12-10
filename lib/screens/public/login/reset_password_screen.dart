@@ -7,10 +7,10 @@ import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_s
 class ResetPasswordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    if (screenWidth < screenHeight)
+    if (screenWidth < screenHeight) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: PROJECT_GREEN,
@@ -161,7 +161,7 @@ class ResetPasswordScreen extends StatelessWidget {
           ),
         ),
       );
-    else
+    } else {
       return Scaffold(
         appBar: AppBar(
           elevation: 0.0,
@@ -350,5 +350,6 @@ class ResetPasswordScreen extends StatelessWidget {
           ],
         ),
       );
+    }
   }
 }

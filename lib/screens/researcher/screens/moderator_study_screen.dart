@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_dashboard.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_reports.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_setup.dart';
@@ -37,7 +38,8 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
     dashboardScreen = StudyDashboard(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
     usersScreen = StudyUsers(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
-    setupScreen = StudySetup(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
+    // setupScreen = StudySetup(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
+    setupScreen = Expanded(child: DraftStudySetup(studyUID: studyUID,));
     reportsScreen = StudyReports();
 
     subScreen = dashboardScreen;
@@ -146,14 +148,6 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
                             onTap: () => setSubScreen('Reports'),
                           ),
                   ],
-                ),
-                Text(
-                  'MODERATOR ACCESS',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16.0,
-                  ),
                 ),
               ],
             ),

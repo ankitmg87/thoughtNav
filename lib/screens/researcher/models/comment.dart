@@ -5,8 +5,6 @@ class Comment {
   String avatarURL;
   String alias;
   String userName;
-  String timeElapsed;
-  String date;
   String commentStatement;
   String userUID;
   Timestamp commentTimestamp;
@@ -16,8 +14,6 @@ class Comment {
     this.avatarURL,
     this.alias,
     this.userName,
-    this.timeElapsed,
-    this.date,
     this.commentStatement,
     this.userUID,
     this.commentTimestamp,
@@ -30,8 +26,6 @@ class Comment {
     comment['avatarURL'] = avatarURL;
     comment['alias'] = alias;
     comment['userName'] = userName;
-    comment['timeElapsed'] = timeElapsed;
-    comment['date'] = date;
     comment['commentStatement'] = commentStatement;
     comment['userUID'] = userUID;
     comment['commentTimestamp'] = commentTimestamp;
@@ -44,8 +38,6 @@ class Comment {
     avatarURL = comment['avatarURL'];
     alias = comment['alias'];
     userName = comment['userName'];
-    timeElapsed = comment['timeElapsed'];
-    date = comment['date'];
     commentStatement = comment['commentStatement'];
     commentTimestamp = comment['commentTimestamp'];
     userUID = comment['userUID'];

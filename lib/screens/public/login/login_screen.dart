@@ -5,6 +5,7 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/models/user.dart';
+import 'package:thoughtnav/services/client_firestore_service.dart';
 import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
@@ -14,6 +15,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  bool _invalidEmail = false;
+  bool _invalidPassword = false;
+
   bool _rememberMe = false;
 
   bool _showPassword = true;
@@ -22,93 +28,145 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _clientFirestoreService = ClientFirestoreService();
 
   String _email;
   String _password;
 
   void unAwaited(Future<void> future) {}
 
-  void _loginAndRedirectUser() async {
-    BuildContext dialogContext;
-    User user;
+  bool _checkEmail(String _email) {
+    var emailValid = RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(_email);
+    return emailValid;
+  }
 
-    unAwaited(
-      showGeneralDialog(
-        context: context,
-        pageBuilder: (BuildContext context, Animation<double> animation,
-            Animation<double> secondaryAnimation) {
-          dialogContext = context;
-          return Center(
-            child: Material(
-              borderRadius: BorderRadius.circular(4.0),
-              color: Colors.white,
-              child: Container(
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                child: Text(
-                  'Signing In...',
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.0,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+  void _loginAndRedirectUser(BuildContext _context) async {
+    var dialogContext;
+    User user;
 
     String userID;
 
-    if (_email != null && _password != null) {
-      userID = await _firebaseAuthService.signInUser(_email, _password);
+    if(_email != null && _password != null){
+      if(_checkEmail(_email.trim()) && _password.trim().isNotEmpty ){
 
-      user = await _firebaseFirestoreService.getUser(userID);
+        unAwaited(
+          showGeneralDialog(
+            context: _context,
+            pageBuilder: (BuildContext context, Animation<double> animation,
+                Animation<double> secondaryAnimation) {
+              dialogContext = context;
+              return Center(
+                child: Material(
+                  borderRadius: BorderRadius.circular(4.0),
+                  color: Colors.white,
+                  child: Container(
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                    child: Text(
+                      'Signing In...',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
 
-      Navigator.of(dialogContext).pop();
+        userID = await _firebaseAuthService.signInUser(_email.trim(), _password.trim());
 
-      switch (user.userType) {
-        case USER_TYPE_ROOT_USER:
-          await Navigator.of(context).pushNamedAndRemoveUntil(
-              RESEARCHER_MAIN_SCREEN, (route) => false);
-          break;
-        case USER_TYPE_CLIENT:
-          // TODO -> Load data on the basis of study uid.
-          await Navigator.of(context).pushNamedAndRemoveUntil(
-              RESEARCHER_MAIN_SCREEN, (route) => false);
-          break;
-        case USER_TYPE_MODERATOR:
-          // TODO -> Load data on the basis of study uid.
-          await Navigator.of(context).pushNamedAndRemoveUntil(
-              RESEARCHER_MAIN_SCREEN, (route) => false);
-          break;
-        case USER_TYPE_PARTICIPANT:
-          var participant = await _firebaseFirestoreService.getParticipant(
-              user.studyUID, userID);
-          if (participant.isOnboarded) {
-            var getStorage = GetStorage();
-            await getStorage.write('studyUID', user.studyUID);
-            await getStorage.write('participantUID', user.userUID);
-            await Navigator.of(context)
-                .pushNamedAndRemoveUntil(DASHBOARD_SCREEN, (route) => false);
-            break;
+        if (userID == 'user-not-found') {
+          print('User not Found');
+          _invalidEmail = true;
+          _invalidPassword = true;
+          _formKey.currentState.validate();
+          Navigator.of(dialogContext).pop();
+        }
+        else if (userID == 'wrong-password') {
+          print('Invalid Password');
+          if(_invalidEmail){
+            _invalidEmail = false;
           }
-          if (!participant.isOnboarded) {
-            var getStorage = GetStorage();
-            await getStorage.write('studyUID', user.studyUID);
-            await getStorage.write('participantUID', user.userUID);
-            await Navigator.of(context).pushNamedAndRemoveUntil(
-                STUDY_DETAILS_SCREEN, (route) => false);
-            break;
+          _invalidPassword = true;
+          _formKey.currentState.validate();
+          Navigator.of(dialogContext).pop();
+        }
+
+        else {
+          user = await _firebaseFirestoreService.getUser(userID);
+
+          Navigator.of(dialogContext).pop();
+
+          switch(user.userType){
+            case USER_TYPE_ROOT_USER:
+              await Navigator.of(context).pushNamedAndRemoveUntil(
+                  RESEARCHER_MAIN_SCREEN, (route) => false);
+              break;
+            case USER_TYPE_CLIENT:
+              var client = await _clientFirestoreService.getClient(
+                  user.studyUID, 'YWYZQvp9s6KRoSLMW1x3');
+
+              if (client.isOnboarded) {
+                var getStorage = GetStorage();
+                await getStorage.write('studyUID', user.studyUID);
+                await getStorage.write('clientUID', 'YWYZQvp9s6KRoSLMW1x3');
+
+                await Navigator.of(context).pushNamedAndRemoveUntil(
+                    CLIENT_DASHBOARD_SCREEN, (route) => false);
+              } else {
+                var getStorage = GetStorage();
+                await getStorage.write('studyUID', user.studyUID);
+                await getStorage.write('clientUID', 'YWYZQvp9s6KRoSLMW1x3');
+
+                await Navigator.of(context).pushNamedAndRemoveUntil(
+                    CLIENT_ONBOARDING_SCREEN, (route) => false);
+              }
+              break;
+            case USER_TYPE_MODERATOR:
+              await Navigator.of(context).pushNamedAndRemoveUntil(
+                  RESEARCHER_MAIN_SCREEN, (route) => false);
+              break;
+            case USER_TYPE_PARTICIPANT:
+              var participant = await _firebaseFirestoreService.getParticipant(
+                  user.studyUID, userID);
+              if (participant.isOnboarded) {
+                var getStorage = GetStorage();
+                await getStorage.write('studyUID', user.studyUID);
+                await getStorage.write('participantUID', user.userUID);
+                await Navigator.of(context)
+                    .pushNamedAndRemoveUntil(DASHBOARD_SCREEN, (route) => false);
+                break;
+              }
+              if (!participant.isOnboarded) {
+                var getStorage = GetStorage();
+                await getStorage.write('studyUID', user.studyUID);
+                await getStorage.write('participantUID', user.userUID);
+                await Navigator.of(context).pushNamedAndRemoveUntil(
+                    STUDY_DETAILS_SCREEN, (route) => false);
+                break;
+              }
+              break;
           }
-          break;
+        }
       }
+      else{
+        _invalidEmail = true;
+        _invalidPassword = true;
+        _formKey.currentState.validate();
+        Navigator.of(dialogContext).pop();
+      }
+
+    }
+    else {
+      _formKey.currentState.validate();
     }
   }
 
@@ -130,10 +188,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           centerTitle: true,
-          elevation: 0,
         ),
         body: Center(
           child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 30.0,
+            ),
             constraints: BoxConstraints(
               maxWidth: 600.0,
             ),
@@ -181,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFF333333),
-                    fontSize: 14.0,
+                    fontSize: 12.0,
                   ),
                 ),
                 SizedBox(
@@ -203,75 +263,104 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10.0),
-                        child: Text(
-                          'Email',
-                          style: TextStyle(
-                            color: Color(0xFF333333),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.0,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 0,
-                              style: BorderStyle.none,
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.0),
+                              child: Text(
+                                'Email',
+                                style: TextStyle(
+                                  color: Color(0xFF333333),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        onChanged: (email) {
-                          _email = email;
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10.0),
-                        child: Text(
-                          'Password',
-                          style: TextStyle(
-                            color: Color(0xFF333333),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.0,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        obscureText: _showPassword,
-                        decoration: InputDecoration(
-                          suffixIcon: IconButton(
-                            hoverColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            icon:  Icon(
-                                _showPassword ? Icons.visibility_off : Icons.visibility,
-                              size: 16.0,
-                              color: Colors.grey[700],
+                            TextFormField(
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return 'Email Id cannot be empty';
+                                } else if (!_checkEmail(value) || _invalidEmail) {
+                                  return 'Please enter a valid email id';
+                                } else {
+                                  return null;
+                                }
+                              },
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 0,
+                                    style: BorderStyle.none,
+                                  ),
+                                ),
+                              ),
+                              onChanged: (email) {
+                                _email = email;
+                              },
                             ),
-                            onPressed: (){
-                              setState(() {
-                                _showPassword = !_showPassword;
-                              });
-                            },
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 0,
-                              style: BorderStyle.none,
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.0),
+                              child: Text(
+                                'Password',
+                                style: TextStyle(
+                                  color: Color(0xFF333333),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
                             ),
-                          ),
+                            TextFormField(
+                              validator: (passwordValue) {
+                                if(passwordValue.isEmpty){
+                                  return 'Password cannot be empty';
+                                }
+                                else if (_invalidPassword) {
+                                  return 'Password is invalid';
+                                } else {
+                                  return null;
+                                }
+                              },
+                              obscureText: _showPassword,
+                              decoration: InputDecoration(
+                                suffixIcon: IconButton(
+                                  hoverColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  icon: Icon(
+                                    _showPassword
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                    size: 16.0,
+                                    color: Colors.grey[700],
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showPassword = !_showPassword;
+                                    });
+                                  },
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 0,
+                                    style: BorderStyle.none,
+                                  ),
+                                ),
+                              ),
+                              onChanged: (password) {
+                                _password = password;
+                              },
+                            ),
+                          ],
                         ),
-                        onChanged: (password) {
-                          _password = password;
-                        },
                       ),
                     ],
                   ),
@@ -314,7 +403,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               .pushNamed(FORGOT_PASSWORD_SCREEN);
                         },
                         child: Text(
-                          'Forgot Password',
+                          'Forgot Password?',
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -339,7 +428,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           color: PROJECT_GREEN,
                           onPressed: () {
-                            _loginAndRedirectUser();
+                            _loginAndRedirectUser(context);
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -368,13 +457,13 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          elevation: 0.0,
           backgroundColor: PROJECT_GREEN,
           title: Text(
             APP_NAME,
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 18.0,
             ),
           ),
           centerTitle: true,
@@ -470,75 +559,109 @@ class _LoginScreenState extends State<LoginScreen> {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                                  child: Text(
-                                    'Email',
-                                    style: TextStyle(
-                                      color: Color(0xFF333333),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0,
-                                    ),
-                                  ),
-                                ),
-                                TextFormField(
-                                  keyboardType: TextInputType.emailAddress,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        width: 0,
-                                        style: BorderStyle.none,
+                                Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10.0),
+                                        child: Text(
+                                          'Email',
+                                          style: TextStyle(
+                                            color: Color(0xFF333333),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  onChanged: (email) {
-                                    _email = email;
-                                  },
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                                  child: Text(
-                                    'Password',
-                                    style: TextStyle(
-                                      color: Color(0xFF333333),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0,
-                                    ),
-                                  ),
-                                ),
-                                TextFormField(
-                                  obscureText: _showPassword,
-                                  decoration: InputDecoration(
-                                    suffixIcon: IconButton(
-                                      hoverColor: Colors.transparent,
-                                      splashColor: Colors.transparent,
-                                      focusColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      icon:  Icon(
-                                        _showPassword ? Icons.visibility_off : Icons.visibility,
-                                        size: 16.0,
-                                        color: Colors.grey[700],
+                                      TextFormField(
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'Email Id cannot be empty';
+                                          } else if (!_checkEmail(value) || _invalidEmail) {
+                                            return 'Please enter a valid email id';
+                                          } else {
+                                            return null;
+                                          }
+                                        },
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              width: 0,
+                                              style: BorderStyle.none,
+                                            ),
+                                          ),
+                                        ),
+                                        onChanged: (email) {
+                                          _email = email;
+                                        },
                                       ),
-                                      onPressed: (){
-                                        setState(() {
-                                          _showPassword = !_showPassword;
-                                        });
-                                      },
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        width: 0,
-                                        style: BorderStyle.none,
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10.0),
+                                        child: Text(
+                                          'Password',
+                                          style: TextStyle(
+                                            color: Color(0xFF333333),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      TextFormField(
+                                        validator: (passwordValue) {
+                                          if(passwordValue.isEmpty){
+                                            return 'Password cannot be empty';
+                                          }
+                                          else if (_invalidPassword) {
+                                            return 'Password is invalid';
+                                          } else {
+                                            return null;
+                                          }
+                                        },
+                                        obscureText: _showPassword,
+                                        decoration: InputDecoration(
+                                          suffixIcon: IconButton(
+                                            hoverColor: Colors.transparent,
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            icon: Icon(
+                                              _showPassword
+                                                  ? Icons.visibility_off
+                                                  : Icons.visibility,
+                                              size: 16.0,
+                                              color: Colors.grey[700],
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _showPassword = !_showPassword;
+                                              });
+                                            },
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              width: 0,
+                                              style: BorderStyle.none,
+                                            ),
+                                          ),
+                                        ),
+                                        onChanged: (password) {
+                                          _password = password;
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                  onChanged: (password) {
-                                    _password = password;
-                                  },
                                 ),
                               ],
                             ),
@@ -593,7 +716,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         .pushNamed(FORGOT_PASSWORD_SCREEN);
                                   },
                                   child: Text(
-                                    'Forgot Password',
+                                    'Forgot Password?',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -607,7 +730,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   color: PROJECT_GREEN,
                                   onPressed: () {
-                                    _loginAndRedirectUser();
+                                    _loginAndRedirectUser(context);
                                     // sendMail();
                                   },
                                   child: Padding(

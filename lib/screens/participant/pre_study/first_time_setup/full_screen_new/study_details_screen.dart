@@ -68,7 +68,7 @@ class _StudyDetailsScreenState extends State<StudyDetailsScreen> {
                   return ListView(
                     children: [
                       SizedBox(
-                        height: screenHeight * 0.075,
+                        height: screenHeight * 0.05,
                       ),
                       Text(
                         'Welcome to\n${_study.studyName}',
@@ -84,7 +84,7 @@ class _StudyDetailsScreenState extends State<StudyDetailsScreen> {
                         height: screenHeight * 0.05,
                       ),
                       Text(
-                        'Thank you for joining our study on power wheelchairs.',
+                        'Thank you for joining our study',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color(0xFF333333),
@@ -95,7 +95,7 @@ class _StudyDetailsScreenState extends State<StudyDetailsScreen> {
                         height: screenHeight * 0.05,
                       ),
                       Text(
-                        'Your participation is important.',
+                        'Your participation is important',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color(0xFF333333),
@@ -103,7 +103,7 @@ class _StudyDetailsScreenState extends State<StudyDetailsScreen> {
                         ),
                       ),
                       Container(
-                        margin: EdgeInsets.symmetric(vertical: screenHeight * 0.1, horizontal: 40.0),
+                        margin: EdgeInsets.symmetric(vertical: screenHeight * 0.05, horizontal: 40.0),
                         color: Color(0xFFDFE2ED),
                         padding: EdgeInsets.all(40.0),
                         child: Column(
@@ -131,8 +131,8 @@ class _StudyDetailsScreenState extends State<StudyDetailsScreen> {
                               height: 36.0,
                             ),
                             _DetailsRow(
-                              icon: 'images/svg_icons/amazon_icon.png',
-                              detail: 'After you complete this study, you\'ll be awarded a \$150 giftcard.',
+                              icon: 'images/svg_icons/gift_card.png',
+                              detail: 'After you complete this study, you\'ll be awarded a giftcard.',
                             ),
                           ],
                         ),

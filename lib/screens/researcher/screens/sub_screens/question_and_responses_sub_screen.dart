@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/misc_constants.dart';
 import 'package:thoughtnav/screens/researcher/widgets/reponse_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
@@ -73,8 +74,8 @@ class _QuestionAndResponsesSubScreenState
                     topicName: _topicName,
                     questionTitle: snapshot.data['questionTitle'],
                     questionStatement: snapshot.data['questionStatement'],
-                    responses: snapshot.data['responses'],
-                    comments: snapshot.data['comments'],
+                    responses: snapshot.data['totalResponses'],
+                    comments: snapshot.data['totalComments'],
                   );
                 }
                 else {
@@ -86,6 +87,44 @@ class _QuestionAndResponsesSubScreenState
               }
             },
           ),
+          SizedBox(
+            height: 20.0,
+          ),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 2,
+                    color: PROJECT_LIGHT_GREEN,
+                  ),
+                ),
+                SizedBox(width: 10.0,),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Sort by Recent',
+                      style: TextStyle(
+                        color: PROJECT_GREEN,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12.0,
+                      ),
+                    ),
+                    SizedBox(width: 4.0,),
+                    Icon(
+                      CupertinoIcons.chevron_down,
+                      size: 10.0,
+                      color: PROJECT_GREEN,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
           Expanded(
             child: Container(
               padding: EdgeInsets.symmetric(
@@ -142,7 +181,7 @@ class _QuestionDisplayBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  topicName,
+                  topicName ?? 'topicName',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 14.0,
@@ -153,7 +192,7 @@ class _QuestionDisplayBar extends StatelessWidget {
                   height: 10.0,
                 ),
                 Text(
-                  questionTitle,
+                  questionTitle ?? 'questionTitle',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 18.0,
@@ -164,7 +203,7 @@ class _QuestionDisplayBar extends StatelessWidget {
                   height: 20.0,
                 ),
                 Text(
-                  questionStatement,
+                  questionStatement ?? 'questionStatement',
                   style: TextStyle(color: Colors.black),
                 ),
               ],

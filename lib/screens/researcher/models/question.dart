@@ -1,39 +1,42 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
 
 class Question{
-  int questionIndex;
   String questionUID;
   String questionNumber;
   String questionTitle;
   String questionStatement;
   String questionType;
+  Timestamp questionTimestamp;
   List<Response> responses;
   int totalResponses;
   int totalComments;
-  List groups;
+  List<dynamic> groups;
+  List<dynamic> respondedBy;
 
   Question({
-    this.questionIndex,
     this.questionUID,
     this.questionNumber,
     this.questionTitle,
     this.questionStatement,
     this.questionType,
+    this.questionTimestamp,
     this.responses,
     this.totalResponses,
     this.totalComments,
-    this.groups
+    this.groups,
+    this.respondedBy,
   });
 
   Map<String, dynamic> toMap () {
     var question = <String, dynamic>{};
 
-    question['questionIndex'] = questionIndex;
     question['questionUID'] = questionUID;
     question['questionNumber'] = questionNumber;
     question['questionTitle'] = questionTitle;
     question['questionStatement'] = questionStatement;
     question['questionType'] = questionType;
+    question['questionTimestamp'] = questionTimestamp;
     question['totalResponses'] = totalResponses;
     question['totalComments'] = totalComments;
     question['groups'] = groups;
@@ -43,15 +46,16 @@ class Question{
 
   Question.fromMap(Map<String, dynamic> question){
 
-    questionIndex = question['questionIndex'];
     questionUID = question['questionUID'];
     questionNumber = question['questionNumber'];
     questionTitle = question['questionTitle'];
     questionStatement = question['questionStatement'];
     questionType = question['questionType'];
+    questionTimestamp = question['questionTimestamp'];
     totalResponses = question['totalResponses'];
     totalComments = question['totalComments'];
     groups = question['groups'];
+    respondedBy = question['respondedBy'];
   }
 
 }

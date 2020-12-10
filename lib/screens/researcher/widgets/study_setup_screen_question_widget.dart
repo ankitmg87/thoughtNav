@@ -1,9 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+// import 'package:easy_web_view/easy_web_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/moderator_firestore_service.dart';
 
 class StudySetupScreenQuestionWidget extends StatefulWidget {
   final String studyUID;
@@ -11,15 +17,17 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
   final Question question;
   final Function onTap;
   final List<Group> groups;
+  final Function deleteQuestion;
 
-  const StudySetupScreenQuestionWidget(
-      {Key key,
-      this.onTap,
-      this.question,
-      this.topicUID,
-      this.studyUID,
-      this.groups})
-      : super(key: key);
+  const StudySetupScreenQuestionWidget({
+    Key key,
+    this.onTap,
+    this.question,
+    this.topicUID,
+    this.studyUID,
+    this.groups,
+    this.deleteQuestion,
+  }) : super(key: key);
 
   @override
   _StudySetupScreenQuestionWidgetState createState() =>
@@ -28,7 +36,9 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
 
 class _StudySetupScreenQuestionWidgetState
     extends State<StudySetupScreenQuestionWidget> {
-  final _firebaseFirestoreService = FirebaseFirestoreService();
+  // final _firebaseFirestoreService = FirebaseFirestoreService();
+
+  final _moderatorFirestoreService = ModeratorFirestoreService();
 
   final _questionTitleFocusNode = FocusNode();
   final _questionNumberFocusNode = FocusNode();
@@ -37,7 +47,13 @@ class _StudySetupScreenQuestionWidgetState
   String _questionTitle;
   String _questionNumber;
 
+  String _questionDate;
+  String _questionTime;
+
   int _selectedRadio;
+
+  DateTime _questionDateTime;
+  TimeOfDay _questionTimeOFDay;
 
   void _getInitialValues() {
     _questionNumber = widget.question.questionNumber;
@@ -45,8 +61,26 @@ class _StudySetupScreenQuestionWidgetState
     _questionStatement = widget.question.questionStatement;
   }
 
+  @override
+  void didChangeDependencies() {
+    if (widget.question.questionTimestamp != null) {
+      _questionDateTime = DateTime.fromMillisecondsSinceEpoch(
+          widget.question.questionTimestamp.millisecondsSinceEpoch);
+
+      _questionTimeOFDay = TimeOfDay(
+          hour: _questionDateTime.hour, minute: _questionDateTime.minute);
+
+      var dateFormatter = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
+      _questionDate = dateFormatter.format(_questionDateTime);
+
+      _questionTime = _questionTimeOFDay.format(context);
+    }
+
+    super.didChangeDependencies();
+  }
+
   void _updateQuestionDetails() async {
-    await _firebaseFirestoreService.updateQuestion(
+    await _moderatorFirestoreService.updateQuestion(
         widget.studyUID, widget.topicUID, widget.question);
   }
 
@@ -122,7 +156,14 @@ class _StudySetupScreenQuestionWidgetState
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.0),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+      margin: EdgeInsets.all(10.0),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey[400],
+          width: 0.75,
+        ),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -226,67 +267,6 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
-                      final questionStatement = await showGeneralDialog(
-                        context: context,
-                        barrierLabel: MaterialLocalizations.of(context)
-                            .modalBarrierDismissLabel,
-                        barrierColor: Colors.black45,
-                        transitionDuration: const Duration(milliseconds: 200),
-                        pageBuilder: (BuildContext context,
-                            Animation<double> animation,
-                            Animation<double> secondaryAnimation) {
-                          return CustomTextEditingBox(
-                            hintText: 'Enter question statement',
-                            initialValue: widget.question.questionStatement,
-                          );
-                        },
-                      );
-                      if (questionStatement != null) {
-                        if (questionStatement.toString().trim().isNotEmpty) {
-                          _questionStatement = questionStatement.toString();
-                          setState(() {
-                            widget.question.questionStatement =
-                                _questionStatement;
-                          });
-                          _updateQuestionDetails();
-                        }
-                      }
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 16.0,
-                        horizontal: 10.0,
-                      ),
-                      child: Text(
-                        widget.question.questionStatement == null
-                            ? 'Set a Question'
-                            : 'Question set',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.0,
-                          color: widget.question.questionStatement == null
-                              ? Colors.grey[400]
-                              : Colors.grey[700],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 40.0,
-              ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2.0),
-                    border: Border.all(
-                      width: 0.75,
-                      color: Colors.grey[300],
-                    ),
-                  ),
-                  child: InkWell(
-                    onTap: () async {
                       await showGeneralDialog(
                         context: context,
                         barrierLabel: MaterialLocalizations.of(context)
@@ -338,8 +318,8 @@ class _StudySetupScreenQuestionWidgetState
                                               topicUID: widget.topicUID,
                                               questionUID:
                                                   widget.question.questionUID,
-                                              firebaseFirestoreService:
-                                                  _firebaseFirestoreService,
+                                              moderatorFirestoreService:
+                                                  _moderatorFirestoreService,
                                             );
                                           },
                                         ),
@@ -397,13 +377,15 @@ class _StudySetupScreenQuestionWidgetState
                         horizontal: 10.0,
                       ),
                       child: Text(
-                        widget.question.groups == null || widget.question.groups.isEmpty
+                        widget.question.groups == null ||
+                                widget.question.groups.isEmpty
                             ? 'Select groups'
-                            : 'Groups selected',
+                            : 'Group 1, Group 2',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.0,
-                          color: widget.question.groups == null || widget.question.groups.isEmpty
+                          color: widget.question.groups == null ||
+                                  widget.question.groups.isEmpty
                               ? Colors.grey[400]
                               : Colors.grey[700],
                         ),
@@ -412,7 +394,256 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                 ),
               ),
+              SizedBox(
+                width: 40.0,
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2.0),
+                    border: Border.all(
+                      width: 0.75,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        lastDate: DateTime(2025),
+                        firstDate: DateTime(2020),
+                        initialDate: DateTime.now(),
+                      );
+                      if (date != null) {
+                        _questionDateTime = date;
+
+                        var dateFormatter =
+                            DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
+                        _questionDate = dateFormatter.format(date);
+
+                        if (_questionDateTime != null &&
+                            _questionTimeOFDay != null) {
+                          widget.question.questionTimestamp =
+                              Timestamp.fromDate(
+                            DateTime(
+                              _questionDateTime.year,
+                              _questionDateTime.month,
+                              _questionDateTime.day,
+                              _questionTimeOFDay.hour,
+                              _questionTimeOFDay.minute,
+                            ),
+                          );
+                          _updateQuestionDetails();
+                        }
+                      }
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
+                        horizontal: 10.0,
+                      ),
+                      child: Text(
+                        _questionDate ?? 'Please set a date',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0,
+                          color: _questionDate == null
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 40.0,
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2.0),
+                    border: Border.all(
+                      width: 0.75,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (time != null) {
+                        _questionTimeOFDay = time;
+
+                        _questionTime = time.format(context);
+
+                        if (_questionDateTime != null &&
+                            _questionTimeOFDay != null) {
+                          widget.question.questionTimestamp =
+                              Timestamp.fromDate(
+                            DateTime(
+                              _questionDateTime.year,
+                              _questionDateTime.month,
+                              _questionDateTime.day,
+                              _questionTimeOFDay.hour,
+                              _questionTimeOFDay.minute,
+                            ),
+                          );
+                          _updateQuestionDetails();
+                        }
+                      }
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
+                        horizontal: 10.0,
+                      ),
+                      child: Text(
+                        _questionTime ?? 'Please set a time',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0,
+                          color: _questionTime == null
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 40.0,
+              ),
+              IconButton(
+                onPressed: widget.deleteQuestion,
+                icon: Icon(
+                  CupertinoIcons.clear_circled_solid,
+                  size: 16.0,
+                  color: Colors.red[700],
+                ),
+              ),
             ],
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2.0),
+              border: Border.all(
+                width: 0.75,
+                color: Colors.grey[300],
+              ),
+            ),
+            child: InkWell(
+              onTap: () async {
+                final questionStatement = await showGeneralDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel,
+                  barrierColor: Colors.black45,
+                  transitionDuration: const Duration(milliseconds: 200),
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation) {
+                    return Center(
+                      child: Material(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.6,
+                            maxHeight: MediaQuery.of(context).size.height * 0.75,
+                          ),
+                          padding: EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          // child: EasyWebView(
+                          //   src: 'assets/quill.html',
+                          //   width: MediaQuery.of(context).size.width * 0.5,
+                          //   height: MediaQuery.of(context).size.height * 0.5,
+                          //   convertToWidgets: true,
+                          //   onLoaded: () {},
+                          // ),
+                          child: TextFormField(
+                            initialValue: _questionStatement,
+                            decoration: InputDecoration(
+                              hintText: 'Enter a question',
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[400],
+                                  width: 0.5,
+                                ),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+
+                    //   CustomTextEditingBox(
+                    //   hintText: 'Enter question statement',
+                    //   initialValue: widget.question.questionStatement,
+                    // );
+                  },
+                );
+                if (questionStatement != null) {
+                  if (questionStatement.toString().trim().isNotEmpty) {
+                    _questionStatement = questionStatement.toString();
+                    setState(() {
+                      widget.question.questionStatement = _questionStatement;
+                    });
+                    _updateQuestionDetails();
+                  }
+                }
+              },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
+                        horizontal: 10.0,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          children: [
+                            Text(
+                              widget.question.questionStatement == null
+                                  ? 'Set a Question'
+                                  : _questionStatement,
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           SizedBox(
             height: 10.0,
@@ -511,7 +742,7 @@ class _AssignedGroupWidget extends StatefulWidget {
     @required this.widget,
     this.index,
     this.groups,
-    this.firebaseFirestoreService,
+    this.moderatorFirestoreService,
     this.studyUID,
     this.topicUID,
     this.questionUID,
@@ -520,7 +751,7 @@ class _AssignedGroupWidget extends StatefulWidget {
   final StudySetupScreenQuestionWidget widget;
   final int index;
   final List groups;
-  final FirebaseFirestoreService firebaseFirestoreService;
+  final ModeratorFirestoreService moderatorFirestoreService;
   final String studyUID;
   final String topicUID;
   final String questionUID;
@@ -549,14 +780,14 @@ class _AssignedGroupWidgetState extends State<_AssignedGroupWidget> {
             _isSelected = false;
             widget.groups.remove(_groupUID);
           });
-          await widget.firebaseFirestoreService.removeAssignedGroup(
+          await widget.moderatorFirestoreService.removeAssignedGroup(
               widget.studyUID, widget.topicUID, widget.questionUID, _groupUID);
         } else {
           setState(() {
             _isSelected = true;
             widget.groups.add(_groupUID);
           });
-          await widget.firebaseFirestoreService.addAssignedGroup(
+          await widget.moderatorFirestoreService.addAssignedGroup(
               widget.studyUID, widget.topicUID, widget.questionUID, _groupUID);
         }
       },

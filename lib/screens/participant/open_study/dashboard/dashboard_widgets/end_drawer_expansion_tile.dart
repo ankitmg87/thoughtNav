@@ -8,10 +8,14 @@ class EndDrawerExpansionTile extends StatefulWidget {
     Key key,
     this.title,
     this.questions,
+    this.onChildTapped,
+    this.participantUID,
   }) : super(key: key);
 
   final String title;
   final List<Question> questions;
+  final Function onChildTapped;
+  final String participantUID;
 
   @override
   _EndDrawerExpansionTileState createState() => _EndDrawerExpansionTileState();
@@ -54,11 +58,14 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
             children: [
               ListView.builder(
                 shrinkWrap: true,
-                itemCount: widget.questions.length ,
+                itemCount: widget.questions.length,
                 itemBuilder: (BuildContext context, int index) {
                   return EndDrawerExpansionTileChild(
-                    label: '${widget.questions[index].questionNumber} ${widget.questions[index].questionTitle}',
-                    onTap: (){},
+                    label:
+                        '${widget.questions[index].questionNumber} ${widget.questions[index].questionTitle}',
+                    onTap: widget.onChildTapped,
+                    question: widget.questions[index],
+                    participantUID: widget.participantUID,
                   );
                 },
               ),

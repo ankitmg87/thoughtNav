@@ -3,17 +3,17 @@ import 'package:thoughtnav/screens/researcher/models/question.dart';
 
 class Topic {
   String topicUID;
+  String topicNumber;
   String topicName;
   Timestamp topicDate;
-  int topicIndex;
   List<Question> questions;
   bool isActive;
 
   Topic({
     this.topicUID,
+    this.topicNumber,
     this.topicName,
     this.topicDate,
-    this.topicIndex,
     this.questions,
     this.isActive,
   });
@@ -22,9 +22,9 @@ class Topic {
     var topic = <String, dynamic>{};
 
     topic['topicUID'] = topicUID;
+    topic['topicNumber'] = topicNumber;
     topic['topicName'] = topicName;
     topic['topicDate'] = topicDate;
-    topic['topicIndex'] = topicIndex;
     topic['isActive'] = isActive;
 
     return topic;
@@ -32,9 +32,9 @@ class Topic {
 
   Topic.fromMap(Map<String, dynamic> topic){
     topicUID = topic['topicUID'];
+    topicNumber = topic['topicNumber'];
     topicName = topic['topicName'];
     topicDate = topic['topicDate'];
-    topicIndex = topic['topicIndex'];
     isActive = topic['isActive'];
   }
 

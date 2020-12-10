@@ -4,13 +4,29 @@ class FirebaseAuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   Future<String> signInUser(String email, String password) async {
-    String uid;
-    await _firebaseAuth
-        .signInWithEmailAndPassword(
-            email: email, password: password)
-        .then((value) {
-      uid = value.user.uid;
-    });
+    var uid = '';
+
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password).then((value) {
+            uid = value.user.uid;
+      });
+    } catch (error) {
+      switch(error.code){
+        case 'user-not-found':
+          uid = 'user-not-found';
+          break;
+        case 'wrong-password':
+          uid = 'wrong-password';
+          break;
+        case 'invalid-email':
+          uid = 'invalid-email';
+          break;
+        default:
+          uid = 'user-not-found';
+          break;
+      }
+    }
 
     return uid;
   }
@@ -18,7 +34,9 @@ class FirebaseAuthService {
   Future<String> signUpUser(String email, String password) async {
     String userUID;
 
-    await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password).then((userCredential){
+    await _firebaseAuth
+        .createUserWithEmailAndPassword(email: email, password: password)
+        .then((userCredential) {
       userUID = userCredential.user.uid;
     });
 
@@ -33,5 +51,4 @@ class FirebaseAuthService {
   Future signOutUser() async {
     await _firebaseAuth.signOut();
   }
-
 }

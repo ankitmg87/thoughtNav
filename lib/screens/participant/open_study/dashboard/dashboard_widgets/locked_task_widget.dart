@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 
 class LockedTaskWidget extends StatelessWidget {
@@ -9,6 +10,13 @@ class LockedTaskWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    var formatDate = DateFormat.yMd();
+    var formatTime = DateFormat.jm();
+
+    var date = formatDate.format(topic.topicDate.toDate());
+    var time = formatTime.format(topic.topicDate.toDate());
+
     return Container(
       color: Color(0xFFDFE2ED),
       margin: EdgeInsets.symmetric(
@@ -34,7 +42,7 @@ class LockedTaskWidget extends StatelessWidget {
                 height: 4.0,
               ),
               Text(
-                topic.topicDate.toDate().toString(),
+                '$date at $time',
                 style: TextStyle(
                   color: Color(0xFF333333).withOpacity(0.3),
                   fontSize: 12.0,

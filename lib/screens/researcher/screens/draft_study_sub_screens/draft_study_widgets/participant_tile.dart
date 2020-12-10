@@ -50,6 +50,24 @@ class _ParticipantTileState extends State<ParticipantTile> {
             width: 40.0,
           ),
           Expanded(
+            child: Text(widget.participant.displayName),
+          ),
+          SizedBox(
+            width: 40.0,
+          ),
+          Expanded(
+            child: Text(widget.participant.userFirstName),
+          ),
+          SizedBox(
+            width: 40.0,
+          ),
+          Expanded(
+            child: Text(widget.participant.phone),
+          ),
+          SizedBox(
+            width: 40.0,
+          ),
+          Expanded(
             child: InkWell(
               onTap: () {},
               child: Container(

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -128,7 +129,8 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                     return TopicWidget(
                                       studyUID: widget.studyUID,
                                       topic: snapshot.data[index],
-                                      firebaseFirestoreService: widget.firebaseFirestoreService,
+                                      firebaseFirestoreService:
+                                          widget.firebaseFirestoreService,
                                     );
                                   },
                                   separatorBuilder:
@@ -190,7 +192,7 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                         itemBuilder:
                                             (BuildContext context, int index) {
                                           return _DesktopNotificationWidget(
-                                            time: notifications[index]['time'],
+                                            time: '5:38 pm',
                                             participantAvatar:
                                                 notifications[index]
                                                     ['participantAvatar'],
@@ -278,24 +280,28 @@ class _DesktopNotificationWidget extends StatelessWidget {
           SizedBox(
             width: 5.0,
           ),
-          Container(
-            padding: EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: PROJECT_LIGHT_GREEN,
-            ),
-            child: Image(
-              width: 20.0,
-              image: AssetImage(
-                participantAvatar,
-              ),
-            ),
+          CachedNetworkImage(
+            imageUrl: participantAvatar,
+            imageBuilder: (context, imageProvider){
+              return Container(
+                padding: EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: PROJECT_LIGHT_GREEN,
+                ),
+                child: Image(
+                  width: 20.0,
+                  image: imageProvider,
+                ),
+              );
+            },
           ),
           SizedBox(
             width: 8.0,
           ),
           Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RichText(
                   textAlign: TextAlign.start,

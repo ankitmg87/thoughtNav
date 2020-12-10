@@ -190,7 +190,15 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
         ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
-          color: Colors.white,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(
+                width: 0.5,
+                color: Colors.grey[400],
+              )
+            )
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

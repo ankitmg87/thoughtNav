@@ -18,6 +18,8 @@ class Study {
   String specializedInviteMessage;
   String introPageMessage;
   String studyClosedMessage;
+  String studyTimeZone;
+  String rewardAmount;
 
   List<Map<String, dynamic>> categories;
   List<Map<String, dynamic>> groups;
@@ -42,6 +44,8 @@ class Study {
     this.specializedInviteMessage,
     this.introPageMessage,
     this.studyClosedMessage,
+    this.studyTimeZone,
+    this.rewardAmount,
     this.categories,
     this.groups,
     this.topics,
@@ -65,6 +69,7 @@ class Study {
     basicDetailsMap['introPageMessage'] = study.introPageMessage;
     basicDetailsMap['studyClosedMessage'] = study.studyClosedMessage;
     basicDetailsMap['commonInviteMessage'] = study.commonInviteMessage;
+    basicDetailsMap['studyTimeZone'] = study.studyTimeZone;
     basicDetailsMap['activeParticipants'] = study.activeParticipants;
     basicDetailsMap['totalResponses'] = study.totalResponses;
 
@@ -84,7 +89,10 @@ class Study {
     introPageMessage = study['introPageMessage'];
     commonInviteMessage = study['commonInviteMessage'];
     studyClosedMessage = study['studyClosedMessage'];
+    studyTimeZone = study['studyTimeZone'];
     activeParticipants = study['activeParticipants'];
     totalResponses = study['totalResponses'];
+
+    // print(study['studyTimeZone']);
   }
 }

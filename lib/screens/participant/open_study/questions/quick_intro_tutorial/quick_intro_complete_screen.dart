@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
 
 class TopicCompleteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: Color(0xFF11B262),
@@ -15,7 +16,7 @@ class TopicCompleteScreen extends StatelessWidget {
             height: screenSize.height * 0.1,
           ),
           Text(
-            'Smartphone Study',
+            'Power Wheelchair Study',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
@@ -72,76 +73,42 @@ class TopicCompleteScreen extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            height: screenSize.height * 0.1,
-          ),
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: TextStyle(
-                height: 1.5,
-              ),
-              children: [
-                TextSpan(
-                  text: 'Day One',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextSpan(
-                    text: ' is now available.\n',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
-                    )),
-                TextSpan(
-                    text: 'Go to your Dashboard and get started.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
-                    )),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: screenSize.height * 0.01,
-          ),
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                OutlineButton(
-                  hoverColor: Color(0xFF1A4C88),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  borderSide: BorderSide(color: Colors.white, width: 5.0),
-                  onPressed: () {},
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          width: 8.0,
-                        ),
-                        Text(
-                          'SET REMINDER',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // SizedBox(
+          //   height: screenSize.height * 0.1,
+          // ),
+          // RichText(
+          //   textAlign: TextAlign.center,
+          //   text: TextSpan(
+          //     style: TextStyle(
+          //       height: 1.5,
+          //     ),
+          //     children: [
+          //       TextSpan(
+          //         text: 'Day One',
+          //         style: TextStyle(
+          //           color: Colors.white,
+          //           fontSize: 14.0,
+          //           fontWeight: FontWeight.bold,
+          //         ),
+          //       ),
+          //       TextSpan(
+          //           text: ' is now available.\n',
+          //           style: TextStyle(
+          //             color: Colors.white,
+          //             fontSize: 14.0,
+          //           )),
+          //       TextSpan(
+          //           text: 'Go to your Dashboard and get started.',
+          //           style: TextStyle(
+          //             color: Colors.white,
+          //             fontSize: 14.0,
+          //           )),
+          //     ],
+          //   ),
+          // ),
+          // SizedBox(
+          //   height: screenSize.height * 0.01,
+          // ),
           SizedBox(
             height: screenSize.height * 0.05,
           ),
@@ -153,7 +120,9 @@ class TopicCompleteScreen extends StatelessWidget {
                   child: FlatButton(
                     hoverColor: Color(0xFF1A4C88),
                     color: PROJECT_GREEN,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamedAndRemoveUntil(DASHBOARD_SCREEN, (route) => false);
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(

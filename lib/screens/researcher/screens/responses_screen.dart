@@ -20,9 +20,9 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
   bool isExpanded = false;
 
-  String _studyUID;
-  String _topicUID;
-  String _questionUID;
+  String _studyUID = 'kdmkid1WWQ3frXIZk51f';
+  String _topicUID = 'fTFnJaMNkrx8DAXfCi0c';
+  String _questionUID = 'g8VJ5vkVFMGyFrtHVvXB';
   String _topicName;
 
   Future<void> _getStudyAndTopicUIDs;
@@ -31,9 +31,9 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
   Future<void> _getStudyUIDAndTopicUID() async {
     await Future.delayed(Duration(seconds: 0), () {
-      Map arguments = ModalRoute.of(context).settings.arguments;
-      _topicUID = arguments['topicUID'];
-      _questionUID = arguments['questionUID'];
+      // Map arguments = ModalRoute.of(context).settings.arguments;
+      // _topicUID = arguments['topicUID'];
+      // _questionUID = arguments['questionUID'];
     });
 
   }
@@ -45,8 +45,8 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
   @override
   void initState() {
     studyNavigatorWidth = minMenuWidth;
-    var getStorage = GetStorage();
-    _studyUID = getStorage.read('studyUID');
+    // var getStorage = GetStorage();
+    // _studyUID = getStorage.read('studyUID');
 
     _getTopics();
     _getStudyAndTopicUIDs = _getStudyUIDAndTopicUID();
@@ -311,44 +311,44 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
         ),
       ),
       centerTitle: true,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Stack(
-              children: [
-                Container(
-                  child: Image(
-                    image: AssetImage('images/avatars/batman.png'),
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(2.0),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.menu,
-                      color: Colors.white,
-                      size: 12.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.all(8.0),
+      //     child: Center(
+      //       child: Stack(
+      //         children: [
+      //           Container(
+      //             child: Image(
+      //               image: AssetImage('images/avatars/batman.png'),
+      //             ),
+      //             decoration: BoxDecoration(
+      //               shape: BoxShape.circle,
+      //             ),
+      //           ),
+      //           Positioned(
+      //             bottom: 0,
+      //             right: 0,
+      //             child: Container(
+      //               padding: EdgeInsets.all(2.0),
+      //               decoration: BoxDecoration(
+      //                 color: Colors.black,
+      //                 shape: BoxShape.circle,
+      //                 border: Border.all(
+      //                   color: Colors.white,
+      //                 ),
+      //               ),
+      //               child: Icon(
+      //                 Icons.menu,
+      //                 color: Colors.white,
+      //                 size: 12.0,
+      //               ),
+      //             ),
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // ],
     );
   }
 }

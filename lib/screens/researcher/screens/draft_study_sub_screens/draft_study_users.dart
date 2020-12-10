@@ -88,6 +88,9 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         id: id,
         email: email,
         password: masterPassword,
+        clientUID: createdUser.userUID,
+        phone: '123123123',
+        isOnboarded: false,
       );
       client =
           await _firebaseFirestoreService.createClient(widget.studyUID, client);
@@ -99,6 +102,8 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         id: id,
         email: email,
         password: masterPassword,
+        moderatorUID: createdUser.userUID,
+        phone: '789789789',
       );
 
       moderator = await _firebaseFirestoreService.createModerator(
@@ -107,14 +112,11 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
       return;
     }
 
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   @override
   void initState() {
-
     _getGroups();
 
     _participantsListSelected = true;
@@ -145,7 +147,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
         _list = _participantsFutureBuilder;
         _addUserButton = _addParticipantsButton();
-
       });
       return;
     }
@@ -174,15 +175,15 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   RaisedButton _addUsersToGroupButton() {
     return RaisedButton(
       onPressed: () async {},
-
     );
   }
 
   RaisedButton _addParticipantsButton() {
     return RaisedButton(
       onPressed: () async {
-        await _buildGeneralDialog('Participants', MediaQuery.of(context).size,
-            'Participant Email', 'participant', _masterPassword);
+        // await _buildGeneralDialog('Participants', MediaQuery.of(context).size,
+        //     'Participant Email', 'participant', _masterPassword);
+        await _buildAddParticipantsDialog();
       },
       color: PROJECT_GREEN,
       child: Padding(
@@ -250,9 +251,12 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   RaisedButton _addModeratorsButton() {
     return RaisedButton(
       onPressed: () async {
-        var userDetails = await _buildGeneralDialog('Moderators', MediaQuery.of(context).size,
-            'Moderator Name', 'moderator', _masterPassword);
-
+        var userDetails = await _buildGeneralDialog(
+            'Moderators',
+            MediaQuery.of(context).size,
+            'Moderator Name',
+            'moderator',
+            _masterPassword);
 
         setState(() {});
       },
@@ -288,7 +292,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     return FutureBuilder(
       future: _futureParticipants,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.connectionState == ConnectionState.active) {
           return Center(
@@ -547,6 +550,277 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     }
   }
 
+  Future _buildAddParticipantsDialog() async {
+    var email = '';
+    var firstName = '';
+    var lastName = '';
+    var phone = '';
+
+    await showGeneralDialog(
+      context: context,
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return StatefulBuilder(
+          builder:
+              (BuildContext context, void Function(void Function()) _setState) {
+            return Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                width: MediaQuery.of(context).size.width * 0.6,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Material(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Text(
+                            'Add Participants',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Container(
+                        height: 1.0,
+                        color: Colors.grey[300],
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  _setState(() {
+                                    email = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Participant Email',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  _setState(() {
+                                    firstName = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'First Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  _setState(() {
+                                    lastName = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Last Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  _setState(() {
+                                    phone = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Participant Phone',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.0,
+                        ),
+                        child: InkWell(
+                          onTap: () => _pickFile(),
+                          hoverColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.tray_arrow_down_fill,
+                                    color: PROJECT_GREEN,
+                                    size: 14.0,
+                                  ),
+                                  SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  Text(
+                                    'Import .csv file',
+                                    style: TextStyle(
+                                      color: Colors.grey[500],
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      ButtonBar(
+                        children: [
+                          FlatButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            color: Colors.grey[200],
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ),
+                          FlatButton(
+                            onPressed: () {},
+                            // onPressed: email.isNotEmpty && id.isNotEmpty
+                            //     ? () async {
+                            //   await _addUserToFirebase(
+                            //       email, masterPassword, userType, id);
+                            //   Navigator.of(context).pop();
+                            //   setState(() {});
+                            // }
+                            //     : null,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(2.0),
+                            ),
+                            color: PROJECT_GREEN,
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Text(
+                                'Add',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future _buildGeneralDialog(String heading, Size screenSize, String hintText,
       String userType, String masterPassword) async {
     var email = '';
@@ -602,38 +876,38 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                         padding: EdgeInsets.symmetric(horizontal: 10.0),
                         child: Row(
                           children: [
-                            SizedBox(
-                              width: 60.0,
-                              child: TextFormField(
-                                onChanged: (value) {
-                                  _setState(() {
-                                    id = value;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'No.',
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(2.0),
-                                    borderSide: BorderSide(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(2.0),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey[400],
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(2.0),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 20.0,
-                            ),
+                            // SizedBox(
+                            //   width: 60.0,
+                            //   child: TextFormField(
+                            //     onChanged: (value) {
+                            //       _setState(() {
+                            //         id = value;
+                            //       });
+                            //     },
+                            //     decoration: InputDecoration(
+                            //       hintText: 'No.',
+                            //       focusedBorder: OutlineInputBorder(
+                            //         borderRadius: BorderRadius.circular(2.0),
+                            //         borderSide: BorderSide(
+                            //           color: Colors.black,
+                            //         ),
+                            //       ),
+                            //       enabledBorder: OutlineInputBorder(
+                            //         borderRadius: BorderRadius.circular(2.0),
+                            //         borderSide: BorderSide(
+                            //           color: Colors.grey[400],
+                            //           width: 0.5,
+                            //         ),
+                            //       ),
+                            //       border: OutlineInputBorder(
+                            //         borderRadius: BorderRadius.circular(2.0),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                            // SizedBox(
+                            //   width: 20.0,
+                            // ),
                             Expanded(
                               child: TextFormField(
                                 onChanged: (value) {
@@ -756,16 +1030,14 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
       },
     );
 
-    if(email.isNotEmpty && id.isNotEmpty){
+    if (email.isNotEmpty && id.isNotEmpty) {
       return {
         'email': email,
         'id': id,
       };
-    }
-    else {
+    } else {
       return;
     }
-
   }
 }
 
@@ -803,4 +1075,3 @@ class __DraftStudySecondaryAppBarWidgetState
     );
   }
 }
-

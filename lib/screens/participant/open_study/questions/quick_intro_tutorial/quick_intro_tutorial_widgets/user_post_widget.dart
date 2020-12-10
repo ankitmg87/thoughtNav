@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_tutorial_widgets/comment_widget.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
@@ -51,6 +52,38 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    var formatDate = DateFormat.yMd();
+    var formatTime = DateFormat.jm();
+
+    var date = formatDate.format(widget.response.responseTimestamp.toDate());
+    var time = formatTime.format(widget.response.responseTimestamp.toDate());
+
+    var now = DateTime.now();
+
+
+    var difference = DateTime.fromMillisecondsSinceEpoch(widget.response.responseTimestamp.microsecondsSinceEpoch).difference(now);
+    var timeDifferenceFormat = DateFormat('HH:mm a');
+
+    var timeElapsed = '';
+
+    if (difference.inSeconds <= 0 || difference.inSeconds > 0 && difference.inMinutes == 0 || difference.inMinutes > 0 && difference.inHours == 0 || difference.inHours > 0 && difference.inDays == 0) {
+      timeElapsed = timeDifferenceFormat.format(widget.response.responseTimestamp.toDate());
+    } else if (difference.inDays > 0 && difference.inDays < 7) {
+      if (difference.inDays == 1) {
+        timeElapsed = difference.inDays.toString() + ' DAY AGO';
+      } else {
+        timeElapsed = difference.inDays.toString() + ' DAYS AGO';
+      }
+    } else {
+      if (difference.inDays == 7) {
+        timeElapsed = (difference.inDays / 7).floor().toString() + ' WEEK AGO';
+      } else {
+
+        timeElapsed = (difference.inDays / 7).floor().toString() + ' WEEKS AGO';
+      }
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 5.0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -91,7 +124,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.response.alias,
+                        widget.response.participantDisplayName,
                         style: TextStyle(
                           color: TEXT_COLOR.withOpacity(0.6),
                           fontSize: 12.0,
@@ -102,7 +135,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                         height: 2.0,
                       ),
                       Text(
-                        '${widget.response.responseTimestamp}',
+                        '$date at $time',
                         style: TextStyle(
                           color: TEXT_COLOR.withOpacity(0.6),
                           fontSize: 10.0,
@@ -116,7 +149,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.response.timeElapsed,
+                    timeElapsed,
                     style: TextStyle(
                       color: TEXT_COLOR.withOpacity(0.6),
                       fontSize: 10.0,
@@ -250,24 +283,24 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.response.alias,
+                              widget.response.participantDisplayName,
                               style: TextStyle(
                                 color: Colors.grey[700],
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(
-                              height: 4.0,
-                            ),
-                            Text(
-                              'current Date',
-                              style: TextStyle(
-                                color: Colors.grey[500],
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            // SizedBox(
+                            //   height: 4.0,
+                            // ),
+                            // Text(
+                            //   'current Date',
+                            //   style: TextStyle(
+                            //     color: Colors.grey[500],
+                            //     fontSize: 12.0,
+                            //     fontWeight: FontWeight.bold,
+                            //   ),
+                            // ),
                             SizedBox(
                               height: 10.0,
                             ),
@@ -363,9 +396,6 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                                   avatarURL: commentDocs[index]['avatarURL'],
                                   alias: commentDocs[index]['alias'],
                                   userName: commentDocs[index]['userName'],
-                                  timeElapsed: commentDocs[index]
-                                      ['timeElapsed'],
-                                  date: commentDocs[index]['date'],
                                   commentStatement: commentDocs[index]
                                       ['commentStatement'],
                                   userUID: commentDocs[index]['userUID'],

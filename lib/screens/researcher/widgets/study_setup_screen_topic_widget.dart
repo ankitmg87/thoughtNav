@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/moderator_firestore_service.dart';
 
 import 'custom_text_editing_box.dart';
 import 'study_setup_screen_question_widget.dart';
@@ -20,7 +23,8 @@ class StudySetupScreenTopicWidget extends StatefulWidget {
     Key key,
     this.onTap,
     this.studyUID,
-    this.topic, this.groups,
+    this.topic,
+    this.groups,
   }) : super(key: key);
 
   @override
@@ -33,6 +37,8 @@ class _StudySetupScreenTopicWidgetState
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
+  final _moderatorFirestoreService = ModeratorFirestoreService();
+
   List<Question> _questions;
 
   String _topicDate;
@@ -41,6 +47,12 @@ class _StudySetupScreenTopicWidgetState
 
   void _updateTopicDetails() async {
     await _firebaseFirestoreService.updateTopic(widget.studyUID, widget.topic);
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      _questions.insert(newIndex, _questions.removeAt(oldIndex));
+    });
   }
 
   @override
@@ -58,7 +70,6 @@ class _StudySetupScreenTopicWidgetState
     _questions = widget.topic.questions;
 
     _questions ??= <Question>[];
-
   }
 
   String _formatTopicDate(Timestamp timestamp) {
@@ -86,6 +97,49 @@ class _StudySetupScreenTopicWidgetState
         children: [
           Row(
             children: [
+              SizedBox(
+                width: 60.0,
+                child: TextFormField(
+                  initialValue: widget.topic.topicNumber,
+                  // focusNode: _questionNumberFocusNode,
+                  onFieldSubmitted: (topicNumber) {
+                    if (topicNumber != null || topicNumber.isNotEmpty) {
+                      // _updateQuestionDetails();
+                    }
+                  },
+                  onChanged: (topicNumber) {
+                    // _questionNumber = topicNumber;
+                    // widget.question.questionNumber = _questionNumber;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'No.',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2.0),
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2.0),
+                      borderSide: BorderSide(
+                        color: Colors.grey[400],
+                        width: 0.5,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2.0),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 40.0,
+              ),
               Expanded(
                 child: TextFormField(
                   initialValue: widget.topic.topicName,
@@ -179,29 +233,91 @@ class _StudySetupScreenTopicWidgetState
               Expanded(
                 child: Row(),
               ),
+              SizedBox(
+                width: 20.0,
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  CupertinoIcons.clear,
+                  size: 20.0,
+                  color: Colors.red[700],
+                ),
+              ),
+              SizedBox(
+                width: 10.0,
+              ),
             ],
           ),
           SizedBox(
             height: 10.0,
           ),
-          ListView.separated(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(
-                height: 20.0,
-              );
-            },
-            itemCount: _questions.length,
-            itemBuilder: (BuildContext context, int index) {
-              return StudySetupScreenQuestionWidget(
-                studyUID: widget.studyUID,
-                topicUID: widget.topic.topicUID,
-                question: _questions[index],
-                groups: widget.groups,
-              );
-            },
+
+          ReorderableWrap(
+            runSpacing: 10.0,
+            onReorder: _onReorder,
+            children: [
+              for (var _question in _questions)
+                StudySetupScreenQuestionWidget(
+                  studyUID: widget.studyUID,
+                  topicUID: widget.topic.topicUID,
+                  question: _question,
+                  groups: widget.groups,
+                  deleteQuestion: () async {
+                    await _firebaseFirestoreService.deleteQuestion(
+                      widget.studyUID,
+                      widget.topic.topicUID,
+                      _question.questionUID,
+                    );
+
+                    _questions.where((question){
+                      print(_question.questionUID);
+                      if(question.questionUID == _question.questionUID){
+                        setState(() {
+                          _questions.remove(_question);
+                        });
+                        return true;
+                      }
+                      else {
+                        return false;
+                      }
+                    });
+
+                    // _questions.removeWhere((question)
+                    // {
+                    //   if (question.questionUID == _question.questionUID) {
+                    //     print(_question.questionUID);
+                    //     print(question.questionUID);
+                    //     setState(() {});
+                    //     return true;
+                    //   } else {
+                    //     return false;
+                    //   }
+                    // }
+                    // );
+                  },
+                ),
+            ],
           ),
+
+          // ListView.separated(
+          //   physics: NeverScrollableScrollPhysics(),
+          //   shrinkWrap: true,
+          //   separatorBuilder: (BuildContext context, int index) {
+          //     return SizedBox(
+          //       height: 20.0,
+          //     );
+          //   },
+          //   itemCount: _questions.length,
+          //   itemBuilder: (BuildContext context, int index) {
+          //     return StudySetupScreenQuestionWidget(
+          //       studyUID: widget.studyUID,
+          //       topicUID: widget.topic.topicUID,
+          //       question: _questions[index],
+          //       groups: widget.groups,
+          //     );
+          //   },
+          // ),
           SizedBox(
             height: 10.0,
           ),
@@ -241,7 +357,7 @@ class _StudySetupScreenTopicWidgetState
                 IconButton(
                   onPressed: () async {
                     var question =
-                        await _firebaseFirestoreService.createQuestion(
+                        await _moderatorFirestoreService.createQuestion(
                             widget.studyUID,
                             _questions.length + 1,
                             widget.topic.topicUID);

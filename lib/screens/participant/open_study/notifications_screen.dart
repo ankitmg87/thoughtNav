@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -76,8 +77,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                     (BuildContext context,
                     int index) {
                   return _DesktopNotificationWidget(
-                    time: notifications[index]
-                    ['time'],
+                    // time: notifications[index]
+                    // ['time'],
                     participantAvatar:
                     notifications[index][
                     'participantAvatar'],
@@ -100,6 +101,94 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   );
                 },
                 itemCount: notifications.length,
+              );
+            } else {
+              return SizedBox(
+                child: Text('Loading...'),
+              );
+            }
+            break;
+          case ConnectionState.done:
+            if (snapshot.hasError) {
+              print(snapshot.error);
+            }
+            return SizedBox();
+            break;
+          default:
+            if (snapshot.hasError) {
+              print(snapshot.error);
+            }
+            return SizedBox();
+        }
+      },
+    );
+  }
+
+  StreamBuilder _buildNotificationsStreamBuilder(
+      Stream getNotificationsStream) {
+    return StreamBuilder(
+      stream: getNotificationsStream,
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            if (snapshot.hasError) {
+              print(snapshot.error);
+            }
+            return SizedBox();
+            break;
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            if (snapshot.hasData) {
+              var notifications = snapshot.data.documents;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  Text(
+                    'Study Activity',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Container(
+                    height: 0.5,
+                    color: Colors.grey[300],
+                    width: double.maxFinite,
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Expanded(
+                    child: ListView.separated(
+                      itemBuilder: (BuildContext context, int index) {
+                        return _DesktopNotificationWidget(
+                          //time: notifications[index]['time'],
+                          participantAvatar: notifications[index]
+                          ['participantAvatar'],
+                          participantAlias: notifications[index]
+                          ['participantAlias'],
+                          questionNumber: notifications[index]
+                          ['questionNumber'],
+                          questionTitle: notifications[index]['questionTitle'],
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return SizedBox(
+                          height: 10.0,
+                        );
+                      },
+                      itemCount: notifications.length,
+                    ),
+                  ),
+                ],
               );
             } else {
               return SizedBox(
@@ -160,7 +249,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
 
 
 class _DesktopNotificationWidget extends StatelessWidget {
-  final String time;
+  // final String time;
   final String participantAvatar;
   final String participantAlias;
   final String questionNumber;
@@ -168,7 +257,7 @@ class _DesktopNotificationWidget extends StatelessWidget {
 
   const _DesktopNotificationWidget({
     Key key,
-    this.time,
+    // this.time,
     this.participantAvatar,
     this.participantAlias,
     this.questionNumber,
@@ -182,7 +271,7 @@ class _DesktopNotificationWidget extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            time,
+            '5:38 pm',
             style: TextStyle(
               color: TEXT_COLOR.withOpacity(0.6),
               fontSize: 13.0,
@@ -191,24 +280,28 @@ class _DesktopNotificationWidget extends StatelessWidget {
           SizedBox(
             width: 5.0,
           ),
-          Container(
-            padding: EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: PROJECT_LIGHT_GREEN,
-            ),
-            child: Image(
-              width: 20.0,
-              image: AssetImage(
-                participantAvatar,
-              ),
-            ),
+          CachedNetworkImage(
+            imageUrl: participantAvatar,
+            imageBuilder: (context, imageProvider){
+              return Container(
+                padding: EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: PROJECT_LIGHT_GREEN,
+                ),
+                child: Image(
+                  width: 20.0,
+                  image: imageProvider,
+                ),
+              );
+            },
           ),
           SizedBox(
             width: 8.0,
           ),
           Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RichText(
                   textAlign: TextAlign.start,

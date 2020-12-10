@@ -1,14 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/end_drawer_expansion_tile.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/questions_widgets/question_and_description_container.dart';
-import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_tutorial_widgets/comment_widget.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
@@ -34,6 +33,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   String _participantUID;
   String _topicUID;
   String _questionUID;
+  String _studyName;
 
   double value = 40.5;
   double minMenuWidth = 40.5;
@@ -48,16 +48,16 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   Response _response = Response();
   Comment _comment = Comment();
 
-  List<Topic> _topics;
+  List<Topic> _studyNavigatorTopics;
 
   Future<void> _futureParticipant;
-  Future<void> _futureTopics;
+  Future<void> _futureStudyNavigatorTopics;
   Future<void> _futureQuestion;
 
   Stream<QuerySnapshot> _responsesStream;
 
-  Future<void> _getTopics(String studyUID) async {
-    _topics = await _firebaseFirestoreService.getTopics(studyUID);
+  Future<void> _getStudyNavigatorTopics(String studyUID) async {
+    _studyNavigatorTopics = await _firebaseFirestoreService.getParticipantStudyNavigatorTopics(studyUID);
   }
 
   Future<void> _getParticipant(String studyUID, String participantUID) async {
@@ -74,8 +74,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
     _getParticipantResponse();
 
-    // _responsesStream = _getResponsesStream(studyUID);
-
     _question = await _firebaseFirestoreService.getQuestion(
         studyUID, _topicUID, _questionUID);
   }
@@ -87,8 +85,13 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   }
 
   Future<void> _postResponse() async {
-    _response = await _firebaseFirestoreService.postResponse(
-        _studyUID, _topicUID, _questionUID, _response);
+    await _firebaseFirestoreService
+        .postResponse(_studyUID, _topicUID, _questionUID, _response)
+        .then((response) {
+      setState(() {
+        _response = response;
+      });
+    });
   }
 
   Future<void> _postComment(String studyUID, String topicUID,
@@ -100,6 +103,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   void _getParticipantResponse() async {
     _response = await _firebaseFirestoreService.getParticipantResponse(
         _studyUID, _topicUID, _questionUID, _participantUID);
+
+    _response ??= Response();
   }
 
   @override
@@ -108,10 +113,10 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
     _studyUID = getStorage.read('studyUID');
     _participantUID = getStorage.read('participantUID');
+    _studyName = getStorage.read('studyName');
 
-    _futureTopics = _getTopics(_studyUID);
+    _futureStudyNavigatorTopics = _getStudyNavigatorTopics(_studyUID);
     _futureParticipant = _getParticipant(_studyUID, _participantUID);
-    // _responsesStream = _getResponsesStream(_studyUID);
 
     super.initState();
   }
@@ -204,11 +209,12 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                     response: _response,
                     onTap: () async {
                       _response.timeElapsed = '0';
-                      _response.alias = _participant.alias;
+                      _response.participantDisplayName =
+                          _participant.displayName;
                       _response.claps = [];
                       _response.participantUID = _participantUID;
                       _response.responseTimestamp = Timestamp.now();
-                      _response.userName = _participant.userName;
+                      _response.userName = _participant.userFirstName;
                       _response.avatarURL = _participant.profilePhotoURL;
                       _response.comments = 0;
                       _response.questionNumber = _question.questionNumber;
@@ -229,7 +235,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                     ),
                   ),
                   StreamBuilder(
-                    stream: _responsesStream,
+                    stream:
+                        _getResponsesStream(_studyUID, _topicUID, _questionUID),
                     builder: (BuildContext context,
                         AsyncSnapshot<dynamic> snapshot) {
                       switch (snapshot.connectionState) {
@@ -260,8 +267,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                         responses[index]['userName'];
                                     _comment.avatarURL =
                                         responses[index]['avatarURL'];
-                                    _comment.date = 'current date';
-                                    _comment.timeElapsed = 'time elapsed';
                                     _comment.commentTimestamp = Timestamp.now();
                                     _comment.userUID = _participantUID;
 
@@ -278,7 +283,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                     participantUID: responses[index]
                                         ['participantUID'],
                                     avatarURL: responses[index]['avatarURL'],
-                                    alias: responses[index]['alias'],
+                                    participantDisplayName: responses[index]
+                                        ['alias'],
                                     userName: responses[index]['userName'],
                                     timeElapsed: responses[index]
                                         ['timeElapsed'],
@@ -380,125 +386,61 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
               appBar: AppBar(
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.white,
+                centerTitle: true,
                 title: Text(
-                  APP_NAME,
+                  _studyName,
                   style: TextStyle(
                     color: TEXT_COLOR,
                   ),
                 ),
+                leadingWidth: 120.0,
+                leading: Center(
+                  child: Text(
+                    APP_NAME,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
                 actions: [
-                  Center(
-                    child: Text(
-                      'Hello ${_participant.userName}',
-                      style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.7),
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
                   InkWell(
-                    onTap: () {},
-                    highlightColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: CachedNetworkImage(
-                      imageUrl: _participant.profilePhotoURL,
-                      imageBuilder: (buildContext, imageProvider) {
-                        return Container(
-                          padding: EdgeInsets.all(6.0),
-                          margin: EdgeInsets.symmetric(horizontal: 8.0),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: PROJECT_LIGHT_GREEN,
-                          ),
-                          child: Image(
-                            width: 20.0,
-                            image: imageProvider,
-                          ),
-                        );
+                      onTap: () {
+                        Navigator.of(context).pop();
                       },
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10.0,
+                      highlightColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Center(
+                            child: Text(
+                              'Go To Dashboard',
+                              style: TextStyle(
+                                color: TEXT_COLOR.withOpacity(0.7),
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward,
+                            size: 14.0,
+                            color: TEXT_COLOR.withOpacity(0.8),
+                          ),
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                        ],
+                      ),
                   ),
                 ],
               ),
               body: Row(
                 children: [
-                  // Container(
-                  //   constraints: BoxConstraints(
-                  //     maxWidth: 300.0,
-                  //   ),
-                  //   color: Colors.white,
-                  //   child: Column(
-                  //     mainAxisSize: MainAxisSize.max,
-                  //     children: [
-                  //       Container(
-                  //         alignment: Alignment.center,
-                  //         padding: EdgeInsets.symmetric(
-                  //             horizontal: 30.0, vertical: 20.0),
-                  //         child: Text(
-                  //           'Study Navigator',
-                  //           style: TextStyle(
-                  //             color: TEXT_COLOR.withOpacity(0.7),
-                  //             fontWeight: FontWeight.bold,
-                  //             fontSize: 12.0,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       Row(
-                  //         children: [
-                  //           Expanded(
-                  //             child: Container(
-                  //               height: 1.0,
-                  //               color: TEXT_COLOR.withOpacity(0.2),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //       Expanded(
-                  //         child: FutureBuilder(
-                  //           future: _futureTopics,
-                  //           builder: (BuildContext context,
-                  //               AsyncSnapshot<dynamic> snapshot) {
-                  //             switch (snapshot.connectionState) {
-                  //               case ConnectionState.none:
-                  //               case ConnectionState.waiting:
-                  //               case ConnectionState.active:
-                  //                 return Center(
-                  //                   child: Text('Loading Topics...'),
-                  //                 );
-                  //                 break;
-                  //               case ConnectionState.done:
-                  //                 if (_topics != null) {
-                  //                   return ListView.builder(
-                  //                     itemCount: _topics.length,
-                  //                     itemBuilder:
-                  //                         (BuildContext context, int index) {
-                  //                       return EndDrawerExpansionTile(
-                  //                         title: _topics[index].topicName,
-                  //                         questions: _topics[index].questions,
-                  //                       );
-                  //                     },
-                  //                   );
-                  //                 } else {
-                  //                   return Center(
-                  //                     child: Text('Some error occurred'),
-                  //                   );
-                  //                 }
-                  //                 break;
-                  //               default:
-                  //                 return SizedBox();
-                  //             }
-                  //           },
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   Align(
                     child: AnimatedContainer(
                       curve: Curves.ease,
@@ -558,7 +500,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                           showDrawer
                               ? Expanded(
                                   child: FutureBuilder(
-                                    future: _futureTopics,
+                                    future: _futureStudyNavigatorTopics,
                                     builder: (BuildContext context,
                                         AsyncSnapshot<dynamic> snapshot) {
                                       switch (snapshot.connectionState) {
@@ -572,15 +514,15 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                           );
                                           break;
                                         case ConnectionState.done:
-                                          if (_topics.isNotEmpty) {
+                                          if (_studyNavigatorTopics.isNotEmpty) {
                                             return ListView.builder(
-                                              itemCount: _topics.length,
+                                              itemCount: _studyNavigatorTopics.length,
                                               itemBuilder:
                                                   (BuildContext context,
                                                       int topicIndex) {
                                                 return ExpansionTile(
                                                   title: Text(
-                                                    _topics[topicIndex]
+                                                    _studyNavigatorTopics[topicIndex]
                                                         .topicName,
                                                     style: TextStyle(
                                                       color: Colors.grey[700],
@@ -600,7 +542,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                       ),
                                                       shrinkWrap: true,
                                                       itemCount:
-                                                          _topics[topicIndex]
+                                                          _studyNavigatorTopics[topicIndex]
                                                               .questions
                                                               .length,
                                                       itemBuilder: (BuildContext
@@ -609,18 +551,15 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                         return InkWell(
                                                           onTap: () {
                                                             setState(() {
-                                                              _topicUID = _topics[
+                                                              _topicUID = _studyNavigatorTopics[
                                                                       topicIndex]
                                                                   .topicUID;
-                                                              _questionUID = _topics[
+                                                              _questionUID = _studyNavigatorTopics[
                                                                       topicIndex]
                                                                   .questions[
                                                                       questionIndex]
                                                                   .questionUID;
                                                             });
-
-                                                            print(_topicUID);
-                                                            print(_questionUID);
                                                           },
                                                           splashColor: Colors
                                                               .transparent,
@@ -633,7 +572,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                           child: Row(
                                                             children: [
                                                               Text(
-                                                                '${_topics[topicIndex].questions[questionIndex].questionNumber}  ${_topics[topicIndex].questions[questionIndex].questionTitle}',
+                                                                '${_studyNavigatorTopics[topicIndex].questions[questionIndex].questionNumber}  ${_studyNavigatorTopics[topicIndex].questions[questionIndex].questionTitle}',
                                                                 style:
                                                                     TextStyle(
                                                                   color: Colors
@@ -718,17 +657,25 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   response: _response,
                                   onTap: () async {
                                     _response.timeElapsed = '0';
-                                    _response.alias = _participant.alias;
+                                    _response.participantDisplayName =
+                                        _participant.displayName;
                                     _response.claps = [];
                                     _response.participantUID = _participantUID;
                                     _response.responseTimestamp =
                                         Timestamp.now();
-                                    _response.userName = _participant.userName;
+                                    _response.userName = _participant.userFirstName;
                                     _response.avatarURL =
                                         _participant.profilePhotoURL;
                                     _response.comments = 0;
-                                    _response.questionTitle = _question.questionTitle;
-                                    _response.questionNumber = _question.questionNumber;
+                                    _response.questionTitle =
+                                        _question.questionTitle;
+                                    _response.questionNumber =
+                                        _question.questionNumber;
+
+                                    var now = DateTime.now();
+                                    var format =
+                                        '${DateFormat.yMd()} at ${DateFormat.jm()}';
+
                                     await _postResponse();
                                   },
                                 ),
@@ -774,10 +721,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                   _comment.avatarURL =
                                                       responses[index]
                                                           ['avatarURL'];
-                                                  _comment.date =
-                                                      'current date';
-                                                  _comment.timeElapsed =
-                                                      'time elapsed';
                                                   _comment.commentTimestamp =
                                                       Timestamp.now();
                                                   _comment.userUID =
@@ -799,8 +742,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                           ['participantUID'],
                                                   avatarURL: responses[index]
                                                       ['avatarURL'],
-                                                  alias: responses[index]
-                                                      ['alias'],
+                                                  participantDisplayName:
+                                                      responses[index]['alias'],
                                                   userName: responses[index]
                                                       ['userName'],
                                                   timeElapsed: responses[index]
@@ -902,7 +845,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
           ),
           Expanded(
             child: FutureBuilder(
-              future: _futureTopics,
+              future: _futureStudyNavigatorTopics,
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
@@ -913,13 +856,14 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                     );
                     break;
                   case ConnectionState.done:
-                    if (_topics != null) {
+                    if (_studyNavigatorTopics != null) {
                       return ListView.builder(
-                        itemCount: _topics.length,
+                        itemCount: _studyNavigatorTopics.length,
                         itemBuilder: (BuildContext context, int index) {
                           return EndDrawerExpansionTile(
-                            title: _topics[index].topicName,
-                            questions: _topics[index].questions,
+                            title: _studyNavigatorTopics[index].topicName,
+                            questions: _studyNavigatorTopics[index].questions,
+                            onChildTapped: (){},
                           );
                         },
                       );
@@ -959,8 +903,20 @@ class _ResponseTextField extends StatefulWidget {
 
 class __ResponseTextFieldState extends State<_ResponseTextField> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (widget.participant.participantUID == widget.response.participantUID) {
+    if (widget.response.participantUID != null) {
+
+      var formatDate = DateFormat.yMd();
+      var formatTime = DateFormat.jm();
+
+      var date = formatDate.format(widget.response.responseTimestamp.toDate());
+      var time = formatTime.format(widget.response.responseTimestamp.toDate());
+
       return Padding(
         padding:
             EdgeInsets.only(left: 30.0, right: 30.0, top: 8.0, bottom: 20.0),
@@ -969,101 +925,97 @@ class __ResponseTextFieldState extends State<_ResponseTextField> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4.0),
           ),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(4.0),
-                    topRight: Radius.circular(4.0),
-                  ),
-                ),
-                child: Column(
+          child: Container(
+            padding: EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(4.0),
+                topRight: Radius.circular(4.0),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                        CachedNetworkImage(
+                          imageUrl: widget.response.avatarURL,
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              padding: EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                color: Colors.indigo[300],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Image(
+                                width: 20.0,
+                                image: imageProvider,
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CachedNetworkImage(
-                              imageUrl: widget.response.avatarURL,
-                              imageBuilder: (context, imageProvider) {
-                                return Container(
-                                  padding: EdgeInsets.all(4.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.indigo[300],
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Image(
-                                    width: 20.0,
-                                    image: imageProvider,
-                                  ),
-                                );
-                              },
+                            Text(
+                              widget.response.participantDisplayName,
+                              style: TextStyle(
+                                color: TEXT_COLOR.withOpacity(0.6),
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             SizedBox(
-                              width: 10.0,
+                              height: 2.0,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.response.alias,
-                                  style: TextStyle(
-                                    color: TEXT_COLOR.withOpacity(0.6),
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 2.0,
-                                ),
-                                Text(
-                                  '${widget.response.responseTimestamp}',
-                                  style: TextStyle(
-                                    color: TEXT_COLOR.withOpacity(0.6),
-                                    fontSize: 10.0,
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              '$date at $time',
+                              style: TextStyle(
+                                color: TEXT_COLOR.withOpacity(0.6),
+                                fontSize: 10.0,
+                              ),
                             ),
                           ],
                         ),
-                        Text(
-                          widget.response.timeElapsed,
-                          style: TextStyle(
-                            color: PROJECT_GREEN,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
-                          ),
-                        ),
                       ],
                     ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(10.0),
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: Text(
-                        widget.response.responseStatement,
-                        style: TextStyle(
-                          color: Colors.grey[900],
-                          fontSize: 16.0,
-                        ),
+                    Text(
+                      widget.response.timeElapsed,
+                      style: TextStyle(
+                        color: PROJECT_GREEN,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.0,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: 20.0,
+                ),
+                Container(
+                  padding: EdgeInsets.all(10.0),
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  child: Text(
+                    widget.response.responseStatement,
+                    style: TextStyle(
+                      color: Colors.grey[900],
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -1112,7 +1064,7 @@ class __ResponseTextFieldState extends State<_ResponseTextField> {
                           width: 10.0,
                         ),
                         Text(
-                          widget.participant.alias,
+                          widget.participant.displayName,
                           style: TextStyle(
                             color: TEXT_COLOR.withOpacity(0.8),
                             fontWeight: FontWeight.bold,

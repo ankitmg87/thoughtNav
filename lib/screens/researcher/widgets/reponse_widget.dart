@@ -49,14 +49,14 @@ class _ResponseWidgetState extends State<ResponseWidget> {
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: 'Alias - ',
+                                      text: 'Beast - ',
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     TextSpan(
-                                      text: 'User Name',
+                                      text: 'JoAnn Adkins',
                                       style: TextStyle(
                                         color: PROJECT_GREEN,
                                         fontWeight: FontWeight.bold,
@@ -69,7 +69,7 @@ class _ResponseWidgetState extends State<ResponseWidget> {
                                 height: 4.0,
                               ),
                               Text(
-                                'Date',
+                                '11/24/2020 at 11:39 pm',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 12.0,
@@ -78,7 +78,7 @@ class _ResponseWidgetState extends State<ResponseWidget> {
                             ],
                           ),
                           Text(
-                            'Duration difference',
+                            '4 hours ago',
                             style: TextStyle(
                               color: PROJECT_GREEN,
                             ),

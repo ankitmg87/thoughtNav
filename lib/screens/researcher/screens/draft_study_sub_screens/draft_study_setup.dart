@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
@@ -15,6 +15,7 @@ import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_categor
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_custom_input_field.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_topic_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/moderator_firestore_service.dart';
 
 class DraftStudySetup extends StatefulWidget {
   final String studyUID;
@@ -26,7 +27,6 @@ class DraftStudySetup extends StatefulWidget {
 }
 
 class _DraftStudySetupState extends State<DraftStudySetup> {
-
   final studyInfoKey = GlobalKey();
   final selectCategoryKey = GlobalKey();
   final createGroupsKey = GlobalKey();
@@ -38,6 +38,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
 
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
+
+  final _moderatorFirestoreService = ModeratorFirestoreService();
 
   final formKey = GlobalKey<FormState>();
 
@@ -74,11 +76,66 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   final FocusNode _internalStudyLabelFocusNode = FocusNode();
   final FocusNode _masterPasswordFocusNode = FocusNode();
 
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      _topics.insert(newIndex, _topics.removeAt(oldIndex));
+    });
+  }
+
+  int _selectedTimeZone;
+
+  void _setSelectedRadio(int value) {
+    setState(() {
+      _selectedTimeZone = value;
+    });
+    _setTimeZone();
+  }
+
+  void _setTimeZone() {
+    switch (_selectedTimeZone) {
+      case 1:
+        mStudy.studyTimeZone = 'PST';
+        break;
+      case 2:
+        mStudy.studyTimeZone = 'MST';
+        break;
+      case 3:
+        mStudy.studyTimeZone = 'CST';
+        break;
+      case 4:
+        mStudy.studyTimeZone = 'EST';
+        break;
+      default:
+        mStudy.studyTimeZone = 'CST';
+    }
+  }
+
+  int _getTimeZone() {
+    int _timeZone;
+
+    switch (mStudy.studyTimeZone) {
+      case 'PST':
+        _timeZone = 1;
+        break;
+      case 'MST':
+        _timeZone = 2;
+        break;
+      case 'CST':
+        _timeZone = 3;
+        break;
+      case 'EST':
+        _timeZone = 4;
+        break;
+    }
+    return _timeZone;
+  }
+
   @override
   void initState() {
     _getCategories();
     _initializeFocusNodes();
     _futureDraftStudy = _getStudyDetails();
+
     _futureGroups = _getGroups();
     _futureTopics = _getTopics();
 
@@ -130,7 +187,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   }
 
   Future<void> _getStudyDetails() async {
-    mStudy = await _firebaseFirestoreService.getStudy(widget.studyUID);
+    mStudy = await _moderatorFirestoreService.getStudy(widget.studyUID);
+    _selectedTimeZone = _getTimeZone();
   }
 
   void _getCategories() async {
@@ -147,7 +205,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   }
 
   Future<void> _getTopics() async {
-    _topics = await _firebaseFirestoreService.getTopics(widget.studyUID);
+    _topics = await _moderatorFirestoreService.getTopics(widget.studyUID);
     _topics ??= <Topic>[];
     if (mounted) {
       setState(() {});
@@ -159,98 +217,88 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
     return Row(
       children: [
         Container(
+          padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
+          width: 300.0,
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(
-                  'images/researcher_images/study_setup_images/setup_study_poster.png'),
-              fit: BoxFit.cover,
+            //color: PROJECT_GREEN
+            gradient: LinearGradient(
+              colors: [
+                PROJECT_GREEN,
+                Color(0xFF008F47),
+                //Color(0xFF005229),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
           ),
-          width: 300.0,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-            width: 300.0,
-            decoration: BoxDecoration(
-              //color: PROJECT_GREEN
-              gradient: LinearGradient(
-                colors: [
-                  PROJECT_GREEN,
-                  Color(0xFF008F47),
-                  //Color(0xFF005229),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () {
+                  Scrollable.ensureVisible(studyInfoKey.currentContext);
+                },
+                child: Text(
+                  'STUDY INFO',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 20.0,
+                  ),
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: (){
-                    Scrollable.ensureVisible(studyInfoKey.currentContext);
-                  },
-                  child: Text(
-                    'STUDY INFO',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 20.0,
-                    ),
+              SizedBox(
+                height: 20.0,
+              ),
+              InkWell(
+                onTap: () {
+                  Scrollable.ensureVisible(selectCategoryKey.currentContext);
+                },
+                child: Text(
+                  'SELECT CATEGORY',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
                   ),
                 ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                InkWell(
-                  onTap: (){
-                    Scrollable.ensureVisible(selectCategoryKey.currentContext);
-                  },
-                  child: Text(
-                    'SELECT CATEGORY',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.0,
-                    ),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              InkWell(
+                onTap: () {
+                  Scrollable.ensureVisible(createGroupsKey.currentContext);
+                },
+                child: Text(
+                  'CREATE GROUPS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 20.0,
                   ),
                 ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                InkWell(
-                  onTap: (){
-                    Scrollable.ensureVisible(createGroupsKey.currentContext);
-                  },
-                  child: Text(
-                    'CREATE GROUPS',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 20.0,
-                    ),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              InkWell(
+                onTap: () {
+                  Scrollable.ensureVisible(addQuestionsKey.currentContext);
+                },
+                child: Text(
+                  'ADD QUESTIONS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 20.0,
                   ),
                 ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                InkWell(
-                  onTap: (){
-                    Scrollable.ensureVisible(addQuestionsKey.currentContext);
-                  },
-                  child: Text(
-                    'ADD QUESTIONS',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 20.0,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-              ],
-            ),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -386,7 +434,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         onFieldSubmitted: (internalStudyLabel) {
                                           if (mStudy.internalStudyLabel
                                                   .isNotEmpty ||
-                                              mStudy.internalStudyLabel != null) {
+                                              mStudy.internalStudyLabel !=
+                                                  null) {
                                             _updateInternalStudyLabel();
                                           }
                                         },
@@ -442,10 +491,12 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         focusNode: _masterPasswordFocusNode,
                                         initialValue: mStudy.masterPassword,
                                         onChanged: (masterPassword) {
-                                          mStudy.masterPassword = masterPassword;
+                                          mStudy.masterPassword =
+                                              masterPassword;
                                         },
                                         onFieldSubmitted: (masterPassword) {
-                                          if (mStudy.masterPassword.isNotEmpty ||
+                                          if (mStudy
+                                                  .masterPassword.isNotEmpty ||
                                               mStudy.masterPassword != null) {
                                             _updateMasterPassword();
                                           }
@@ -642,8 +693,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                   return CustomTextEditingBox(
                                                     hintText:
                                                         'Enter a study end message',
-                                                    initialValue:
-                                                        mStudy.studyClosedMessage,
+                                                    initialValue: mStudy
+                                                        .studyClosedMessage,
                                                   );
                                                 });
                                         if (studyClosedMessage != null ||
@@ -667,9 +718,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                             : 'Study end message set',
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
-                                          color: mStudy.studyClosedMessage == null
-                                              ? Colors.grey[400]
-                                              : Colors.grey[700],
+                                          color:
+                                              mStudy.studyClosedMessage == null
+                                                  ? Colors.grey[400]
+                                                  : Colors.grey[700],
                                           fontSize: 14.0,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -740,6 +792,71 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       compulsoryFieldIndicatorTextStyle:
                                           compulsoryFieldIndicatorTextStyle,
                                     ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 40.0,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'SELECT TIME ZONE',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10.0,
+                                ),
+                                Row(
+                                  children: [
+                                    _buildTimeZoneRadio(
+                                        title: 'Pacific Standard Time',
+                                        value: 1,
+                                        groupValue: _selectedTimeZone,
+                                        onChanged: (int value) async {
+                                          _setSelectedRadio(value);
+                                          mStudy.studyTimeZone = 'PST';
+                                          await _moderatorFirestoreService
+                                              .updateTimeZone(
+                                                  widget.studyUID, mStudy);
+                                        }),
+                                    _buildTimeZoneRadio(
+                                        title: 'Mountain Standard Time',
+                                        value: 2,
+                                        groupValue: _selectedTimeZone,
+                                        onChanged: (int value) async {
+                                          _setSelectedRadio(value);
+                                          mStudy.studyTimeZone = 'MST';
+                                          await _moderatorFirestoreService
+                                              .updateTimeZone(
+                                                  widget.studyUID, mStudy);
+                                        }),
+                                    _buildTimeZoneRadio(
+                                        title: 'Central Standard Time',
+                                        value: 3,
+                                        groupValue: _selectedTimeZone,
+                                        onChanged: (int value) async {
+                                          _setSelectedRadio(value);
+                                          mStudy.studyTimeZone = 'CST';
+                                          await _moderatorFirestoreService
+                                              .updateTimeZone(
+                                                  widget.studyUID, mStudy);
+                                        }),
+                                    _buildTimeZoneRadio(
+                                        title: 'Eastern Standard Time',
+                                        value: 4,
+                                        groupValue: _selectedTimeZone,
+                                        onChanged: (int value) async {
+                                          _setSelectedRadio(value);
+                                          mStudy.studyTimeZone = 'EST';
+                                          await _moderatorFirestoreService
+                                              .updateTimeZone(
+                                                  widget.studyUID, mStudy);
+                                        }),
                                   ],
                                 ),
                                 SizedBox(
@@ -884,15 +1001,17 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                           widget.studyUID,
                                                           groupUID);
                                                 },
-                                                icon: Icon(Icons.close_outlined),
+                                                icon:
+                                                    Icon(Icons.close_outlined),
                                                 color: Colors.red[700],
                                               )
                                             : SizedBox(),
                                         IconButton(
                                           onPressed: () async {
                                             var group =
-                                                await _firebaseFirestoreService
-                                                    .createGroup(widget.studyUID,
+                                                await _moderatorFirestoreService
+                                                    .createGroup(
+                                                        widget.studyUID,
                                                         _groups.length + 1);
                                             setState(() {
                                               _groups.add(group);
@@ -971,25 +1090,52 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       AsyncSnapshot<dynamic> snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.done) {
-                                      return ListView.separated(
-                                        physics: NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: _topics.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return StudySetupScreenTopicWidget(
-                                            topic: _topics[index],
-                                            studyUID: widget.studyUID,
-                                            groups: _groups,
-                                          );
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) {
-                                          return SizedBox(
-                                            height: 30.0,
-                                          );
-                                        },
+                                      return ReorderableWrap(
+                                        runSpacing: 10.0,
+                                        spacing: 10.0,
+                                        onReorder: _onReorder,
+                                        children: [
+                                          for (var topic in _topics)
+                                            StudySetupScreenTopicWidget(
+                                              topic: topic,
+                                              studyUID: widget.studyUID,
+                                              groups: _groups,
+                                            ),
+                                        ],
                                       );
+
+                                      // return ReorderableListView(
+                                      //   onReorder: (int oldIndex, int newIndex) {  },
+                                      //   children: [
+                                      //     for(var topic in _topics)
+                                      //       StudySetupScreenTopicWidget(
+                                      //         key: ValueKey(topic),
+                                      //         topic: topic,
+                                      //         studyUID: widget.studyUID,
+                                      //         groups: _groups,
+                                      //       ),
+                                      //   ],
+                                      // );
+
+                                      // return ListView.separated(
+                                      //   physics: NeverScrollableScrollPhysics(),
+                                      //   shrinkWrap: true,
+                                      //   itemCount: _topics.length,
+                                      //   itemBuilder:
+                                      //       (BuildContext context, int index) {
+                                      //     return StudySetupScreenTopicWidget(
+                                      //       topic: _topics[index],
+                                      //       studyUID: widget.studyUID,
+                                      //       groups: _groups,
+                                      //     );
+                                      //   },
+                                      //   separatorBuilder:
+                                      //       (BuildContext context, int index) {
+                                      //     return SizedBox(
+                                      //       height: 30.0,
+                                      //     );
+                                      //   },
+                                      // );
                                     } else {
                                       return SizedBox();
                                     }
@@ -1005,30 +1151,29 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     children: [
                                       _topics.length > 1
                                           ? IconButton(
-                                        onPressed: () async {
-                                          await _firebaseFirestoreService
-                                              .deleteTopic(
-                                              widget.studyUID,
-                                              _topics.last.topicUID);
-                                          setState(() {
-                                            _topics.removeLast();
-                                          });
-                                        },
-                                        icon: Icon(Icons.close_outlined),
-                                        color: Colors.red[700],
-                                      )
+                                              onPressed: () async {
+                                                await _firebaseFirestoreService
+                                                    .deleteTopic(
+                                                        widget.studyUID,
+                                                        _topics.last.topicUID);
+                                                setState(() {
+                                                  _topics.removeLast();
+                                                });
+                                              },
+                                              icon: Icon(Icons.close_outlined),
+                                              color: Colors.red[700],
+                                            )
                                           : SizedBox(),
                                       IconButton(
                                         onPressed: () async {
-                                          await _firebaseFirestoreService
+                                          await _moderatorFirestoreService
                                               .createTopic(widget.studyUID,
-                                              _topics.length + 1).then((topic){
+                                                  _topics.length + 1)
+                                              .then((topic) {
                                             setState(() {
                                               _topics.add(topic);
                                             });
                                           });
-
-
                                         },
                                         icon: Icon(Icons.add),
                                         color: PROJECT_GREEN,
@@ -1059,6 +1204,41 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
           ),
         ),
       ],
+    );
+  }
+
+  Expanded _buildTimeZoneRadio(
+      {String title, int value, int groupValue, Function onChanged}) {
+    return Expanded(
+      child: Row(
+        children: [
+          Theme(
+            data: ThemeData(
+              unselectedWidgetColor: Colors.grey[500],
+              accentColor: PROJECT_NAVY_BLUE,
+            ),
+            child: Radio(
+              value: value,
+              groupValue: groupValue,
+              onChanged: onChanged,
+            ),
+          ),
+          SizedBox(
+            width: 5.0,
+          ),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.bold,
+              fontSize: 12.0,
+            ),
+          ),
+          SizedBox(
+            width: 10.0,
+          ),
+        ],
+      ),
     );
   }
 }

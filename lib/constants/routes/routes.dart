@@ -18,10 +18,6 @@ const String USER_DETAILS_SCREEN = 'user_details_screen';
 const String PARTICIPANT_RESPONSES_SCREEN = 'participant_responses_screen';
 const String TOPIC_COMPLETE_SCREEN = 'topic_complete_screen';
 
-// const String QUESTIONS_FIRST_DAY_SCREEN = 'questions_first_day_screen';
-// const String QUESTION_SCREEN = 'question_screen';
-// const String DAY_COMPLETED_SCREEN = 'day_completed_screen';
-
 const String REWARDS_DASHBOARD_SCREEN = 'rewards_dashboard_screen';
 const String STUDY_ENDED = 'study_ended';
 
@@ -33,5 +29,10 @@ const String DRAFT_STUDY_SCREEN = 'draft_study_screen';
 
 const String CLIENT_MODERATOR_RESPONSES_SCREEN = 'responses_screen';
 
-//4594 5300 8752 7982
-// //829
+const String CLIENT_ONBOARDING_SCREEN = 'client_onboarding_screen';
+const String CLIENT_DASHBOARD_SCREEN = 'client_dashboard_screen';
+const String CLIENT_PREFERENCES_SCREEN = 'client_preferences_screen';
+// const String CLIENT_RESPONSES_SCREEN = 'client_responses_screen';
+
+const String QUILL_SCREEN = 'quill_screen';
+const String EMAIL_SCREEN = 'email_screen';

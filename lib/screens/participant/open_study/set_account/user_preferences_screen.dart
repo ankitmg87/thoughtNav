@@ -105,7 +105,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                 height: 2.0,
                               ),
                               Text(
-                                snapshot.data.alias,
+                                snapshot.data.displayName,
                                 style: TextStyle(
                                   color: TEXT_COLOR,
                                   fontSize: 12.0,
@@ -132,7 +132,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         children: [
                           _CustomRow(
                             label: 'Display Name',
-                            value: snapshot.data.alias,
+                            value: snapshot.data.displayName,
                           ),
                           _CustomRow(
                             label: 'Email Address',
@@ -140,18 +140,15 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                           ),
                           _CustomRow(
                             label: 'Group',
-                            value: 'Unassigned',
+                            value: snapshot.data.userGroupName,
                           ),
                           SizedBox(
                             height: 5.0,
                           ),
-                          DottedBorder(
-                            dashPattern: [10, 1],
-                            strokeWidth: 0.08,
-                            padding: EdgeInsets.all(0.0),
-                            child: Container(
-                              width: double.infinity,
-                            ),
+                          Container(
+                            width: double.infinity,
+                            color: Colors.grey[300],
+                            height: 0.5,
                           ),
                           SizedBox(
                             height: 5.0,
@@ -160,40 +157,102 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                             label: 'Full Name',
                             value: snapshot.data.userName,
                           ),
-                          _CustomRow(
-                            label: 'Age',
-                            value: snapshot.data.age,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: EdgeInsets.all(12.0),
+                                  child: Text(
+                                    'Password',
+                                    style: TextStyle(
+                                      color: TEXT_COLOR.withOpacity(0.6),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 4.0,
+                              ),
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: snapshot.data.password,
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                      fillColor: Colors.grey[100]
+                                  ),
+                                  style: TextStyle(
+                                    color: TEXT_COLOR,
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 4.0,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: EdgeInsets.all(12.0),
+                                  child: Text(
+                                    'Phone',
+                                    style: TextStyle(
+                                      color: TEXT_COLOR.withOpacity(0.6),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: snapshot.data.phone,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                    fillColor: Colors.grey[100]
+                                  ),
+                                  style: TextStyle(
+                                    color: TEXT_COLOR,
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 40.0,
+                          ),
+
+                          FlatButton(
+                            color: PROJECT_GREEN,
+                            child: Text(
+                              'SAVE',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onPressed: (){},
                           ),
                         ],
                       ),
                     ),
                   ),
-                  // Align(
-                  //   child: Container(
-                  //     width: screenSize.height > screenSize.width ? double.maxFinite : screenSize.width * 0.5,
-                  //     padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 60.0,),
-                  //     child: Row(
-                  //       children: [
-                  //         Expanded(
-                  //           child: FlatButton(
-                  //             shape: RoundedRectangleBorder(
-                  //               borderRadius: BorderRadius.circular(5.0),
-                  //             ),
-                  //             color: PROJECT_GREEN,
-                  //             child: Text(
-                  //               'Edit Info',
-                  //               style: TextStyle(
-                  //                 color: Colors.white,
-                  //                 fontSize: 12.0,
-                  //               ),
-                  //             ),
-                  //             onPressed: (){},
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               );
               break;

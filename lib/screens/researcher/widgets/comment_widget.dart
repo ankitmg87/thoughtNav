@@ -16,6 +16,14 @@ class CommentWidget extends StatelessWidget {
         ),
         elevation: 2.0,
         child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                width: 10.0,
+                color: Color(0xFF27A6B6),
+              ),
+            ),
+          ),
           padding: EdgeInsets.all(20.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,14 +57,14 @@ class CommentWidget extends StatelessWidget {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: 'Alias - ',
+                                    text: 'Spiderman - ',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   TextSpan(
-                                    text: 'User Name',
+                                    text: 'Dylan Ryder',
                                     style: TextStyle(
                                       color: PROJECT_GREEN,
                                       fontWeight: FontWeight.bold,
@@ -69,7 +77,7 @@ class CommentWidget extends StatelessWidget {
                               height: 4.0,
                             ),
                             Text(
-                              'Date',
+                              '11/25/2020 at 12:18 pm',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 12.0,
@@ -78,7 +86,7 @@ class CommentWidget extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          'Duration difference',
+                          '3 minutes ago',
                           style: TextStyle(
                             color: PROJECT_GREEN,
                           ),

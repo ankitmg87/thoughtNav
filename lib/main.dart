@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_screen.dart';
+import 'package:thoughtnav/email_screen.dart';
+import 'package:thoughtnav/quill_screen.dart';
+import 'package:thoughtnav/screens/client/client_dashboard_screen.dart';
+import 'package:thoughtnav/screens/client/client_onboarding_screen.dart';
+import 'package:thoughtnav/screens/client/client_preferences_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/participant_dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/welcome_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/notifications_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/day_completed_screen.dart';
@@ -12,7 +16,7 @@ import 'package:thoughtnav/screens/participant/open_study/questions/questions_fi
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_complete_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/set_account/contact_us_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/set_account/user_details.dart';
-import 'package:thoughtnav/screens/participant/open_study/set_account/user_peferences_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/set_account/user_preferences_screen.dart';
 import 'package:thoughtnav/screens/participant/post_study/post_study_reward_methods_screen.dart';
 import 'package:thoughtnav/screens/participant/post_study/rewards_dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/post_study/study_ended_screen.dart';
@@ -56,6 +60,7 @@ class MyApp extends StatelessWidget {
       initialRoute: TN_HOME_SCREEN_ROUTE,
       routes: {
         // Public Section
+        QUILL_SCREEN: (context) => QuillScreen(),
         TN_HOME_SCREEN_ROUTE: (context) => TNHomeScreen(),
         LOGIN_SCREEN: (context) => LoginScreen(),
         FORGOT_PASSWORD_SCREEN: (context) => ForgotPasswordScreen(),
@@ -70,7 +75,7 @@ class MyApp extends StatelessWidget {
 
         //Participants Section
         WELCOME_SCREEN: (context) => WelcomeScreen(),
-        DASHBOARD_SCREEN: (context) => DashboardScreen(),
+        DASHBOARD_SCREEN: (context) => ParticipantDashboardScreen(),
         NOTIFICATIONS_SCREEN: (context) => NotificationsScreen(),
         POST_STUDY_REWARD_METHODS_SCREEN: (context) =>
             PostStudyRewardMethodsScreen(),
@@ -104,6 +109,11 @@ class MyApp extends StatelessWidget {
 
         //Draft Study Screen
         DRAFT_STUDY_SCREEN: (context) => DraftStudyScreen(),
+
+        // Client screens
+        CLIENT_ONBOARDING_SCREEN: (context) => ClientOnboardingScreen(),
+        CLIENT_DASHBOARD_SCREEN: (context) => ClientDashboardScreen(),
+        CLIENT_PREFERENCES_SCREEN: (context) => ClientPreferencesScreen(),
       },
     );
   }

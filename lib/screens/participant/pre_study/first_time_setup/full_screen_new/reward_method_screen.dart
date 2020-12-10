@@ -9,7 +9,7 @@ import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_s
 class RewardMethodScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
