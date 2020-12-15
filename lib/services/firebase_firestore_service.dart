@@ -155,7 +155,7 @@ class FirebaseFirestoreService {
     var topicsReference = await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
-        .orderBy('topicIndex', descending: false)
+        .orderBy('topicNumber', descending: false)
         .get();
 
     for (var topicSnapshot in topicsReference.docs) {

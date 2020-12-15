@@ -94,7 +94,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                snapshot.data.userName,
+                                '${snapshot.data.userFirstName} ${snapshot.data.userLastName}',
                                 style: TextStyle(
                                   color: TEXT_COLOR,
                                   fontSize: 18.0,
@@ -155,7 +155,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                           ),
                           _CustomRow(
                             label: 'Full Name',
-                            value: snapshot.data.userName,
+                            value: '${snapshot.data.userFirstName} ${snapshot.data.userLastName}',
                           ),
                           Row(
                             children: [

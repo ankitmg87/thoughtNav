@@ -12,7 +12,7 @@ class AvatarAndDisplayName {
   });
 
   Map<String, dynamic> toMap() {
-    var avatarAndDisplayNameMap = {};
+    var avatarAndDisplayNameMap = <String, dynamic>{};
 
     avatarAndDisplayNameMap['id'] = id;
     avatarAndDisplayNameMap['avatarURL'] = avatarURL;

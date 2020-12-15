@@ -7,6 +7,7 @@ class Question{
   String questionTitle;
   String questionStatement;
   String questionType;
+  String previousQuestionUID;
   Timestamp questionTimestamp;
   List<Response> responses;
   int totalResponses;

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 
 class ActiveTaskWidget extends StatefulWidget {
@@ -17,20 +19,18 @@ class ActiveTaskWidget extends StatefulWidget {
 class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
   bool _isExpanded = false;
 
-
-  int _answeredQuestions () {
+  int _answeredQuestions() {
     var answeredQuestions = 0;
 
-    for(var question in widget.topic.questions){
-      if(question.respondedBy != null){
-        if(question.respondedBy.contains(widget.participantUID)){
+    for (var question in widget.topic.questions) {
+      if (question.respondedBy != null) {
+        if (question.respondedBy.contains(widget.participantUID)) {
           answeredQuestions++;
         }
       }
     }
     return answeredQuestions;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +141,10 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                               ),
                             ),
                             Text(
-                              'In Progress',
+                              _answeredQuestions() ==
+                                      widget.topic.questions.length
+                                  ? 'All Questions Answered'
+                                  : 'In Progress',
                               style: TextStyle(
                                 color: Color(0xFFAAAAAA),
                                 fontSize: 12.0,
@@ -158,41 +161,57 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                           shrinkWrap: true,
                           itemCount: widget.topic.questions.length,
                           itemBuilder: (BuildContext context, int index) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${widget.topic.questions[index].questionNumber} ${widget.topic.questions[index].questionTitle}',
-                                  style: TextStyle(
-                                    color: PROJECT_GREEN,
-                                    fontSize: 12.0,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    widget.topic.questions[index].respondedBy ==
-                                            null
-                                        ? Icons.arrow_forward
-                                        : widget.topic.questions[index]
-                                                .respondedBy
-                                                .contains(widget.participantUID)
-                                            ? Icons.check_circle_outline_rounded
-                                            : Icons.arrow_forward,
-                                    color: PROJECT_GREEN,
-                                  ),
-                                  onPressed: () {
-                                    Navigator.of(context).pushNamed(
-                                      PARTICIPANT_RESPONSES_SCREEN,
-                                      arguments: {
-                                        'topicUID': widget.topic.topicUID,
-                                        'questionUID': widget
-                                            .topic.questions[index].questionUID,
-                                      },
+                            var timestamp = Timestamp.now();
+                            if (index == 0 &&
+                                timestamp.millisecondsSinceEpoch >=
+                                    widget
+                                        .topic
+                                        .questions[index]
+                                        .questionTimestamp
+                                        .millisecondsSinceEpoch) {
+                              return ActiveQuestionWidget(
+                                question: widget.topic.questions[index],
+                                participantUID: widget.participantUID,
+                                topicUID: widget.topic.topicUID,
+                              );
+                            } else if (index == 0 &&
+                                timestamp.millisecondsSinceEpoch <
+                                    widget
+                                        .topic
+                                        .questions[index]
+                                        .questionTimestamp
+                                        .millisecondsSinceEpoch) {
+                              return LockedQuestionWidget();
+                            } else {
+                              if (widget
+                                      .topic.questions[index - 1].respondedBy !=
+                                  null) {
+                                if (widget
+                                    .topic.questions[index - 1].respondedBy
+                                    .contains(widget.participantUID)) {
+                                  if (timestamp.millisecondsSinceEpoch >=
+                                      widget
+                                          .topic
+                                          .questions[index]
+                                          .questionTimestamp
+                                          .millisecondsSinceEpoch) {
+                                    return ActiveQuestionWidget(
+                                      question: widget.topic.questions[index],
+                                      participantUID: widget.participantUID,
+                                      topicUID: widget.topic.topicUID,
                                     );
-                                  },
-                                ),
-                              ],
-                            );
+                                  } else {
+                                    return LockedQuestionWidget();
+                                  }
+                                } else {
+                                  return LockedQuestionWidget();
+                                }
+                              } else {
+                                return LockedQuestionWidget();
+                              }
+                            }
+
+                            // return
                           },
                           separatorBuilder: (BuildContext context, int index) {
                             return SizedBox(
@@ -209,6 +228,78 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ActiveQuestionWidget extends StatelessWidget {
+  final Question question;
+  final String participantUID;
+  final String topicUID;
+
+  const ActiveQuestionWidget({Key key, this.question, this.participantUID, this.topicUID}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${question.questionNumber} ${question.questionTitle}',
+              style: TextStyle(
+                color: PROJECT_GREEN,
+                fontSize: 12.0,
+              ),
+            ),
+            IconButton(
+              icon: Icon(
+                question.respondedBy ==
+                        null
+                    ? Icons.arrow_forward
+                    : question
+                            .respondedBy
+                            .contains(participantUID)
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.arrow_forward,
+                color: PROJECT_GREEN,
+              ),
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  PARTICIPANT_RESPONSES_SCREEN,
+                  arguments: {
+                    'topicUID': topicUID,
+                    'questionUID':question.questionUID,
+                  },
+                );
+              },
+            ),
+          ],
+        );
+  }
+}
+
+class LockedQuestionWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Question Locked',
+          style: TextStyle(
+            color: TEXT_COLOR,
+            fontSize: 12.0,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Icon(
+            Icons.lock,
+            color: TEXT_COLOR.withOpacity(0.7),
+            size: 16.0,
+          ),
+        ),
+      ],
     );
   }
 }

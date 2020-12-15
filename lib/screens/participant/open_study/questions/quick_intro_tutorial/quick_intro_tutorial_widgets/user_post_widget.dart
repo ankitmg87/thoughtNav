@@ -38,6 +38,8 @@ class UserResponseWidget extends StatefulWidget {
 class _UserResponseWidgetState extends State<UserResponseWidget> {
   Stream<QuerySnapshot> _commentsStream;
 
+  bool _clapped = false;
+
   Stream<QuerySnapshot> _getCommentsAsStream() {
     return widget.firebaseFirestoreService.getCommentsAsStream(widget.studyUID,
         widget.topicUID, widget.questionUID, widget.response.responseUID);
@@ -46,6 +48,10 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
   @override
   void initState() {
     _commentsStream = _getCommentsAsStream();
+
+    if(widget.response.claps.contains(widget.participantUID)){
+      _clapped = true;
+    }
 
     super.initState();
   }
@@ -62,13 +68,14 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
     var now = DateTime.now();
 
 
-    var difference = DateTime.fromMillisecondsSinceEpoch(widget.response.responseTimestamp.microsecondsSinceEpoch).difference(now);
+    var difference = DateTime.fromMillisecondsSinceEpoch(widget.response.responseTimestamp.millisecondsSinceEpoch).difference(now);
     var timeDifferenceFormat = DateFormat('HH:mm a');
 
     var timeElapsed = '';
 
     if (difference.inSeconds <= 0 || difference.inSeconds > 0 && difference.inMinutes == 0 || difference.inMinutes > 0 && difference.inHours == 0 || difference.inHours > 0 && difference.inDays == 0) {
-      timeElapsed = timeDifferenceFormat.format(widget.response.responseTimestamp.toDate());
+      // timeElapsed = timeDifferenceFormat.format(widget.response.responseTimestamp.toDate());
+      timeElapsed = 'TODAY';
     } else if (difference.inDays > 0 && difference.inDays < 7) {
       if (difference.inDays == 1) {
         timeElapsed = difference.inDays.toString() + ' DAY AGO';
@@ -79,7 +86,6 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
       if (difference.inDays == 7) {
         timeElapsed = (difference.inDays / 7).floor().toString() + ' WEEK AGO';
       } else {
-
         timeElapsed = (difference.inDays / 7).floor().toString() + ' WEEKS AGO';
       }
     }
@@ -178,6 +184,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                 onTap: () async {
                   if (widget.response.claps.contains(widget.participantUID)) {
                     setState(() {
+                      _clapped = false;
                       widget.response.claps.remove(widget.participantUID);
                     });
                     await widget.firebaseFirestoreService.decrementClap(
@@ -188,6 +195,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                         widget.participantUID);
                   } else {
                     setState(() {
+                      _clapped = true;
                       widget.response.claps.add(widget.participantUID);
                     });
                     await widget.firebaseFirestoreService.incrementClap(
@@ -205,7 +213,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                 child: Image(
                   image: AssetImage('images/questions_icons/clap_icon.png'),
                   width: 30.0,
-                  color: TEXT_COLOR.withOpacity(0.8),
+                  color: _clapped ? Colors.lightBlue : TEXT_COLOR.withOpacity(0.8),
                 ),
               ),
               Text(
@@ -317,7 +325,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(4.0),
                       ),
-                      child: TextField(
+                      child: TextFormField(
                         maxLines: 3,
                         minLines: 3,
                         onChanged: (commentStatement) {

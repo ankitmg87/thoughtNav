@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/end_drawer_expansion_tile_child.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/active_question_expansion_tile_child.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/active_task_widget.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 
 class EndDrawerExpansionTile extends StatefulWidget {
@@ -8,14 +10,13 @@ class EndDrawerExpansionTile extends StatefulWidget {
     Key key,
     this.title,
     this.questions,
-    this.onChildTapped,
-    this.participantUID,
+    this.participantUID, this.topicUID,
   }) : super(key: key);
 
   final String title;
   final List<Question> questions;
-  final Function onChildTapped;
   final String participantUID;
+  final String topicUID;
 
   @override
   _EndDrawerExpansionTileState createState() => _EndDrawerExpansionTileState();
@@ -60,13 +61,41 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                 shrinkWrap: true,
                 itemCount: widget.questions.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return EndDrawerExpansionTileChild(
-                    label:
-                        '${widget.questions[index].questionNumber} ${widget.questions[index].questionTitle}',
-                    onTap: widget.onChildTapped,
-                    question: widget.questions[index],
-                    participantUID: widget.participantUID,
-                  );
+                  if (index == 0) {
+
+                    return ActiveQuestionExpansionTileChild(
+                      question: widget.questions[index],
+                      participantUID: widget.participantUID,
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                            PARTICIPANT_RESPONSES_SCREEN,
+                            arguments: {
+                              'topicUID': widget.topicUID,
+                              'questionUID': widget.questions[index].questionUID,
+                            });
+                      },
+                    );
+                  } else {
+                    if (widget.questions[index - 1].respondedBy == null) {
+                      return LockedQuestionExpansionTileChild();
+                    } else if (!widget.questions[index - 1].respondedBy
+                        .contains(widget.participantUID)) {
+                      return LockedQuestionExpansionTileChild();
+                    } else {
+                      return ActiveQuestionExpansionTileChild(
+                        question: widget.questions[index],
+                        participantUID: widget.participantUID,
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                                PARTICIPANT_RESPONSES_SCREEN,
+                                arguments: {
+                                  'topicUID': widget.topicUID,
+                                  'questionUID': widget.questions[index].questionUID,
+                                });
+                          }
+                      );
+                    }
+                  }
                 },
               ),
             ],

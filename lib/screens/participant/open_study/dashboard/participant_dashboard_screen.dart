@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:simple_html_css/simple_html_css.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
+import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
@@ -16,9 +16,12 @@ import 'package:thoughtnav/services/participant_firestore_service.dart';
 
 import 'dashboard_widgets/active_task_widget.dart';
 import 'dashboard_widgets/dashboard_top_container.dart';
+import 'dashboard_widgets/desktop_dropdown_menu_options_row.dart';
 import 'dashboard_widgets/drawer_tile.dart';
 import 'dashboard_widgets/locked_task_widget.dart';
 import 'dashboard_widgets/end_drawer_expansion_tile.dart';
+import 'dashboard_widgets/participant_desktop_notification_widget.dart';
+import 'dashboard_widgets/study_details_general_dialog_widget.dart';
 
 class ParticipantDashboardScreen extends StatefulWidget {
   @override
@@ -38,6 +41,10 @@ class _ParticipantDashboardScreenState
   int _totalQuestions = 1;
   int _answeredQuestions = 0;
 
+  Question _nextQuestion;
+  Topic _nextTopic;
+  String _questionStatus;
+
   double value = 50.0;
   double initialWidth = 50.0;
   double finalWidth = 300.0;
@@ -54,11 +61,11 @@ class _ParticipantDashboardScreenState
 
   Study _study;
   Participant _participant;
-  List<Topic> _studyNavigatorTopics;
+  List<Topic> _studyNavigatorTopics = <Topic>[];
   List<Topic> _topics;
 
   Future<void> _futureStudy;
-  Future<void> _futureStudyNavigatorTopics;
+  // Future<void> _futureStudyNavigatorTopics;
   Future<void> _futureTopics;
 
   Stream _notificationsStream;
@@ -79,11 +86,6 @@ class _ParticipantDashboardScreenState
         _studyUID, _participantUID);
   }
 
-  Future<void> _getStudyNavigatorFutureTopics() async {
-    _studyNavigatorTopics = await _firebaseFireStoreService
-        .getParticipantStudyNavigatorTopics(_studyUID);
-  }
-
   Future<void> _getFutureTopics(String participantGroupUID) async {
     _topics = await _participantFirestoreService.getParticipantTopics(
         _studyUID, participantGroupUID);
@@ -91,25 +93,46 @@ class _ParticipantDashboardScreenState
     var totalQuestions = 0;
     var answeredQuestions = 0;
 
-    for (var topic in _topics){
+    for (var topic in _topics) {
       totalQuestions += topic.questions.length;
 
-      for(var question in topic.questions){
-        if(question.respondedBy != null){
-          if (question.respondedBy.contains(_participantUID)){
+      for (var question in topic.questions) {
+        if (question.respondedBy != null) {
+          if (question.respondedBy.contains(_participantUID)) {
             answeredQuestions += 1;
           }
         }
+        if (_nextTopic == null && _nextQuestion == null) {
+          if (question.respondedBy == null ||
+              !question.respondedBy.contains(_participantUID)) {
+            _nextQuestion = question;
+            _nextTopic = topic;
+            if (question.questionTimestamp.millisecondsSinceEpoch >=
+                Timestamp.now().millisecondsSinceEpoch) {
+              _questionStatus = 'questionLocked';
+            } else {
+              _questionStatus = 'questionUnlocked';
+            }
+          }
+        }
       }
-
     }
+    var studyNavigatorTopics = <Topic>[];
+
+    for (var topic in _topics) {
+      if (topic.isActive) {
+        studyNavigatorTopics.add(topic);
+      }
+    }
+
     setState(() {
+      _studyNavigatorTopics = studyNavigatorTopics;
       _answeredQuestions = answeredQuestions;
       _totalQuestions = totalQuestions;
     });
   }
 
-  void _getNotifications() {
+  void _getNotificationsStream() {
     _notificationsStream =
         _firebaseFireStoreService.getNotifications(_studyUID);
   }
@@ -121,9 +144,9 @@ class _ParticipantDashboardScreenState
     _participantUID = getStorage.read('participantUID');
 
     _futureStudy = _getFutureStudy();
-    _futureStudyNavigatorTopics = _getStudyNavigatorFutureTopics();
+    //_futureStudyNavigatorTopics = _getStudyNavigatorFutureTopics();
 
-    _getNotifications();
+    _getNotificationsStream();
 
     super.initState();
   }
@@ -137,89 +160,6 @@ class _ParticipantDashboardScreenState
     } else {
       return _buildDesktopDashboardFutureBuilder();
     }
-  }
-
-  FutureBuilder _buildPhoneDashboardFutureBuilder() {
-    return FutureBuilder(
-      future: _futureStudy,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.waiting:
-          case ConnectionState.active:
-            return Material(
-              child: Center(
-                child: Text('Loading Study'),
-              ),
-            );
-            break;
-          case ConnectionState.done:
-            return Scaffold(
-              key: _dashboardScaffoldKey,
-              appBar: buildPhoneAppBar(),
-              drawer: buildPhoneDrawer(),
-              endDrawer: buildPhoneEndDrawer(),
-              body: Column(
-                children: [
-                  DashboardTopContainer(
-                    scaffoldKey: _dashboardScaffoldKey,
-                    studyName: _study.studyName,
-                    studyBeginDate: _study.startDate,
-                    studyEndDate: _study.endDate,
-                    rewardAmount: _participant.rewardAmount,
-                    introMessage: _study.introPageMessage,
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Expanded(
-                    child: FutureBuilder(
-                      future: _futureTopics,
-                      builder:
-                          (BuildContext context, AsyncSnapshot<void> snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.none:
-                          case ConnectionState.waiting:
-                          case ConnectionState.active:
-                            return Center(
-                              child: Text('Loading Topics...'),
-                            );
-                            break;
-                          case ConnectionState.done:
-                            return ListView.builder(
-                              itemCount: _topics.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                if (_topics[index].isActive) {
-                                  return ActiveTaskWidget(
-                                    topic: _topics[index],
-                                  );
-                                } else {
-                                  return LockedTaskWidget(
-                                    topic: _topics[index],
-                                  );
-                                }
-                              },
-                            );
-                            break;
-                          default:
-                            return SizedBox();
-                        }
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  )
-                ],
-              ),
-            );
-            break;
-
-          default:
-            return SizedBox();
-        }
-      },
-    );
   }
 
   FutureBuilder _buildDesktopDashboardFutureBuilder() {
@@ -268,7 +208,7 @@ class _ParticipantDashboardScreenState
           height: double.maxFinite,
           child: Row(
             children: [
-              buildCustomLeftDrawer(),
+              _buildCustomLeftDrawer(),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -341,32 +281,124 @@ class _ParticipantDashboardScreenState
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'You have not completed any questions',
+                                  _answeredQuestions == 0
+                                      ? 'You have not answered any questions'
+                                      : _answeredQuestions == 1
+                                          ? 'You have answered 1 Question'
+                                          : 'You have answered $_answeredQuestions questions',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14.0,
                                   ),
                                 ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Next: Quick Intro',
-                                      style: TextStyle(
-                                        color: PROJECT_GREEN,
-                                        fontSize: 14.0,
+                                InkWell(
+                                  onTap: () {
+                                    if (_questionStatus == 'questionLocked') {
+                                      showGeneralDialog(
+                                        pageBuilder: (BuildContext context,
+                                            Animation<double> animation,
+                                            Animation<double>
+                                                secondaryAnimation) {
+                                          return Center(
+                                            child: Material(
+                                              child: Container(
+                                                constraints: BoxConstraints(
+                                                  maxWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.5,
+                                                ),
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(20.0),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Text(
+                                                        'Question is still locked',
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 18.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerRight,
+                                                        child: FlatButton(
+                                                          color:
+                                                              PROJECT_NAVY_BLUE,
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(),
+                                                          child: Padding(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                              horizontal: 20.0,
+                                                              vertical: 10.0,
+                                                            ),
+                                                            child: Text(
+                                                              'OKAY',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 14.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        context: context,
+                                      );
+                                    }
+                                    if (_questionStatus == 'questionUnlocked') {
+                                      Navigator.of(context).pushNamed(
+                                        PARTICIPANT_RESPONSES_SCREEN,
+                                        arguments: {
+                                          'topicUID': _nextTopic.topicUID,
+                                          'questionUID':
+                                              _nextQuestion.questionUID,
+                                        },
+                                      );
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        _answeredQuestions == _totalQuestions
+                                            ? 'All Questions Answered'
+                                            : 'Next Question',
+                                        style: TextStyle(
+                                          color: PROJECT_GREEN,
+                                          fontSize: 14.0,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: 4.0,
-                                    ),
-                                    Icon(
-                                      CupertinoIcons.right_chevron,
-                                      color: PROJECT_GREEN,
-                                      size: 14.0,
-                                    ),
-                                  ],
+                                      SizedBox(
+                                        width: 4.0,
+                                      ),
+                                      Icon(
+                                        CupertinoIcons.right_chevron,
+                                        color: PROJECT_GREEN,
+                                        size: 14.0,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -398,11 +430,40 @@ class _ParticipantDashboardScreenState
                                         itemCount: _topics.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
-                                          if (_topics[index].isActive) {
+                                          if (index == 0 &&
+                                              _topics[index].isActive) {
                                             return ActiveTaskWidget(
                                               topic: _topics[index],
                                               participantUID: _participantUID,
                                             );
+                                          } else if (index >= 1) {
+                                            if (_topics[index - 1]
+                                                    .questions
+                                                    .last
+                                                    .respondedBy !=
+                                                null) {
+                                              if (_topics[index - 1]
+                                                      .questions
+                                                      .last
+                                                      .respondedBy
+                                                      .contains(
+                                                          _participantUID) &&
+                                                  _topics[index].isActive) {
+                                                return ActiveTaskWidget(
+                                                  topic: _topics[index],
+                                                  participantUID:
+                                                      _participantUID,
+                                                );
+                                              } else {
+                                                return LockedTaskWidget(
+                                                  topic: _topics[index],
+                                                );
+                                              }
+                                            } else {
+                                              return LockedTaskWidget(
+                                                topic: _topics[index],
+                                              );
+                                            }
                                           } else {
                                             return LockedTaskWidget(
                                                 topic: _topics[index]);
@@ -443,7 +504,7 @@ class _ParticipantDashboardScreenState
             });
           },
           child: dropDownOpened
-              ? buildDropDownMenu(screenSize, context)
+              ? _buildDropDownMenu(screenSize, context)
               : SizedBox(),
         ),
       ],
@@ -495,7 +556,7 @@ class _ParticipantDashboardScreenState
                   Expanded(
                     child: ListView.separated(
                       itemBuilder: (BuildContext context, int index) {
-                        return _DesktopNotificationWidget(
+                        return ParticipantDesktopNotificationWidget(
                           timestamp: notifications[index]
                               ['notificationTimestamp'],
                           participantAvatar: notifications[index]
@@ -542,7 +603,7 @@ class _ParticipantDashboardScreenState
     );
   }
 
-  Widget buildCustomLeftDrawer() {
+  Widget _buildCustomLeftDrawer() {
     return Align(
       child: AnimatedContainer(
         curve: Curves.ease,
@@ -601,40 +662,32 @@ class _ParticipantDashboardScreenState
             ),
             showDrawer
                 ? Expanded(
-                    child: FutureBuilder(
-                      future: _futureStudyNavigatorTopics,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<dynamic> snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.none:
-                          case ConnectionState.waiting:
-                          case ConnectionState.active:
-                            return Center(
-                              child: Text('Loading Topics...'),
-                            );
-                            break;
-                          case ConnectionState.done:
-                            if (_studyNavigatorTopics != null) {
-                              return ListView.builder(
-                                itemCount: _studyNavigatorTopics.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return EndDrawerExpansionTile(
-                                    title:
-                                        _studyNavigatorTopics[index].topicName,
-                                    questions:
-                                        _studyNavigatorTopics[index].questions,
-                                    participantUID: _participantUID,
-                                  );
-                                },
-                              );
-                            } else {
-                              return Center(
-                                child: Text('Some error occurred'),
-                              );
-                            }
-                            break;
-                          default:
+                    child: ListView.builder(
+                      itemCount: _studyNavigatorTopics.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        if(index == 0){
+                          return EndDrawerExpansionTile(
+                            title: _studyNavigatorTopics[index].topicName,
+                            questions: _studyNavigatorTopics[index].questions,
+                            participantUID: _participantUID,
+                            topicUID: _studyNavigatorTopics[index].topicUID,
+
+                          );
+                        }
+                        else {
+                          if(_studyNavigatorTopics[index - 1].questions.last.respondedBy == null){
                             return SizedBox();
+                          }
+                          else if (!_studyNavigatorTopics[index - 1].questions.last.respondedBy.contains(_participantUID)){
+                            return SizedBox();
+                          }
+                          else {
+                            return EndDrawerExpansionTile(
+                              title: _studyNavigatorTopics[index].topicName,
+                              questions: _studyNavigatorTopics[index].questions,
+                              participantUID: _participantUID,
+                            );
+                          }
                         }
                       },
                     ),
@@ -646,7 +699,7 @@ class _ParticipantDashboardScreenState
     );
   }
 
-  Container buildDropDownMenu(Size screenSize, BuildContext context) {
+  Container _buildDropDownMenu(Size screenSize, BuildContext context) {
     return Container(
       width: double.maxFinite,
       height: double.maxFinite,
@@ -769,7 +822,7 @@ class _ParticipantDashboardScreenState
                     SizedBox(
                       height: 40.0,
                     ),
-                    _DropdownMenuOptionsRow(
+                    DesktopDropdownMenuOptionsRow(
                       image1: 'images/dashboard_icons/dashboard.png',
                       image2: 'images/dashboard_icons/preferences.png',
                       label1: 'Dashboard',
@@ -777,7 +830,7 @@ class _ParticipantDashboardScreenState
                       onTap2: () => Navigator.of(context)
                           .pushNamed(USER_PREFERENCES_SCREEN),
                     ),
-                    _DropdownMenuOptionsRow(
+                    DesktopDropdownMenuOptionsRow(
                       image1: 'images/dashboard_icons/rewards.png',
                       image2: 'images/dashboard_icons/contact_us.png',
                       label1: 'Rewards',
@@ -849,23 +902,15 @@ class _ParticipantDashboardScreenState
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Study Details',
-      pageBuilder: (BuildContext _context,
-          Animation<double> animation,
+      pageBuilder: (BuildContext _context, Animation<double> animation,
           Animation<double> secondaryAnimation) {
-
         return Center(
           child: Material(
             borderRadius: BorderRadius.circular(10.0),
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context)
-                    .size
-                    .width *
-                    0.7,
-                maxHeight: MediaQuery.of(context)
-                    .size
-                    .height *
-                    0.7,
+                maxWidth: MediaQuery.of(context).size.width * 0.7,
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
               ),
               padding: EdgeInsets.all(20.0),
               child: Column(
@@ -889,27 +934,16 @@ class _ParticipantDashboardScreenState
                       children: [
                         Expanded(
                           child: Builder(
-                            builder: (BuildContext
-                            builderContext) {
-
+                            builder: (BuildContext builderContext) {
                               var textSpan = HTML.toTextSpan(
                                 builderContext,
                                 _study.introPageMessage,
-                                // defaultTextStyle: TextStyle(color: Colors.grey[700]),
-                                // overrideStyle: {
-                                //   'p': TextStyle(fontSize: 14),
-                                //   'a': TextStyle(wordSpacing: 2),
-                                //   // specify any tag not just the supported ones,
-                                //   // and apply TextStyles to them and/override them
-                                // },
                               );
-
 
                               return SingleChildScrollView(
                                 child: Material(
                                   child: Container(
-                                    padding:
-                                    EdgeInsets.symmetric(
+                                    padding: EdgeInsets.symmetric(
                                       horizontal: 20.0,
                                       vertical: 12.0,
                                     ),
@@ -928,501 +962,10 @@ class _ParticipantDashboardScreenState
                           color: Colors.grey[300],
                         ),
                         Expanded(
-                          child: ListView(
-                            children: [
-                              Padding(
-                                padding:
-                                EdgeInsets.only(
-                                    left: 20.0,
-                                    right: 20.0,
-                                    top: 5.0,
-                                    bottom: 20.0),
-                                child: Text(
-                                  'You\'re participating in the ${_study.studyName}.',
-                                  style: TextStyle(
-                                    color: Color(
-                                        0xFF333333),
-                                    fontWeight:
-                                    FontWeight
-                                        .bold,
-                                    fontSize: 14.0,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  horizontal: 24.0,
-                                  vertical: 12.0,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Image(
-                                      width: 30.0,
-                                      image:
-                                      AssetImage(
-                                        'images/svg_icons/calender_icon.png',
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 40.0,
-                                    ),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                            'This study begins ',
-                                            style:
-                                            TextStyle(
-                                              fontSize:
-                                              14.0,
-                                              color: Color(
-                                                  0xFF333333),
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                            '${_study.startDate}\n',
-                                            style: TextStyle(
-                                                fontSize:
-                                                14.0,
-                                                color: Color(
-                                                    0xFF333333),
-                                                fontWeight:
-                                                FontWeight.bold),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                            'and ends ',
-                                            style:
-                                            TextStyle(
-                                              fontSize:
-                                              14.0,
-                                              color: Color(
-                                                  0xFF333333),
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                            '${_study.endDate}.',
-                                            style:
-                                            TextStyle(
-                                              fontSize:
-                                              14.0,
-                                              color: Color(
-                                                  0xFF333333),
-                                              fontWeight:
-                                              FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                    horizontal:
-                                    24.0,
-                                    vertical:
-                                    12.0),
-                                child: Row(
-                                  children: [
-                                    Image(
-                                      width: 30.0,
-                                      image:
-                                      AssetImage(
-                                        'images/svg_icons/gift_card.png',
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 40.0,
-                                    ),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                            'After you complete this study,\nyou\'ll be awarded a ',
-                                            style:
-                                            TextStyle(
-                                              fontSize:
-                                              14.0,
-                                              color: Color(
-                                                  0xFF333333),
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                            '\$${_participant.rewardAmount} giftcard.',
-                                            style:
-                                            TextStyle(
-                                              fontSize:
-                                              14.0,
-                                              color: Color(
-                                                  0xFF333333),
-                                              fontWeight:
-                                              FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width:
-                                double.maxFinite,
-                                height: 0.5,
-                                color:
-                                Colors.grey[200],
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                    horizontal:
-                                    20.0,
-                                    vertical:
-                                    12.0),
-                                child: Text(
-                                  'About ${_study.studyName}',
-                                  style: TextStyle(
-                                    color: Color(
-                                        0xFF7F7F7F),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                    horizontal:
-                                    20.0),
-                                child: Text(
-                                  'The purpose of this study is to receive your honest feedback about your personal experiences with your power wheelchair.',
-                                  style: TextStyle(
-                                    color: Color(
-                                        0xFF333333),
-                                    fontSize: 12.0,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  horizontal: 20.0,
-                                  vertical: 12.0,
-                                ),
-                                child: Text(
-                                  'Learn more about Focus Groups',
-                                  style: TextStyle(
-                                    color:
-                                    PROJECT_GREEN,
-                                    fontSize: 13.0,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width:
-                                double.maxFinite,
-                                height: 0.5,
-                                color:
-                                Colors.grey[200],
-                              ),
-                              Padding(
-                                padding:
-                                EdgeInsets.only(
-                                    left: 20.0,
-                                    right: 20.0,
-                                    top: 12.0,
-                                    bottom: 6.0),
-                                child: Text(
-                                  'Tips for completing this study',
-                                  style: TextStyle(
-                                    color: Color(
-                                        0xFF7F7F7F),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  vertical: 6.0,
-                                  horizontal: 20.0,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .center,
-                                  children: [
-                                    Icon(
-                                      Icons
-                                          .check_circle_outline,
-                                      color: Color(
-                                          0xFF81D3F8),
-                                      size: 14.0,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text(
-                                      'Login each day and respond to questions.',
-                                      style:
-                                      TextStyle(
-                                        color: Color(
-                                            0xFF333333),
-                                        fontSize:
-                                        12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  vertical: 6.0,
-                                  horizontal: 20.0,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .center,
-                                  children: [
-                                    Icon(
-                                      Icons
-                                          .check_circle_outline,
-                                      color: Color(
-                                          0xFF81D3F8),
-                                      size: 14.0,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text(
-                                      'Comment on other posts. ',
-                                      style:
-                                      TextStyle(
-                                        color: Color(
-                                            0xFF333333),
-                                        fontSize:
-                                        12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  vertical: 6.0,
-                                  horizontal: 20.0,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .center,
-                                  children: [
-                                    Icon(
-                                      Icons
-                                          .check_circle_outline,
-                                      color: Color(
-                                          0xFF81D3F8),
-                                      size: 14.0,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text(
-                                      'Set up your preferred reward method.',
-                                      style:
-                                      TextStyle(
-                                        color:
-                                        PROJECT_GREEN,
-                                        fontSize:
-                                        12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width:
-                                double.maxFinite,
-                                height: 0.5,
-                                color:
-                                Colors.grey[200],
-                              ),
-                              Padding(
-                                padding:
-                                EdgeInsets.only(
-                                    left: 20.0,
-                                    right: 20.0,
-                                    top: 12.0,
-                                    bottom: 6.0),
-                                child: Text(
-                                  'Be sure to remember...',
-                                  style: TextStyle(
-                                    color: Color(
-                                        0xFF7F7F7F),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  vertical: 6.0,
-                                  horizontal: 20.0,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .center,
-                                  children: [
-                                    Icon(
-                                      Icons
-                                          .check_circle_outline,
-                                      color: Color(
-                                          0xFF81D3F8),
-                                      size: 14.0,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text(
-                                      'All posts are anonymous. Your personal info is confidential.',
-                                      style:
-                                      TextStyle(
-                                        color: Color(
-                                            0xFF333333),
-                                        fontSize:
-                                        12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  vertical: 6.0,
-                                  horizontal: 20.0,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .center,
-                                  children: [
-                                    Icon(
-                                      Icons
-                                          .check_circle_outline,
-                                      color: Color(
-                                          0xFF81D3F8),
-                                      size: 14.0,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text(
-                                      'Be open and honest with your answers.',
-                                      style:
-                                      TextStyle(
-                                        color: Color(
-                                            0xFF333333),
-                                        fontSize:
-                                        12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  vertical: 6.0,
-                                  horizontal: 20.0,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .center,
-                                  children: [
-                                    Icon(
-                                      Icons
-                                          .check_circle_outline,
-                                      color: Color(
-                                          0xFF81D3F8),
-                                      size: 14.0,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text(
-                                      'Have fun!',
-                                      style:
-                                      TextStyle(
-                                        color: Color(
-                                            0xFF333333),
-                                        fontSize:
-                                        12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width:
-                                double.maxFinite,
-                                height: 0.5,
-                                color:
-                                Colors.grey[200],
-                              ),
-                              Padding(
-                                padding: EdgeInsets
-                                    .symmetric(
-                                  vertical: 40.0,
-                                  horizontal: 20.0,
-                                ),
-                                child:
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(
-                                        context)
-                                        .pop();
-                                  },
-                                  child: RichText(
-                                    text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                            'Contact Us ',
-                                            style:
-                                            TextStyle(
-                                              color:
-                                              PROJECT_GREEN,
-                                              fontSize:
-                                              13.0,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                            'for any additional questions or concerns',
-                                            style:
-                                            TextStyle(
-                                              color: Color(
-                                                  0xFF333333),
-                                              fontSize:
-                                              13.0,
-                                            ),
-                                          ),
-                                        ]),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          child: StudyDetailsGeneralDialogWidget(
+                            study: _study,
+                            participant: _participant,
+                            context: context,
                           ),
                         ),
                       ],
@@ -1506,7 +1049,71 @@ class _ParticipantDashboardScreenState
         Center(
           child: InkWell(
             onTap: () {
-              //Navigator.of(context).pushNamed(PARTICIPANT_RESPONSES_SCREEN);
+              if (_questionStatus == 'questionLocked') {
+                showGeneralDialog(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation) {
+                    return Center(
+                      child: Material(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.5,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Question is still locked',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: FlatButton(
+                                    color: PROJECT_NAVY_BLUE,
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 20.0,
+                                        vertical: 10.0,
+                                      ),
+                                      child: Text(
+                                        'OKAY',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  context: context,
+                );
+              }
+              if (_questionStatus == 'questionUnlocked') {
+                Navigator.of(context).pushNamed(
+                  PARTICIPANT_RESPONSES_SCREEN,
+                  arguments: {
+                    'topicUID': _nextTopic.topicUID,
+                    'questionUID': _nextQuestion.questionUID,
+                  },
+                );
+              }
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -1537,7 +1144,90 @@ class _ParticipantDashboardScreenState
     );
   }
 
-  Drawer buildPhoneEndDrawer() {
+  FutureBuilder _buildPhoneDashboardFutureBuilder() {
+    return FutureBuilder(
+      future: _futureStudy,
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            return Material(
+              child: Center(
+                child: Text('Loading Study'),
+              ),
+            );
+            break;
+          case ConnectionState.done:
+            return Scaffold(
+              key: _dashboardScaffoldKey,
+              appBar: _buildPhoneAppBar(),
+              drawer: _buildPhoneDrawer(),
+              endDrawer: _buildPhoneEndDrawer(),
+              body: Column(
+                children: [
+                  DashboardTopContainer(
+                    scaffoldKey: _dashboardScaffoldKey,
+                    studyName: _study.studyName,
+                    studyBeginDate: _study.startDate,
+                    studyEndDate: _study.endDate,
+                    rewardAmount: _participant.rewardAmount,
+                    introMessage: _study.introPageMessage,
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  Expanded(
+                    child: FutureBuilder(
+                      future: _futureTopics,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<void> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                          case ConnectionState.waiting:
+                          case ConnectionState.active:
+                            return Center(
+                              child: Text('Loading Topics...'),
+                            );
+                            break;
+                          case ConnectionState.done:
+                            return ListView.builder(
+                              itemCount: _topics.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                if (_topics[index].isActive) {
+                                  return ActiveTaskWidget(
+                                    topic: _topics[index],
+                                  );
+                                } else {
+                                  return LockedTaskWidget(
+                                    topic: _topics[index],
+                                  );
+                                }
+                              },
+                            );
+                            break;
+                          default:
+                            return SizedBox();
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  )
+                ],
+              ),
+            );
+            break;
+
+          default:
+            return SizedBox();
+        }
+      },
+    );
+  }
+
+  Drawer _buildPhoneEndDrawer() {
     return Drawer(
       child: Column(
         children: [
@@ -1578,47 +1268,56 @@ class _ParticipantDashboardScreenState
             ),
           ),
           Expanded(
-            child: FutureBuilder(
-              future: _futureStudyNavigatorTopics,
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                  case ConnectionState.waiting:
-                  case ConnectionState.active:
-                    return Center(
-                      child: Text('Loading Topics...'),
-                    );
-                    break;
-                  case ConnectionState.done:
-                    if (_studyNavigatorTopics != null) {
-                      return ListView.builder(
-                        itemCount: _studyNavigatorTopics.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return EndDrawerExpansionTile(
-                            title: _studyNavigatorTopics[index].topicName,
-                            questions: _studyNavigatorTopics[index].questions,
-
-                          );
-                        },
-                      );
-                    } else {
-                      return Center(
-                        child: Text('Some error occurred'),
-                      );
-                    }
-                    break;
-                  default:
-                    return SizedBox();
-                }
+            child: ListView.builder(
+              itemCount: _studyNavigatorTopics.length,
+              itemBuilder: (BuildContext context, int index) {
+                return EndDrawerExpansionTile(
+                  title: _studyNavigatorTopics[index].topicName,
+                  questions: _studyNavigatorTopics[index].questions,
+                );
               },
             ),
+
+            // child: FutureBuilder(
+            //   future: _futureStudyNavigatorTopics,
+            //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            //     switch (snapshot.connectionState) {
+            //       case ConnectionState.none:
+            //       case ConnectionState.waiting:
+            //       case ConnectionState.active:
+            //         return Center(
+            //           child: Text('Loading Topics...'),
+            //         );
+            //         break;
+            //       case ConnectionState.done:
+            //         if (_studyNavigatorTopics != null) {
+            //           return ListView.builder(
+            //             itemCount: _studyNavigatorTopics.length,
+            //             itemBuilder: (BuildContext context, int index) {
+            //               return EndDrawerExpansionTile(
+            //                 title: _studyNavigatorTopics[index].topicName,
+            //                 questions: _studyNavigatorTopics[index].questions,
+            //               );
+            //             },
+            //           );
+            //         } else {
+            //           return Center(
+            //             child: Text('Some error occurred'),
+            //           );
+            //         }
+            //         break;
+            //       default:
+            //         return SizedBox();
+            //     }
+            //   },
+            // ),
           ),
         ],
       ),
     );
   }
 
-  Drawer buildPhoneDrawer() {
+  Drawer _buildPhoneDrawer() {
     return Drawer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1806,7 +1505,7 @@ class _ParticipantDashboardScreenState
     );
   }
 
-  AppBar buildPhoneAppBar() {
+  AppBar _buildPhoneAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
       centerTitle: true,
@@ -1846,188 +1545,6 @@ class _ParticipantDashboardScreenState
             color: PROJECT_GREEN,
           ),
           onPressed: () => _dashboardScaffoldKey.currentState.openEndDrawer(),
-        ),
-      ],
-    );
-  }
-}
-
-class _DesktopNotificationWidget extends StatelessWidget {
-  final Timestamp timestamp;
-  final String participantAvatar;
-  final String participantDisplayName;
-  final String questionNumber;
-  final String questionTitle;
-
-  const _DesktopNotificationWidget({
-    Key key,
-    //this.time,
-    this.participantAvatar,
-    this.participantDisplayName,
-    this.questionNumber,
-    this.questionTitle,
-    this.timestamp,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    var date =
-        DateTime.fromMillisecondsSinceEpoch(timestamp.millisecondsSinceEpoch);
-
-    var dateFormat = DateFormat(DateFormat.HOUR_MINUTE);
-
-    var time = dateFormat.format(date);
-
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 6.0),
-      child: Row(
-        children: [
-          Text(
-            '$time',
-            style: TextStyle(
-              color: TEXT_COLOR.withOpacity(0.6),
-              fontSize: 13.0,
-            ),
-          ),
-          SizedBox(
-            width: 5.0,
-          ),
-          CachedNetworkImage(
-            imageUrl: participantAvatar,
-            imageBuilder: (context, imageProvider) {
-              return Container(
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: PROJECT_LIGHT_GREEN,
-                ),
-                child: Image(
-                  width: 20.0,
-                  image: imageProvider,
-                ),
-              );
-            },
-          ),
-          SizedBox(
-            width: 8.0,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  textAlign: TextAlign.start,
-                  maxLines: 2,
-                  text: TextSpan(
-                    style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.7), fontSize: 13.0),
-                    children: [
-                      TextSpan(
-                          text:
-                              '$participantDisplayName responded to the question '),
-                      TextSpan(
-                        text: '$questionNumber $questionTitle.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DropdownMenuOptionsRow extends StatelessWidget {
-  const _DropdownMenuOptionsRow({
-    Key key,
-    this.image1,
-    this.image2,
-    this.label1,
-    this.label2,
-    this.onTap1,
-    this.onTap2,
-  }) : super(key: key);
-
-  final String image1;
-  final String image2;
-  final String label1;
-  final String label2;
-  final Function onTap1;
-  final Function onTap2;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: onTap1,
-          child: Container(
-            color: Colors.white,
-            alignment: Alignment.centerLeft,
-            width: 200.0,
-            padding: EdgeInsets.only(
-                left: 20.0, top: 10.0, bottom: 10.0, right: 20.0),
-            child: Row(
-              children: [
-                Image(
-                  width: 20.0,
-                  image: AssetImage(
-                    image1,
-                  ),
-                ),
-                SizedBox(
-                  width: 10.0,
-                ),
-                Text(
-                  label1,
-                  style: TextStyle(
-                    color: TEXT_COLOR,
-                    fontSize: 14.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: onTap2 ?? () {},
-          child: Container(
-            color: Colors.white,
-            alignment: Alignment.centerLeft,
-            width: 200.0,
-            padding: EdgeInsets.only(
-                left: 20.0, top: 10.0, bottom: 10.0, right: 20.0),
-            child: Row(
-              children: [
-                image2 == null
-                    ? SizedBox()
-                    : Image(
-                        width: 20.0,
-                        image: AssetImage(
-                          image2,
-                        ),
-                      ),
-                SizedBox(
-                  width: 10.0,
-                ),
-                label2 == null
-                    ? SizedBox()
-                    : Text(
-                        label2,
-                        style: TextStyle(
-                          color: TEXT_COLOR,
-                          fontSize: 14.0,
-                        ),
-                      ),
-              ],
-            ),
-          ),
         ),
       ],
     );

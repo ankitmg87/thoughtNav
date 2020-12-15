@@ -14,6 +14,7 @@ import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/participant_firestore_service.dart';
 
 import 'quick_intro_tutorial/quick_intro_tutorial_widgets/user_post_widget.dart';
 
@@ -28,6 +29,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
       GlobalKey<ScaffoldState>();
 
   final _firebaseFirestoreService = FirebaseFirestoreService();
+
+  final _participantFirestoreService = ParticipantFirestoreService();
 
   String _studyUID;
   String _participantUID;
@@ -57,25 +60,25 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   Stream<QuerySnapshot> _responsesStream;
 
   Future<void> _getStudyNavigatorTopics(String studyUID) async {
-    _studyNavigatorTopics = await _firebaseFirestoreService.getParticipantStudyNavigatorTopics(studyUID);
+    // _studyNavigatorTopics = await _firebaseFirestoreService
+    //     .getParticipantStudyNavigatorTopics(studyUID);
+
+    _studyNavigatorTopics = await _participantFirestoreService.getParticipantTopics(_studyUID, _participant.groupUID);
   }
 
   Future<void> _getParticipant(String studyUID, String participantUID) async {
     _participant = await _firebaseFirestoreService.getParticipant(
         studyUID, participantUID);
+
+    _futureStudyNavigatorTopics = _getStudyNavigatorTopics(_studyUID);
   }
 
-  Future<void> _getQuestion(String studyUID) async {
-    Map<String, String> arguments =
-        await ModalRoute.of(context).settings.arguments;
-
-    _topicUID = arguments['topicUID'];
-    _questionUID = arguments['questionUID'];
-
-    _getParticipantResponse();
+  Future<void> _getQuestion(
+      String studyUID, String topicUID, String questionUID) async {
+    _getParticipantResponse(studyUID, topicUID, questionUID, _participantUID);
 
     _question = await _firebaseFirestoreService.getQuestion(
-        studyUID, _topicUID, _questionUID);
+        studyUID, topicUID, questionUID);
   }
 
   Stream<QuerySnapshot> _getResponsesStream(
@@ -90,6 +93,30 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
         .then((response) {
       setState(() {
         _response = response;
+        if(_question.respondedBy == null){
+          _question.respondedBy = [];
+          _question.respondedBy.add(_response.participantUID);
+        }
+        else {
+          _question.respondedBy.add(_response.participantUID);
+        }
+
+        var studyNavigatorTopics = _studyNavigatorTopics;
+
+        for(var topic in studyNavigatorTopics){
+          for (var question in topic.questions){
+            if (question.questionUID == _questionUID){
+              if(question.respondedBy == null){
+                question.respondedBy = [];
+                question.respondedBy.add(_response.participantUID);
+              }
+              else {
+                question.respondedBy.add(_response.participantUID);
+              }
+            }
+          }
+        }
+        _studyNavigatorTopics = studyNavigatorTopics;
       });
     });
   }
@@ -100,9 +127,10 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
         studyUID, topicUID, questionUID, responseUID, comment);
   }
 
-  void _getParticipantResponse() async {
+  void _getParticipantResponse(String studyUID, String topicUID,
+      String questionUID, String participantUID) async {
     _response = await _firebaseFirestoreService.getParticipantResponse(
-        _studyUID, _topicUID, _questionUID, _participantUID);
+        studyUID, topicUID, questionUID, participantUID);
 
     _response ??= Response();
   }
@@ -115,7 +143,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
     _participantUID = getStorage.read('participantUID');
     _studyName = getStorage.read('studyName');
 
-    _futureStudyNavigatorTopics = _getStudyNavigatorTopics(_studyUID);
     _futureParticipant = _getParticipant(_studyUID, _participantUID);
 
     super.initState();
@@ -123,7 +150,13 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
   @override
   void didChangeDependencies() {
-    _futureQuestion = _getQuestion(_studyUID);
+    Map<String, String> arguments = ModalRoute.of(context).settings.arguments;
+
+    _topicUID = arguments['topicUID'];
+    _questionUID = arguments['questionUID'];
+
+    _futureQuestion = _getQuestion(_studyUID, _topicUID, _questionUID);
+    _responsesStream = _getResponsesStream(_studyUID, _topicUID, _questionUID);
     super.didChangeDependencies();
   }
 
@@ -208,7 +241,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                     participant: _participant,
                     response: _response,
                     onTap: () async {
-                      _response.timeElapsed = '0';
+                      // _response.timeElapsed = '0';
                       _response.participantDisplayName =
                           _participant.displayName;
                       _response.claps = [];
@@ -406,218 +439,42 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                 ),
                 actions: [
                   InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      highlightColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Center(
-                            child: Text(
-                              'Go To Dashboard',
-                              style: TextStyle(
-                                color: TEXT_COLOR.withOpacity(0.7),
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    highlightColor: Colors.transparent,
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: Text(
+                            'Go To Dashboard',
+                            style: TextStyle(
+                              color: TEXT_COLOR.withOpacity(0.7),
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Icon(
-                            Icons.arrow_forward,
-                            size: 14.0,
-                            color: TEXT_COLOR.withOpacity(0.8),
-                          ),
-                          SizedBox(
-                            width: 10.0,
-                          ),
-                        ],
-                      ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 14.0,
+                          color: TEXT_COLOR.withOpacity(0.8),
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
               body: Row(
                 children: [
-                  Align(
-                    child: AnimatedContainer(
-                      curve: Curves.ease,
-                      height: double.maxFinite,
-                      width: value,
-                      color: Colors.white,
-                      duration: Duration(milliseconds: 200),
-                      onEnd: () {
-                        setState(() {
-                          if (isExpanded) {
-                            showDrawer = true;
-                          }
-                        });
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              SizedBox(),
-                              Expanded(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: showDrawer
-                                      ? Text(
-                                          'Study Navigator',
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            color: TEXT_COLOR,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )
-                                      : SizedBox(),
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  showDrawer ? Icons.close : Icons.menu,
-                                  color: PROJECT_GREEN,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    if (!isExpanded) {
-                                      value = maxMenuWidth;
-                                      isExpanded = !isExpanded;
-                                    } else {
-                                      value = minMenuWidth;
-                                      isExpanded = !isExpanded;
-                                      showDrawer = false;
-                                    }
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          showDrawer
-                              ? Expanded(
-                                  child: FutureBuilder(
-                                    future: _futureStudyNavigatorTopics,
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<dynamic> snapshot) {
-                                      switch (snapshot.connectionState) {
-                                        case ConnectionState.none:
-                                          return SizedBox();
-                                          break;
-                                        case ConnectionState.waiting:
-                                        case ConnectionState.active:
-                                          return Center(
-                                            child: Text('Loading topics...'),
-                                          );
-                                          break;
-                                        case ConnectionState.done:
-                                          if (_studyNavigatorTopics.isNotEmpty) {
-                                            return ListView.builder(
-                                              itemCount: _studyNavigatorTopics.length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int topicIndex) {
-                                                return ExpansionTile(
-                                                  title: Text(
-                                                    _studyNavigatorTopics[topicIndex]
-                                                        .topicName,
-                                                    style: TextStyle(
-                                                      color: Colors.grey[700],
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14.0,
-                                                    ),
-                                                  ),
-                                                  children: [
-                                                    SizedBox(
-                                                      height: 10.0,
-                                                    ),
-                                                    ListView.separated(
-                                                      padding: EdgeInsets.only(
-                                                        left: 20.0,
-                                                        right: 10.0,
-                                                      ),
-                                                      shrinkWrap: true,
-                                                      itemCount:
-                                                          _studyNavigatorTopics[topicIndex]
-                                                              .questions
-                                                              .length,
-                                                      itemBuilder: (BuildContext
-                                                              context,
-                                                          int questionIndex) {
-                                                        return InkWell(
-                                                          onTap: () {
-                                                            setState(() {
-                                                              _topicUID = _studyNavigatorTopics[
-                                                                      topicIndex]
-                                                                  .topicUID;
-                                                              _questionUID = _studyNavigatorTopics[
-                                                                      topicIndex]
-                                                                  .questions[
-                                                                      questionIndex]
-                                                                  .questionUID;
-                                                            });
-                                                          },
-                                                          splashColor: Colors
-                                                              .transparent,
-                                                          hoverColor: Colors
-                                                              .transparent,
-                                                          focusColor: Colors
-                                                              .transparent,
-                                                          highlightColor: Colors
-                                                              .transparent,
-                                                          child: Row(
-                                                            children: [
-                                                              Text(
-                                                                '${_studyNavigatorTopics[topicIndex].questions[questionIndex].questionNumber}  ${_studyNavigatorTopics[topicIndex].questions[questionIndex].questionTitle}',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      800],
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize:
-                                                                      13.0,
-                                                                ),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        );
-                                                      },
-                                                      separatorBuilder:
-                                                          (BuildContext context,
-                                                              int index) {
-                                                        return SizedBox(
-                                                            height: 20.0);
-                                                      },
-                                                    ),
-                                                    SizedBox(
-                                                      height: 20.0,
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          } else {
-                                            return SizedBox();
-                                          }
-                                          break;
-                                        default:
-                                          return SizedBox();
-                                      }
-                                    },
-                                  ),
-                                )
-                              : SizedBox(),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _buildStudyNavigator(),
                   Expanded(
                     child: FutureBuilder(
                       future: _futureQuestion,
@@ -656,14 +513,15 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   participant: _participant,
                                   response: _response,
                                   onTap: () async {
-                                    _response.timeElapsed = '0';
+                                    // _response.timeElapsed = '0';
                                     _response.participantDisplayName =
                                         _participant.displayName;
                                     _response.claps = [];
                                     _response.participantUID = _participantUID;
                                     _response.responseTimestamp =
                                         Timestamp.now();
-                                    _response.userName = _participant.userFirstName;
+                                    _response.userName =
+                                        _participant.userFirstName;
                                     _response.avatarURL =
                                         _participant.profilePhotoURL;
                                     _response.comments = 0;
@@ -683,8 +541,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   height: 40.0,
                                 ),
                                 StreamBuilder(
-                                  stream: _getResponsesStream(
-                                      _studyUID, _topicUID, _questionUID),
+                                  stream: _responsesStream,
                                   builder: (BuildContext context,
                                       AsyncSnapshot<dynamic> snapshot) {
                                     switch (snapshot.connectionState) {
@@ -803,6 +660,242 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
     );
   }
 
+  Align _buildStudyNavigator() {
+    return Align(
+      child: AnimatedContainer(
+        curve: Curves.ease,
+        height: double.maxFinite,
+        width: value,
+        color: Colors.white,
+        duration: Duration(milliseconds: 200),
+        onEnd: () {
+          setState(() {
+            if (isExpanded) {
+              showDrawer = true;
+            }
+          });
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // SizedBox(),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: showDrawer
+                        ? Text(
+                            'Study Navigator',
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: TEXT_COLOR,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : SizedBox(),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    showDrawer ? Icons.close : Icons.menu,
+                    color: PROJECT_GREEN,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (!isExpanded) {
+                        value = maxMenuWidth;
+                        isExpanded = !isExpanded;
+                      } else {
+                        value = minMenuWidth;
+                        isExpanded = !isExpanded;
+                        showDrawer = false;
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            showDrawer
+                ? Expanded(
+                    child: FutureBuilder(
+                      future: _futureStudyNavigatorTopics,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<dynamic> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                            return SizedBox();
+                            break;
+                          case ConnectionState.waiting:
+                          case ConnectionState.active:
+                            return Center(
+                              child: Text('Loading topics...'),
+                            );
+                            break;
+                          case ConnectionState.done:
+                            if (_studyNavigatorTopics.isNotEmpty) {
+                              return ListView.builder(
+                                itemCount: _studyNavigatorTopics.length,
+                                itemBuilder:
+                                    (BuildContext context, int topicIndex) {
+                                  if (topicIndex == 0) {
+                                    return _buildDesktopStudyNavigatorExpansionTile(
+                                      _studyNavigatorTopics[topicIndex],
+                                      _participantUID,
+                                    );
+                                  } else {
+                                    if (_studyNavigatorTopics[topicIndex]
+                                            .questions
+                                            .last
+                                            .respondedBy !=
+                                        null) {
+                                      if (_studyNavigatorTopics[topicIndex]
+                                          .questions
+                                          .last
+                                          .respondedBy
+                                          .contains(_participantUID)) {
+                                        return _buildDesktopStudyNavigatorExpansionTile(
+                                            _studyNavigatorTopics[topicIndex],
+                                            _participantUID);
+                                      } else {
+                                        return SizedBox();
+                                      }
+                                    } else {
+                                      return SizedBox();
+                                    }
+                                  }
+                                },
+                              );
+                            } else {
+                              return SizedBox();
+                            }
+                            break;
+                          default:
+                            return SizedBox();
+                        }
+                      },
+                    ),
+                  )
+                : SizedBox(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDesktopStudyNavigatorExpansionTile(
+      Topic topic, String participantUID) {
+    return ExpansionTile(
+      title: Text(
+        topic.topicName,
+        style: TextStyle(
+          color: Colors.grey[700],
+          fontWeight: FontWeight.bold,
+          fontSize: 14.0,
+        ),
+      ),
+      children: [
+        SizedBox(
+          height: 10.0,
+        ),
+        ListView.separated(
+          padding: EdgeInsets.only(
+            left: 20.0,
+            right: 10.0,
+          ),
+          shrinkWrap: true,
+          itemCount: topic.questions.length,
+          itemBuilder: (BuildContext context, int index) {
+            if (index == 0) {
+              return _buildDesktopStudyNavigatorActiveQuestion(
+                  topic.questions[index], topic.topicUID);
+            } else {
+              if (topic.questions[index - 1].respondedBy != null) {
+                if (topic.questions[index - 1].respondedBy
+                    .contains(participantUID)) {
+                  return _buildDesktopStudyNavigatorActiveQuestion(
+                      topic.questions[index], topic.topicUID);
+                } else {
+                  return _buildDesktopStudyNavigatorLockedQuestion();
+                }
+              } else {
+                return _buildDesktopStudyNavigatorLockedQuestion();
+              }
+            }
+          },
+          separatorBuilder: (BuildContext context, int index) {
+            return SizedBox(height: 20.0);
+          },
+        ),
+        SizedBox(
+          height: 20.0,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopStudyNavigatorActiveQuestion(
+      Question question, String topicUID) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _futureQuestion =
+              _getQuestion(_studyUID, topicUID, question.questionUID);
+          _responsesStream =
+              _getResponsesStream(_studyUID, topicUID, question.questionUID);
+        });
+      },
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '${question.questionNumber}  ${question.questionTitle}',
+            style: TextStyle(
+              color: Colors.grey[800],
+              fontWeight: FontWeight.bold,
+              fontSize: 13.0,
+            ),
+          ),
+          Icon(
+            question.respondedBy == null
+                ? Icons.arrow_forward
+                : question.respondedBy.contains(_participantUID)
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.arrow_forward,
+            color: PROJECT_GREEN,
+            size: 14.0,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopStudyNavigatorLockedQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Question Locked',
+          style: TextStyle(
+            color: Colors.grey[800],
+            fontWeight: FontWeight.bold,
+            fontSize: 13.0,
+          ),
+        ),
+        Icon(
+          Icons.lock,
+          color: Colors.grey[800],
+          size: 13.0,
+        ),
+      ],
+    );
+  }
+
   Drawer _buildPhoneEndDrawer() {
     return Drawer(
       child: Column(
@@ -863,7 +956,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                           return EndDrawerExpansionTile(
                             title: _studyNavigatorTopics[index].topicName,
                             questions: _studyNavigatorTopics[index].questions,
-                            onChildTapped: (){},
                           );
                         },
                       );
@@ -910,7 +1002,6 @@ class __ResponseTextFieldState extends State<_ResponseTextField> {
   @override
   Widget build(BuildContext context) {
     if (widget.response.participantUID != null) {
-
       var formatDate = DateFormat.yMd();
       var formatTime = DateFormat.jm();
 
@@ -985,14 +1076,6 @@ class __ResponseTextFieldState extends State<_ResponseTextField> {
                           ],
                         ),
                       ],
-                    ),
-                    Text(
-                      widget.response.timeElapsed,
-                      style: TextStyle(
-                        color: PROJECT_GREEN,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.0,
-                      ),
                     ),
                   ],
                 ),

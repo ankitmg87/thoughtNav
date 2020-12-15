@@ -72,18 +72,20 @@ class ParticipantFirestoreService {
     return questionData.containsValue(participantUID);
   }
 
-  Future<List<Topic>> getParticipantTopics(String studyUID, String participantGroupUID) async {
+  Future<List<Topic>> getParticipantTopics(
+      String studyUID, String participantGroupUID) async {
     var topics = <Topic>[];
 
     var topicsReference = await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
-        .orderBy('topicIndex', descending: false)
+        .orderBy('topicNumber', descending: false)
         .get();
 
     for (var topicSnapshot in topicsReference.docs) {
       var topic = Topic.fromMap(topicSnapshot.data());
-      var questions = await getParticipantQuestions(studyUID, topic.topicUID, participantGroupUID);
+      var questions = await getParticipantQuestions(
+          studyUID, topic.topicUID, participantGroupUID);
       topic.questions = questions;
 
       topics.add(topic);
@@ -94,7 +96,6 @@ class ParticipantFirestoreService {
 
   Future<List<Question>> getParticipantQuestions(
       String studyUID, String topicUID, String participantGroupUID) async {
-
     var questions = <Question>[];
 
     var questionsReference = await _studiesReference

@@ -59,7 +59,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   }
 
   void _addUserToFirebase(
-      String email, String masterPassword, String userType, String id) async {
+      String email, String masterPassword, String userType,) async {
     var user = User(
       userEmail: email,
       userPassword: masterPassword,
@@ -71,9 +71,11 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
     if (userType == 'participant') {
       var participant = Participant(
-        id: id,
         email: email,
         password: masterPassword,
+        // userFirstName: ,
+        // userLastName: ,
+        // userGroupName: ,
         isActive: false,
         isDeleted: false,
         isOnboarded: false,
@@ -85,7 +87,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     }
     if (userType == 'client') {
       var client = Client(
-        id: id,
         email: email,
         password: masterPassword,
         clientUID: createdUser.userUID,
@@ -99,7 +100,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     }
     if (userType == 'moderator') {
       var moderator = Moderator(
-        id: id,
         email: email,
         password: masterPassword,
         moderatorUID: createdUser.userUID,
@@ -784,7 +784,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                             ),
                           ),
                           FlatButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              await _addUserToFirebase('ankit@example.com', 'participant123', 'participant');
+                            },
+
                             // onPressed: email.isNotEmpty && id.isNotEmpty
                             //     ? () async {
                             //   await _addUserToFirebase(
@@ -998,7 +1001,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                             onPressed: email.isNotEmpty && id.isNotEmpty
                                 ? () async {
                                     await _addUserToFirebase(
-                                        email, masterPassword, userType, id);
+                                        email, masterPassword, userType);
                                     Navigator.of(context).pop();
                                     setState(() {});
                                   }
