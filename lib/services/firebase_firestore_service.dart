@@ -78,7 +78,7 @@ class FirebaseFirestoreService {
     return _studiesReference.doc(studyUID).snapshots();
   }
 
-  Stream getNotifications(String studyUID) {
+  Stream getNotifications(String studyUID, String participantGroupUID) {
     return _studiesReference
         .doc(studyUID)
         .collection(_NOTIFICATIONS_COLLECTION)
@@ -325,10 +325,6 @@ class FirebaseFirestoreService {
 
   Stream<QuerySnapshot> getResponsesAsStream(
       String studyUID, String topicUID, String questionUID) {
-    print(studyUID);
-    print(topicUID);
-    print(questionUID);
-
     return _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -336,6 +332,8 @@ class FirebaseFirestoreService {
         .collection(_QUESTIONS_COLLECTION)
         .doc(questionUID)
         .collection(_RESPONSES_COLLECTION)
+        .orderBy('responseTimestamp', descending: true)
+        .where('responseUID', isNotEqualTo: null)
         .snapshots();
   }
 
@@ -350,7 +348,7 @@ class FirebaseFirestoreService {
         .collection(_RESPONSES_COLLECTION)
         .doc(responseUID)
         .collection(_COMMENTS_COLLECTION)
-        .orderBy('commentTimestamp', descending: true)
+        .orderBy('commentTimestamp', descending: false)
         .snapshots();
   }
 
@@ -508,110 +506,6 @@ class FirebaseFirestoreService {
     return moderator;
   }
 
-  Future<Response> postResponse(String studyUID, String topicUID,
-      String questionUID, Response response) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .add(response.toMap())
-        .then((responseDocumentReference) {
-      response.responseUID = responseDocumentReference.id;
-      responseDocumentReference.set(
-        {
-          'responseUID': response.responseUID,
-        },
-        SetOptions(merge: true),
-      );
-    });
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .update(
-      {
-        'respondedBy': FieldValue.arrayUnion([response.participantUID])
-      },
-    );
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_NOTIFICATIONS_COLLECTION)
-        .add({
-      'notificationTimestamp': response.responseTimestamp,
-      'participantDisplayName': response.participantDisplayName,
-      'participantAvatar': response.avatarURL,
-      'questionNumber': response.questionNumber,
-      'questionTitle': response.questionTitle,
-    });
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_PARTICIPANTS_COLLECTION)
-        .doc(response.participantUID);
-
-    return response;
-  }
-
-  Future<Comment> postComment(String studyUID, String topicUID,
-      String questionUID, String responseUID, Comment comment) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .doc(responseUID)
-        .collection(_COMMENTS_COLLECTION)
-        .add(comment.toMap())
-        .then((commentReference) {
-      comment.commentUID = commentReference.id;
-      commentReference.set(
-        {
-          'commentUID': comment.commentUID,
-        },
-        SetOptions(merge: true),
-      );
-    });
-
-    var commentSnapshots = await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .doc(responseUID)
-        .collection(_COMMENTS_COLLECTION)
-        .get();
-
-    var totalComments = commentSnapshots.docs.length;
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .doc(responseUID)
-        .set(
-      {
-        'comments': totalComments,
-      },
-      SetOptions(merge: true),
-    );
-
-    return comment;
-  }
-
   /// Update section
 
   Future<void> updateStudyBasicDetail(
@@ -716,38 +610,6 @@ class FirebaseFirestoreService {
       {detailKey: detail},
       SetOptions(merge: true),
     );
-  }
-
-  Future<void> incrementClap(String studyUID, String topicUID,
-      String questionUID, String responseUID, String participantUID) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .doc(responseUID)
-        .update(
-      {
-        'claps': FieldValue.arrayUnion([participantUID]),
-      },
-    );
-  }
-
-  Future<void> decrementClap(String studyUID, String topicUID,
-      String questionUID, String responseUID, String participantUID) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .doc(responseUID)
-        .update({
-      'claps': FieldValue.arrayRemove([participantUID]),
-    });
   }
 
   Future<void> addUserToGroup(

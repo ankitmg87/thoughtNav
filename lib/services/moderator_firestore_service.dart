@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/moderator.dart';
+import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
@@ -12,6 +13,9 @@ const String _MODERATORS_COLLECTION = 'moderators';
 const String _GROUPS_COLLECTION = 'groups';
 const String _TOPICS_COLLECTION = 'topics';
 const String _QUESTIONS_COLLECTION = 'questions';
+const String _PARTICIPANTS_COLLECTION = 'participants';
+const String _PARTICIPANT_NOTIFICATIONS_COLLECTION = 'participantNotifications';
+const String _GROUP_NOTIFICATIONS_COLLECTION = 'groupNotifications';
 
 class ModeratorFirestoreService {
   final _studiesReference =
@@ -94,11 +98,10 @@ class ModeratorFirestoreService {
   Future<Question> createQuestion(
       String studyUID, int index, String topicUID) async {
     var question = Question(
-      questionType: 'Standard',
-      totalComments: 0,
-      totalResponses: 0,
-      questionNumber: '$index'
-    );
+        questionType: 'Standard',
+        totalComments: 0,
+        totalResponses: 0,
+        questionNumber: '$index');
 
     var questionMap = question.toMap();
 
@@ -189,9 +192,8 @@ class ModeratorFirestoreService {
         .orderBy('topicIndex', descending: false)
         .get();
 
-    if(topicsReference.size > 0){
-
-      for(var topicSnapshot in topicsReference.docs){
+    if (topicsReference.size > 0) {
+      for (var topicSnapshot in topicsReference.docs) {
         var topic = Topic.fromMap(topicSnapshot.data());
 
         var questions = await getQuestions(studyUID, topic);
@@ -226,9 +228,36 @@ class ModeratorFirestoreService {
     return questions;
   }
 
+  Future<void> addModeratorCommentNotification(
+      String studyUID,
+      String participantUID,
+      ModeratorCommentNotification moderatorCommentNotification) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participantUID)
+        .collection(_PARTICIPANT_NOTIFICATIONS_COLLECTION)
+        .add(
+            ModeratorCommentNotification().toMap(moderatorCommentNotification));
+  }
+
+  Future<void> addNewQuestionNotification(
+      String studyUID,
+      List<String> groupUIDs,
+      NewQuestionNotification newQuestionNotification) async {
+
+    for (var groupUID in groupUIDs) {
+      await _studiesReference
+          .doc(studyUID)
+          .collection(_GROUPS_COLLECTION)
+          .doc(groupUID)
+          .collection(_GROUP_NOTIFICATIONS_COLLECTION)
+          .add(NewQuestionNotification().toMap(newQuestionNotification));
+    }
+
+  }
 
   Future<http.Response> sendEmail() async {
-
     var url = 'http://koodo.m-staging.in/Koodo/flutter/send-email';
 
     var response = await http.post(url, body: {
@@ -243,5 +272,4 @@ class ModeratorFirestoreService {
 
     return response;
   }
-
 }

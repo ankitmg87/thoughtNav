@@ -225,7 +225,7 @@ class _SetupCompleteScreenState extends State<SetupCompleteScreen> {
                                 ),
                                 onPressed: () {
                                   Navigator.of(context).pushNamedAndRemoveUntil(
-                                      DASHBOARD_SCREEN, (route) => false);
+                                      PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
 class Participant {
-  String id;
   String participantUID;
   String displayName;
   String userFirstName;
@@ -17,17 +16,14 @@ class Participant {
   String paymentMode;
   String groupUID;
   String profilePhotoURL;
-  int topicsCompleted;
-  String currentTopic;
-  String currentQuestion;
   String rewardAmount;
+  String secondaryEmail;
 
   bool isActive;
   bool isDeleted;
   bool isOnboarded;
 
   Participant({
-    this.id,
     this.participantUID,
     this.displayName,
     this.userFirstName,
@@ -46,16 +42,13 @@ class Participant {
     this.isOnboarded,
     this.groupUID,
     this.profilePhotoURL,
-    this.topicsCompleted,
-    this.currentTopic,
-    this.currentQuestion,
     this.rewardAmount,
+    this.secondaryEmail
   });
 
   Map<String, dynamic> toMap() {
     var participant = <String, dynamic>{};
 
-    participant['id'] = id;
     participant['participantUID'] = participantUID;
     participant['displayName'] = displayName;
     participant['userFirstName'] = userFirstName;
@@ -74,16 +67,13 @@ class Participant {
     participant['groupUID'] = groupUID;
     participant['isOnboarded'] = isOnboarded;
     participant['profilePhotoURL'] = profilePhotoURL;
-    participant['topicsCompleted'] = topicsCompleted;
-    participant['currentTopic'] = currentTopic;
-    participant['currentQuestion'] = currentQuestion;
     participant['rewardAmount'] = rewardAmount;
+    participant['secondaryEmail'] = secondaryEmail;
 
     return participant;
   }
 
   Participant.fromMap(Map<String, dynamic> participant){
-    id = participant['id'];
     participantUID = participant['participantUID'];
     displayName = participant['displayName'];
     userFirstName = participant['userFirstName'];
@@ -102,8 +92,7 @@ class Participant {
     isOnboarded = participant['isOnboarded'];
     groupUID = participant['groupUID'];
     profilePhotoURL = participant['profilePhotoURL'];
-    currentTopic = participant['currentTopic'];
-    currentQuestion = participant['currentQuestion'];
     rewardAmount = participant['rewardAmount'];
+    secondaryEmail = participant['secondaryEmail'];
   }
 }

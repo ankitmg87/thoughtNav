@@ -7,10 +7,17 @@ import 'package:simple_html_css/simple_html_css.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/clap_notification_widget.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/comment_notification_widget.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/moderator_comment_notification_widget.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/new_question_notification_widget.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/response_notification_widget.dart';
+import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
+import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/participant_firestore_service.dart';
 
@@ -37,6 +44,8 @@ class _ParticipantDashboardScreenState
   final _firebaseFireStoreService = FirebaseFirestoreService();
 
   final _participantFirestoreService = ParticipantFirestoreService();
+
+  final _firebaseAuthService = FirebaseAuthService();
 
   int _totalQuestions = 1;
   int _answeredQuestions = 0;
@@ -65,14 +74,17 @@ class _ParticipantDashboardScreenState
   List<Topic> _topics;
 
   Future<void> _futureStudy;
+
   // Future<void> _futureStudyNavigatorTopics;
   Future<void> _futureTopics;
 
-  Stream _notificationsStream;
+  Stream<QuerySnapshot> _notificationsStream;
 
   Future<void> _getFutureStudy() async {
     await _getFutureParticipant();
     _study = await _firebaseFireStoreService.getStudy(_studyUID);
+
+    _getNotificationsStream();
 
     var getStorage = GetStorage();
 
@@ -133,8 +145,8 @@ class _ParticipantDashboardScreenState
   }
 
   void _getNotificationsStream() {
-    _notificationsStream =
-        _firebaseFireStoreService.getNotifications(_studyUID);
+    _notificationsStream = _participantFirestoreService
+        .getParticipantNotifications(_studyUID, _participantUID);
   }
 
   @override
@@ -145,8 +157,6 @@ class _ParticipantDashboardScreenState
 
     _futureStudy = _getFutureStudy();
     //_futureStudyNavigatorTopics = _getStudyNavigatorFutureTopics();
-
-    _getNotificationsStream();
 
     super.initState();
   }
@@ -211,7 +221,6 @@ class _ParticipantDashboardScreenState
               _buildCustomLeftDrawer(),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
                       padding: EdgeInsets.only(
@@ -221,188 +230,252 @@ class _ParticipantDashboardScreenState
                         bottom: 16.0,
                       ),
                       color: PROJECT_NAVY_BLUE,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            _study.studyName,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 8.0,
-                          ),
-                          InkWell(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'View Details',
-                                  style: TextStyle(
-                                    color: PROJECT_GREEN,
-                                    fontSize: 14.0,
-                                  ),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _study.studyName,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
                                 ),
-                                SizedBox(
-                                  width: 6.0,
+                              ),
+                              SizedBox(
+                                height: 8.0,
+                              ),
+                              InkWell(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'View Details',
+                                      style: TextStyle(
+                                        color: PROJECT_GREEN,
+                                        fontSize: 14.0,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 6.0,
+                                    ),
+                                    Icon(
+                                      CupertinoIcons.right_chevron,
+                                      color: PROJECT_GREEN,
+                                      size: 14.0,
+                                    ),
+                                  ],
                                 ),
-                                Icon(
-                                  CupertinoIcons.right_chevron,
-                                  color: PROJECT_GREEN,
-                                  size: 14.0,
+                                onTap: () {
+                                  _buildViewDetailsGeneralDialog();
+                                },
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Container(
+                                width: screenSize.width * 0.5,
+                                child: LinearProgressIndicator(
+                                  backgroundColor:
+                                      Colors.white.withOpacity(0.7),
+                                  minHeight: 8.0,
+                                  value: _answeredQuestions / _totalQuestions,
                                 ),
-                              ],
-                            ),
-                            onTap: () {
-                              _buildViewDetailsGeneralDialog();
-                            },
-                          ),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Container(
-                            width: screenSize.width * 0.5,
-                            child: LinearProgressIndicator(
-                              backgroundColor: Colors.white.withOpacity(0.7),
-                              minHeight: 8.0,
-                              value: _answeredQuestions / _totalQuestions,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15.0,
-                          ),
-                          Container(
-                            width: screenSize.width * 0.5,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _answeredQuestions == 0
-                                      ? 'You have not answered any questions'
-                                      : _answeredQuestions == 1
-                                          ? 'You have answered 1 Question'
-                                          : 'You have answered $_answeredQuestions questions',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14.0,
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    if (_questionStatus == 'questionLocked') {
-                                      showGeneralDialog(
-                                        pageBuilder: (BuildContext context,
-                                            Animation<double> animation,
-                                            Animation<double>
-                                                secondaryAnimation) {
-                                          return Center(
-                                            child: Material(
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                  maxWidth:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.5,
-                                                ),
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(20.0),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Text(
-                                                        'Question is still locked',
-                                                        style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 18.0,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerRight,
-                                                        child: FlatButton(
-                                                          color:
-                                                              PROJECT_NAVY_BLUE,
-                                                          onPressed: () =>
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(),
-                                                          child: Padding(
-                                                            padding: EdgeInsets
-                                                                .symmetric(
-                                                              horizontal: 20.0,
-                                                              vertical: 10.0,
+                              ),
+                              SizedBox(
+                                height: 15.0,
+                              ),
+                              Container(
+                                width: screenSize.width * 0.5,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _answeredQuestions == 0
+                                          ? 'You have not answered any questions'
+                                          : _answeredQuestions == 1
+                                              ? 'You have answered 1 question'
+                                              : 'You have answered $_answeredQuestions questions',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14.0,
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        if (_questionStatus ==
+                                            'questionLocked') {
+                                          showGeneralDialog(
+                                            pageBuilder: (BuildContext context,
+                                                Animation<double> animation,
+                                                Animation<double>
+                                                    secondaryAnimation) {
+                                              return Center(
+                                                child: Material(
+                                                  child: Container(
+                                                    constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.5,
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(20.0),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            'Question is still locked',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 18.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                             ),
-                                                            child: Text(
-                                                              'OKAY',
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 14.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                          ),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: FlatButton(
+                                                              color:
+                                                                  PROJECT_NAVY_BLUE,
+                                                              onPressed: () =>
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop(),
+                                                              child: Padding(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                  horizontal:
+                                                                      20.0,
+                                                                  vertical:
+                                                                      10.0,
+                                                                ),
+                                                                child: Text(
+                                                                  'OKAY',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        14.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
+                                                        ],
                                                       ),
-                                                    ],
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ),
+                                              );
+                                            },
+                                            context: context,
                                           );
-                                        },
-                                        context: context,
-                                      );
-                                    }
-                                    if (_questionStatus == 'questionUnlocked') {
-                                      Navigator.of(context).pushNamed(
-                                        PARTICIPANT_RESPONSES_SCREEN,
-                                        arguments: {
-                                          'topicUID': _nextTopic.topicUID,
-                                          'questionUID':
-                                              _nextQuestion.questionUID,
-                                        },
-                                      );
-                                    }
-                                  },
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        _answeredQuestions == _totalQuestions
-                                            ? 'All Questions Answered'
-                                            : 'Next Question',
-                                        style: TextStyle(
-                                          color: PROJECT_GREEN,
-                                          fontSize: 14.0,
-                                        ),
+                                        }
+                                        if (_questionStatus ==
+                                            'questionUnlocked') {
+                                          Navigator.of(context).popAndPushNamed(
+                                            PARTICIPANT_RESPONSES_SCREEN,
+                                            arguments: {
+                                              'topicUID': _nextTopic.topicUID,
+                                              'questionUID':
+                                                  _nextQuestion.questionUID,
+                                            },
+                                          );
+                                        }
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            _answeredQuestions ==
+                                                    _totalQuestions
+                                                ? 'All Questions Answered'
+                                                : 'Next Question',
+                                            style: TextStyle(
+                                              color: PROJECT_GREEN,
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 4.0,
+                                          ),
+                                          Icon(
+                                            CupertinoIcons.right_chevron,
+                                            color: PROJECT_GREEN,
+                                            size: 14.0,
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(
-                                        width: 4.0,
-                                      ),
-                                      Icon(
-                                        CupertinoIcons.right_chevron,
-                                        color: PROJECT_GREEN,
-                                        size: 14.0,
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
+                          _answeredQuestions == _totalQuestions &&
+                                  _study.studyStatus == 'Completed'
+                              ? RaisedButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                  elevation: 4.0,
+                                  color: Colors.white,
+                                  hoverColor: Colors.transparent,
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pushNamed(STUDY_ENDED_SCREEN);
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 4.0,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          height: 40.0,
+                                          width: 60.0,
+                                          child: Image(
+                                            image: AssetImage(
+                                              _participant.paymentMode ==
+                                                      'Amazon'
+                                                  ? 'images/amazon_logo.png'
+                                                  : 'images/paypal_logo.png',
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 10.0,
+                                        ),
+                                        Text(
+                                          'Claim Reward',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(),
                         ],
                       ),
                     ),
@@ -485,9 +558,37 @@ class _ParticipantDashboardScreenState
                             ),
                           ),
                           Expanded(
-                            child: _buildNotificationsStreamBuilder(
-                                _notificationsStream),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                Text(
+                                  'Study Activity',
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10.0,
+                                ),
+                                Container(
+                                  height: 0.5,
+                                  color: Colors.grey[300],
+                                  width: double.maxFinite,
+                                ),
+                                SizedBox(
+                                  height: 10.0,
+                                ),
+                                _buildNotificationsStreamBuilder(
+                                    _notificationsStream),
+                              ],
+                            ),
                           ),
+                          SizedBox(width: 20.0,),
                         ],
                       ),
                     ),
@@ -512,10 +613,10 @@ class _ParticipantDashboardScreenState
   }
 
   StreamBuilder _buildNotificationsStreamBuilder(
-      Stream getNotificationsStream) {
-    return StreamBuilder(
+      Stream<QuerySnapshot> getNotificationsStream) {
+    return StreamBuilder<QuerySnapshot>(
       stream: getNotificationsStream,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
             if (snapshot.hasError) {
@@ -526,65 +627,67 @@ class _ParticipantDashboardScreenState
           case ConnectionState.waiting:
           case ConnectionState.active:
             if (snapshot.hasData) {
-              var notifications = snapshot.data.documents;
+              var notifications = snapshot.data.docs;
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Text(
-                    'Study Activity',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Container(
-                    height: 0.5,
-                    color: Colors.grey[300],
-                    width: double.maxFinite,
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      itemBuilder: (BuildContext context, int index) {
-                        return ParticipantDesktopNotificationWidget(
-                          timestamp: notifications[index]
-                              ['notificationTimestamp'],
-                          participantAvatar: notifications[index]
-                              ['participantAvatar'],
-                          participantDisplayName: notifications[index]
-                                      ['participantDisplayName'] ==
-                                  _participant.displayName
-                              ? 'You'
-                              : notifications[index]['participantDisplayName'],
-                          questionNumber: notifications[index]
-                              ['questionNumber'],
-                          questionTitle: notifications[index]['questionTitle'],
+              return Expanded(
+                child: ListView.separated(
+                  itemBuilder: (BuildContext context, int index) {
+                    switch (notifications[index]['notificationType']) {
+                      case 'response':
+                        var responseNotification = ResponseNotification.fromMap(
+                            notifications[index].data());
+
+                        return ResponseNotificationWidget(
+                          responseNotification: responseNotification,
                         );
-                      },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return SizedBox(
-                          height: 10.0,
+                        break;
+
+                      case 'clap':
+                        var clapNotification = ClapNotification.fromMap(
+                            notifications[index].data());
+
+                        return ClapNotificationWidget(
+                          clapNotification: clapNotification,
                         );
-                      },
-                      itemCount: notifications.length,
-                    ),
-                  ),
-                ],
+                        break;
+
+                      case 'comment':
+                        var commentNotification = CommentNotification.fromMap(
+                            notifications[index].data());
+
+                        return CommentNotificationWidget(
+                          commentNotification: commentNotification,
+                        );
+                        break;
+
+                      case 'moderatorComment':
+                        var moderatorCommentNotification =
+                            ModeratorCommentNotification.fromMap(
+                                notifications[index].data());
+
+                        return ModeratorCommentNotificationWidget(
+                          moderatorCommentNotification:
+                              moderatorCommentNotification,
+                        );
+                        break;
+
+                      default:
+                        return SizedBox();
+                    }
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 16.0,),
+                      height: 1.0,
+                      width: double.maxFinite,
+                      color: Colors.grey[300],
+                    );
+                  },
+                  itemCount: notifications.length,
+                ),
               );
             } else {
-              return SizedBox(
-                child: Text('Loading...'),
-              );
+              return SizedBox();
             }
             break;
           case ConnectionState.done:
@@ -665,23 +768,27 @@ class _ParticipantDashboardScreenState
                     child: ListView.builder(
                       itemCount: _studyNavigatorTopics.length,
                       itemBuilder: (BuildContext context, int index) {
-                        if(index == 0){
+                        if (index == 0) {
                           return EndDrawerExpansionTile(
                             title: _studyNavigatorTopics[index].topicName,
                             questions: _studyNavigatorTopics[index].questions,
                             participantUID: _participantUID,
                             topicUID: _studyNavigatorTopics[index].topicUID,
-
                           );
-                        }
-                        else {
-                          if(_studyNavigatorTopics[index - 1].questions.last.respondedBy == null){
+                        } else {
+                          if (_studyNavigatorTopics[index - 1]
+                                  .questions
+                                  .last
+                                  .respondedBy ==
+                              null) {
                             return SizedBox();
-                          }
-                          else if (!_studyNavigatorTopics[index - 1].questions.last.respondedBy.contains(_participantUID)){
+                          } else if (!_studyNavigatorTopics[index - 1]
+                              .questions
+                              .last
+                              .respondedBy
+                              .contains(_participantUID)) {
                             return SizedBox();
-                          }
-                          else {
+                          } else {
                             return EndDrawerExpansionTile(
                               title: _studyNavigatorTopics[index].topicName,
                               questions: _studyNavigatorTopics[index].questions,
@@ -835,8 +942,9 @@ class _ParticipantDashboardScreenState
                       image2: 'images/dashboard_icons/contact_us.png',
                       label1: 'Rewards',
                       label2: 'Contact Us',
-                      onTap1: () => Navigator.of(context)
-                          .pushNamed(POST_STUDY_REWARD_METHODS_SCREEN),
+                      onTap1: () {
+                        Navigator.of(context).pushNamed(POST_STUDY_REWARD_METHODS_SCREEN);
+                      },
                       onTap2: () =>
                           Navigator.of(context).pushNamed(CONTACT_US_SCREEN),
                     ),
@@ -856,35 +964,41 @@ class _ParticipantDashboardScreenState
                       width: 400,
                       color: TEXT_COLOR.withOpacity(0.5),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 10.0),
-                      width: 400.0,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.vertical(
-                            bottom: Radius.circular(4.0),
-                          ),
-                          color: Colors.black12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Log Out',
-                            style: TextStyle(
-                              color: TEXT_COLOR.withOpacity(0.5),
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.bold,
+                    InkWell(
+                      onTap: () async {
+                        await _firebaseAuthService.signOutUser();
+                        await Navigator.of(context).popAndPushNamed(LOGIN_SCREEN);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 10.0),
+                        width: 400.0,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(
+                              bottom: Radius.circular(4.0),
                             ),
-                          ),
-                          SizedBox(
-                            width: 10.0,
-                          ),
-                          Icon(
-                            Icons.exit_to_app,
-                            color: TEXT_COLOR.withOpacity(0.5),
-                            size: 15.0,
-                          ),
-                        ],
+                            color: Colors.black12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Log Out',
+                              style: TextStyle(
+                                color: TEXT_COLOR.withOpacity(0.5),
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Icon(
+                              Icons.exit_to_app,
+                              color: TEXT_COLOR.withOpacity(0.5),
+                              size: 15.0,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

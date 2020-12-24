@@ -34,8 +34,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
   Stream _notificationsStream;
 
   void _getNotifications() {
-    _notificationsStream =
-        _firebaseFirestoreService.getNotifications(_studyUID);
+    // _notificationsStream =
+    //     _firebaseFirestoreService.getNotifications(_studyUID);
   }
 
   @override

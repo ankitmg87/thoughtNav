@@ -289,7 +289,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               borderRadius: BorderRadius.circular(4.0),
                             ),
                             onPressed: () =>
-                                Navigator.of(context).popAndPushNamed(DASHBOARD_SCREEN),
+                                Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN),
                             color: PROJECT_GREEN,
                             child: Text(
                               'LET\'S GET STARTED',
@@ -515,7 +515,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                     onPressed: () =>
-                        Navigator.of(context).popAndPushNamed(DASHBOARD_SCREEN),
+                        Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN),
                     color: PROJECT_GREEN,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

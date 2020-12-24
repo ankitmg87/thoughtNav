@@ -67,7 +67,7 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                       question: widget.questions[index],
                       participantUID: widget.participantUID,
                       onTap: () {
-                        Navigator.of(context).pushNamed(
+                        Navigator.of(context).popAndPushNamed(
                             PARTICIPANT_RESPONSES_SCREEN,
                             arguments: {
                               'topicUID': widget.topicUID,
@@ -86,7 +86,7 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                         question: widget.questions[index],
                         participantUID: widget.participantUID,
                           onTap: () {
-                            Navigator.of(context).pushNamed(
+                            Navigator.of(context).popAndPushNamed(
                                 PARTICIPANT_RESPONSES_SCREEN,
                                 arguments: {
                                   'topicUID': widget.topicUID,

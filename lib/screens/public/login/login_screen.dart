@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 await getStorage.write('studyUID', user.studyUID);
                 await getStorage.write('participantUID', user.userUID);
                 await Navigator.of(context)
-                    .pushNamedAndRemoveUntil(DASHBOARD_SCREEN, (route) => false);
+                    .pushNamedAndRemoveUntil(PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
                 break;
               }
               if (!participant.isOnboarded) {
@@ -522,7 +522,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 20.0,
                         ),
                         Text(
-                          'ThoughtNav is an online focus group platform.\nResearchers use ThoughtNav to get quality\ninsights from participants like you!',
+                          'ThoughtNav is an online focus group platform.'
+                              '\nResearchers use ThoughtNav to get quality'
+                              '\ninsights from participants like you!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color(0xFF333333),
@@ -658,6 +660,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                         onChanged: (password) {
                                           _password = password;
+                                        },
+                                        onFieldSubmitted: (password){
+                                          _loginAndRedirectUser(context);
                                         },
                                       ),
                                     ],

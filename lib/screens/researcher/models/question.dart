@@ -14,6 +14,7 @@ class Question{
   int totalComments;
   List<dynamic> groups;
   List<dynamic> respondedBy;
+  bool hasMedia;
 
   Question({
     this.questionUID,
@@ -27,6 +28,7 @@ class Question{
     this.totalComments,
     this.groups,
     this.respondedBy,
+    this.hasMedia,
   });
 
   Map<String, dynamic> toMap () {
@@ -41,6 +43,7 @@ class Question{
     question['totalResponses'] = totalResponses;
     question['totalComments'] = totalComments;
     question['groups'] = groups;
+    question['hasMedia'] = hasMedia;
 
     return question;
   }
@@ -56,6 +59,7 @@ class Question{
     totalResponses = question['totalResponses'];
     totalComments = question['totalComments'];
     groups = question['groups'];
+    hasMedia = question['hasMedia'];
     respondedBy = question['respondedBy'];
   }
 

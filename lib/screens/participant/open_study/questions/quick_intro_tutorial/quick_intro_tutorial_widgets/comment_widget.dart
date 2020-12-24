@@ -4,47 +4,57 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
+import 'package:thoughtnav/services/participant_firestore_service.dart';
 
-class CommentWidget extends StatelessWidget {
+class CommentWidget extends StatefulWidget {
+  final String participantUID;
+  final String studyUID;
+  final String topicUID;
+  final String questionUID;
+  final String responseUID;
   final Comment comment;
+  final ParticipantFirestoreService participantFirestoreService;
 
-  const CommentWidget({Key key, this.comment}) : super(key: key);
+  const CommentWidget(
+      {Key key,
+      this.comment,
+      this.participantUID,
+      this.participantFirestoreService,
+      this.studyUID,
+      this.topicUID,
+      this.questionUID,
+      this.responseUID})
+      : super(key: key);
+
+  @override
+  _CommentWidgetState createState() => _CommentWidgetState();
+}
+
+class _CommentWidgetState extends State<CommentWidget> {
+  bool _editable = false;
+
+  void _toggleEditable() {
+    setState(() {
+      _editable = !_editable;
+    });
+  }
+
+  void _editComment() async {
+    await widget.participantFirestoreService.updateComment(
+        widget.studyUID,
+        widget.topicUID,
+        widget.questionUID,
+        widget.responseUID,
+        widget.comment);
+  }
 
   @override
   Widget build(BuildContext context) {
     var formatDate = DateFormat.yMd();
     var formatTime = DateFormat.jm();
 
-    var date = formatDate.format(comment.commentTimestamp.toDate());
-    var time = formatTime.format(comment.commentTimestamp.toDate());
-
-    var timeNow = DateTime.now();
-    var elapsedTimeFormat = DateFormat('HH:mm a');
-    var difference = timeNow.difference(DateTime.fromMillisecondsSinceEpoch(
-        comment.commentTimestamp.millisecondsSinceEpoch * 1000));
-
-    var timeElapsed = '';
-
-    if (difference.inSeconds <= 0 ||
-        difference.inSeconds > 0 && difference.inMinutes == 0 ||
-        difference.inMinutes > 0 && difference.inHours == 0 ||
-        difference.inHours > 0 && difference.inDays == 0) {
-      timeElapsed = elapsedTimeFormat.format(
-          DateTime.fromMillisecondsSinceEpoch(
-              comment.commentTimestamp.millisecondsSinceEpoch * 1000));
-    } else if (difference.inDays > 0 && difference.inDays < 7) {
-      if (difference.inDays == 1) {
-        timeElapsed = difference.inDays.toString() + ' DAY AGO';
-      } else {
-        timeElapsed = difference.inDays.toString() + ' DAYS AGO';
-      }
-    } else {
-      if (difference.inDays == 7) {
-        timeElapsed = (difference.inDays / 7).floor().toString() + ' WEEK AGO';
-      } else {
-        timeElapsed = (difference.inDays / 7).floor().toString() + ' WEEKS AGO';
-      }
-    }
+    var date = formatDate.format(widget.comment.commentTimestamp.toDate());
+    var time = formatTime.format(widget.comment.commentTimestamp.toDate());
 
     return Container(
       padding: EdgeInsets.only(left: 6.0),
@@ -74,61 +84,131 @@ class CommentWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CachedNetworkImage(
-                  imageUrl: comment.avatarURL,
-                  imageBuilder: (context, imageProvider) {
-                    return Container(
-                      padding: EdgeInsets.all(4.0),
-                      decoration: BoxDecoration(
-                        color: Colors.pink[100],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Image(
-                        width: 20.0,
-                        image: imageProvider,
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(
-                  width: 10.0,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      comment.alias,
-                      style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.8),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.0,
-                      ),
+                    CachedNetworkImage(
+                      imageUrl: widget.comment.avatarURL,
+                      imageBuilder: (context, imageProvider) {
+                        return Container(
+                          padding: EdgeInsets.all(4.0),
+                          decoration: BoxDecoration(
+                            color: Colors.pink[100],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Image(
+                            width: 20.0,
+                            image: imageProvider,
+                          ),
+                        );
+                      },
                     ),
                     SizedBox(
-                      height: 2.0,
+                      width: 10.0,
                     ),
-                    Text(
-                      '$date at $time',
-                      style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.8),
-                        fontSize: 12.0,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.comment.displayName,
+                          style: TextStyle(
+                            color: TEXT_COLOR.withOpacity(0.8),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 2.0,
+                        ),
+                        Text(
+                          '$date at $time',
+                          style: TextStyle(
+                            color: TEXT_COLOR.withOpacity(0.8),
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                widget.comment.participantUID == widget.participantUID &&
+                        !_editable
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.edit_rounded,
+                          color: TEXT_COLOR.withOpacity(0.6),
+                          size: 16.0,
+                        ),
+                        onPressed: () {
+                          _toggleEditable();
+                        },
+                      )
+                    : SizedBox(),
               ],
             ),
             SizedBox(
               height: 10.0,
             ),
-            Text(
-              comment.commentStatement,
-              style: TextStyle(
-                color: TEXT_COLOR,
-                fontSize: 14.0,
-              ),
-            ),
+            widget.comment.participantUID == widget.participantUID
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          onChanged: (commentStatement){
+                            widget.comment.commentStatement = commentStatement;
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                          ),
+                          enabled: _editable,
+                          initialValue: widget.comment.commentStatement,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      _editable
+                          ? FlatButton(
+                              onPressed: widget.comment.commentStatement.isNotEmpty ? () {
+                                _toggleEditable();
+                                _editComment();
+                              } : null,
+                              child: Text('POST'),
+                            )
+                          : SizedBox(),
+                    ],
+                  )
+                : Text(
+                    widget.comment.commentStatement,
+                    style: TextStyle(
+                      color: TEXT_COLOR,
+                      fontSize: 14.0,
+                    ),
+                  ),
           ],
         ),
       ),

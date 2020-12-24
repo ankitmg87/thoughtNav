@@ -121,7 +121,7 @@ class TopicCompleteScreen extends StatelessWidget {
                     hoverColor: Color(0xFF1A4C88),
                     color: PROJECT_GREEN,
                     onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(DASHBOARD_SCREEN, (route) => false);
+                      Navigator.of(context).pushNamedAndRemoveUntil(PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

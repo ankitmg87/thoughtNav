@@ -131,7 +131,7 @@ class _StudyDetailsScreenState extends State<StudyDetailsScreen> {
                               height: 36.0,
                             ),
                             _DetailsRow(
-                              icon: 'images/svg_icons/gift_card.png',
+                              icon: 'images/svg_icons/dollar.png',
                               detail: 'After you complete this study, you\'ll be awarded a giftcard.',
                             ),
                           ],

@@ -56,7 +56,7 @@ class DashboardTipsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              CustomFlatButton(label: 'BEGIN STUDY', routeName: DASHBOARD_SCREEN),
+              CustomFlatButton(label: 'BEGIN STUDY', routeName: PARTICIPANT_DASHBOARD_SCREEN),
             ],
           ),
         ),

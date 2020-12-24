@@ -3,19 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Comment {
   String commentUID;
   String avatarURL;
-  String alias;
-  String userName;
+  String displayName;
+  String participantName;
   String commentStatement;
-  String userUID;
+  String participantUID;
   Timestamp commentTimestamp;
 
   Comment({
     this.commentUID,
     this.avatarURL,
-    this.alias,
-    this.userName,
+    this.displayName,
+    this.participantName,
     this.commentStatement,
-    this.userUID,
+    this.participantUID,
     this.commentTimestamp,
   });
 
@@ -24,10 +24,10 @@ class Comment {
 
     comment['commentUID'] = commentUID;
     comment['avatarURL'] = avatarURL;
-    comment['alias'] = alias;
-    comment['userName'] = userName;
+    comment['displayName'] = displayName;
+    comment['participantName'] = participantName;
     comment['commentStatement'] = commentStatement;
-    comment['userUID'] = userUID;
+    comment['participantUID'] = participantUID;
     comment['commentTimestamp'] = commentTimestamp;
 
     return comment;
@@ -36,11 +36,11 @@ class Comment {
   Comment.fromMap(Map<String, dynamic> comment){
     commentUID = comment['commentUID'];
     avatarURL = comment['avatarURL'];
-    alias = comment['alias'];
-    userName = comment['userName'];
+    displayName = comment['displayName'];
+    participantName = comment['participantName'];
     commentStatement = comment['commentStatement'];
     commentTimestamp = comment['commentTimestamp'];
-    userUID = comment['userUID'];
+    participantUID = comment['participantUID'];
   }
 
 }

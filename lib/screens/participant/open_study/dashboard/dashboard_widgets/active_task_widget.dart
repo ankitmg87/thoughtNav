@@ -58,7 +58,7 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                   FlatButton(
                     color: PROJECT_GREEN,
                     onPressed: () {
-                      Navigator.of(context).pushNamed(
+                      Navigator.of(context).popAndPushNamed(
                         PARTICIPANT_RESPONSES_SCREEN,
                         arguments: {
                           'topicUID': widget.topic.topicUID,
@@ -237,44 +237,51 @@ class ActiveQuestionWidget extends StatelessWidget {
   final String participantUID;
   final String topicUID;
 
-  const ActiveQuestionWidget({Key key, this.question, this.participantUID, this.topicUID}) : super(key: key);
+  const ActiveQuestionWidget(
+      {Key key, this.question, this.participantUID, this.topicUID})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${question.questionNumber} ${question.questionTitle}',
-              style: TextStyle(
-                color: PROJECT_GREEN,
-                fontSize: 12.0,
-              ),
-            ),
-            IconButton(
-              icon: Icon(
-                question.respondedBy ==
-                        null
-                    ? Icons.arrow_forward
-                    : question
-                            .respondedBy
-                            .contains(participantUID)
-                        ? Icons.check_circle_outline_rounded
-                        : Icons.arrow_forward,
-                color: PROJECT_GREEN,
-              ),
-              onPressed: () {
-                Navigator.of(context).pushNamed(
-                  PARTICIPANT_RESPONSES_SCREEN,
-                  arguments: {
-                    'topicUID': topicUID,
-                    'questionUID':question.questionUID,
-                  },
-                );
-              },
-            ),
-          ],
+    return InkWell(
+      hoverColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        Navigator.of(context).popAndPushNamed(
+          PARTICIPANT_RESPONSES_SCREEN,
+          arguments: {
+            'topicUID': topicUID,
+            'questionUID': question.questionUID,
+          },
         );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '${question.questionNumber} ${question.questionTitle}',
+            style: TextStyle(
+              color: PROJECT_GREEN,
+              fontSize: 12.0,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Icon(
+              question.respondedBy == null
+                  ? Icons.arrow_forward
+                  : question.respondedBy.contains(participantUID)
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.arrow_forward,
+              color: PROJECT_GREEN,
+              size: 14.0,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

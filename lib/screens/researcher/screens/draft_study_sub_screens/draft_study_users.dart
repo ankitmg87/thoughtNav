@@ -61,9 +61,9 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   void _addUserToFirebase(
       String email, String masterPassword, String userType,) async {
     var user = User(
-      userEmail: email,
-      userPassword: masterPassword,
-      userType: userType,
+      userEmail: 'ankit@example.com',
+      userPassword: 'participant123',
+      userType: 'participant',
       studyUID: widget.studyUID,
     );
 
@@ -71,11 +71,11 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
     if (userType == 'participant') {
       var participant = Participant(
-        email: email,
-        password: masterPassword,
-        // userFirstName: ,
-        // userLastName: ,
-        // userGroupName: ,
+        email: 'ankit@example.com',
+        password: 'participant123',
+        userFirstName: 'Ankit',
+        userLastName: 'Gupta',
+        userGroupName: 'Group C',
         isActive: false,
         isDeleted: false,
         isOnboarded: false,
@@ -785,7 +785,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                           ),
                           FlatButton(
                             onPressed: () async {
-                              await _addUserToFirebase('ankit@example.com', 'participant123', 'participant');
+                              await _addUserToFirebase('sonalikudale@example.com', 'participant123', 'participant');
                             },
 
                             // onPressed: email.isNotEmpty && id.isNotEmpty

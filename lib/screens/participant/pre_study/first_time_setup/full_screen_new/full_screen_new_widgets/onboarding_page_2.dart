@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 
 class OnboardingPage2 extends StatefulWidget {
   final Participant participant;
+  final TextEditingController phoneNumberController;
 
   OnboardingPage2({
     Key key,
-    this.participant,
+    this.participant, this.phoneNumberController,
   }) : super(key: key);
 
   @override
@@ -17,6 +21,8 @@ class OnboardingPage2 extends StatefulWidget {
 class _OnboardingPage2State extends State<OnboardingPage2> {
 
   final _confirmPasswordKey = GlobalKey<FormState>();
+
+  final _phoneFormatter = MaskTextInputFormatter(mask: '(###) ###-####', filter: {'#' : RegExp(r'[0-9]')});
 
   int _selectedRadio = 0;
 
@@ -448,7 +454,7 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
                                       },
                                     ),
                                   ),
-                                  Text('Other'),
+                                  Text('Not Selected'),
                                 ],
                               ),
                               SizedBox(
@@ -573,7 +579,10 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
                         Container(
                           constraints: BoxConstraints(maxWidth: 400.0),
                           child: TextFormField(
-                            initialValue: widget.participant.phone,
+                            controller: widget.phoneNumberController,
+                            inputFormatters: [
+                              _phoneFormatter
+                            ],
                             onChanged: (phone) {
                               widget.participant.phone = phone;
                             },
@@ -600,3 +609,5 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
     }
   }
 }
+
+

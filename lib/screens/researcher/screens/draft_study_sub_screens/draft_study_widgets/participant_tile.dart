@@ -39,10 +39,10 @@ class _ParticipantTileState extends State<ParticipantTile> {
       padding: EdgeInsets.only(left: 20.0),
       child: Row(
         children: [
-          Text(widget.participant.id),
-          SizedBox(
-            width: 40.0,
-          ),
+          // Text(widget.participant.id),
+          // SizedBox(
+          //   width: 40.0,
+          // ),
           Expanded(
             child: Text(widget.participant.email),
           ),

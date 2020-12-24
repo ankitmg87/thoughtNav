@@ -30,6 +30,7 @@ dependencies:
   firebase: ^7.3.0
   firebase_auth: ^0.18.1+2
   cloud_firestore: ^0.14.1+3
+  firebase_storage: ^5.2.0
 
   easy_web_view: ^1.3.1
 
@@ -40,6 +41,18 @@ dependencies:
   simple_html_css: ^2.0.0+3
 
   flutter_spinkit: ^4.1.2+1
+
+  intl_phone_field: ^1.4.2
+
+  flutter_multi_formatter: ^1.3.0
+
+  mask_text_input_formatter: ^1.1.0
+
+  image_picker_web_redux: ^1.1.3
+
+  video_player: ^1.0.1
+
+  image_whisperer: ^0.11.1
 
 dev_dependencies:
   flutter_test:

@@ -23,6 +23,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final _participantFirestoreService = ParticipantFirestoreService();
 
+  final _phoneNumberController = TextEditingController();
+
   int _onboardingPageNumber = 1;
 
   String _studyUID;
@@ -97,7 +99,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     if (_newPassword != _previousPassword) {
       try {
-        await _firebaseAuthService.changeUserPassword(_newPassword).then((value) async {
+        await _firebaseAuthService
+            .changeUserPassword(_newPassword)
+            .then((value) async {
           await _firebaseFirestoreService.updateAvatarAndDisplayNameStatus(
               _studyUID, _participant.profilePhotoURL);
 
@@ -105,11 +109,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _participant.isActive = true;
           _participant.isDeleted = false;
 
-          await _firebaseFirestoreService.updateParticipant(_studyUID, _participant);
+          await _firebaseFirestoreService.updateParticipant(
+              _studyUID, _participant);
         });
       } catch (e) {
         if (e.code == 'requires-recent-login') {
-          await _firebaseAuthService.signInUser(_participant.email, _previousPassword);
+          await _firebaseAuthService.signInUser(
+              _participant.email, _previousPassword);
           await _firebaseAuthService.changeUserPassword(_newPassword);
 
           await _firebaseFirestoreService.updateAvatarAndDisplayNameStatus(
@@ -119,12 +125,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _participant.isActive = true;
           _participant.isDeleted = false;
 
-          await _firebaseFirestoreService.updateParticipant(_studyUID, _participant);
+          await _firebaseFirestoreService.updateParticipant(
+              _studyUID, _participant);
         }
       }
-    }
-
-    else {
+    } else {
       await _firebaseFirestoreService.updateAvatarAndDisplayNameStatus(
           _studyUID, _participant.profilePhotoURL);
 
@@ -132,7 +137,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _participant.isActive = true;
       _participant.isDeleted = false;
 
-      await _firebaseFirestoreService.updateParticipant(_studyUID, _participant);
+      await _firebaseFirestoreService.updateParticipant(
+          _studyUID, _participant);
     }
 
     Navigator.of(dialogContext).pop();
@@ -172,6 +178,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   _onboardingPageNumber = 2;
                   _selectedPage = OnboardingPage2(
                     participant: _participant,
+                    phoneNumberController: _phoneNumberController,
                   );
                 });
             }
@@ -235,16 +242,75 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   _onboardingPageNumber = 2;
                   _selectedPage = OnboardingPage2(
                     participant: _participant,
+                    phoneNumberController: _phoneNumberController,
                   );
                 });
                 break;
               case 2:
-                setState(() {
-                  _onboardingPageNumber = 3;
-                  _selectedPage = OnboardingPage3(
-                    participant: _participant,
-                  );
-                });
+                if (_phoneNumberController.value.text.trim().isEmpty) {
+                  await showGeneralDialog(
+                      barrierDismissible: true,
+                      barrierLabel: 'Enter Phone number',
+                      context: context,
+                      pageBuilder: (BuildContext context,
+                          Animation<double> animation,
+                          Animation<double> secondaryAnimation) {
+                        return Center(
+                          child: Material(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Text(
+                                'Please enter phone number',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                }
+                else if (_participant.gender == null){
+                  await showGeneralDialog(
+                      barrierDismissible: true,
+                      barrierLabel: 'Enter Gender',
+                      context: context,
+                      pageBuilder: (BuildContext context,
+                          Animation<double> animation,
+                          Animation<double> secondaryAnimation) {
+                        return Center(
+                          child: Material(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Text(
+                                'Please enter gender',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                }
+                else {
+                  setState(() {
+                    _onboardingPageNumber = 3;
+                    _selectedPage = OnboardingPage3(
+                      participant: _participant,
+                    );
+                  });
+                }
                 break;
               case 3:
                 await _updatePasswordAndSaveParticipantDetails();

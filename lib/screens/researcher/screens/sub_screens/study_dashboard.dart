@@ -36,8 +36,8 @@ class _StudyDashboardState extends State<StudyDashboard> {
   }
 
   void _getNotifications() {
-    _notificationsStream =
-        widget.firebaseFirestoreService.getNotifications(widget.studyUID);
+    // _notificationsStream =
+    //     widget.firebaseFirestoreService.getNotifications(widget.studyUID);
   }
 
   void _getTopics() {

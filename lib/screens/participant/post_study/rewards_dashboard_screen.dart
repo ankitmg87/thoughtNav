@@ -203,7 +203,7 @@ class RewardsDashboardScreen extends StatelessWidget {
                           ),
                         ),
                         onPressed: () => Navigator.of(context)
-                            .pushNamed(STUDY_ENDED),
+                            .pushNamed(STUDY_ENDED_SCREEN),
                       )
                     ],
                   ),
@@ -424,7 +424,7 @@ class RewardsDashboardScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  onPressed: () => Navigator.of(context).pushNamed(STUDY_ENDED),
+                  onPressed: () => Navigator.of(context).pushNamed(STUDY_ENDED_SCREEN),
                 ),
               ),
             ],

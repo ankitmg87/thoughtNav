@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
 
         //Participants Section
         WELCOME_SCREEN: (context) => WelcomeScreen(),
-        DASHBOARD_SCREEN: (context) => ParticipantDashboardScreen(),
+        PARTICIPANT_DASHBOARD_SCREEN: (context) => ParticipantDashboardScreen(),
         NOTIFICATIONS_SCREEN: (context) => NotificationsScreen(),
         POST_STUDY_REWARD_METHODS_SCREEN: (context) =>
             PostStudyRewardMethodsScreen(),
@@ -96,7 +96,7 @@ class MyApp extends StatelessWidget {
         REWARDS_DASHBOARD_SCREEN: (context) => RewardsDashboardScreen(),
 
         //Study End
-        STUDY_ENDED: (context) => StudyEndedScreen(),
+        STUDY_ENDED_SCREEN: (context) => StudyEndedScreen(),
 
         //Researcher Section
         RESEARCHER_MAIN_SCREEN: (context) => ResearcherMainScreen(),

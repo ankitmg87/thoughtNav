@@ -15,6 +15,10 @@ class Response {
   List<Comment> commentStatements;
   String questionNumber;
   String questionTitle;
+  bool hasMedia;
+  String mediaType;
+  String mediaURL;
+  dynamic media;
 
   Response({
     this.responseUID,
@@ -30,6 +34,10 @@ class Response {
     this.commentStatements,
     this.questionNumber,
     this.questionTitle,
+    this.hasMedia,
+    this.mediaType,
+    this.mediaURL,
+    this.media,
   });
 
   Map<String, dynamic> toMap () {
@@ -47,6 +55,9 @@ class Response {
     response['responseTimestamp'] = responseTimestamp;
     response['questionNumber'] = questionNumber;
     response['questionTitle'] = questionTitle;
+    response['hasMedia'] = hasMedia;
+    response['mediaType'] = mediaType;
+    response['mediaURL'] = mediaURL;
 
     return response;
   }
@@ -62,7 +73,11 @@ class Response {
     claps = response['claps'];
     comments = response['comments'];
     responseTimestamp = response['responseTimestamp'];
+    questionNumber = response['questionNumber'];
+    questionTitle = response['questionTitle'];
+    hasMedia = response['hasMedia'];
+    mediaType = response['mediaType'];
+    mediaURL = response['mediaURL'];
+
   }
-
-
 }

@@ -10,12 +10,12 @@ import 'package:thoughtnav/services/participant_firestore_service.dart';
 
 class CustomAvatarRadioWidget extends StatefulWidget {
   final Participant participant;
-  final FutureBuilder avatarFutureBuilder;
+  final StreamBuilder avatarStreamBuilder;
 
   const CustomAvatarRadioWidget({
     Key key,
     this.participant,
- this.avatarFutureBuilder,
+    this.avatarStreamBuilder,
   }) : super(key: key);
 
   @override
@@ -24,8 +24,6 @@ class CustomAvatarRadioWidget extends StatefulWidget {
 }
 
 class _CustomAvatarRadioWidgetState extends State<CustomAvatarRadioWidget> {
-
-
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -43,16 +41,16 @@ class _CustomAvatarRadioWidgetState extends State<CustomAvatarRadioWidget> {
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        child: widget.avatarFutureBuilder,
+        child: widget.avatarStreamBuilder,
       ),
     );
   }
 }
 
-class RadioItem extends StatelessWidget {
-  final RadioModel _item;
+class AvatarRadioItem extends StatelessWidget {
+  final AvatarRadioModel _avatarRadioModel;
 
-  RadioItem(this._item);
+  AvatarRadioItem(this._avatarRadioModel);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +59,7 @@ class RadioItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           CachedNetworkImage(
-            imageUrl: _item.avatarAndDisplayName.avatarURL,
+            imageUrl: _avatarRadioModel.avatarAndDisplayName.avatarURL,
             imageBuilder: (context, imageProvider) {
               return Container(
                 width: 50.0,
@@ -69,10 +67,10 @@ class RadioItem extends StatelessWidget {
                 padding: EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _item.isSelected ? PROJECT_LIGHT_GREEN : Colors.white,
+                  color: _avatarRadioModel.isSelected ? PROJECT_LIGHT_GREEN : Colors.white,
                   border: Border.all(
                     width: 2.0,
-                    color: _item.isSelected ? PROJECT_GREEN : Colors.white,
+                    color: _avatarRadioModel.isSelected ? PROJECT_GREEN : Colors.white,
                   ),
                 ),
                 child: Image(
@@ -85,12 +83,12 @@ class RadioItem extends StatelessWidget {
             height: 2.0,
           ),
           Text(
-            _item.avatarAndDisplayName.displayName,
+            _avatarRadioModel.avatarAndDisplayName.displayName,
             style: TextStyle(
               color: Colors.grey[800],
               fontSize: 10.0,
               fontWeight:
-                  _item.isSelected ? FontWeight.bold : FontWeight.normal,
+                  _avatarRadioModel.isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ],
@@ -99,9 +97,9 @@ class RadioItem extends StatelessWidget {
   }
 }
 
-class RadioModel {
+class AvatarRadioModel {
   bool isSelected;
   final AvatarAndDisplayName avatarAndDisplayName;
 
-  RadioModel(this.isSelected, this.avatarAndDisplayName);
+  AvatarRadioModel(this.isSelected, this.avatarAndDisplayName);
 }
