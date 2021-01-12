@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/insight.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/question_and_responses_sub_screen.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class ResponsesScreen extends StatefulWidget {
   @override
@@ -12,7 +16,12 @@ class ResponsesScreen extends StatefulWidget {
 }
 
 class _ResponsesScreenState extends State<ResponsesScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final _firebaseFirestoreService = FirebaseFirestoreService();
+
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
 
   double minMenuWidth = 40.5;
   double maxMenuWidth = 300.0;
@@ -20,38 +29,55 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
   bool isExpanded = false;
 
-  String _studyUID = 'kdmkid1WWQ3frXIZk51f';
-  String _topicUID = 'fTFnJaMNkrx8DAXfCi0c';
-  String _questionUID = 'g8VJ5vkVFMGyFrtHVvXB';
+  String _studyUID = '';
+  String _topicUID = '';
+  String _questionUID = '';
   String _topicName;
 
   Future<void> _getStudyAndTopicUIDs;
 
   Future<List<Topic>> _getTopicsAndQuestions;
 
+  FutureBuilder _questionAndResponsesFutureBuilderWidget;
+
   Future<void> _getStudyUIDAndTopicUID() async {
     await Future.delayed(Duration(seconds: 0), () {
-      // Map arguments = ModalRoute.of(context).settings.arguments;
-      // _topicUID = arguments['topicUID'];
-      // _questionUID = arguments['questionUID'];
-    });
+      Map arguments = ModalRoute.of(context).settings.arguments;
 
+      if (arguments != null) {
+        _topicUID = arguments['topicUID'];
+        _questionUID = arguments['questionUID'];
+
+      } else {
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          Navigator.of(context).pop();
+        });
+      }
+    });
   }
 
   void _getTopics() {
-    _getTopicsAndQuestions = _firebaseFirestoreService.getTopics(_studyUID);
+    _getTopicsAndQuestions =
+        _researcherAndModeratorFirestoreService.getTopics(_studyUID);
   }
 
   @override
   void initState() {
     studyNavigatorWidth = minMenuWidth;
-    // var getStorage = GetStorage();
-    // _studyUID = getStorage.read('studyUID');
+    var getStorage = GetStorage();
+    _studyUID = getStorage.read('studyUID');
 
     _getTopics();
-    _getStudyAndTopicUIDs = _getStudyUIDAndTopicUID();
-
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+
+    _getStudyAndTopicUIDs = _getStudyUIDAndTopicUID();
+    _questionAndResponsesFutureBuilderWidget = _questionsAndResponsesFutureBuilder(_getStudyAndTopicUIDs);
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -59,27 +85,12 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Container(
-          //   width: screenSize.width,
-          //   padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          //   color: Colors.white,
-          //   child: Align(
-          //     alignment: Alignment.centerRight,
-          //     child: Text(
-          //       'ACCESS TYPE',
-          //       style: TextStyle(
-          //         color: Colors.black,
-          //         fontSize: 16.0,
-          //         fontWeight: FontWeight.bold,
-          //       ),
-          //     ),
-          //   ),
-          // ),
           Expanded(
             child: Row(
               children: [
@@ -168,82 +179,95 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                           itemCount: snapshot.data.length,
                                           itemBuilder: (BuildContext context,
                                               int topicIndex) {
-                                            return ExpansionTile(
-                                              title: Text(
-                                                snapshot
-                                                    .data[topicIndex].topicName,
-                                                style: TextStyle(
-                                                  color: Colors.grey[700],
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14.0,
-                                                ),
+                                            return Theme(
+                                              data: ThemeData(
+                                                accentColor: PROJECT_GREEN,
+                                                unselectedWidgetColor:
+                                                    Colors.black,
                                               ),
-                                              children: [
-                                                SizedBox(
-                                                  height: 10.0,
-                                                ),
-                                                ListView.separated(
-                                                  padding: EdgeInsets.only(
-                                                    left: 20.0,
-                                                    right: 10.0,
+                                              child: ExpansionTile(
+                                                title: Text(
+                                                  snapshot.data[topicIndex]
+                                                      .topicName,
+                                                  style: TextStyle(
+                                                    color: Colors.grey[700],
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14.0,
                                                   ),
-                                                  shrinkWrap: true,
-                                                  itemCount: snapshot
-                                                      .data[topicIndex]
-                                                      .questions
-                                                      .length,
-                                                  itemBuilder:
-                                                      (BuildContext context,
-                                                          int questionIndex) {
-                                                    return InkWell(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          _topicUID = snapshot
-                                                              .data[topicIndex]
-                                                              .topicUID;
-                                                          _questionUID = snapshot
-                                                              .data[topicIndex]
-                                                              .questions[
-                                                          questionIndex]
-                                                              .questionUID;
-                                                        });
-                                                      },
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      focusColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      child: Row(
-                                                        children: [
-                                                          Text(
-                                                            '${snapshot.data[topicIndex].questions[questionIndex].questionNumber}  ${snapshot.data[topicIndex].questions[questionIndex].questionTitle}',
-                                                            style: TextStyle(
-                                                              color: Colors
-                                                                  .grey[800],
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 13.0,
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                  separatorBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    return SizedBox(
-                                                        height: 20.0);
-                                                  },
                                                 ),
-                                                SizedBox(
-                                                  height: 20.0,
-                                                ),
-                                              ],
+                                                children: [
+                                                  SizedBox(
+                                                    height: 10.0,
+                                                  ),
+                                                  ListView.separated(
+                                                    physics: NeverScrollableScrollPhysics(),
+                                                    padding: EdgeInsets.only(
+                                                      left: 20.0,
+                                                      right: 10.0,
+                                                    ),
+                                                    shrinkWrap: true,
+                                                    itemCount: snapshot
+                                                        .data[topicIndex]
+                                                        .questions
+                                                        .length,
+                                                    itemBuilder:
+                                                        (BuildContext context,
+                                                            int questionIndex) {
+                                                      return InkWell(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            _topicUID = snapshot
+                                                                .data[
+                                                                    topicIndex]
+                                                                .topicUID;
+                                                            _questionUID = snapshot
+                                                                .data[
+                                                                    topicIndex]
+                                                                .questions[
+                                                                    questionIndex]
+                                                                .questionUID;
+
+
+
+                                                          });
+                                                        },
+                                                        splashColor:
+                                                            Colors.transparent,
+                                                        hoverColor:
+                                                            Colors.transparent,
+                                                        focusColor:
+                                                            Colors.transparent,
+                                                        highlightColor:
+                                                            Colors.transparent,
+                                                        child: Row(
+                                                          children: [
+                                                            Text(
+                                                              '${snapshot.data[topicIndex].questions[questionIndex].questionNumber}  ${snapshot.data[topicIndex].questions[questionIndex].questionTitle}',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .grey[800],
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 13.0,
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                    separatorBuilder:
+                                                        (BuildContext context,
+                                                            int index) {
+                                                      return SizedBox(
+                                                          height: 20.0);
+                                                    },
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20.0,
+                                                  ),
+                                                ],
+                                              ),
                                             );
                                           },
                                         );
@@ -261,7 +285,175 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                     ],
                   ),
                 ),
-                _questionsAndResponsesFutureBuilder(),
+                _questionAndResponsesFutureBuilderWidget,
+              ],
+            ),
+          ),
+        ],
+      ),
+      endDrawer: _buildInsightsDrawer(),
+    );
+  }
+
+  Widget _buildInsightsDrawer() {
+    var insight = Insight();
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      color: Colors.white,
+      constraints: BoxConstraints(
+        maxWidth: 500.0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Center(
+              child: Text(
+                'Insights',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.grey[300],
+            height: 1.0,
+          ),
+          SizedBox(
+            height: 20.0,
+          ),
+          Text(
+            'Add an Insight',
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontWeight: FontWeight.bold,
+              fontSize: 14.0,
+            ),
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Container(
+            child: TextFormField(
+              minLines: 1,
+              maxLines: 20,
+              decoration: InputDecoration(
+                hintText: 'Write an insight',
+              ),
+              onChanged: (insightStatement) {
+                insight.insightStatement = insightStatement;
+              },
+            ),
+          ),
+          SizedBox(
+            height: 20.0,
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: RaisedButton(
+              onPressed: () {},
+              color: PROJECT_GREEN,
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Text(
+                  'Add',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20.0,
+          ),
+          Text(
+            'All Insights',
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontWeight: FontWeight.bold,
+              fontSize: 14.0,
+            ),
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Container(
+            color: Colors.grey[300],
+            height: 1.0,
+          ),
+          SizedBox(
+            height: 20.0,
+          ),
+          Container(
+            padding: EdgeInsets.all(8.0),
+            color: Colors.grey[100],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white
+                      ),
+                      padding: EdgeInsets.all(5.0),
+                      width: 30.0,
+                      height: 30.0,
+                      child: Image(
+                        image: AssetImage(
+                          'images/researcher_images/researcher_dashboard/participant_icon.png',
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        text: 'Quyen Nguyen',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: ' says:',
+                            style: TextStyle(
+                              fontSize: 12.0,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10.0,),
+                Row(
+                  children: [
+                    SizedBox(width: 50.0,),
+                    Expanded(
+                      child: Text(
+                        'XYZ has written such a great response. Please have a look.',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -270,19 +462,31 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     );
   }
 
-  FutureBuilder _questionsAndResponsesFutureBuilder() {
+  // FutureBuilder _insightsFutureBuilder(Future<void> futureInsights) {
+  //   return FutureBuilder(
+  //     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+  //       return ;
+  //     },);
+  // }
+
+  FutureBuilder _questionsAndResponsesFutureBuilder(Future<void> future) {
     return FutureBuilder(
-      future: _getStudyAndTopicUIDs,
+      future: future,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if(snapshot.connectionState == ConnectionState.done){
+        if (snapshot.connectionState == ConnectionState.done) {
           return QuestionAndResponsesSubScreen(
-            firebaseFirestoreService: _firebaseFirestoreService,
             studyUID: _studyUID,
             topicUID: _topicUID,
             questionUID: _questionUID,
           );
-        }
-        else{
+
+          // return QuestionAndResponsesSubScreen(
+          //   firebaseFirestoreService: _firebaseFirestoreService,
+          //   studyUID: _studyUID,
+          //   topicUID: _topicUID,
+          //   questionUID: _questionUID,
+          // );
+        } else {
           return SizedBox();
         }
       },
@@ -311,44 +515,85 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
         ),
       ),
       centerTitle: true,
-      // actions: [
-      //   Padding(
-      //     padding: const EdgeInsets.all(8.0),
-      //     child: Center(
-      //       child: Stack(
-      //         children: [
-      //           Container(
-      //             child: Image(
-      //               image: AssetImage('images/avatars/batman.png'),
-      //             ),
-      //             decoration: BoxDecoration(
-      //               shape: BoxShape.circle,
-      //             ),
-      //           ),
-      //           Positioned(
-      //             bottom: 0,
-      //             right: 0,
-      //             child: Container(
-      //               padding: EdgeInsets.all(2.0),
-      //               decoration: BoxDecoration(
-      //                 color: Colors.black,
-      //                 shape: BoxShape.circle,
-      //                 border: Border.all(
-      //                   color: Colors.white,
-      //                 ),
-      //               ),
-      //               child: Icon(
-      //                 Icons.menu,
-      //                 color: Colors.white,
-      //                 size: 12.0,
-      //               ),
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // ],
+      actions: [
+        Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Center(
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _scaffoldKey.currentState.openEndDrawer();
+                });
+              },
+              highlightColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.article_outlined,
+                    color: Colors.black,
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Text(
+                    'Add Insights',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 10.0,),
+        Container(
+          width: 1.0,
+          height: kToolbarHeight,
+          color: Colors.grey[300],
+        ),
+        SizedBox(width: 10.0,),
+        Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Center(
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              highlightColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.exit_to_app_rounded,
+                    color: Colors.black,
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Text(
+                    'Go To Dashboard',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

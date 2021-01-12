@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
+import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/widgets/participant_details_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class StudyUsers extends StatefulWidget {
   final String studyUID;
@@ -19,6 +21,8 @@ class StudyUsers extends StatefulWidget {
 }
 
 class _StudyUsersState extends State<StudyUsers> {
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
 
   bool _participantsVisible = true;
   bool _clientsVisible = false;
@@ -26,13 +30,32 @@ class _StudyUsersState extends State<StudyUsers> {
 
   Widget _visibleListView;
 
-  Future<List<Participant>> _participantsFutureList;
+  List<Group> _groupsList;
+
+  // Future<List<Participant>> _participantsFutureList;
   Future<List<Client>> _clientsFutureList;
   Future<List<Moderator>> _moderatorsFutureList;
 
-  void _getParticipants() {
-    _participantsFutureList =
-        widget.firebaseFirestoreService.getParticipants(widget.studyUID);
+  List<Participant> _participantsList = [];
+
+  // void _getGroups() async {
+  //   _groupsList = await _researcherAndModeratorFirestoreService.getGroups(widget.studyUID);
+  //   setState(() {
+  //     _visibleListView = _participantsFutureBuilder();
+  //     _getParticipants();
+  //   });
+  // }
+
+  // void _getParticipants() {
+  //   _participantsFutureList = _researcherAndModeratorFirestoreService
+  //       .getParticipants(widget.studyUID);
+  // }
+
+  Future<void> _getFutureParticipants() async {
+    _groupsList = await _researcherAndModeratorFirestoreService
+        .getGroups(widget.studyUID);
+    _participantsList = await _researcherAndModeratorFirestoreService
+        .getParticipants(widget.studyUID);
   }
 
   void _getClients() {
@@ -45,10 +68,10 @@ class _StudyUsersState extends State<StudyUsers> {
         widget.firebaseFirestoreService.getModerators(widget.studyUID);
   }
 
-  FutureBuilder _participantsFutureBuilder() {
-    return FutureBuilder(
-      future: _participantsFutureList,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+  FutureBuilder<void> _participantsFutureBuilder(Future<void> future) {
+    return FutureBuilder<void>(
+      future: future,
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
             return Center(
@@ -63,13 +86,64 @@ class _StudyUsersState extends State<StudyUsers> {
             break;
           case ConnectionState.done:
             return ListView.separated(
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ParticipantDetailsWidget(
-                  participant: snapshot.data[index],
-                  firebaseFirestoreService: widget.firebaseFirestoreService,
-                  studyUID: widget.studyUID,
-                );
+              shrinkWrap: true,
+              itemCount: _groupsList.length,
+              itemBuilder: (BuildContext context, int groupIndex) {
+                var groupParticipants = <Participant>[];
+
+                for (var participant in _participantsList) {
+                  if (_groupsList[groupIndex].groupName ==
+                      participant.userGroupName) {
+                    groupParticipants.add(participant);
+                  }
+                }
+
+                if (groupParticipants.isNotEmpty) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${_groupsList[groupIndex].groupName}',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Container(
+                        height: 1.0,
+                        color: Colors.grey[300],
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: groupParticipants.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ParticipantDetailsWidget(
+                            participant: groupParticipants[index],
+                            firebaseFirestoreService:
+                                widget.firebaseFirestoreService,
+                            studyUID: widget.studyUID,
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 10.0,
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                } else {
+                  return SizedBox();
+                }
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -181,7 +255,8 @@ class _StudyUsersState extends State<StudyUsers> {
           _clientsVisible = false;
           _moderatorsVisible = false;
 
-          _visibleListView = _participantsFutureBuilder();
+          _visibleListView =
+              _participantsFutureBuilder(_getFutureParticipants());
         });
         break;
       case 'Clients':
@@ -207,11 +282,11 @@ class _StudyUsersState extends State<StudyUsers> {
 
   @override
   void initState() {
-    _getParticipants();
+    // _getGroups();
     _getClients();
     _getModerators();
     super.initState();
-    _visibleListView = _participantsFutureBuilder();
+    _visibleListView = _participantsFutureBuilder(_getFutureParticipants());
   }
 
   @override
@@ -309,7 +384,7 @@ class _StudyUsersState extends State<StudyUsers> {
                                       color: Colors.grey,
                                     ),
                                   ),
-                                  child: TextField(
+                                  child: TextFormField(
                                     cursorColor: PROJECT_NAVY_BLUE,
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
@@ -325,10 +400,25 @@ class _StudyUsersState extends State<StudyUsers> {
                                 SizedBox(
                                   width: 10.0,
                                 ),
-                                Icon(
-                                  Icons.edit_outlined,
-                                  color: PROJECT_GREEN,
-                                  size: 24.0,
+                                InkWell(
+                                  onTap: () {
+                                    showGeneralDialog(
+                                        context: context,
+                                        pageBuilder: (BuildContext context,
+                                            Animation<double> animation,
+                                            Animation<double>
+                                                secondaryAnimation) {
+                                          return EmailWidget(
+                                            groupsList: _groupsList,
+                                            participantsList: _participantsList,
+                                          );
+                                        });
+                                  },
+                                  child: Icon(
+                                    Icons.email,
+                                    color: PROJECT_GREEN,
+                                    size: 24.0,
+                                  ),
                                 ),
                               ],
                             ),
@@ -353,15 +443,45 @@ class _StudyUsersState extends State<StudyUsers> {
               children: [
                 Expanded(
                   child: Container(
-                    color: Colors.yellow[100],
+                    padding: EdgeInsets.all(20.0),
+                    color: Colors.grey[100],
                     width: screenSize.width * 0.3,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Send a message',
+                          'Sort/Filter',
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[400],
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Text(
+                          'Sort By:',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Text(
+                          'Filter By:',
+                          style: TextStyle(
+                            color: Colors.grey[800],
                             fontWeight: FontWeight.bold,
                             fontSize: 14.0,
                           ),
@@ -373,6 +493,341 @@ class _StudyUsersState extends State<StudyUsers> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class EmailWidget extends StatefulWidget {
+  final List<Group> groupsList;
+  final List<Participant> participantsList;
+
+  const EmailWidget({
+    Key key,
+    this.groupsList,
+    this.participantsList,
+  }) : super(key: key);
+
+  @override
+  _EmailWidgetState createState() => _EmailWidgetState();
+}
+
+class _EmailWidgetState extends State<EmailWidget> {
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
+
+  String _selected = 'groups';
+
+  List<Participant> _selectedParticipants = [];
+  List<Group> _selectedGroups = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Material(
+        borderRadius: BorderRadius.circular(10.0),
+        child: Container(
+          padding: EdgeInsets.all(20.0),
+          width: MediaQuery.of(context).size.width * 0.7,
+          height: MediaQuery.of(context).size.height * 0.7,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Compose',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                ),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              Container(
+                height: 1.0,
+                color: Colors.grey[300],
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              Row(
+                children: [
+                  Text(
+                    'Send Email To: ',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  ChoiceChip(
+                    selectedColor: PROJECT_GREEN,
+                    label: Text(
+                      'Groups',
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        color:
+                            _selected == 'groups' ? Colors.white : Colors.black,
+                        fontWeight: _selected == 'groups'
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    selected: _selected == 'groups',
+                    onSelected: (value) {
+                      setState(() {
+                        _selected = 'groups';
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  ChoiceChip(
+                    selectedColor: PROJECT_GREEN,
+                    label: Text(
+                      'Participants',
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        color: _selected == 'participants'
+                            ? Colors.white
+                            : Colors.black,
+                        fontWeight: _selected == 'participants'
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    selected: _selected == 'participants',
+                    onSelected: (value) {
+                      setState(() {
+                        _selected = 'participants';
+                      });
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              Container(
+                height: 1.0,
+                color: Colors.grey[300],
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              Expanded(
+                child: ListView(
+                  children: [
+                    _selected == 'groups'
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: Wrap(
+                              spacing: 10.0,
+                              runSpacing: 10.0,
+                              children: List.generate(
+                                widget.groupsList.length,
+                                (index) {
+                                  return FilterChip(
+                                    selectedColor: PROJECT_GREEN,
+                                    checkmarkColor: Colors.white,
+                                    selected: _selectedGroups
+                                        .contains(widget.groupsList[index]),
+                                    label: Text(
+                                      '${widget.groupsList[index].groupName}',
+                                      style: TextStyle(
+                                        color: _selectedGroups.contains(
+                                                widget.groupsList[index])
+                                            ? Colors.white
+                                            : Colors.grey[700],
+                                        fontWeight: _selectedGroups.contains(
+                                                widget.groupsList[index])
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        fontSize: 12.0,
+                                      ),
+                                    ),
+                                    onSelected: (bool value) {
+                                      setState(() {
+                                        if (value) {
+                                          _selectedGroups
+                                              .add(widget.groupsList[index]);
+                                        } else {
+                                          _selectedGroups.removeWhere((group) {
+                                            return group ==
+                                                widget.groupsList[index];
+                                          });
+                                        }
+                                      });
+                                    },
+                                  );
+                                },
+                              ).toList(),
+                            ),
+                          )
+                        : Align(
+                            alignment: Alignment.centerLeft,
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: widget.groupsList.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                var groupParticipants = <Participant>[];
+
+                                for (var participant
+                                    in widget.participantsList) {
+                                  if (widget.groupsList[index].groupName ==
+                                      participant.userGroupName) {
+                                    groupParticipants.add(participant);
+                                  }
+                                }
+
+                                if (groupParticipants.isNotEmpty) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${widget.groupsList[index].groupName}',
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10.0,
+                                      ),
+                                      Container(
+                                        height: 1.0,
+                                        color: Colors.grey[300],
+                                      ),
+                                      SizedBox(
+                                        height: 10.0,
+                                      ),
+                                      Wrap(
+                                        children: List.generate(
+                                            groupParticipants.length,
+                                            (chipIndex) {
+                                          return FilterChip(
+                                            selectedColor: PROJECT_GREEN,
+                                            checkmarkColor: Colors.white,
+                                            selected: _selectedParticipants
+                                                .contains(groupParticipants[
+                                                    chipIndex]),
+                                            label: Text(
+                                              '${groupParticipants[chipIndex].userFirstName} ${groupParticipants[chipIndex].userLastName}',
+                                              style: TextStyle(
+                                                color: _selectedParticipants
+                                                        .contains(
+                                                            groupParticipants[
+                                                                chipIndex])
+                                                    ? Colors.white
+                                                    : Colors.grey[700],
+                                                fontWeight: _selectedParticipants
+                                                        .contains(
+                                                            groupParticipants[
+                                                                chipIndex])
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                                fontSize: 12.0,
+                                              ),
+                                            ),
+                                            onSelected: (bool value) {
+                                              setState(() {
+                                                if (value) {
+                                                  _selectedParticipants.add(
+                                                      groupParticipants[
+                                                          chipIndex]);
+                                                } else {
+                                                  _selectedParticipants
+                                                      .removeWhere(
+                                                          (participant) {
+                                                    return participant ==
+                                                        groupParticipants[
+                                                            chipIndex];
+                                                  });
+                                                }
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return SizedBox();
+                                }
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return SizedBox(
+                                  height: 10.0,
+                                );
+                              },
+                            ),
+                          ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              Container(
+                height: 1.0,
+                color: Colors.grey[300],
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RaisedButton(
+                    color: Colors.grey[300],
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20.0),
+                  RaisedButton(
+                    color: PROJECT_GREEN,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Send',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -34,6 +34,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2.0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: 30.0,
@@ -45,21 +46,34 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
             Expanded(
               child: Row(
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: widget.participant.profilePhotoURL,
-                    imageBuilder: (context, imageProvider){
-                      return Container(
-                        height: 40.0,
-                        width: 40.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                  widget.participant.profilePhotoURL != null
+                      ? CachedNetworkImage(
+                          imageUrl: widget.participant.profilePhotoURL,
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              height: 40.0,
+                              width: 40.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: Image(
+                                image: imageProvider,
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          height: 40.0,
+                          width: 40.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: Image(
+                            image: AssetImage(
+                              'images/researcher_images/researcher_dashboard/participant_icon.png',
+                            ),
+                          ),
                         ),
-                        child: Image(
-                          image: imageProvider,
-                        ),
-                      );
-                    },
-                  ),
                   SizedBox(
                     width: 20.0,
                   ),
@@ -116,7 +130,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           height: 16.0,
                         ),
                         Text(
-                          '${widget.participant.phone}',
+                          '${widget.participant.phone ?? 'Phone not set'}',
                           style: TextStyle(
                             color: Colors.grey[700],
                             fontSize: 14.0,
@@ -126,7 +140,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           height: 16.0,
                         ),
                         Text(
-                          '${widget.participant.gender}',
+                          '${widget.participant.gender ?? 'Gender not set'}',
                           style: TextStyle(
                             color: Colors.grey[700],
                             fontSize: 14.0,
@@ -187,13 +201,12 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                     width: 20.0,
                   ),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start  ,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-
                           Text(
                             'Active',
                             style: TextStyle(
@@ -225,9 +238,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           ),
                         ],
                       ),
-                      SizedBox(
-                          height: 10.0
-                      ),
+                      SizedBox(height: 10.0),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -247,9 +258,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           ),
                         ],
                       ),
-                      SizedBox(
-                        height: 10.0
-                      ),
+                      SizedBox(height: 10.0),
                       InkWell(
                         highlightColor: Colors.transparent,
                         focusColor: Colors.transparent,
@@ -268,11 +277,10 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(4.0),
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.4,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.4,
                                     decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(4.0),
+                                      borderRadius: BorderRadius.circular(4.0),
                                     ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
@@ -329,17 +337,14 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                                           4.0),
                                                 ),
                                                 onPressed: () =>
-                                                    Navigator.of(context)
-                                                        .pop(),
+                                                    Navigator.of(context).pop(),
                                                 child: Padding(
                                                   padding:
-                                                      const EdgeInsets.all(
-                                                          8.0),
+                                                      const EdgeInsets.all(8.0),
                                                   child: Text(
                                                     'Cancel',
                                                     style: TextStyle(
-                                                        color:
-                                                            Colors.grey[700],
+                                                        color: Colors.grey[700],
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         fontSize: 14.0),
@@ -365,18 +370,15 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                                         widget.participant
                                                             .isActive = false;
                                                         await _updateParticipantDetails(
-                                                            'isDeleted',
-                                                            true);
+                                                            'isDeleted', true);
                                                         await _updateParticipantDetails(
-                                                            'isActive',
-                                                            false);
+                                                            'isActive', false);
                                                         Navigator.of(context)
                                                             .pop();
                                                       },
                                                 child: Padding(
                                                   padding:
-                                                      const EdgeInsets.all(
-                                                          8.0),
+                                                      const EdgeInsets.all(8.0),
                                                   child: Text(
                                                     'Delete',
                                                     style: TextStyle(
@@ -405,7 +407,6 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-
                             Text(
                               'Delete',
                               style: TextStyle(
@@ -420,8 +421,6 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                               Icons.delete_forever,
                               color: PROJECT_GREEN,
                             ),
-
-
                           ],
                         ),
                       ),

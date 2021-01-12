@@ -1,8 +1,27 @@
+import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
+import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/full_screen_new_widgets/custom_flat_button.dart';
 
-class DashboardTipsScreen extends StatelessWidget {
+class DashboardTipsScreen extends StatefulWidget {
+  @override
+  _DashboardTipsScreenState createState() => _DashboardTipsScreenState();
+}
+
+class _DashboardTipsScreenState extends State<DashboardTipsScreen> {
+
+  int _currentPage = 0;
+
+  final _pageController = PageController();
+
+  String _buttonLabel = 'NEXT';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -30,6 +49,7 @@ class DashboardTipsScreen extends StatelessWidget {
               Container(
                 height: screenHeight * 0.8,
                 child: PageView(
+                  controller: _pageController,
                   children: [
                     _TipsContainer(
                       screenHeight: screenHeight,
@@ -43,20 +63,102 @@ class DashboardTipsScreen extends StatelessWidget {
                       screenHeight: screenHeight,
                       screenWidth: screenWidth,
                       title: 'Be open and honest',
-                      description: 'We need to hear the truth, even if it hurts. Your responses won\'t be linked back to you in any way.',
+                      description:
+                      'We need to hear the truth, even if it hurts. Your responses won\'t be linked back to you in any way.',
                       imagePath: 'images/login_screen_right.png',
                     ),
                     _TipsContainer(
                       screenHeight: screenHeight,
                       screenWidth: screenWidth,
                       title: 'Comment on the other posts',
-                      description: 'Let others know when you agree or disagree with what they have said.',
+                      description:
+                      'Let others know when you agree or disagree with what they have said.',
                       imagePath: 'images/dashboard_screen_3.png',
                     ),
                   ],
-                ),
+                )
+                // Carousel(
+                //   dotColor: Colors.grey[400],
+                //   dotBgColor: Colors.transparent,
+                //   dotIncreasedColor: Colors.grey[700],
+                //   autoplay: false,
+                //   images: [
+                //         _TipsContainer(
+                //           screenHeight: screenHeight,
+                //           screenWidth: screenWidth,
+                //           title: 'Be Specific',
+                //           description:
+                //               'Tell us the reason behind your answers. Details are important!',
+                //           imagePath: 'images/login_screen_left.png',
+                //         ),
+                //         _TipsContainer(
+                //           screenHeight: screenHeight,
+                //           screenWidth: screenWidth,
+                //           title: 'Be open and honest',
+                //           description:
+                //               'We need to hear the truth, even if it hurts. Your responses won\'t be linked back to you in any way.',
+                //           imagePath: 'images/login_screen_right.png',
+                //         ),
+                //         _TipsContainer(
+                //           screenHeight: screenHeight,
+                //           screenWidth: screenWidth,
+                //           title: 'Comment on the other posts',
+                //           description:
+                //               'Let others know when you agree or disagree with what they have said.',
+                //           imagePath: 'images/dashboard_screen_3.png',
+                //         ),
+                //   ],
+                // )
               ),
-              CustomFlatButton(label: 'BEGIN STUDY', routeName: PARTICIPANT_DASHBOARD_SCREEN),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 40.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FlatButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        color: PROJECT_GREEN,
+                        onPressed: (){
+                          if(_currentPage == 0){
+                            setState(() {
+                              _currentPage = 1;
+                              _pageController.jumpToPage(_currentPage);
+                              _buttonLabel = 'NEXT';
+                            });
+                            return;
+                          } else if(_currentPage == 1){
+                            setState(() {
+                              _currentPage = 2;
+                              _pageController.jumpToPage(_currentPage);
+                              _buttonLabel = 'GO TO DASHBOARD';
+                            });
+                            return;
+                          }
+                          else {
+                            Navigator.of(context).pushNamedAndRemoveUntil(PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(
+                            _buttonLabel,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              // CustomFlatButton(
+              //     label: 'BEGIN STUDY',
+              //     routeName: PARTICIPANT_DASHBOARD_SCREEN),
             ],
           ),
         ),

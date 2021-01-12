@@ -206,43 +206,43 @@ class _SetupCompleteScreenState extends State<SetupCompleteScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 40.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: OutlineButton(
-                                borderSide: BorderSide(
-                                  color: Colors.white,
-                                  width: 6.0,
-                                  style: BorderStyle.solid,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6.0),
-                                ),
-                                onPressed: () {
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                      PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    'Continue to Dashboard',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // SizedBox(
+                      //   height: 20.0,
+                      // ),
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(horizontal: 40.0),
+                      //   child: Row(
+                      //     children: [
+                      //       Expanded(
+                      //         child: OutlineButton(
+                      //           borderSide: BorderSide(
+                      //             color: Colors.white,
+                      //             width: 6.0,
+                      //             style: BorderStyle.solid,
+                      //           ),
+                      //           shape: RoundedRectangleBorder(
+                      //             borderRadius: BorderRadius.circular(6.0),
+                      //           ),
+                      //           onPressed: () {
+                      //             Navigator.of(context).pushNamedAndRemoveUntil(
+                      //                 PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
+                      //           },
+                      //           child: Padding(
+                      //             padding: const EdgeInsets.all(16.0),
+                      //             child: Text(
+                      //               'Continue to Dashboard',
+                      //               style: TextStyle(
+                      //                 color: Colors.white,
+                      //                 fontWeight: FontWeight.bold,
+                      //                 fontSize: 20.0,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

@@ -18,7 +18,6 @@ const String _RESPONSES_COLLECTION = 'responses';
 const String _COMMENTS_COLLECTION = 'comments';
 const String _PARTICIPANT_NOTIFICATIONS_COLLECTION = 'participantNotifications';
 
-const String _NOTIFICATION_TYPE_RESPONSE = 'response';
 const String _NOTIFICATION_TYPE_COMMENT = 'comment';
 const String _NOTIFICATION_TYPE_CLAP = 'clap';
 const String _NOTIFICATION_TYPE_NEW_QUESTION = 'newQuestion';
@@ -26,7 +25,20 @@ const String _NOTIFICATION_TYPE_MODERATOR_COMMENT = 'moderatorComment';
 
 class ParticipantFirestoreService {
   final _studiesReference =
-      FirebaseFirestore.instance.collection(_STUDIES_COLLECTION);
+  FirebaseFirestore.instance.collection(_STUDIES_COLLECTION);
+
+  Future<Participant> getParticipant(String studyUID,
+      String participantUID) async {
+    var participantDocumentReference = await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participantUID)
+        .get();
+
+    var participant = Participant.fromMap(participantDocumentReference.data());
+
+    return participant;
+  }
 
   Future<Response> postResponse(String studyUID, String topicUID,
       String questionUID, Response response) async {
@@ -48,6 +60,10 @@ class ParticipantFirestoreService {
       );
     });
 
+    var responses = await _studiesReference.doc(studyUID).collection(
+        _TOPICS_COLLECTION).doc(topicUID).collection(_QUESTIONS_COLLECTION).doc(
+        questionUID).collection(_RESPONSES_COLLECTION).get();
+
     await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -56,45 +72,79 @@ class ParticipantFirestoreService {
         .doc(questionUID)
         .update(
       {
-        'respondedBy': FieldValue.arrayUnion([response.participantUID])
+        'respondedBy': FieldValue.arrayUnion([response.participantUID]),
+        'totalResponses': responses.docs.length,
       },
     );
-
-    var responseNotification = ResponseNotification(
-      avatarURL: response.avatarURL,
-      questionNumber: response.questionNumber,
-      questionTitle: response.questionTitle,
-      questionUID: questionUID,
-      topicUID: topicUID,
-      responseUID: response.responseUID,
-      notificationType: _NOTIFICATION_TYPE_RESPONSE,
-      notificationTimestamp: response.responseTimestamp,
-    );
-
-    await addResponseNotification(
-        studyUID, response.participantUID, responseNotification);
-
     return response;
   }
 
-  Future<void> addResponseNotification(String studyUID, String participantUID,
-      ResponseNotification responseNotification) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_PARTICIPANTS_COLLECTION)
-        .doc(participantUID)
-        .collection(_PARTICIPANT_NOTIFICATIONS_COLLECTION)
-        .add(ResponseNotification().toMap(responseNotification))
-        .then((responseNotificationDocumentReference) {
-      var responseNotificationUID = responseNotificationDocumentReference.id;
+  Future<Response> getParticipantResponse(String studyUID, String topicUID,
+      String questionUID, String participantUID) async {
+    var response;
 
-      responseNotificationDocumentReference.set(
-        {
-          'notificationUID': responseNotificationUID,
-        },
-        SetOptions(merge: true),
-      );
-    });
+    var responseQuerySnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .where('participantUID', isEqualTo: participantUID)
+        .limit(1)
+        .get();
+
+    if (responseQuerySnapshot.docs.isNotEmpty) {
+      for (var responseDocumentSnapshot in responseQuerySnapshot.docs) {
+        response = Response.fromMap(responseDocumentSnapshot.data());
+      }
+      return response;
+    } else {
+      response = Response();
+      return response;
+    }
+  }
+
+  Stream<QuerySnapshot> getResponses(String studyUID, String topicUID,
+      String questionUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .orderBy('responseTimestamp', descending: false)
+        .snapshots();
+  }
+
+  // Stream<QuerySnapshot> getResponsesAsStream(
+  //     String studyUID, String topicUID, String questionUID) {
+  //   return _studiesReference
+  //       .doc(studyUID)
+  //       .collection(_TOPICS_COLLECTION)
+  //       .doc(topicUID)
+  //       .collection(_QUESTIONS_COLLECTION)
+  //       .doc(questionUID)
+  //       .collection(_RESPONSES_COLLECTION)
+  //       .orderBy('responseTimestamp', descending: false)
+  //       .where('responseUID', isNotEqualTo: null)
+  //       .snapshots();
+  // }
+
+  Stream<QuerySnapshot> getComments(String studyUID, String topicUID,
+      String questionUID, String responseUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .doc(responseUID)
+        .collection(_COMMENTS_COLLECTION)
+        .orderBy('commentTimestamp', descending: false)
+        .snapshots();
   }
 
   Future<void> updateResponse(String studyUID, String topicUID,
@@ -107,55 +157,25 @@ class ParticipantFirestoreService {
         .doc(questionUID)
         .collection(_RESPONSES_COLLECTION)
         .doc(response.responseUID)
-        .update({
-      'responseStatement': response.responseStatement,
-      'responseTimestamp': response.responseTimestamp,
-    });
-
-    await updateResponseNotification(
-        studyUID, participantUID, questionUID, response.responseUID);
+        .update(response.toMap());
   }
 
-  Future<void> updateResponseNotification(String studyUID,
-      String participantUID, String questionUID, String responseUID) async {
-    var responseNotification = await getResponseNotification(
-        studyUID, participantUID, questionUID, responseUID);
-
-    await _studiesReference
+  Future<Question> getQuestion(String studyUID, String topicUID,
+      String questionUID) async {
+    var questionDocumentReference = await _studiesReference
         .doc(studyUID)
-        .collection(_PARTICIPANTS_COLLECTION)
-        .doc(participantUID)
-        .collection(_PARTICIPANT_NOTIFICATIONS_COLLECTION)
-        .doc(responseNotification.notificationUID)
-        .update({
-      'notificationTimestamp': Timestamp.now(),
-    });
-  }
-
-  Future<ResponseNotification> getResponseNotification(String studyUID,
-      String participantUID, String questionUID, String responseUID) async {
-    ResponseNotification responseNotification;
-
-    var responseNotificationsReferences = await _studiesReference
-        .doc(studyUID)
-        .collection(_PARTICIPANTS_COLLECTION)
-        .doc(participantUID)
-        .collection(_PARTICIPANT_NOTIFICATIONS_COLLECTION)
-        .where('responseUID', isEqualTo: responseUID)
-        .where('questionUID', isEqualTo: questionUID)
-        .where('notificationType', isEqualTo: _NOTIFICATION_TYPE_RESPONSE)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
         .get();
 
-    for (var responseNotificationDoc in responseNotificationsReferences.docs) {
-      responseNotification =
-          ResponseNotification.fromMap(responseNotificationDoc.data());
-    }
-
-    return responseNotification;
+    var question = Question.fromMap(questionDocumentReference.data());
+    return question;
   }
 
-  Future<Comment> postComment(
-      String studyUID,
+  Future<Comment> postComment(String studyUID,
+      String respondedParticipantUID,
       String participantUID,
       String topicUID,
       String questionUID,
@@ -225,7 +245,8 @@ class ParticipantFirestoreService {
       notificationTimestamp: comment.commentTimestamp,
     );
 
-    await addCommentNotification(studyUID, participantUID, commentNotification);
+    await addCommentNotification(
+        studyUID, respondedParticipantUID, commentNotification);
 
     return comment;
   }
@@ -247,12 +268,13 @@ class ParticipantFirestoreService {
     });
   }
 
-  Future<void> addCommentNotification(String studyUID, String participantUID,
+  Future<void> addCommentNotification(String studyUID,
+      String respondedParticipantUID,
       CommentNotification commentNotification) async {
     await _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
-        .doc(participantUID)
+        .doc(respondedParticipantUID)
         .collection(_PARTICIPANT_NOTIFICATIONS_COLLECTION)
         .add(CommentNotification().toMap(commentNotification))
         .then((commentNotificationReference) {
@@ -260,46 +282,6 @@ class ParticipantFirestoreService {
         'notificationUID': commentNotificationReference.id,
       });
     });
-  }
-
-  Future<Comment> getFirstComment(String studyUID, String topicUID,
-      String questionUID, String responseUID) async {
-    var comment;
-    var commentsReference = await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .doc(responseUID)
-        .collection(_COMMENTS_COLLECTION)
-        .orderBy('commentTimestamp', descending: false)
-        .limit(1)
-        .get();
-
-    if (commentsReference.docs.isNotEmpty) {
-      for (var commentReference in commentsReference.docs) {
-        comment = Comment.fromMap(commentReference.data());
-      }
-    }
-
-    return comment;
-  }
-
-  Stream<QuerySnapshot> streamFirstComment(String studyUID, String topicUID,
-      String questionUID, String responseUID) {
-    return _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .doc(responseUID)
-        .collection(_COMMENTS_COLLECTION)
-        .orderBy('commentTimestamp')
-        .snapshots();
   }
 
   Future<Study> getParticipantStudy(String studyUID) async {
@@ -310,8 +292,8 @@ class ParticipantFirestoreService {
     return study;
   }
 
-  Stream<QuerySnapshot> getParticipantNotifications(
-      String studyUID, String participantUID) {
+  Stream<QuerySnapshot> getParticipantNotifications(String studyUID,
+      String participantUID) {
     var notificationsSnapshot = _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
@@ -351,8 +333,8 @@ class ParticipantFirestoreService {
     return questionData.containsValue(participantUID);
   }
 
-  Future<List<Topic>> getParticipantTopics(
-      String studyUID, String participantGroupUID) async {
+  Future<List<Topic>> getParticipantTopics(String studyUID,
+      String participantGroupUID) async {
     var topics = <Topic>[];
 
     var topicsReference = await _studiesReference
@@ -373,8 +355,8 @@ class ParticipantFirestoreService {
     return topics;
   }
 
-  Future<List<Question>> getParticipantQuestions(
-      String studyUID, String topicUID, String participantGroupUID) async {
+  Future<List<Question>> getParticipantQuestions(String studyUID,
+      String topicUID, String participantGroupUID) async {
     var questions = <Question>[];
 
     var questionsReference = await _studiesReference
@@ -415,8 +397,8 @@ class ParticipantFirestoreService {
     });
   }
 
-  Future<void> updateAvatarAndDisplayNameStatus(
-      String studyUID, String avatarAndDisplayNameID, bool selected) async {
+  Future<void> updateAvatarAndDisplayNameStatus(String studyUID,
+      String avatarAndDisplayNameID, bool selected) async {
     await _studiesReference
         .doc(studyUID)
         .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
@@ -424,31 +406,6 @@ class ParticipantFirestoreService {
         .update({
       'selected': selected,
     });
-  }
-
-  Future<String> getResponseUID(String studyUID, String topicUID,
-      String questionUID, String participantUID) async {
-    var responseUID;
-
-    var responseSnapshots = await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .where('participantUID', isEqualTo: participantUID)
-        .limit(1)
-        .get();
-
-    for (var response in responseSnapshots.docs) {
-      if (response.data()['participantUID'] == participantUID) {
-        responseUID = response.data()['responseUID'];
-        print('Response UID from Participant FS: $responseUID');
-      }
-    }
-
-    return responseUID;
   }
 
   Future<void> incrementClap({
@@ -471,9 +428,6 @@ class ParticipantFirestoreService {
         'claps': FieldValue.arrayUnion([participant.participantUID]),
       },
     );
-
-    print(response.questionTitle);
-    print(response.questionNumber);
 
     var clapNotification = ClapNotification(
       displayName: participant.displayName,
@@ -520,8 +474,8 @@ class ParticipantFirestoreService {
     await removeClapNotification(studyUID, response.participantUID, response);
   }
 
-  Future<void> removeClapNotification(
-      String studyUID, String participantUID, Response response) async {
+  Future<void> removeClapNotification(String studyUID, String participantUID,
+      Response response) async {
     var clapQuerySnapshot = await _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
@@ -541,4 +495,36 @@ class ParticipantFirestoreService {
           .delete();
     }
   }
+
+  Stream<QuerySnapshot> streamLastComment(String studyUID, String topicUID,
+      String questionUID, String responseUID) {
+    var commentQuerySnapshots = _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .doc(responseUID)
+        .collection(_COMMENTS_COLLECTION)
+        .orderBy('commentTimestamp', descending: true)
+        .limit(1)
+        .snapshots();
+
+    return commentQuerySnapshots;
+  }
+
+  Stream<DocumentSnapshot> streamRespondedBy(String studyUID, String topicUID,
+      String questionUID, String participantUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .snapshots();
+  }
+
+// Stream<QuerySnapshot> streamComments(String studyUID, String topicUID, String questionUID, String )
+
 }

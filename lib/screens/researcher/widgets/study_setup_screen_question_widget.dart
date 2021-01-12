@@ -9,7 +9,7 @@ import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
-import 'package:thoughtnav/services/moderator_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class StudySetupScreenQuestionWidget extends StatefulWidget {
   final String studyUID;
@@ -36,9 +36,8 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
 
 class _StudySetupScreenQuestionWidgetState
     extends State<StudySetupScreenQuestionWidget> {
-  // final _firebaseFirestoreService = FirebaseFirestoreService();
-
-  final _moderatorFirestoreService = ModeratorFirestoreService();
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
 
   final _questionTitleFocusNode = FocusNode();
   final _questionNumberFocusNode = FocusNode();
@@ -52,6 +51,9 @@ class _StudySetupScreenQuestionWidgetState
 
   int _selectedRadio;
 
+  List<dynamic> _groups = [];
+  List<dynamic> _groupNames = [];
+
   DateTime _questionDateTime;
   TimeOfDay _questionTimeOFDay;
 
@@ -59,6 +61,8 @@ class _StudySetupScreenQuestionWidgetState
     _questionNumber = widget.question.questionNumber;
     _questionTitle = widget.question.questionTitle;
     _questionStatement = widget.question.questionStatement;
+    _groups = widget.question.groups;
+    _groupNames = widget.question.groupNames;
   }
 
   @override
@@ -80,7 +84,7 @@ class _StudySetupScreenQuestionWidgetState
   }
 
   void _updateQuestionDetails() async {
-    await _moderatorFirestoreService.updateQuestion(
+    await _researcherAndModeratorFirestoreService.updateQuestion(
         widget.studyUID, widget.topicUID, widget.question);
   }
 
@@ -278,81 +282,159 @@ class _StudySetupScreenQuestionWidgetState
                             Animation<double> secondaryAnimation) {
                           return StatefulBuilder(
                             builder: (BuildContext context,
-                                void Function(void Function()) setState) {
+                                void Function(void Function())
+                                    groupDialogSetState) {
                               return Center(
                                 child: Material(
-                                  borderRadius: BorderRadius.circular(4.0),
+                                  borderRadius: BorderRadius.circular(10.0),
                                   child: Container(
                                     padding: EdgeInsets.all(20.0),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4.0),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
                                     constraints: BoxConstraints(
                                       maxWidth:
                                           MediaQuery.of(context).size.width *
-                                              0.4,
+                                              0.3,
                                       maxHeight:
                                           MediaQuery.of(context).size.height *
-                                              0.4,
+                                              0.3,
                                     ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        GridView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: widget.groups.length,
-                                          gridDelegate:
-                                              SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 5,
-                                            mainAxisSpacing: 20.0,
-                                            crossAxisSpacing: 20.0,
+                                        Text(
+                                          'Select Groups',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            return _AssignedGroupWidget(
-                                              widget: widget,
-                                              index: index,
-                                              groups:
-                                                  widget.question.groups ?? [],
-                                              studyUID: widget.studyUID,
-                                              topicUID: widget.topicUID,
-                                              questionUID:
-                                                  widget.question.questionUID,
-                                              moderatorFirestoreService:
-                                                  _moderatorFirestoreService,
-                                            );
-                                          },
+                                        ),
+                                        SizedBox(
+                                          height: 20.0,
+                                        ),
+                                        Container(
+                                          height: 1.0,
+                                          color: Colors.grey[300],
+                                        ),
+                                        SizedBox(
+                                          height: 20.0,
+                                        ),
+                                        Expanded(
+                                          child: Wrap(
+                                            spacing: 10.0,
+                                            runSpacing: 10.0,
+                                            children: List.generate(
+                                                widget.groups.length, (index) {
+                                              return FilterChip(
+                                                elevation: 2.0,
+                                                checkmarkColor: Colors.white,
+                                                selectedColor: PROJECT_GREEN,
+                                                selected: _groupNames.contains(
+                                                    widget
+                                                        .groups[index].groupName),
+                                                onSelected: (bool value) {
+                                                  groupDialogSetState(() {
+                                                    if (value) {
+                                                      _groupNames.add(widget
+                                                          .groups[index]
+                                                          .groupName);
+
+                                                      _groups.add(widget
+                                                          .groups[index]
+                                                          .groupUID);
+
+                                                      widget.question.groupNames =
+                                                          _groupNames;
+
+                                                      widget.question.groups =
+                                                          _groups;
+                                                    } else {
+                                                      _groupNames.removeWhere(
+                                                          (groupName) {
+                                                        return groupName ==
+                                                            widget.groups[index]
+                                                                .groupName;
+                                                      });
+                                                      _groups.removeWhere(
+                                                          (groupUID) {
+                                                        return groupUID ==
+                                                            widget.groups[index]
+                                                                .groupUID;
+                                                      });
+                                                      widget.question.groupNames =
+                                                          _groupNames;
+                                                      widget.question.groups =
+                                                          _groups;
+                                                    }
+                                                  });
+                                                },
+                                                label: Text(
+                                                  widget.groups[index].groupName,
+                                                  style: TextStyle(
+                                                      color: _groupNames.contains(
+                                                              widget.groups[index]
+                                                                  .groupName)
+                                                          ? Colors.white
+                                                          : Colors.black),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
                                         ),
                                         SizedBox(
                                           height: 20.0,
                                         ),
                                         ButtonBar(
                                           children: [
-                                            FlatButton(
+                                            RaisedButton(
+                                              color: Colors.grey[300],
                                               onPressed: () =>
                                                   Navigator.pop(context),
-                                              child: Text(
-                                                'CANCEL',
-                                                style: TextStyle(
-                                                  color: Colors.grey[700],
-                                                  fontSize: 14.0,
-                                                  fontWeight: FontWeight.bold,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 4.0,
+                                                        horizontal: 8.0),
+                                                child: Text(
+                                                  'CANCEL',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[700],
+                                                    fontSize: 14.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                             SizedBox(
                                               width: 20.0,
                                             ),
-                                            FlatButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text(
-                                                'DONE',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14.0,
-                                                  fontWeight: FontWeight.bold,
+                                            RaisedButton(
+                                              onPressed: _groupNames.isEmpty
+                                                  ? null
+                                                  : () async {
+                                                      await _researcherAndModeratorFirestoreService
+                                                          .updateQuestion(
+                                                              widget.studyUID,
+                                                              widget.topicUID,
+                                                              widget.question);
+                                                      Navigator.pop(context);
+                                                    },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 4.0,
+                                                        horizontal: 8.0),
+                                                child: Text(
+                                                  'DONE',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
                                               color: PROJECT_GREEN,
@@ -377,10 +459,9 @@ class _StudySetupScreenQuestionWidgetState
                         horizontal: 10.0,
                       ),
                       child: Text(
-                        widget.question.groups == null ||
-                                widget.question.groups.isEmpty
+                        widget.question.groups.isEmpty
                             ? 'Select groups'
-                            : 'Group 1, Group 2',
+                            : 'Groups Selected',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.0,
@@ -560,7 +641,8 @@ class _StudySetupScreenQuestionWidgetState
                         child: Container(
                           constraints: BoxConstraints(
                             maxWidth: MediaQuery.of(context).size.width * 0.6,
-                            maxHeight: MediaQuery.of(context).size.height * 0.75,
+                            maxHeight:
+                                MediaQuery.of(context).size.height * 0.75,
                           ),
                           padding: EdgeInsets.all(10.0),
                           decoration: BoxDecoration(
@@ -649,84 +731,122 @@ class _StudySetupScreenQuestionWidgetState
             height: 10.0,
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Theme(
-                data: ThemeData(
-                  unselectedWidgetColor: Colors.grey[500],
-                  accentColor: PROJECT_NAVY_BLUE,
-                ),
-                child: Radio(
-                  value: 1,
-                  groupValue: _selectedRadio,
-                  onChanged: (int value) {
-                    _setSelectedRadio(value);
-                  },
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Theme(
+                    data: ThemeData(
+                      unselectedWidgetColor: Colors.grey[500],
+                      accentColor: PROJECT_NAVY_BLUE,
+                    ),
+                    child: Radio(
+                      value: 1,
+                      groupValue: _selectedRadio,
+                      onChanged: (int value) {
+                        _setSelectedRadio(value);
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 5.0,
+                  ),
+                  Text(
+                    'Standard',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Theme(
+                    data: ThemeData(
+                      unselectedWidgetColor: Colors.grey[500],
+                      accentColor: PROJECT_NAVY_BLUE,
+                    ),
+                    child: Radio(
+                      value: 2,
+                      groupValue: _selectedRadio,
+                      onChanged: (int value) {
+                        _setSelectedRadio(value);
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 5.0,
+                  ),
+                  Text(
+                    'Un-Influenced',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Theme(
+                    data: ThemeData(
+                      unselectedWidgetColor: Colors.grey[500],
+                      accentColor: PROJECT_NAVY_BLUE,
+                    ),
+                    child: Radio(
+                      value: 3,
+                      groupValue: _selectedRadio,
+                      onChanged: (int value) {
+                        _setSelectedRadio(value);
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 5.0,
+                  ),
+                  Text(
+                    'Private',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(
-                width: 5.0,
-              ),
-              Text(
-                'Standard',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12.0,
-                ),
-              ),
-              SizedBox(
-                width: 10.0,
-              ),
-              Theme(
-                data: ThemeData(
-                  unselectedWidgetColor: Colors.grey[500],
-                  accentColor: PROJECT_NAVY_BLUE,
-                ),
-                child: Radio(
-                  value: 2,
-                  groupValue: _selectedRadio,
-                  onChanged: (int value) {
-                    _setSelectedRadio(value);
-                  },
-                ),
-              ),
-              SizedBox(
-                width: 5.0,
-              ),
-              Text(
-                'Un-Influenced',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12.0,
-                ),
-              ),
-              SizedBox(
-                width: 10.0,
-              ),
-              Theme(
-                data: ThemeData(
-                  unselectedWidgetColor: Colors.grey[500],
-                  accentColor: PROJECT_NAVY_BLUE,
-                ),
-                child: Radio(
-                  value: 3,
-                  groupValue: _selectedRadio,
-                  onChanged: (int value) {
-                    _setSelectedRadio(value);
-                  },
-                ),
-              ),
-              SizedBox(
-                width: 5.0,
-              ),
-              Text(
-                'Private',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12.0,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Theme(
+                    data: ThemeData(
+                      accentColor: PROJECT_NAVY_BLUE,
+                      unselectedWidgetColor: Colors.grey[300],
+                    ),
+                    child: Checkbox(
+                      // TODO -> Change tick colour
+                      value: widget.question.hasMedia,
+                      onChanged: (bool value) {
+                        setState(() {
+                          widget.question.hasMedia = value;
+                          _updateQuestionDetails();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 5.0,
+                  ),
+                  Text(
+                    'Question has media',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -742,7 +862,7 @@ class _AssignedGroupWidget extends StatefulWidget {
     @required this.widget,
     this.index,
     this.groups,
-    this.moderatorFirestoreService,
+    this.researcherAndModeratorFirestoreService,
     this.studyUID,
     this.topicUID,
     this.questionUID,
@@ -751,7 +871,8 @@ class _AssignedGroupWidget extends StatefulWidget {
   final StudySetupScreenQuestionWidget widget;
   final int index;
   final List groups;
-  final ModeratorFirestoreService moderatorFirestoreService;
+  final ResearcherAndModeratorFirestoreService
+      researcherAndModeratorFirestoreService;
   final String studyUID;
   final String topicUID;
   final String questionUID;
@@ -780,14 +901,15 @@ class _AssignedGroupWidgetState extends State<_AssignedGroupWidget> {
             _isSelected = false;
             widget.groups.remove(_groupUID);
           });
-          await widget.moderatorFirestoreService.removeAssignedGroup(
-              widget.studyUID, widget.topicUID, widget.questionUID, _groupUID);
+          await widget.researcherAndModeratorFirestoreService
+              .removeAssignedGroup(widget.studyUID, widget.topicUID,
+                  widget.questionUID, _groupUID);
         } else {
           setState(() {
             _isSelected = true;
             widget.groups.add(_groupUID);
           });
-          await widget.moderatorFirestoreService.addAssignedGroup(
+          await widget.researcherAndModeratorFirestoreService.addAssignedGroup(
               widget.studyUID, widget.topicUID, widget.questionUID, _groupUID);
         }
       },

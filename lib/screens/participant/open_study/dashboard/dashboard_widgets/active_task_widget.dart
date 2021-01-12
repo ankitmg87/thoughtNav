@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
@@ -30,6 +31,18 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
       }
     }
     return answeredQuestions;
+  }
+
+  String _setStartButtonLabel(){
+    if(_answeredQuestions() == widget.topic.questions.length){
+      return 'Topic Complete';
+    }
+    else if (_answeredQuestions() > 0 && _answeredQuestions() < widget.topic.questions.length){
+      return 'In Progress';
+    }
+    else {
+      return 'Start';
+    }
   }
 
   @override
@@ -68,7 +81,7 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                       );
                     },
                     child: Text(
-                      'Start',
+                      _setStartButtonLabel(),
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -181,7 +194,10 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                                         .questions[index]
                                         .questionTimestamp
                                         .millisecondsSinceEpoch) {
-                              return LockedQuestionWidget();
+                              return LockedQuestionWidget(
+                                questionTimestamp: widget
+                                    .topic.questions[index].questionTimestamp,
+                              );
                             } else {
                               if (widget
                                       .topic.questions[index - 1].respondedBy !=
@@ -201,13 +217,22 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                                       topicUID: widget.topic.topicUID,
                                     );
                                   } else {
-                                    return LockedQuestionWidget();
+                                    return LockedQuestionWidget(
+                                      questionTimestamp: widget.topic
+                                          .questions[index].questionTimestamp,
+                                    );
                                   }
                                 } else {
-                                  return LockedQuestionWidget();
+                                  return LockedQuestionWidget(
+                                    questionTimestamp: widget.topic
+                                        .questions[index].questionTimestamp,
+                                  );
                                 }
                               } else {
-                                return LockedQuestionWidget();
+                                return LockedQuestionWidget(
+                                  questionTimestamp: widget
+                                      .topic.questions[index].questionTimestamp,
+                                );
                               }
                             }
 
@@ -286,27 +311,68 @@ class ActiveQuestionWidget extends StatelessWidget {
 }
 
 class LockedQuestionWidget extends StatelessWidget {
+  final Timestamp questionTimestamp;
+
+  const LockedQuestionWidget({Key key, this.questionTimestamp})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Question Locked',
-          style: TextStyle(
-            color: TEXT_COLOR,
-            fontSize: 12.0,
+    var formatDate = DateFormat.yMd();
+    var formatTime = DateFormat.jm();
+
+    var date = formatDate.format(questionTimestamp.toDate());
+    var time = formatTime.format(questionTimestamp.toDate());
+
+    return InkWell(
+      onTap: () {
+        showGeneralDialog(
+          context: context,
+          barrierLabel: 'Locked Question',
+          barrierDismissible: true,
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return Center(
+              child: Material(
+                borderRadius: BorderRadius.circular(10.0),
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text(questionTimestamp.millisecondsSinceEpoch >
+                          Timestamp.now().millisecondsSinceEpoch
+                      ? 'This question will unlock on $date at $time'
+                      : 'Please answer all previous questions',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Question Locked',
+            style: TextStyle(
+              color: TEXT_COLOR,
+              fontSize: 12.0,
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Icon(
-            Icons.lock,
-            color: TEXT_COLOR.withOpacity(0.7),
-            size: 16.0,
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Icon(
+              Icons.lock,
+              color: TEXT_COLOR.withOpacity(0.7),
+              size: 16.0,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

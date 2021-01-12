@@ -10,7 +10,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: 1.0.0
-  carousel_slider: ^2.2.1
+  carousel_pro: ^1.0.0
   dotted_border: ^1.0.6
   auto_size_text: ^2.1.0
   google_fonts: ^1.1.0
@@ -54,13 +54,19 @@ dependencies:
 
   image_whisperer: ^0.11.1
 
+  flutter_widget_from_html_core: ^0.5.1+4
+
+  chewie: ^0.12.1+1
+
+  yabwe: ^0.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 flutter:
   uses-material-design: true
   assets:
-  - assets/quill.html
+
   - images/
   - images/svg_icons/
   - images/avatars/

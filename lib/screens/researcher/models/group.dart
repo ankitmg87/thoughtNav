@@ -4,13 +4,14 @@ class Group {
   int groupIndex;
   String groupName;
   String internalGroupLabel;
+  String groupRewardAmount;
 
   Group({
     this.groupUID,
     this.groupIndex,
     this.groupName,
     this.internalGroupLabel,
-
+    this.groupRewardAmount,
   });
 
   Map<String, dynamic> toMap () {
@@ -20,6 +21,7 @@ class Group {
     group['groupIndex'] = groupIndex;
     group['groupName'] = groupName;
     group['internalGroupLabel'] = internalGroupLabel;
+    group['groupRewardAmount'] = groupRewardAmount;
 
     return group;
   }
@@ -29,6 +31,7 @@ class Group {
     groupIndex = group['groupIndex'];
     groupName = group['groupName'];
     internalGroupLabel = group['internalGroupLabel'];
+    groupRewardAmount = group['groupRewardAmount'];
   }
 
 }

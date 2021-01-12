@@ -6,7 +6,7 @@ class Categories {
   bool advertising;
   bool product;
   bool futures;
-  String others;
+  List<dynamic> customCategories;
 
   Categories({
     this.lifestyle,
@@ -16,7 +16,7 @@ class Categories {
     this.advertising,
     this.product,
     this.futures,
-    this.others,
+    this.customCategories,
   });
 
   void setCategoryStatus(String categoryName, bool status){
@@ -84,6 +84,7 @@ class Categories {
     categoriesMap['advertising'] = categories.advertising ?? false;
     categoriesMap['product'] = categories.product ?? false;
     categoriesMap['futures'] = categories.futures ?? false;
+    categoriesMap['customCategories'] = categories.customCategories ?? [];
 
     return categoriesMap;
   }
@@ -96,6 +97,7 @@ class Categories {
     advertising = categories['advertising'];
     product = categories['product'];
     futures = categories['futures'];
+    customCategories = categories['customCategories'];
   }
 
 }

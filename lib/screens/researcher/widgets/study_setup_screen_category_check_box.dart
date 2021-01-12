@@ -58,7 +58,7 @@ class _StudySetupScreenCategoryCheckBoxState
               children: [
                 Theme(
                   data: ThemeData(
-                    accentColor: PROJECT_GREEN,
+                    accentColor: PROJECT_NAVY_BLUE,
                     unselectedWidgetColor: Colors.grey[300],
                   ),
                   child: Checkbox(

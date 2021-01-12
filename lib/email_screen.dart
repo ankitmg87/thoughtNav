@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/services/moderator_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class EmailScreen extends StatefulWidget {
   @override
@@ -10,7 +10,7 @@ class EmailScreen extends StatefulWidget {
 
 class _EmailScreenState extends State<EmailScreen> {
 
-  final moderatorService = ModeratorFirestoreService();
+  final moderatorService = ResearcherAndModeratorFirestoreService();
 
   Response response;
 

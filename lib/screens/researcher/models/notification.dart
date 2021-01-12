@@ -1,61 +1,61 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ResponseNotification {
-  String notificationUID;
-  String avatarURL;
-  String questionNumber;
-  String questionTitle;
-  String questionUID;
-  String topicUID;
-  String responseUID;
-  String notificationType;
-  Timestamp notificationTimestamp;
-
-  ResponseNotification({
-    this.notificationUID,
-    this.avatarURL,
-    this.questionNumber,
-    this.questionTitle,
-    this.questionUID,
-    this.topicUID,
-    this.responseUID,
-    this.notificationType,
-    this.notificationTimestamp,
-  });
-
-  ResponseNotification.fromMap(Map<String, dynamic> responseNotificationMap) {
-    notificationUID = responseNotificationMap['notificationUID'];
-    avatarURL = responseNotificationMap['avatarURL'];
-    questionNumber = responseNotificationMap['questionNumber'];
-    questionTitle = responseNotificationMap['questionTitle'];
-    questionUID = responseNotificationMap['questionUID'];
-    topicUID = responseNotificationMap['topicUID'];
-    responseUID = responseNotificationMap['responseUID'];
-    notificationType = responseNotificationMap['notificationType'];
-    notificationTimestamp = responseNotificationMap['notificationTimestamp'];
-  }
-
-  Map<String, dynamic> toMap(ResponseNotification responseNotification) {
-    var responseNotificationMap = <String, dynamic>{};
-
-    responseNotificationMap['notificationUID'] =
-        responseNotification.notificationUID;
-    responseNotificationMap['avatarURL'] = responseNotification.avatarURL;
-    responseNotificationMap['questionNumber'] =
-        responseNotification.questionNumber;
-    responseNotificationMap['questionTitle'] =
-        responseNotification.questionTitle;
-    responseNotificationMap['questionUID'] = responseNotification.questionUID;
-    responseNotificationMap['topicUID'] = responseNotification.topicUID;
-    responseNotificationMap['responseUID'] = responseNotification.responseUID;
-    responseNotificationMap['notificationType'] =
-        responseNotification.notificationType;
-    responseNotificationMap['notificationTimestamp'] =
-        responseNotification.notificationTimestamp;
-
-    return responseNotificationMap;
-  }
-}
+// class ResponseNotification {
+//   String notificationUID;
+//   String avatarURL;
+//   String questionNumber;
+//   String questionTitle;
+//   String questionUID;
+//   String topicUID;
+//   String responseUID;
+//   String notificationType;
+//   Timestamp notificationTimestamp;
+//
+//   ResponseNotification({
+//     this.notificationUID,
+//     this.avatarURL,
+//     this.questionNumber,
+//     this.questionTitle,
+//     this.questionUID,
+//     this.topicUID,
+//     this.responseUID,
+//     this.notificationType,
+//     this.notificationTimestamp,
+//   });
+//
+//   ResponseNotification.fromMap(Map<String, dynamic> responseNotificationMap) {
+//     notificationUID = responseNotificationMap['notificationUID'];
+//     avatarURL = responseNotificationMap['avatarURL'];
+//     questionNumber = responseNotificationMap['questionNumber'];
+//     questionTitle = responseNotificationMap['questionTitle'];
+//     questionUID = responseNotificationMap['questionUID'];
+//     topicUID = responseNotificationMap['topicUID'];
+//     responseUID = responseNotificationMap['responseUID'];
+//     notificationType = responseNotificationMap['notificationType'];
+//     notificationTimestamp = responseNotificationMap['notificationTimestamp'];
+//   }
+//
+//   Map<String, dynamic> toMap(ResponseNotification responseNotification) {
+//     var responseNotificationMap = <String, dynamic>{};
+//
+//     responseNotificationMap['notificationUID'] =
+//         responseNotification.notificationUID;
+//     responseNotificationMap['avatarURL'] = responseNotification.avatarURL;
+//     responseNotificationMap['questionNumber'] =
+//         responseNotification.questionNumber;
+//     responseNotificationMap['questionTitle'] =
+//         responseNotification.questionTitle;
+//     responseNotificationMap['questionUID'] = responseNotification.questionUID;
+//     responseNotificationMap['topicUID'] = responseNotification.topicUID;
+//     responseNotificationMap['responseUID'] = responseNotification.responseUID;
+//     responseNotificationMap['notificationType'] =
+//         responseNotification.notificationType;
+//     responseNotificationMap['notificationTimestamp'] =
+//         responseNotification.notificationTimestamp;
+//
+//     return responseNotificationMap;
+//   }
+// }
 
 class CommentNotification {
   String notificationUID;

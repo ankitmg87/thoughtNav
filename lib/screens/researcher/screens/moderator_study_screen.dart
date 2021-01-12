@@ -40,7 +40,7 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
     usersScreen = StudyUsers(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
     // setupScreen = StudySetup(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
     setupScreen = Expanded(child: DraftStudySetup(studyUID: studyUID,));
-    reportsScreen = StudyReports();
+    reportsScreen = StudyReports(studyUID: studyUID,);
 
     subScreen = dashboardScreen;
 
@@ -180,44 +180,44 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
         ),
       ),
       centerTitle: true,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Stack(
-              children: [
-                Container(
-                  child: Image(
-                    image: AssetImage('images/avatars/batman.png'),
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(2.0),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.menu,
-                      color: Colors.white,
-                      size: 12.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.all(8.0),
+      //     child: Center(
+      //       child: Stack(
+      //         children: [
+      //           Container(
+      //             child: Image(
+      //               image: AssetImage('images/avatars/batman.png'),
+      //             ),
+      //             decoration: BoxDecoration(
+      //               shape: BoxShape.circle,
+      //             ),
+      //           ),
+      //           Positioned(
+      //             bottom: 0,
+      //             right: 0,
+      //             child: Container(
+      //               padding: EdgeInsets.all(2.0),
+      //               decoration: BoxDecoration(
+      //                 color: Colors.black,
+      //                 shape: BoxShape.circle,
+      //                 border: Border.all(
+      //                   color: Colors.white,
+      //                 ),
+      //               ),
+      //               child: Icon(
+      //                 Icons.menu,
+      //                 color: Colors.white,
+      //                 size: 12.0,
+      //               ),
+      //             ),
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // ],
     );
   }
 }

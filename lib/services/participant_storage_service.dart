@@ -11,14 +11,14 @@ class ParticipantStorageService {
       fb.app().storage().refFromURL(_FIREBASE_STORAGE_URL);
 
   Future<Uri> uploadImageToFirebase(
-      String studyName, String participantUID, File imageFile) async {
+      String studyName, String participantUID, String questionNumber, String questionTitle, File imageFile) async {
     var imageURI;
 
-    var timestamp = Timestamp.now();
+    await deletePreviousMedia(studyName, participantUID, questionNumber, questionTitle);
 
     var uploadTaskSnapshot = participantStorageReference
         .child(
-            '$studyName/$participantUID/${timestamp.millisecondsSinceEpoch}${imageFile.name}')
+            '$studyName/$participantUID/$questionNumber/$questionTitle')
         .put(imageFile);
 
     await uploadTaskSnapshot.future.then((value) async {
@@ -28,15 +28,14 @@ class ParticipantStorageService {
     return imageURI;
   }
 
-  Future<Uri> uploadVideoToFirebase(
-      String studyName, String participantUID, File videoFile) async {
+  Future<Uri> uploadVideoToFirebase(String studyName, String participantUID, String questionNumber,
+      String questionTitle, File videoFile) async {
     var videoURI;
 
-    var timestamp = Timestamp.now();
+    await deletePreviousMedia(studyName, participantUID, questionNumber, questionTitle);
 
     var uploadTaskSnapshot = participantStorageReference
-        .child(
-            '$studyName/$participantUID/${timestamp.millisecondsSinceEpoch}${videoFile.name}')
+        .child('$studyName/$participantUID/$questionNumber/$questionTitle')
         .put(videoFile);
 
     await uploadTaskSnapshot.future.then((value) async {
@@ -44,5 +43,26 @@ class ParticipantStorageService {
     });
 
     return videoURI;
+  }
+
+  Future<void> deletePreviousMedia(
+      String studyName, String participantUID, String questionNumber, String questionTitle) async {
+
+    try {
+      var previousMediaMetadata = await participantStorageReference
+          .child('$studyName/$participantUID/$questionNumber/$questionTitle').getMetadata();
+
+      if(previousMediaMetadata != null) {
+        await participantStorageReference.child('$studyName/$participantUID/$questionNumber/$questionTitle').delete();
+
+        print('Media Deleted');
+      }
+    }
+    catch (e) {
+      return;
+    }
+
+
+
   }
 }

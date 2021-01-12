@@ -94,7 +94,7 @@ class StudyDetailsGeneralDialogWidget extends StatelessWidget {
               Image(
                 width: 30.0,
                 image: AssetImage(
-                  'images/svg_icons/gift_card.png',
+                  'images/svg_icons/dollar.png',
                 ),
               ),
               SizedBox(
@@ -142,7 +142,7 @@ class StudyDetailsGeneralDialogWidget extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: Text(
-            'The purpose of this study is to receive your honest feedback about your personal experiences with your power wheelchair.',
+            'The purpose of this study is to receive your honest feedback about your personal experiences.',
             style: TextStyle(
               color: Color(0xFF333333),
               fontSize: 12.0,

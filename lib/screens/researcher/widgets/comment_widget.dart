@@ -1,8 +1,64 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/misc_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/comment.dart';
 
 class CommentWidget extends StatelessWidget {
+  final Comment comment;
+
+  const CommentWidget({Key key, this.comment}) : super(key: key);
+
+
+  String _calculateDateAndTime(Timestamp commentTimestamp) {
+    var dateFormat = DateFormat(DateFormat.ABBR_MONTH_DAY);
+    var timeFormat = DateFormat.jm();
+
+    var date = dateFormat.format(commentTimestamp.toDate());
+    var time = timeFormat.format(commentTimestamp.toDate());
+
+    return '$date at $time';
+  }
+
+  String _calculateTimeDifference() {
+    var timeNow = DateTime.now();
+    var difference = timeNow.difference(DateTime.fromMillisecondsSinceEpoch(
+        comment.commentTimestamp.millisecondsSinceEpoch));
+
+    if (difference.inDays >= 7) {
+      if (difference.inDays == 7) {
+        return (difference.inDays / 7).floor().toString() + ' WEEK AGO';
+      } else {
+        return (difference.inDays / 7).ceil().toString() + ' WEEKS AGO';
+      }
+    } else if (difference.inDays > 0 && difference.inDays < 7) {
+      if (difference.inDays == 1) {
+        return difference.inDays.toString() + ' DAY AGO';
+      } else {
+        return difference.inDays.toString() + ' DAYS AGO';
+      }
+    } else if (difference.inHours > 0 && difference.inDays == 0) {
+      if (difference.inHours == 1) {
+        return difference.inHours.toString() + ' HOUR AGO';
+      } else {
+        return difference.inHours.toString() + ' HOURS AGO';
+      }
+    } else if (difference.inMinutes > 0 && difference.inHours == 0) {
+      if (difference.inMinutes == 1) {
+        return difference.inMinutes.toString() + ' MINUTE AGO';
+      } else {
+        return difference.inMinutes.toString() + ' MINUTES AGO';
+      }
+    } else if (difference.inSeconds <= 0 ||
+        difference.inSeconds > 0 && difference.inMinutes == 0) {
+      return 'NOW';
+    } else {
+      return 'NOW';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -28,17 +84,20 @@ class CommentWidget extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 50.0,
-                height: 50.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage(
-                      'images/avatars/spiderman.png',
+              CachedNetworkImage(
+                imageUrl: comment.avatarURL,
+                imageBuilder: (imageContext, imageProvider){
+                  return Container(
+                    width: 40.0,
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
                     ),
-                  ),
-                ),
+                    child: Image(
+                      image: imageProvider,
+                    ),
+                  );
+                },
               ),
               SizedBox(
                 width: 10.0,
@@ -57,14 +116,14 @@ class CommentWidget extends StatelessWidget {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: 'Spiderman - ',
+                                    text: '${comment.displayName} - ',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   TextSpan(
-                                    text: 'Dylan Ryder',
+                                    text: '${comment.participantName}',
                                     style: TextStyle(
                                       color: PROJECT_GREEN,
                                       fontWeight: FontWeight.bold,
@@ -77,7 +136,7 @@ class CommentWidget extends StatelessWidget {
                               height: 4.0,
                             ),
                             Text(
-                              '11/25/2020 at 12:18 pm',
+                              _calculateDateAndTime(comment.commentTimestamp),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 12.0,
@@ -86,7 +145,7 @@ class CommentWidget extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          '3 minutes ago',
+                          _calculateTimeDifference(),
                           style: TextStyle(
                             color: PROJECT_GREEN,
                           ),
@@ -96,20 +155,23 @@ class CommentWidget extends StatelessWidget {
                     SizedBox(
                       height: 10.0,
                     ),
-                    Text(
-                      TEMPORARY_QUESTION,
-                    ),
-                    SizedBox(
-                      height: 16.0,
-                    ),
                     Align(
-                      alignment: Alignment.centerRight,
-                      child: Icon(
-                        Icons.reply,
-                        color: PROJECT_GREEN,
-                        size: 20.0,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        comment.commentStatement,
                       ),
                     ),
+                    // SizedBox(
+                    //   height: 16.0,
+                    // ),
+                    // Align(
+                    //   alignment: Alignment.centerRight,
+                    //   child: Icon(
+                    //     Icons.reply,
+                    //     color: PROJECT_GREEN,
+                    //     size: 20.0,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

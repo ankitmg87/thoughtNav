@@ -75,7 +75,6 @@ class _ParticipantDashboardScreenState
 
   Future<void> _futureStudy;
 
-  // Future<void> _futureStudyNavigatorTopics;
   Future<void> _futureTopics;
 
   Stream<QuerySnapshot> _notificationsStream;
@@ -91,6 +90,7 @@ class _ParticipantDashboardScreenState
     _futureTopics = _getFutureTopics(_participant.groupUID);
 
     await getStorage.write('studyName', _study.studyName);
+    await getStorage.write('participantGroupUID', _participant.groupUID);
   }
 
   Future<void> _getFutureParticipant() async {
@@ -156,7 +156,6 @@ class _ParticipantDashboardScreenState
     _participantUID = getStorage.read('participantUID');
 
     _futureStudy = _getFutureStudy();
-    //_futureStudyNavigatorTopics = _getStudyNavigatorFutureTopics();
 
     super.initState();
   }
@@ -429,53 +428,53 @@ class _ParticipantDashboardScreenState
                               ),
                             ],
                           ),
-                          _answeredQuestions == _totalQuestions &&
-                                  _study.studyStatus == 'Completed'
-                              ? RaisedButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                  elevation: 4.0,
-                                  color: Colors.white,
-                                  hoverColor: Colors.transparent,
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pushNamed(STUDY_ENDED_SCREEN);
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                      vertical: 4.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          height: 40.0,
-                                          width: 60.0,
-                                          child: Image(
-                                            image: AssetImage(
-                                              _participant.paymentMode ==
-                                                      'Amazon'
-                                                  ? 'images/amazon_logo.png'
-                                                  : 'images/paypal_logo.png',
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 10.0,
-                                        ),
-                                        Text(
-                                          'Claim Reward',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : SizedBox(),
+                          // _answeredQuestions == _totalQuestions &&
+                          //         _study.studyStatus == 'Completed'
+                          //     ? RaisedButton(
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(4.0),
+                          //         ),
+                          //         elevation: 4.0,
+                          //         color: Colors.white,
+                          //         hoverColor: Colors.transparent,
+                          //         onPressed: () {
+                          //           Navigator.of(context)
+                          //               .pushNamed(STUDY_ENDED_SCREEN);
+                          //         },
+                          //         child: Padding(
+                          //           padding: EdgeInsets.symmetric(
+                          //             horizontal: 8.0,
+                          //             vertical: 4.0,
+                          //           ),
+                          //           child: Row(
+                          //             mainAxisSize: MainAxisSize.min,
+                          //             children: [
+                          //               Container(
+                          //                 height: 40.0,
+                          //                 width: 60.0,
+                          //                 child: Image(
+                          //                   image: AssetImage(
+                          //                     _participant.paymentMode ==
+                          //                             'Amazon'
+                          //                         ? 'images/amazon_logo.png'
+                          //                         : 'images/paypal_logo.png',
+                          //                   ),
+                          //                 ),
+                          //               ),
+                          //               SizedBox(
+                          //                 width: 10.0,
+                          //               ),
+                          //               Text(
+                          //                 'Claim Reward',
+                          //                 style: TextStyle(
+                          //                   color: Colors.black,
+                          //                 ),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         ),
+                          //       )
+                          //     : SizedBox(),
                         ],
                       ),
                     ),
@@ -499,55 +498,130 @@ class _ParticipantDashboardScreenState
                                       );
                                       break;
                                     case ConnectionState.done:
-                                      return ListView.separated(
-                                        itemCount: _topics.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          if (index == 0 &&
-                                              _topics[index].isActive) {
-                                            return ActiveTaskWidget(
-                                              topic: _topics[index],
-                                              participantUID: _participantUID,
-                                            );
-                                          } else if (index >= 1) {
-                                            if (_topics[index - 1]
-                                                    .questions
-                                                    .last
-                                                    .respondedBy !=
-                                                null) {
-                                              if (_topics[index - 1]
-                                                      .questions
-                                                      .last
-                                                      .respondedBy
-                                                      .contains(
-                                                          _participantUID) &&
+                                      return ListView(
+                                        children: [
+                                          _answeredQuestions ==
+                                                      _totalQuestions &&
+                                                  _study.studyStatus ==
+                                                      'Completed'
+                                              ? Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 16.0),
+                                                  child: Card(
+                                                    elevation: 4.0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                    ),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                        color:
+                                                            PROJECT_LIGHT_GREEN,
+                                                      ),
+                                                      child: Padding(
+                                                        padding: EdgeInsets.all(
+                                                            20.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Text(
+                                                              'Hurray!!'
+                                                              '\n'
+                                                              ' You have answered $_answeredQuestions/$_totalQuestions questions!'
+                                                              '\n'
+                                                              'Payments will be sent within 5 working days after study is closed.',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .grey[700],
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 12.0,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              : SizedBox(),
+                                          SizedBox(
+                                            height: _answeredQuestions ==
+                                                        _totalQuestions &&
+                                                    _study.studyStatus ==
+                                                        'Completed'
+                                                ? 10.0
+                                                : 0,
+                                          ),
+                                          ListView.separated(
+                                            shrinkWrap: true,
+                                            physics:
+                                                NeverScrollableScrollPhysics(),
+                                            itemCount: _topics.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              if (index == 0 &&
                                                   _topics[index].isActive) {
                                                 return ActiveTaskWidget(
                                                   topic: _topics[index],
                                                   participantUID:
                                                       _participantUID,
                                                 );
+                                              } else if (index >= 1) {
+                                                if (_topics[index - 1]
+                                                        .questions
+                                                        .last
+                                                        .respondedBy !=
+                                                    null) {
+                                                  if (_topics[index - 1]
+                                                          .questions
+                                                          .last
+                                                          .respondedBy
+                                                          .contains(
+                                                              _participantUID) &&
+                                                      _topics[index].isActive) {
+                                                    return ActiveTaskWidget(
+                                                      topic: _topics[index],
+                                                      participantUID:
+                                                          _participantUID,
+                                                    );
+                                                  } else {
+                                                    return LockedTaskWidget(
+                                                      topic: _topics[index],
+                                                    );
+                                                  }
+                                                } else {
+                                                  return LockedTaskWidget(
+                                                    topic: _topics[index],
+                                                  );
+                                                }
                                               } else {
                                                 return LockedTaskWidget(
-                                                  topic: _topics[index],
-                                                );
+                                                    topic: _topics[index]);
                                               }
-                                            } else {
-                                              return LockedTaskWidget(
-                                                topic: _topics[index],
+                                            },
+                                            separatorBuilder:
+                                                (BuildContext context,
+                                                    int index) {
+                                              return SizedBox(
+                                                height: 10.0,
                                               );
-                                            }
-                                          } else {
-                                            return LockedTaskWidget(
-                                                topic: _topics[index]);
-                                          }
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) {
-                                          return SizedBox(
-                                            height: 10.0,
-                                          );
-                                        },
+                                            },
+                                          ),
+                                        ],
                                       );
                                       break;
                                     default:
@@ -588,7 +662,9 @@ class _ParticipantDashboardScreenState
                               ],
                             ),
                           ),
-                          SizedBox(width: 20.0,),
+                          SizedBox(
+                            width: 20.0,
+                          ),
                         ],
                       ),
                     ),
@@ -633,14 +709,14 @@ class _ParticipantDashboardScreenState
                 child: ListView.separated(
                   itemBuilder: (BuildContext context, int index) {
                     switch (notifications[index]['notificationType']) {
-                      case 'response':
-                        var responseNotification = ResponseNotification.fromMap(
-                            notifications[index].data());
-
-                        return ResponseNotificationWidget(
-                          responseNotification: responseNotification,
-                        );
-                        break;
+                      // case 'response':
+                      //   var responseNotification = ResponseNotification.fromMap(
+                      //       notifications[index].data());
+                      //
+                      //   return ResponseNotificationWidget(
+                      //     responseNotification: responseNotification,
+                      //   );
+                      //   break;
 
                       case 'clap':
                         var clapNotification = ClapNotification.fromMap(
@@ -648,6 +724,7 @@ class _ParticipantDashboardScreenState
 
                         return ClapNotificationWidget(
                           clapNotification: clapNotification,
+                          participantDisplayName: _participant.displayName,
                         );
                         break;
 
@@ -657,6 +734,7 @@ class _ParticipantDashboardScreenState
 
                         return CommentNotificationWidget(
                           commentNotification: commentNotification,
+                          participantDisplayName: _participant.displayName,
                         );
                         break;
 
@@ -677,7 +755,9 @@ class _ParticipantDashboardScreenState
                   },
                   separatorBuilder: (BuildContext context, int index) {
                     return Container(
-                      margin: EdgeInsets.symmetric(vertical: 16.0,),
+                      margin: EdgeInsets.symmetric(
+                        vertical: 16.0,
+                      ),
                       height: 1.0,
                       width: double.maxFinite,
                       color: Colors.grey[300],
@@ -781,18 +861,79 @@ class _ParticipantDashboardScreenState
                                   .last
                                   .respondedBy ==
                               null) {
-                            return SizedBox();
+                            return ListTile(
+                              onTap: () {
+                                showGeneralDialog(
+                                    context: context,
+                                    pageBuilder: (BuildContext studyNavigatorLockedTopicContext,
+                                        Animation<double> animation,
+                                        Animation<double>
+                                            secondaryAnimation) {
+                                      return Center(
+                                        child: Material(
+                                          color: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(16.0),
+                                            child: Text(
+                                              'All questions in previous topic must be answered',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              },
+                              title: Text('Topic Locked'),
+                            );
                           } else if (!_studyNavigatorTopics[index - 1]
                               .questions
                               .last
                               .respondedBy
                               .contains(_participantUID)) {
-                            return SizedBox();
+                            return ListTile(
+                              title: Text('Topic Locked'),
+                              onTap: () {
+                                showGeneralDialog(
+                                    context: context,
+                                    pageBuilder: (BuildContext studyNavigatorLockedTopicContext,
+                                        Animation<double> animation,
+                                        Animation<double>
+                                        secondaryAnimation) {
+                                      return Center(
+                                        child: Material(
+                                          color: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(16.0),
+                                            child: Text(
+                                              'All questions in previous topic must be answered',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              },
+                            );
                           } else {
                             return EndDrawerExpansionTile(
                               title: _studyNavigatorTopics[index].topicName,
                               questions: _studyNavigatorTopics[index].questions,
                               participantUID: _participantUID,
+                              topicUID: _studyNavigatorTopics[index].topicUID,
                             );
                           }
                         }
@@ -935,7 +1076,7 @@ class _ParticipantDashboardScreenState
                       label1: 'Dashboard',
                       label2: 'Preferences',
                       onTap2: () => Navigator.of(context)
-                          .pushNamed(USER_PREFERENCES_SCREEN),
+                          .popAndPushNamed(USER_PREFERENCES_SCREEN),
                     ),
                     DesktopDropdownMenuOptionsRow(
                       image1: 'images/dashboard_icons/rewards.png',
@@ -943,10 +1084,11 @@ class _ParticipantDashboardScreenState
                       label1: 'Rewards',
                       label2: 'Contact Us',
                       onTap1: () {
-                        Navigator.of(context).pushNamed(POST_STUDY_REWARD_METHODS_SCREEN);
+                        Navigator.of(context)
+                            .popAndPushNamed(POST_STUDY_REWARD_METHODS_SCREEN);
                       },
-                      onTap2: () =>
-                          Navigator.of(context).pushNamed(CONTACT_US_SCREEN),
+                      onTap2: () => Navigator.of(context)
+                          .popAndPushNamed(CONTACT_US_SCREEN),
                     ),
                     SizedBox(
                       height: 40.0,
@@ -967,7 +1109,8 @@ class _ParticipantDashboardScreenState
                     InkWell(
                       onTap: () async {
                         await _firebaseAuthService.signOutUser();
-                        await Navigator.of(context).popAndPushNamed(LOGIN_SCREEN);
+                        await Navigator.of(context)
+                            .popAndPushNamed(LOGIN_SCREEN);
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(
@@ -1029,11 +1172,31 @@ class _ParticipantDashboardScreenState
               padding: EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  Text(
-                    'Study Details',
-                    style: TextStyle(
-                      color: Color(0xFFAAAAAA),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(),
+                      Text(
+                        'Study Details',
+                        style: TextStyle(
+                          color: Color(0xFFAAAAAA),
+                        ),
+                      ),
+                      InkWell(
+                        focusColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        child: Icon(
+                          Icons.clear,
+                          color: Colors.red[700],
+                          size: 16.0,
+                        ),
+                        onTap: () {
+                          Navigator.of(_context).pop();
+                        },
+                      ),
+                    ],
                   ),
                   Container(
                     width: double.maxFinite,

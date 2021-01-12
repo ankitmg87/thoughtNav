@@ -54,17 +54,17 @@ class FirebaseFirestoreService {
     return user;
   }
 
-  Future<List<Study>> getAllStudies(List<Study> allStudiesList) async {
-    var studiesSnapshot =
-        await _studiesReference.orderBy('created', descending: true).get();
-
-    for (var snapshot in studiesSnapshot.docs) {
-      var study = Study.basicDetailsFromMap(snapshot.data());
-      allStudiesList.add(study);
-    }
-
-    return allStudiesList;
-  }
+  // Future<List<Study>> getAllStudies(List<Study> allStudiesList) async {
+  //   var studiesSnapshot =
+  //       await _studiesReference.orderBy('created', descending: true).get();
+  //
+  //   for (var snapshot in studiesSnapshot.docs) {
+  //     var study = Study.basicDetailsFromMap(snapshot.data());
+  //     allStudiesList.add(study);
+  //   }
+  //
+  //   return allStudiesList;
+  // }
 
   Future<Study> getStudy(String studyUID) async {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
@@ -323,20 +323,6 @@ class FirebaseFirestoreService {
         .snapshots();
   }
 
-  Stream<QuerySnapshot> getResponsesAsStream(
-      String studyUID, String topicUID, String questionUID) {
-    return _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .collection(_RESPONSES_COLLECTION)
-        .orderBy('responseTimestamp', descending: true)
-        .where('responseUID', isNotEqualTo: null)
-        .snapshots();
-  }
-
   Stream getCommentsAsStream(String studyUID, String topicUID,
       String questionUID, String responseUID) {
     return _studiesReference
@@ -432,6 +418,7 @@ class FirebaseFirestoreService {
       introPageMessage: null,
       commonInviteMessage: null,
       studyClosedMessage: null,
+      archived: false,
     );
 
     var studyMap = Study().basicDetailsToMap(study);
@@ -532,28 +519,7 @@ class FirebaseFirestoreService {
     );
   }
 
-  Future<void> updateGroup(String studyUID, Group group) async {
-    var lastSaveTime = Timestamp.now();
 
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_GROUPS_COLLECTION)
-        .doc(group.groupUID)
-        .set(
-      {
-        'groupName': group.groupName,
-        'internalGroupLabel': group.internalGroupLabel,
-      },
-      SetOptions(merge: true),
-    );
-
-    await _studiesReference.doc(studyUID).set(
-      {
-        'lastSaveTime': lastSaveTime,
-      },
-      SetOptions(merge: true),
-    );
-  }
 
   Future<void> updateTopic(String studyUID, Topic topic) async {
     var lastSaveTime = Timestamp.now();

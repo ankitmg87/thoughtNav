@@ -7,6 +7,7 @@ import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/widgets/topic_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class StudyDashboard extends StatefulWidget {
   final String studyUID;
@@ -23,6 +24,9 @@ class StudyDashboard extends StatefulWidget {
 }
 
 class _StudyDashboardState extends State<StudyDashboard> {
+
+  final _researcherAndModeratorFirestoreService = ResearcherAndModeratorFirestoreService();
+
   Study study;
 
   Stream _studyStream;
@@ -41,7 +45,7 @@ class _StudyDashboardState extends State<StudyDashboard> {
   }
 
   void _getTopics() {
-    _futureTopics = widget.firebaseFirestoreService.getTopics(widget.studyUID);
+    _futureTopics = _researcherAndModeratorFirestoreService.getTopics(widget.studyUID);
   }
 
   @override
@@ -161,7 +165,7 @@ class _StudyDashboardState extends State<StudyDashboard> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            'Study Activity',
+                            'Insights',
                             textAlign: TextAlign.start,
                             style: TextStyle(
                               color: Colors.black,

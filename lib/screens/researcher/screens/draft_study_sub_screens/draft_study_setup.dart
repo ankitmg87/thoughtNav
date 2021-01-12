@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:js' as js;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:intl/intl.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -10,12 +12,16 @@ import 'package:thoughtnav/screens/researcher/models/categories.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
+import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/custom_categories_widget.dart';
+import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/draft_screen_custom_text_field.dart';
 import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_category_check_box.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_custom_input_field.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_topic_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
-import 'package:thoughtnav/services/moderator_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
+
+import 'draft_study_widgets/draft_screen_group_widget.dart';
 
 class DraftStudySetup extends StatefulWidget {
   final String studyUID;
@@ -30,7 +36,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   final studyInfoKey = GlobalKey();
   final selectCategoryKey = GlobalKey();
   final createGroupsKey = GlobalKey();
-  final addQuestionsKey = GlobalKey();
+  final _addQuestionsKey = GlobalKey();
 
   Future<void> _futureDraftStudy;
   Future<void> _futureGroups;
@@ -39,7 +45,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
-  final _moderatorFirestoreService = ModeratorFirestoreService();
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
 
   final formKey = GlobalKey<FormState>();
 
@@ -58,6 +65,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   );
 
   Study mStudy;
+
+  int _selectedTimeZone;
 
   Categories _categories = Categories(
     lifestyle: false,
@@ -81,8 +90,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
       _topics.insert(newIndex, _topics.removeAt(oldIndex));
     });
   }
-
-  int _selectedTimeZone;
 
   void _setSelectedRadio(int value) {
     setState(() {
@@ -132,6 +139,13 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
 
   @override
   void initState() {
+    // var state = js.JsObject.fromBrowserObject(js.context['state']);
+    // print(state['hello']);
+    //
+    // js.context.callMethod('alertMessage', [_print()]);
+
+    // js.context.callMethod('logger', [_print()]);
+
     _getCategories();
     _initializeFocusNodes();
     _futureDraftStudy = _getStudyDetails();
@@ -187,7 +201,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   }
 
   Future<void> _getStudyDetails() async {
-    mStudy = await _moderatorFirestoreService.getStudy(widget.studyUID);
+    mStudy =
+        await _researcherAndModeratorFirestoreService.getStudy(widget.studyUID);
     _selectedTimeZone = _getTimeZone();
   }
 
@@ -205,7 +220,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   }
 
   Future<void> _getTopics() async {
-    _topics = await _moderatorFirestoreService.getTopics(widget.studyUID);
+    _topics = await _researcherAndModeratorFirestoreService
+        .getTopics(widget.studyUID);
     _topics ??= <Topic>[];
     if (mounted) {
       setState(() {});
@@ -284,7 +300,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
               ),
               InkWell(
                 onTap: () {
-                  Scrollable.ensureVisible(addQuestionsKey.currentContext);
+                  Scrollable.ensureVisible(_addQuestionsKey.currentContext);
                 },
                 child: Text(
                   'ADD QUESTIONS',
@@ -531,7 +547,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       onTap: () async {
                                         final beginDate = await showDatePicker(
                                           firstDate: DateTime(2020),
-                                          initialDate: DateTime(2020),
+                                          initialDate: DateTime.now(),
                                           lastDate: DateTime(2025),
                                           context: context,
                                         );
@@ -572,7 +588,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       onTap: () async {
                                         final endDate = await showDatePicker(
                                           firstDate: DateTime(2020),
-                                          initialDate: DateTime(2020),
+                                          initialDate: DateTime.now(),
                                           lastDate: DateTime(2025),
                                           context: context,
                                         );
@@ -613,6 +629,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                 Row(
                                   children: [
                                     StudySetupScreenCustomInputField(
+                                      // TODO -> Read this (Intro Page Message)
+                                      /// This box will be responsible for Mike's message visible in
+                                      /// View Details section.
+
                                       onTap: () async {
                                         var introPageMessage =
                                             await showGeneralDialog(
@@ -673,6 +693,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       width: 40.0,
                                     ),
                                     StudySetupScreenCustomInputField(
+                                      // TODO -> Read this (Study Closed Message)
+                                      /// This message will appear after a study has been closed
+                                      /// and participants will no longer be able to login.
+                                      /// Although further details need to be discussed.
+
                                       onTap: () async {
                                         final studyClosedMessage =
                                             await showGeneralDialog(
@@ -734,6 +759,9 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       width: 40.0,
                                     ),
                                     StudySetupScreenCustomInputField(
+                                      // TODO -> Read this (Common Invite Message)
+                                      /// This message will appear by default as a template in the email box
+
                                       onTap: () async {
                                         final commonInviteMessage =
                                             await showGeneralDialog(
@@ -820,7 +848,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         onChanged: (int value) async {
                                           _setSelectedRadio(value);
                                           mStudy.studyTimeZone = 'PST';
-                                          await _moderatorFirestoreService
+                                          await _researcherAndModeratorFirestoreService
                                               .updateTimeZone(
                                                   widget.studyUID, mStudy);
                                         }),
@@ -831,7 +859,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         onChanged: (int value) async {
                                           _setSelectedRadio(value);
                                           mStudy.studyTimeZone = 'MST';
-                                          await _moderatorFirestoreService
+                                          await _researcherAndModeratorFirestoreService
                                               .updateTimeZone(
                                                   widget.studyUID, mStudy);
                                         }),
@@ -842,7 +870,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         onChanged: (int value) async {
                                           _setSelectedRadio(value);
                                           mStudy.studyTimeZone = 'CST';
-                                          await _moderatorFirestoreService
+                                          await _researcherAndModeratorFirestoreService
                                               .updateTimeZone(
                                                   widget.studyUID, mStudy);
                                         }),
@@ -853,7 +881,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         onChanged: (int value) async {
                                           _setSelectedRadio(value);
                                           mStudy.studyTimeZone = 'EST';
-                                          await _moderatorFirestoreService
+                                          await _researcherAndModeratorFirestoreService
                                               .updateTimeZone(
                                                   widget.studyUID, mStudy);
                                         }),
@@ -949,9 +977,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     SizedBox(
                                       width: 40.0,
                                     ),
-                                    StudySetupScreenCategoryCheckBox(
-                                      studyUID: widget.studyUID,
-                                      categoryName: 'Others',
+                                    CustomCategoriesWidget(
                                       categories: _categories,
                                     ),
                                   ],
@@ -1009,7 +1035,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         IconButton(
                                           onPressed: () async {
                                             var group =
-                                                await _moderatorFirestoreService
+                                                await _researcherAndModeratorFirestoreService
                                                     .createGroup(
                                                         widget.studyUID,
                                                         _groups.length + 1);
@@ -1039,9 +1065,23 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         itemCount: _groups.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
+                                          var groupNameController =
+                                              TextEditingController();
+                                          var groupRewardController =
+                                              TextEditingController();
+
+                                          groupNameController.text =
+                                              _groups[index].groupName;
+                                          groupRewardController.text =
+                                              _groups[index].groupRewardAmount;
+
                                           return DraftScreenGroupWidget(
                                             studyUID: widget.studyUID,
                                             group: _groups[index],
+                                            groupNameController:
+                                                groupNameController,
+                                            groupRewardController:
+                                                groupRewardController,
                                           );
                                         },
                                         separatorBuilder:
@@ -1071,7 +1111,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     ),
                                     child: Text(
                                       'ADD QUESTIONS',
-                                      key: addQuestionsKey,
+                                      key: _addQuestionsKey,
                                       textAlign: TextAlign.start,
                                       style: TextStyle(
                                         color: Colors.black,
@@ -1090,52 +1130,43 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       AsyncSnapshot<dynamic> snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.done) {
-                                      return ReorderableWrap(
-                                        runSpacing: 10.0,
-                                        spacing: 10.0,
-                                        onReorder: _onReorder,
-                                        children: [
-                                          for (var topic in _topics)
-                                            StudySetupScreenTopicWidget(
-                                              topic: topic,
+                                      if (mStudy.studyStatus == 'Draft') {
+                                        return ReorderableWrap(
+                                          needsLongPressDraggable: false,
+                                          runSpacing: 10.0,
+                                          spacing: 10.0,
+                                          onReorder: _onReorder,
+                                          children: [
+                                            for (var topic in _topics)
+                                              StudySetupScreenTopicWidget(
+                                                topic: topic,
+                                                studyUID: widget.studyUID,
+                                                groups: _groups,
+                                              ),
+                                          ],
+                                        );
+                                      } else {
+                                        return ListView.separated(
+                                          shrinkWrap: true,
+                                          physics: NeverScrollableScrollPhysics(),
+                                          itemCount: _topics.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return StudySetupScreenTopicWidget(
+                                              topic: _topics[index],
                                               studyUID: widget.studyUID,
                                               groups: _groups,
-                                            ),
-                                        ],
-                                      );
-
-                                      // return ReorderableListView(
-                                      //   onReorder: (int oldIndex, int newIndex) {  },
-                                      //   children: [
-                                      //     for(var topic in _topics)
-                                      //       StudySetupScreenTopicWidget(
-                                      //         key: ValueKey(topic),
-                                      //         topic: topic,
-                                      //         studyUID: widget.studyUID,
-                                      //         groups: _groups,
-                                      //       ),
-                                      //   ],
-                                      // );
-
-                                      // return ListView.separated(
-                                      //   physics: NeverScrollableScrollPhysics(),
-                                      //   shrinkWrap: true,
-                                      //   itemCount: _topics.length,
-                                      //   itemBuilder:
-                                      //       (BuildContext context, int index) {
-                                      //     return StudySetupScreenTopicWidget(
-                                      //       topic: _topics[index],
-                                      //       studyUID: widget.studyUID,
-                                      //       groups: _groups,
-                                      //     );
-                                      //   },
-                                      //   separatorBuilder:
-                                      //       (BuildContext context, int index) {
-                                      //     return SizedBox(
-                                      //       height: 30.0,
-                                      //     );
-                                      //   },
-                                      // );
+                                            );
+                                          },
+                                          separatorBuilder:
+                                              (BuildContext context,
+                                                  int index) {
+                                            return SizedBox(
+                                              height: 10.0,
+                                            );
+                                          },
+                                        );
+                                      }
                                     } else {
                                       return SizedBox();
                                     }
@@ -1166,7 +1197,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           : SizedBox(),
                                       IconButton(
                                         onPressed: () async {
-                                          await _moderatorFirestoreService
+                                          await _researcherAndModeratorFirestoreService
                                               .createTopic(widget.studyUID,
                                                   _topics.length + 1)
                                               .then((topic) {
@@ -1237,166 +1268,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
           SizedBox(
             width: 10.0,
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class DraftScreenGroupWidget extends StatefulWidget {
-  final String studyUID;
-  final Group group;
-
-  const DraftScreenGroupWidget({
-    Key key,
-    this.studyUID,
-    this.group,
-  }) : super(key: key);
-
-  @override
-  _DraftScreenGroupWidgetState createState() => _DraftScreenGroupWidgetState();
-}
-
-class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
-  final FirebaseFirestoreService _firebaseFirestoreService =
-      FirebaseFirestoreService();
-
-  final FocusNode _groupNameFocusNode = FocusNode();
-  final FocusNode _internalGroupLabelFocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _groupNameFocusNode.addListener(() {
-      if (!_groupNameFocusNode.hasFocus) {
-        if (widget.group.groupName.isNotEmpty ||
-            widget.group.groupName != null) {
-          _updateGroupDetails();
-        }
-      }
-    });
-    _internalGroupLabelFocusNode.addListener(() {
-      if (!_internalGroupLabelFocusNode.hasFocus) {
-        if (widget.group.internalGroupLabel.isNotEmpty ||
-            widget.group.groupName != null) {
-          _updateGroupDetails();
-        }
-      }
-    });
-  }
-
-  void _updateGroupDetails() async {
-    await _firebaseFirestoreService.updateGroup(widget.studyUID, widget.group);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          '${widget.group.groupIndex}.',
-          style: TextStyle(
-            color: Colors.grey[700],
-            fontWeight: FontWeight.bold,
-            fontSize: 14.0,
-          ),
-        ),
-        SizedBox(
-          width: 20.0,
-        ),
-        Expanded(
-          child: TextFormField(
-            focusNode: _groupNameFocusNode,
-            initialValue: widget.group.groupName,
-            onChanged: (groupName) {
-              widget.group.groupName = groupName;
-            },
-            onFieldSubmitted: (groupName) {
-              if (groupName != null || groupName.isNotEmpty) {
-                _updateGroupDetails();
-              }
-            },
-            decoration: InputDecoration(
-              hintText: 'Enter Group Name',
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(2.0),
-                borderSide: BorderSide(
-                  color: Colors.black,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(2.0),
-                borderSide: BorderSide(
-                  color: Colors.grey[400],
-                  width: 0.5,
-                ),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(2.0),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(
-          width: 40.0,
-        ),
-        Expanded(
-          child: TextFormField(
-            focusNode: _internalGroupLabelFocusNode,
-            initialValue: widget.group.internalGroupLabel,
-            onChanged: (internalGroupLabel) {
-              widget.group.internalGroupLabel = internalGroupLabel;
-            },
-            onFieldSubmitted: (internalGroupLabel) {
-              if (internalGroupLabel != null || internalGroupLabel.isNotEmpty) {
-                _updateGroupDetails();
-              }
-            },
-            decoration: InputDecoration(
-              hintText: 'Enter Internal Group Label',
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(2.0),
-                borderSide: BorderSide(
-                  color: Colors.black,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(2.0),
-                borderSide: BorderSide(
-                  color: Colors.grey[400],
-                  width: 0.5,
-                ),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(2.0),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class DraftScreenCustomTextField extends StatelessWidget {
-  final Widget child;
-  final TextFormField textFormField;
-
-  const DraftScreenCustomTextField(
-      {Key key, @required this.child, this.textFormField})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          child,
-          SizedBox(
-            height: 10.0,
-          ),
-          textFormField,
         ],
       ),
     );

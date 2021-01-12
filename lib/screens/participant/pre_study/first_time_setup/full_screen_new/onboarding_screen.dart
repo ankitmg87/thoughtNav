@@ -238,13 +238,43 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           onPressed: () async {
             switch (_onboardingPageNumber) {
               case 1:
-                setState(() {
-                  _onboardingPageNumber = 2;
-                  _selectedPage = OnboardingPage2(
-                    participant: _participant,
-                    phoneNumberController: _phoneNumberController,
+                if (_participant.displayName != null) {
+                  setState(() {
+                    _onboardingPageNumber = 2;
+                    _selectedPage = OnboardingPage2(
+                      participant: _participant,
+                      phoneNumberController: _phoneNumberController,
+                    );
+                  });
+                } else {
+                  await showGeneralDialog(
+                    barrierDismissible: true,
+                    barrierLabel: 'Select Avatar',
+                    context: context,
+                    pageBuilder: (BuildContext context,
+                        Animation<double> animation,
+                        Animation<double> secondaryAnimation) {
+                      return Center(
+                        child: Material(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Text(
+                              'Please select display name and avatar',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   );
-                });
+                }
                 break;
               case 2:
                 if (_phoneNumberController.value.text.trim().isEmpty) {
@@ -274,8 +304,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         );
                       });
-                }
-                else if (_participant.gender == null){
+                } else
+                  if (_participant.gender == null) {
                   await showGeneralDialog(
                       barrierDismissible: true,
                       barrierLabel: 'Enter Gender',
@@ -302,8 +332,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         );
                       });
-                }
-                else {
+                } else {
                   setState(() {
                     _onboardingPageNumber = 3;
                     _selectedPage = OnboardingPage3(

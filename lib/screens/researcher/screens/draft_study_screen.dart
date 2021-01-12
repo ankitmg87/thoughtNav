@@ -15,57 +15,63 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
 
   final _firebaseFirestoreService = FirebaseFirestoreService();
 
-  String studyUID = '';
+  String _studyUID = '';
+  String _studyName = '';
+  String _studyStatus = '';
 
-  bool setupSelected = true;
-  bool usersSelected = false;
+  bool _setupSelected = true;
+  bool _usersSelected = false;
 
-  Widget draftSubScreen = Container();
-  Widget draftStudySetup;
-  Widget draftStudyUsers;
+  Widget _draftSubScreen = Container();
+  Widget _draftStudySetup;
+  Widget _draftStudyUsers;
 
-  void _getStudyUID() {
+  void _getStudyDetails() {
     final getStorage = GetStorage();
-    studyUID = getStorage.read('studyUID');
+    _studyUID = getStorage.read('studyUID');
+    _studyName = getStorage.read('studyName');
+    _studyStatus = getStorage.read('studyStatus');
   }
 
   void _setStudyAsActive() async {
-    await _firebaseFirestoreService.updateStudyStatus(studyUID, 'Active').then((value){
+    await _firebaseFirestoreService.updateStudyStatus(_studyUID, 'Active').then((value){
       Navigator.of(context).pop();
     });
   }
 
   @override
   void initState() {
-    _getStudyUID();
-    draftStudySetup = DraftStudySetup(
-      studyUID: studyUID,
+    _getStudyDetails();
+
+
+    _draftStudySetup = DraftStudySetup(
+      studyUID: _studyUID,
     );
-    draftStudyUsers = DraftStudyUsers(
-      studyUID: studyUID,
+    _draftStudyUsers = DraftStudyUsers(
+      studyUID: _studyUID,
     );
 
-    draftSubScreen = draftStudySetup;
+    _draftSubScreen = _draftStudySetup;
 
     super.initState();
   }
 
   void setSubScreen(String label) {
     if (label == 'Setup') {
-      setupSelected = true;
-      usersSelected = false;
+      _setupSelected = true;
+      _usersSelected = false;
 
-      draftSubScreen = draftStudySetup;
+      _draftSubScreen = _draftStudySetup;
 
       setState(() {});
 
       return;
     }
     if (label == 'Users') {
-      setupSelected = false;
-      usersSelected = true;
+      _setupSelected = false;
+      _usersSelected = true;
 
-      draftSubScreen = draftStudyUsers;
+      _draftSubScreen = _draftStudyUsers;
 
       setState(() {});
 
@@ -98,50 +104,50 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
         ),
       ),
       title: Text(
-        'Study Dashboard',
+        _studyName,
         style: TextStyle(
           color: Colors.black,
         ),
       ),
       centerTitle: true,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Stack(
-              children: [
-                Container(
-                  child: Image(
-                    image: AssetImage('images/avatars/batman.png'),
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(2.0),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.menu,
-                      color: Colors.white,
-                      size: 12.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.all(8.0),
+      //     child: Center(
+      //       child: Stack(
+      //         children: [
+      //           Container(
+      //             child: Image(
+      //               image: AssetImage('images/avatars/batman.png'),
+      //             ),
+      //             decoration: BoxDecoration(
+      //               shape: BoxShape.circle,
+      //             ),
+      //           ),
+      //           Positioned(
+      //             bottom: 0,
+      //             right: 0,
+      //             child: Container(
+      //               padding: EdgeInsets.all(2.0),
+      //               decoration: BoxDecoration(
+      //                 color: Colors.black,
+      //                 shape: BoxShape.circle,
+      //                 border: Border.all(
+      //                   color: Colors.white,
+      //                 ),
+      //               ),
+      //               child: Icon(
+      //                 Icons.menu,
+      //                 color: Colors.white,
+      //                 size: 12.0,
+      //               ),
+      //             ),
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // ],
     );
   }
 
@@ -172,7 +178,7 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
               _DraftStudySecondaryAppBarWidget(
                 label: 'Setup',
                 onTap: () => setSubScreen('Setup'),
-                selected: setupSelected,
+                selected: _setupSelected,
               ),
               SizedBox(
                 width: 16.0,
@@ -180,13 +186,13 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
               _DraftStudySecondaryAppBarWidget(
                 label: 'Users',
                 onTap: () => setSubScreen('Users'),
-                selected: usersSelected,
+                selected: _usersSelected,
               ),
             ],
           ),
         ),
         Expanded(
-          child: draftSubScreen,
+          child: _draftSubScreen,
         ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),

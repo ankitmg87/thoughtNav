@@ -8,20 +8,18 @@ import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
-import 'package:thoughtnav/services/moderator_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 import 'custom_text_editing_box.dart';
 import 'study_setup_screen_question_widget.dart';
 
 class StudySetupScreenTopicWidget extends StatefulWidget {
-  final Function onTap;
   final String studyUID;
   final Topic topic;
   final List<Group> groups;
 
   const StudySetupScreenTopicWidget({
     Key key,
-    this.onTap,
     this.studyUID,
     this.topic,
     this.groups,
@@ -37,7 +35,8 @@ class _StudySetupScreenTopicWidgetState
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
-  final _moderatorFirestoreService = ModeratorFirestoreService();
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
 
   List<Question> _questions;
 
@@ -199,7 +198,7 @@ class _StudySetupScreenTopicWidgetState
                     onTap: () async {
                       final beginDate = await showDatePicker(
                         firstDate: DateTime(2020),
-                        initialDate: DateTime(2020),
+                        initialDate: DateTime.now(),
                         lastDate: DateTime(2025),
                         context: context,
                       );
@@ -236,11 +235,14 @@ class _StudySetupScreenTopicWidgetState
               SizedBox(
                 width: 20.0,
               ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  CupertinoIcons.clear,
-                  size: 20.0,
+              InkWell(
+                highlightColor: Colors.transparent,
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                onTap: () {},
+                child: Icon(
+                  Icons.clear,
                   color: Colors.red[700],
                 ),
               ),
@@ -252,75 +254,57 @@ class _StudySetupScreenTopicWidgetState
           SizedBox(
             height: 10.0,
           ),
-
-          ReorderableWrap(
-            runSpacing: 10.0,
-            onReorder: _onReorder,
-            children: [
-              for (var _question in _questions)
-                StudySetupScreenQuestionWidget(
-                  studyUID: widget.studyUID,
-                  topicUID: widget.topic.topicUID,
-                  question: _question,
-                  groups: widget.groups,
-                  deleteQuestion: () async {
-                    await _firebaseFirestoreService.deleteQuestion(
-                      widget.studyUID,
-                      widget.topic.topicUID,
-                      _question.questionUID,
+          widget.topic.isActive
+              ? ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: widget.topic.questions.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return StudySetupScreenQuestionWidget(
+                      studyUID: widget.studyUID,
+                      topicUID: widget.topic.topicUID,
+                      question: widget.topic.questions[index],
+                      groups: widget.groups,
+                      deleteQuestion: () async {
+                        await _firebaseFirestoreService.deleteQuestion(
+                          widget.studyUID,
+                          widget.topic.topicUID,
+                          widget.topic.questions[index].questionUID,
+                        );
+                      },
                     );
-
-                    _questions.where((question){
-                      print(_question.questionUID);
-                      if(question.questionUID == _question.questionUID){
-                        setState(() {
-                          _questions.remove(_question);
-                        });
-                        return true;
-                      }
-                      else {
-                        return false;
-                      }
-                    });
-
-                    // _questions.removeWhere((question)
-                    // {
-                    //   if (question.questionUID == _question.questionUID) {
-                    //     print(_question.questionUID);
-                    //     print(question.questionUID);
-                    //     setState(() {});
-                    //     return true;
-                    //   } else {
-                    //     return false;
-                    //   }
-                    // }
-                    // );
                   },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox();
+                  },
+                )
+              : ReorderableWrap(
+                  needsLongPressDraggable: false,
+                  runSpacing: 10.0,
+                  onReorder: _onReorder,
+                  children: [
+                    for (var _question in _questions)
+                      StudySetupScreenQuestionWidget(
+                        studyUID: widget.studyUID,
+                        topicUID: widget.topic.topicUID,
+                        question: _question,
+                        groups: widget.groups,
+                        deleteQuestion: () async {
+                          await _firebaseFirestoreService.deleteQuestion(
+                            widget.studyUID,
+                            widget.topic.topicUID,
+                            _question.questionUID,
+                          );
+                        },
+                      ),
+                  ],
                 ),
-            ],
-          ),
-
-          // ListView.separated(
-          //   physics: NeverScrollableScrollPhysics(),
-          //   shrinkWrap: true,
-          //   separatorBuilder: (BuildContext context, int index) {
-          //     return SizedBox(
-          //       height: 20.0,
-          //     );
-          //   },
-          //   itemCount: _questions.length,
-          //   itemBuilder: (BuildContext context, int index) {
-          //     return StudySetupScreenQuestionWidget(
-          //       studyUID: widget.studyUID,
-          //       topicUID: widget.topic.topicUID,
-          //       question: _questions[index],
-          //       groups: widget.groups,
-          //     );
-          //   },
-          // ),
           SizedBox(
             height: 10.0,
           ),
+
+          widget.topic.isActive ?
+              SizedBox() :
           Align(
             alignment: Alignment.centerRight,
             child: Row(
@@ -356,10 +340,8 @@ class _StudySetupScreenTopicWidgetState
                     : SizedBox(),
                 IconButton(
                   onPressed: () async {
-                    var question =
-                        await _moderatorFirestoreService.createQuestion(
-                            widget.studyUID,
-                            _questions.length + 1,
+                    var question = await _researcherAndModeratorFirestoreService
+                        .createQuestion(widget.studyUID, _questions.length + 1,
                             widget.topic.topicUID);
                     setState(() {
                       _questions.add(question);

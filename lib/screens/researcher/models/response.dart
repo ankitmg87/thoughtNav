@@ -16,6 +16,7 @@ class Response {
   String questionNumber;
   String questionTitle;
   bool hasMedia;
+  bool questionHasMedia;
   String mediaType;
   String mediaURL;
   dynamic media;
@@ -35,34 +36,36 @@ class Response {
     this.questionNumber,
     this.questionTitle,
     this.hasMedia,
+    this.questionHasMedia,
     this.mediaType,
     this.mediaURL,
     this.media,
   });
 
-  Map<String, dynamic> toMap () {
+  Map<String, dynamic> toMap() {
     var response = <String, dynamic>{};
 
-    response['responseUID'] = responseUID;
+    response['responseUID'] = responseUID;//
     response['participantUID'] = participantUID;
-    response['avatarURL'] = avatarURL;
+    response['avatarURL'] = avatarURL;//
     response['alias'] = participantDisplayName;
     response['userName'] = userName;
     response['timeElapsed'] = timeElapsed;
     response['responseStatement'] = responseStatement;
-    response['claps'] = claps;
-    response['comments'] = comments;
+    response['claps'] = claps;//
+    response['comments'] = comments;//
     response['responseTimestamp'] = responseTimestamp;
     response['questionNumber'] = questionNumber;
-    response['questionTitle'] = questionTitle;
-    response['hasMedia'] = hasMedia;
-    response['mediaType'] = mediaType;
-    response['mediaURL'] = mediaURL;
+    response['questionTitle'] = questionTitle;//
+    response['hasMedia'] = hasMedia;//
+    response['questionHasMedia'] = questionHasMedia;
+    response['mediaType'] = mediaType;//
+    response['mediaURL'] = mediaURL;//
 
     return response;
   }
 
-  Response.fromMap(Map<String, dynamic> response){
+  Response.fromMap(Map<String, dynamic> response) {
     responseUID = response['responseUID'];
     participantUID = response['participantUID'];
     avatarURL = response['avatarURL'];
@@ -76,8 +79,8 @@ class Response {
     questionNumber = response['questionNumber'];
     questionTitle = response['questionTitle'];
     hasMedia = response['hasMedia'];
+    questionHasMedia = response['questionHasMedia'];
     mediaType = response['mediaType'];
     mediaURL = response['mediaURL'];
-
   }
 }

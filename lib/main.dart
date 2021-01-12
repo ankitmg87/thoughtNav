@@ -10,7 +10,7 @@ import 'package:thoughtnav/screens/participant/open_study/dashboard/participant_
 import 'package:thoughtnav/screens/participant/open_study/dashboard/welcome_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/notifications_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/day_completed_screen.dart';
-import 'package:thoughtnav/screens/participant/open_study/questions/participant_response_screen.dart';
+import 'package:thoughtnav/screens/participant/open_study/questions/participant_responses_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/question_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/questions_first_day_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_complete_screen.dart';
@@ -36,6 +36,7 @@ import 'package:thoughtnav/screens/researcher/screens/responses_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/moderator_study_screen.dart';
 
 import 'constants/routes/routes.dart';
+
 
 void main() async {
   await GetStorage.init();

@@ -33,6 +33,8 @@ class CommentWidget extends StatefulWidget {
 class _CommentWidgetState extends State<CommentWidget> {
   bool _editable = false;
 
+  String _commentStatement;
+
   void _toggleEditable() {
     setState(() {
       _editable = !_editable;
@@ -50,11 +52,14 @@ class _CommentWidgetState extends State<CommentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var formatDate = DateFormat.yMd();
+    var formatDate = DateFormat(DateFormat.ABBR_MONTH_DAY);
     var formatTime = DateFormat.jm();
 
     var date = formatDate.format(widget.comment.commentTimestamp.toDate());
     var time = formatTime.format(widget.comment.commentTimestamp.toDate());
+
+    _commentStatement = widget.comment.commentStatement;
+
 
     return Container(
       padding: EdgeInsets.only(left: 6.0),
@@ -203,7 +208,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                     ],
                   )
                 : Text(
-                    widget.comment.commentStatement,
+                    _commentStatement,
                     style: TextStyle(
                       color: TEXT_COLOR,
                       fontSize: 14.0,

@@ -6,6 +6,7 @@ import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 const TextStyle _SELECTED_TEXT_TEXT_STYLE = TextStyle(
   color: Color(0xFF00B85C),
@@ -28,42 +29,162 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
-  bool moderatorInvitesOnly = false;
+  final ResearcherAndModeratorFirestoreService
+      _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
+
+  bool _searching = false;
 
   final TextEditingController _searchController = TextEditingController();
 
-  ListView studyListView = ListView();
+  final FocusNode _searchFocusNode = FocusNode();
 
-  List<Study> allStudiesList = [];
-  List<Study> activeStudiesList = [];
-  List<Study> completedStudiesList = [];
-  List<Study> draftStudiesList = [];
+  ListView _studyListView = ListView();
 
-  bool allSelected = true;
-  bool activeSelected = false;
-  bool completedSelected = false;
-  bool draftSelected = false;
+  List<Study> _allStudiesList = [];
+  List<Study> _activeStudiesList = [];
+  List<Study> _completedStudiesList = [];
+  List<Study> _closedStudiesList = [];
+  List<Study> _draftStudiesList = [];
 
-  Widget listView;
+  List<Study> _searchedStudiesList = [];
 
-  Widget allStudies;
-  Widget activeStudies;
-  Widget completedStudies;
-  Widget draftStudies;
+  bool _allSelected = true;
+  bool _activeSelected = false;
+  bool _completedSelected = false;
+  bool _closedSelected = false;
+  bool _draftSelected = false;
+
+  Widget _listView;
+
+  Widget _allStudies;
+  Widget _activeStudies;
+  Widget _completedStudies;
+  Widget _closedStudies;
+  Widget _draftStudies;
+
+  Future<List<Study>> _futureAllStudies;
+
+  void _unAwaited(Future<void> future) {}
 
   void _createStudyAndGoToSetupScreen() async {
+    var loadingDialogContext;
+
+    _unAwaited(showGeneralDialog(
+        context: context,
+        pageBuilder: (BuildContext dialogContext, Animation<double> animation,
+            Animation<double> secondaryAnimation) {
+
+          loadingDialogContext = dialogContext;
+
+          return Center(
+            child: Material(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Creating a new study...',
+                      style: TextStyle(
+                        color: Colors.grey[900],
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }));
+
     var study = await _firebaseFirestoreService.createStudy();
 
     final getStorage = GetStorage();
     await getStorage.write('studyUID', study.studyUID);
+    await getStorage.write('studyName', study.studyName);
 
     if (study != null) {
+      await Navigator.of(loadingDialogContext).pop();
       await Navigator.of(context).pushNamed(DRAFT_STUDY_SCREEN);
     }
   }
 
+  void _makeSearchedStudiesList(String searchQuery) {
+    _searchedStudiesList = [];
+
+    if (searchQuery != null) {
+      if (searchQuery.isNotEmpty) {
+        for (var study in _allStudiesList) {
+          var studyName = study.studyName.toLowerCase();
+          var internalStudyLabel = study.studyName.toLowerCase();
+
+          if (studyName.contains(searchQuery) ||
+              internalStudyLabel.contains(searchQuery)) {
+            _searchedStudiesList.add(study);
+          }
+        }
+      }
+    }
+    setState(() {});
+  }
+
+  Widget _buildSearchedStudiesListView(List<Study> searchedStudiesList) {
+    if (searchedStudiesList.isEmpty) {
+      return Center(
+        child: Text(
+          'Search a study',
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    } else {
+      return ListView.separated(
+        itemCount: searchedStudiesList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return StudyWidget(
+            study: searchedStudiesList[index],
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) {
+          return SizedBox(
+            height: 10.0,
+          );
+        },
+      );
+    }
+  }
+
+  Future<List<Study>> _getAllStudies() async {
+    _allStudiesList =
+        await _researcherAndModeratorFirestoreService.getAllStudies();
+    return _allStudiesList;
+  }
+
   @override
   void initState() {
+    _searchFocusNode.addListener(() {
+      if (_searchFocusNode.hasFocus) {
+        setState(() {
+          _searching = true;
+        });
+      } else {
+        setState(() {
+          _searching = false;
+        });
+      }
+    });
+
+    _futureAllStudies = _getAllStudies();
+
     super.initState();
     initializeViews();
   }
@@ -89,7 +210,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: _buildAppBar(),
-        body: buildBody(moderatorInvitesOnly),
+        body: _buildBody(),
       );
     }
   }
@@ -120,36 +241,45 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Center(
-            child: Stack(
-              children: [
-                Container(
-                  child: Image(
-                    image: AssetImage('images/avatars/batman.png'),
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(2.0),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
+            child: InkWell(
+              highlightColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              onTap: () {},
+              child: Stack(
+                children: [
+                  Container(
+                    child: Image(
+                      image: AssetImage(
+                        'images/researcher_images/researcher_dashboard/researcher_avatar.png',
                       ),
                     ),
-                    child: Icon(
-                      Icons.menu,
-                      color: Colors.white,
-                      size: 12.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(2.0),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.menu,
+                        color: Colors.white,
+                        size: 12.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -157,7 +287,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
     );
   }
 
-  Widget buildBody(bool moderatorInvitesOnly) {
+  Widget _buildBody() {
     return Column(
       children: [
         SizedBox(
@@ -180,7 +310,9 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 color: PROJECT_GREEN,
-                onPressed: () => _createStudyAndGoToSetupScreen(),
+                onPressed: () {
+                  _createStudyAndGoToSetupScreen();
+                },
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 8.0,
@@ -226,140 +358,148 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          allSelected = true;
-                          activeSelected = false;
-                          completedSelected = false;
-                          draftSelected = false;
+                  _searching
+                      ? SizedBox()
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                _allSelected = true;
+                                _activeSelected = false;
+                                _completedSelected = false;
+                                _closedSelected = false;
+                                _draftSelected = false;
 
-                          _setListType();
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          child: Text(
-                            'All',
-                            style: allSelected
-                                ? _SELECTED_TEXT_TEXT_STYLE
-                                : _UNSELECTED_TEXT_TEXT_STYLE,
-                          ),
-                        ),
-                        highlightColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                      ),
-                      SizedBox(
-                        width: 20.0,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          allSelected = false;
-                          activeSelected = true;
-                          completedSelected = false;
-                          draftSelected = false;
-
-                          _setListType();
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          child: Text(
-                            'Active',
-                            style: activeSelected
-                                ? _SELECTED_TEXT_TEXT_STYLE
-                                : _UNSELECTED_TEXT_TEXT_STYLE,
-                          ),
-                        ),
-                        highlightColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                      ),
-                      SizedBox(
-                        width: 20.0,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          allSelected = false;
-                          activeSelected = false;
-                          completedSelected = true;
-                          draftSelected = false;
-
-                          _setListType();
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          child: Text(
-                            'Completed',
-                            style: completedSelected
-                                ? _SELECTED_TEXT_TEXT_STYLE
-                                : _UNSELECTED_TEXT_TEXT_STYLE,
-                          ),
-                        ),
-                        highlightColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                      ),
-                      SizedBox(
-                        width: 20.0,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          allSelected = false;
-                          activeSelected = false;
-                          completedSelected = false;
-                          draftSelected = true;
-
-                          _setListType();
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          child: Text(
-                            'Draft',
-                            style: draftSelected
-                                ? _SELECTED_TEXT_TEXT_STYLE
-                                : _UNSELECTED_TEXT_TEXT_STYLE,
-                          ),
-                        ),
-                        highlightColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Moderator Invites Only',
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                      // TODO -> Change this switch
-                      StatefulBuilder(
-                        builder: (BuildContext context, StateSetter setState) {
-                          return Transform.scale(
-                            scale: 0.6,
-                            child: CupertinoSwitch(
-                              value: moderatorInvitesOnly,
-                              onChanged: (value) {
-                                moderatorInvitesOnly = value;
-                                setState(() {});
+                                _setListType();
                               },
-                              activeColor: PROJECT_GREEN,
+                              child: Container(
+                                color: Colors.transparent,
+                                child: Text(
+                                  'All',
+                                  style: _allSelected
+                                      ? _SELECTED_TEXT_TEXT_STYLE
+                                      : _UNSELECTED_TEXT_TEXT_STYLE,
+                                ),
+                              ),
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
                             ),
-                          );
-                        },
-                      ),
-                      SizedBox(
-                        width: 10.0,
-                      ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                _allSelected = false;
+                                _activeSelected = true;
+                                _completedSelected = false;
+                                _closedSelected = false;
+                                _draftSelected = false;
+
+                                _setListType();
+                              },
+                              child: Container(
+                                color: Colors.transparent,
+                                child: Text(
+                                  'Active',
+                                  style: _activeSelected
+                                      ? _SELECTED_TEXT_TEXT_STYLE
+                                      : _UNSELECTED_TEXT_TEXT_STYLE,
+                                ),
+                              ),
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                _allSelected = false;
+                                _activeSelected = false;
+                                _completedSelected = true;
+                                _closedSelected = false;
+                                _draftSelected = false;
+
+                                _setListType();
+                              },
+                              child: Container(
+                                color: Colors.transparent,
+                                child: Text(
+                                  'Completed',
+                                  style: _completedSelected
+                                      ? _SELECTED_TEXT_TEXT_STYLE
+                                      : _UNSELECTED_TEXT_TEXT_STYLE,
+                                ),
+                              ),
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                _allSelected = false;
+                                _activeSelected = false;
+                                _completedSelected = false;
+                                _closedSelected = true;
+                                _draftSelected = false;
+
+                                _setListType();
+                              },
+                              child: Container(
+                                color: Colors.transparent,
+                                child: Text(
+                                  'Closed',
+                                  style: _closedSelected
+                                      ? _SELECTED_TEXT_TEXT_STYLE
+                                      : _UNSELECTED_TEXT_TEXT_STYLE,
+                                ),
+                              ),
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                _allSelected = false;
+                                _activeSelected = false;
+                                _completedSelected = false;
+                                _closedSelected = false;
+                                _draftSelected = true;
+
+                                _setListType();
+                              },
+                              child: Container(
+                                color: Colors.transparent,
+                                child: Text(
+                                  'Draft',
+                                  style: _draftSelected
+                                      ? _SELECTED_TEXT_TEXT_STYLE
+                                      : _UNSELECTED_TEXT_TEXT_STYLE,
+                                ),
+                              ),
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                            ),
+                          ],
+                        ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Icon(
                         Icons.search,
                         color: PROJECT_GREEN,
@@ -375,7 +515,8 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                           borderRadius: BorderRadius.circular(10.0),
                           border: Border.all(color: Colors.grey),
                         ),
-                        child: TextField(
+                        child: TextFormField(
+                          focusNode: _searchFocusNode,
                           controller: _searchController,
                           decoration: InputDecoration(
                             border: InputBorder.none,
@@ -383,6 +524,12 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                             isDense: true,
                           ),
                           cursorColor: PROJECT_NAVY_BLUE,
+                          onChanged: (searchQuery) {
+                            if (searchQuery.isNotEmpty) {
+                              var query = searchQuery.toLowerCase();
+                              _makeSearchedStudiesList(query);
+                            }
+                          },
                         ),
                       ),
                     ],
@@ -396,25 +543,28 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           height: 20.0,
         ),
         Expanded(
-          child: listView,
+          child: _searching
+              ? _buildSearchedStudiesListView(_searchedStudiesList)
+              : _listView,
         ),
       ],
     );
   }
 
   void initializeViews() {
-    allStudies = allStudiesFutureBuilder();
-    listView = allStudies;
+    _allStudies = allStudiesFutureBuilder();
+    _listView = _allStudies;
 
-    activeStudies = SizedBox();
-    completedStudies = SizedBox();
-    draftStudies = SizedBox();
+    _activeStudies = SizedBox();
+    _completedStudies = SizedBox();
+    _closedStudies = SizedBox();
+    _draftStudies = SizedBox();
   }
 
-  FutureBuilder allStudiesFutureBuilder() {
-    return FutureBuilder(
-      future: _firebaseFirestoreService.getAllStudies(allStudiesList),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+  FutureBuilder<List<Study>> allStudiesFutureBuilder() {
+    return FutureBuilder<List<Study>>(
+      future: _futureAllStudies,
+      builder: (BuildContext context, AsyncSnapshot<List<Study>> snapshot) {
         if (snapshot.connectionState == ConnectionState.none) {
           return Center(
             child: Text(
@@ -440,7 +590,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           );
         } else {
           if (snapshot.hasData) {
-            if (snapshot.data.length > 0) {
+            if (snapshot.data.isNotEmpty) {
               return ListView.separated(
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -479,19 +629,23 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   }
 
   void _sortStudies() {
-    activeStudiesList = [];
-    completedStudiesList = [];
-    draftStudiesList = [];
+    _activeStudiesList = [];
+    _completedStudiesList = [];
+    _closedStudiesList = [];
+    _draftStudiesList = [];
 
-    for (var study in allStudiesList) {
+    for (var study in _allStudiesList) {
       if (study.studyStatus == 'Active') {
-        activeStudiesList.add(study);
+        _activeStudiesList.add(study);
       }
       if (study.studyStatus == 'Completed') {
-        completedStudiesList.add(study);
+        _completedStudiesList.add(study);
       }
-      if (study.studyStatus == 'draft') {
-        draftStudiesList.add(study);
+      if (study.studyStatus == 'Closed') {
+        _closedStudiesList.add(study);
+      }
+      if (study.studyStatus == 'Draft') {
+        _draftStudiesList.add(study);
       }
     }
   }
@@ -499,12 +653,12 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   void _setListType() {
     _sortStudies();
     setState(() {
-      if (allSelected) {
-        listView = allStudies;
+      if (_allSelected) {
+        _listView = _allStudies;
         return;
-      } else if (activeSelected) {
-        if (activeStudiesList.isEmpty) {
-          listView = Center(
+      } else if (_activeSelected) {
+        if (_activeStudiesList.isEmpty) {
+          _listView = Center(
             child: Text(
               'No active studies',
               style: TextStyle(
@@ -515,11 +669,11 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
             ),
           );
         } else {
-          listView = ListView.separated(
-            itemCount: activeStudiesList.length,
+          _listView = ListView.separated(
+            itemCount: _activeStudiesList.length,
             itemBuilder: (BuildContext context, int index) {
               return StudyWidget(
-                study: activeStudiesList[index],
+                study: _activeStudiesList[index],
               );
             },
             separatorBuilder: (BuildContext context, int index) {
@@ -530,9 +684,9 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           );
         }
         return;
-      } else if (completedSelected) {
-        if (completedStudiesList.isEmpty) {
-          listView = Center(
+      } else if (_completedSelected) {
+        if (_completedStudiesList.isEmpty) {
+          _listView = Center(
             child: Text(
               'No completed studies',
               style: TextStyle(
@@ -543,11 +697,11 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
             ),
           );
         } else {
-          listView = ListView.separated(
-            itemCount: completedStudiesList.length,
+          _listView = ListView.separated(
+            itemCount: _completedStudiesList.length,
             itemBuilder: (BuildContext context, int index) {
               return StudyWidget(
-                study: completedStudiesList[index],
+                study: _completedStudiesList[index],
               );
             },
             separatorBuilder: (BuildContext context, int index) {
@@ -558,9 +712,36 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           );
         }
         return;
-      } else if (draftSelected) {
-        if (draftStudiesList.isEmpty) {
-          listView = Center(
+      } else if (_closedSelected) {
+        if (_closedStudiesList.isEmpty) {
+          _listView = Center(
+            child: Text(
+              'No closed studies',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        } else {
+          _listView = ListView.separated(
+            itemCount: _closedStudiesList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return StudyWidget(
+                study: _closedStudiesList[index],
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                height: 10.0,
+              );
+            },
+          );
+        }
+      } else if (_draftSelected) {
+        if (_draftStudiesList.isEmpty) {
+          _listView = Center(
             child: Text(
               'No draft studies',
               style: TextStyle(
@@ -571,11 +752,11 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
             ),
           );
         } else {
-          listView = ListView.separated(
-            itemCount: draftStudiesList.length,
+          _listView = ListView.separated(
+            itemCount: _draftStudiesList.length,
             itemBuilder: (BuildContext context, int index) {
               return StudyWidget(
-                study: draftStudiesList[index],
+                study: _draftStudiesList[index],
               );
             },
             separatorBuilder: (BuildContext context, int index) {

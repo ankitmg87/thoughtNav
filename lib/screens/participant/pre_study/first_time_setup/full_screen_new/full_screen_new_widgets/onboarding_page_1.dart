@@ -139,7 +139,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
                 ),
                 Icon(
                   Icons.arrow_drop_down_circle_outlined,
-                  size: 16.0,
+                  size: 32.0,
                   color: PROJECT_GREEN,
                 ),
               ],
