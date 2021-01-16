@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class CustomCategoriesWidget extends StatefulWidget {
+  final String studyUID;
   final Categories categories;
 
-  const CustomCategoriesWidget({Key key, this.categories}) : super(key: key);
+  const CustomCategoriesWidget({Key key, this.categories, this.studyUID})
+      : super(key: key);
 
   @override
   _CustomCategoriesWidgetState createState() => _CustomCategoriesWidgetState();
 }
 
 class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
+
   final List<String> _customCategories = [];
+  final List<TextEditingController> _textEditingControllers = [];
 
   int _totalCustomCategories = 1;
 
@@ -46,7 +53,8 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'Make Custom Categories',
@@ -57,7 +65,7 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                                     ),
                                   ),
                                   InkWell(
-                                    onTap: (){
+                                    onTap: () {
                                       Navigator.of(generalDialogContext).pop();
                                     },
                                     child: Icon(
@@ -86,24 +94,29 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                               Expanded(
                                 child: ListView.separated(
                                   itemCount: _totalCustomCategories,
-                                  itemBuilder: (BuildContext context, int index) {
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+
                                     return TextFormField(
                                       decoration: InputDecoration(
                                         hintText: 'Enter Category Name',
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(4.0),
+                                          borderRadius:
+                                              BorderRadius.circular(4.0),
                                           borderSide: BorderSide(
                                             color: Colors.grey[300],
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(4.0),
+                                          borderRadius:
+                                              BorderRadius.circular(4.0),
                                           borderSide: BorderSide(
                                             color: Colors.grey[300],
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(4.0),
+                                          borderRadius:
+                                              BorderRadius.circular(4.0),
                                           borderSide: BorderSide(
                                             color: Colors.grey[300],
                                           ),
@@ -133,29 +146,30 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                                   SizedBox(
                                     width: 6.0,
                                   ),
-                                  _totalCustomCategories > 1 ?
-                                  InkWell(
-                                    onTap: (){
-                                      setGeneralDialogState((){
-                                        _totalCustomCategories--;
-                                      });
-                                    },
-                                    splashColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(
-                                      Icons.delete_outline_rounded,
-                                      size: 16.0,
-                                      color: Colors.red[700],
-                                    ),
-                                  ) : SizedBox(),
+                                  _totalCustomCategories > 1
+                                      ? InkWell(
+                                          onTap: () {
+                                            setGeneralDialogState(() {
+                                              _totalCustomCategories--;
+                                            });
+                                          },
+                                          splashColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          child: Icon(
+                                            Icons.delete_outline_rounded,
+                                            size: 16.0,
+                                            color: Colors.red[700],
+                                          ),
+                                        )
+                                      : SizedBox(),
                                   SizedBox(
                                     width: 6.0,
                                   ),
                                   InkWell(
-                                    onTap: (){
-                                      setGeneralDialogState((){
+                                    onTap: () {
+                                      setGeneralDialogState(() {
                                         _totalCustomCategories++;
                                       });
                                     },
@@ -168,7 +182,7 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                                       size: 16.0,
                                       color: PROJECT_GREEN,
                                     ),
-                                  ) ,
+                                  ),
                                 ],
                               ),
                               SizedBox(
@@ -177,7 +191,22 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: RaisedButton(
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    // _textEditingControllers.forEach((element) {
+                                    //   if (element.text.isNotEmpty) {
+                                    //     _customCategories.add(element.text);
+                                    //   }
+                                    //
+                                    //   if (_customCategories.isNotEmpty) {
+                                    //     widget.categories.customCategories =
+                                    //         _customCategories;
+                                    //   }
+                                    // });
+
+                                    // await _researcherAndModeratorFirestoreService
+                                    //     .saveCategories(
+                                    //         widget.studyUID, widget.categories);
+
                                     Navigator.of(generalDialogContext).pop();
                                   },
                                   color: PROJECT_GREEN,

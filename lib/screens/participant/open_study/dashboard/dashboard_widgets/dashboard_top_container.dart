@@ -15,7 +15,7 @@ class DashboardTopContainer extends StatelessWidget {
     this.studyBeginDate,
     this.studyEndDate,
     this.rewardAmount,
-    this.introMessage,
+    this.introMessage, this.answeredQuestions, this.totalQuestions, this.nextQuestionWidget,
   }) : super(key: key);
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -25,6 +25,9 @@ class DashboardTopContainer extends StatelessWidget {
   final String studyEndDate;
   final String rewardAmount;
   final String introMessage;
+  final int answeredQuestions;
+  final int totalQuestions;
+  final Widget nextQuestionWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -81,44 +84,36 @@ class DashboardTopContainer extends StatelessWidget {
           SizedBox(
             height: 20.0,
           ),
-          Row(
-            children: [
-              StartProgressContainer(),
-              MiddleProgressContainer(),
-              MiddleProgressContainer(),
-              EndProgressContainer(),
-            ],
+          Container(
+            child: LinearProgressIndicator(
+              backgroundColor:
+              Colors.white.withOpacity(0.7),
+              minHeight: 8.0,
+              value: answeredQuestions / totalQuestions,
+            ),
           ),
           SizedBox(
             height: 20.0,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'You have not completed any questions',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12.0,
+              Expanded(
+                child: Text(
+                  answeredQuestions == 0
+                      ? 'You have not answered any questions'
+                      : answeredQuestions == 1
+                      ? 'You have answered 1 question'
+                      : 'You have answered $answeredQuestions questions',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.0,
+                  ),
                 ),
               ),
-              GestureDetector(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Next: Quick Intro',
-                      style: TextStyle(
-                        color: PROJECT_GREEN,
-                      ),
-                    ),
-                    Icon(
-                      CupertinoIcons.right_chevron,
-                      color: PROJECT_GREEN,
-                      size: 10.0,
-                    ),
-                  ],
-                ),
+              Expanded(
+                child: nextQuestionWidget,
               ),
             ],
           ),

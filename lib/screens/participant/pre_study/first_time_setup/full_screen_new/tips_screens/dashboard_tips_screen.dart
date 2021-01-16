@@ -216,13 +216,15 @@ class _TipsContainer extends StatelessWidget {
             ),
             Row(
               children: [
-                SizedBox(
-                  width: screenWidth * 0.05,
-                ),
-                Image(
-                  height: screenHeight * 0.4,
-                  image: AssetImage(
-                    imagePath,
+                // SizedBox(
+                //   width: screenWidth * 0.05,
+                // ),
+                Expanded(
+                  child: Image(
+                    height: screenHeight * 0.4,
+                    image: AssetImage(
+                      imagePath,
+                    ),
                   ),
                 ),
               ],

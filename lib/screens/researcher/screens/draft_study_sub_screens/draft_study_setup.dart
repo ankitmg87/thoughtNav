@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:js' as js;
 
+import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -207,8 +208,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   }
 
   void _getCategories() async {
-    _categories =
-        await _firebaseFirestoreService.getCategories(widget.studyUID);
+    _categories = await _researcherAndModeratorFirestoreService
+        .getCategories(widget.studyUID);
   }
 
   Future<void> _getGroups() async {
@@ -628,197 +629,116 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                 ),
                                 Row(
                                   children: [
-                                    StudySetupScreenCustomInputField(
-                                      // TODO -> Read this (Intro Page Message)
-                                      /// This box will be responsible for Mike's message visible in
-                                      /// View Details section.
-
-                                      onTap: () async {
-                                        var introPageMessage =
-                                            await showGeneralDialog(
-                                                context: context,
-                                                barrierLabel:
-                                                    MaterialLocalizations.of(
-                                                            context)
-                                                        .modalBarrierDismissLabel,
-                                                barrierColor: Colors.black45,
-                                                transitionDuration:
-                                                    const Duration(
-                                                        milliseconds: 200),
-                                                pageBuilder: (BuildContext
-                                                        context,
-                                                    Animation<double> animation,
-                                                    Animation<double>
-                                                        secondaryAnimation) {
-                                                  return CustomTextEditingBox(
-                                                    hintText:
-                                                        'Enter intro page message',
-                                                    initialValue:
-                                                        mStudy.introPageMessage,
-                                                  );
-                                                });
-                                        if (introPageMessage != null ||
-                                            introPageMessage
-                                                .toString()
-                                                .isNotEmpty) {
-                                          setState(() {
-                                            mStudy.introPageMessage =
-                                                introPageMessage.toString();
-                                          });
-                                          await _updateStudyDetail(
-                                              widget.studyUID,
-                                              'introPageMessage',
-                                              mStudy.introPageMessage);
-                                        }
-                                      },
-                                      heading: 'INTRO PAGE MESSAGE',
-                                      subtitle: Text(
-                                        mStudy.introPageMessage == null
-                                            ? 'Enter an intro page message'
-                                            : 'Intro page message set',
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          color: mStudy.introPageMessage == null
-                                              ? Colors.grey[400]
-                                              : Colors.grey[700],
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: 'INTRODUCTION MESSAGE',
+                                                  style: headingTextStyle,
+                                                ),
+                                                TextSpan(
+                                                  text: ' *',
+                                                  style:
+                                                      compulsoryFieldIndicatorTextStyle,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _buildTextEditor(
+                                            initialValue:
+                                                mStudy.introPageMessage,
+                                            titleMessage:
+                                                'Enter Introduction Message',
+                                            initialValueSetMessage:
+                                                'Introduction Message Set',
+                                          ),
+                                        ],
                                       ),
-                                      headingTextStyle: headingTextStyle,
-                                      compulsoryFieldIndicatorTextStyle:
-                                          compulsoryFieldIndicatorTextStyle,
                                     ),
                                     SizedBox(
                                       width: 40.0,
                                     ),
-                                    StudySetupScreenCustomInputField(
-                                      // TODO -> Read this (Study Closed Message)
-                                      /// This message will appear after a study has been closed
-                                      /// and participants will no longer be able to login.
-                                      /// Although further details need to be discussed.
-
-                                      onTap: () async {
-                                        final studyClosedMessage =
-                                            await showGeneralDialog(
-                                                context: context,
-                                                barrierLabel:
-                                                    MaterialLocalizations.of(
-                                                            context)
-                                                        .modalBarrierDismissLabel,
-                                                barrierColor: Colors.black45,
-                                                transitionDuration:
-                                                    const Duration(
-                                                        milliseconds: 200),
-                                                pageBuilder: (BuildContext
-                                                        context,
-                                                    Animation<double> animation,
-                                                    Animation<double>
-                                                        secondaryAnimation) {
-                                                  return CustomTextEditingBox(
-                                                    hintText:
-                                                        'Enter a study end message',
-                                                    initialValue: mStudy
-                                                        .studyClosedMessage,
-                                                  );
-                                                });
-                                        if (studyClosedMessage != null ||
-                                            studyClosedMessage
-                                                .toString()
-                                                .isNotEmpty) {
-                                          setState(() {
-                                            mStudy.studyClosedMessage =
-                                                studyClosedMessage.toString();
-                                          });
-                                          _updateStudyDetail(
-                                              widget.studyUID,
-                                              'studyClosedMessage',
-                                              mStudy.studyClosedMessage);
-                                        }
-                                      },
-                                      heading: 'STUDY END MESSAGE',
-                                      subtitle: Text(
-                                        mStudy.studyClosedMessage == null
-                                            ? 'Enter a study end message'
-                                            : 'Study end message set',
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          color:
-                                              mStudy.studyClosedMessage == null
-                                                  ? Colors.grey[400]
-                                                  : Colors.grey[700],
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: 'STUDY CLOSED MESSAGE',
+                                                  style: headingTextStyle,
+                                                ),
+                                                TextSpan(
+                                                  text: ' *',
+                                                  style:
+                                                      compulsoryFieldIndicatorTextStyle,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _buildTextEditor(
+                                            initialValue:
+                                                mStudy.studyClosedMessage,
+                                            titleMessage:
+                                                'Enter Study Closed Message',
+                                            initialValueSetMessage:
+                                                'Study Closed Message Set',
+                                          ),
+                                        ],
                                       ),
-                                      headingTextStyle: headingTextStyle,
-                                      compulsoryFieldIndicatorTextStyle:
-                                          compulsoryFieldIndicatorTextStyle,
                                     ),
                                     SizedBox(
                                       width: 40.0,
                                     ),
-                                    StudySetupScreenCustomInputField(
-                                      // TODO -> Read this (Common Invite Message)
-                                      /// This message will appear by default as a template in the email box
-
-                                      onTap: () async {
-                                        final commonInviteMessage =
-                                            await showGeneralDialog(
-                                                context: context,
-                                                barrierDismissible: true,
-                                                barrierLabel:
-                                                    MaterialLocalizations.of(
-                                                            context)
-                                                        .modalBarrierDismissLabel,
-                                                barrierColor: Colors.black45,
-                                                transitionDuration:
-                                                    const Duration(
-                                                        milliseconds: 200),
-                                                pageBuilder: (BuildContext
-                                                        context,
-                                                    Animation<double> animation,
-                                                    Animation<double>
-                                                        secondaryAnimation) {
-                                                  return CustomTextEditingBox(
-                                                    hintText:
-                                                        'Enter a common invite message',
-                                                    initialValue: mStudy
-                                                        .commonInviteMessage,
-                                                  );
-                                                });
-                                        if (commonInviteMessage != null ||
-                                            commonInviteMessage
-                                                .toString()
-                                                .isNotEmpty) {
-                                          setState(() {
-                                            mStudy.commonInviteMessage =
-                                                commonInviteMessage.toString();
-                                          });
-                                          _updateStudyDetail(
-                                              widget.studyUID,
-                                              'commonInviteMessage',
-                                              mStudy.commonInviteMessage);
-                                        }
-                                      },
-                                      heading: 'COMMON INVITE MESSAGE',
-                                      subtitle: Text(
-                                        mStudy.commonInviteMessage == null
-                                            ? 'Enter a common invite message'
-                                            : 'Common invite message set',
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          color:
-                                              mStudy.commonInviteMessage == null
-                                                  ? Colors.grey[400]
-                                                  : Colors.grey[700],
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: 'COMMON INVITE MESSAGE',
+                                                  style: headingTextStyle,
+                                                ),
+                                                TextSpan(
+                                                  text: ' *',
+                                                  style:
+                                                      compulsoryFieldIndicatorTextStyle,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _buildTextEditor(
+                                            initialValue:
+                                                mStudy.commonInviteMessage,
+                                            titleMessage:
+                                                'Enter Common Invite Message',
+                                            initialValueSetMessage:
+                                                'Common Invite Message Set',
+                                          ),
+                                        ],
                                       ),
-                                      headingTextStyle: headingTextStyle,
-                                      compulsoryFieldIndicatorTextStyle:
-                                          compulsoryFieldIndicatorTextStyle,
                                     ),
                                   ],
                                 ),
@@ -978,6 +898,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       width: 40.0,
                                     ),
                                     CustomCategoriesWidget(
+                                      studyUID: widget.studyUID,
                                       categories: _categories,
                                     ),
                                   ],
@@ -1015,8 +936,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         _groups.length > 1
-                                            ? IconButton(
-                                                onPressed: () async {
+                                            ? InkWell(
+                                                onTap: () async {
                                                   var groupUID =
                                                       _groups.last.groupUID;
                                                   setState(() {
@@ -1027,13 +948,21 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                           widget.studyUID,
                                                           groupUID);
                                                 },
-                                                icon:
-                                                    Icon(Icons.close_outlined),
-                                                color: Colors.red[700],
+                                                child: Text(
+                                                  'Remove Group',
+                                                  style: TextStyle(
+                                                    color: Colors.red[700],
+                                                    fontSize: 12.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                               )
                                             : SizedBox(),
-                                        IconButton(
-                                          onPressed: () async {
+                                        SizedBox(
+                                          width: 20.0,
+                                        ),
+                                        InkWell(
+                                          onTap: () async {
                                             var group =
                                                 await _researcherAndModeratorFirestoreService
                                                     .createGroup(
@@ -1043,8 +972,14 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               _groups.add(group);
                                             });
                                           },
-                                          icon: Icon(Icons.add),
-                                          color: PROJECT_GREEN,
+                                          child: Text(
+                                            'Add Group',
+                                            style: TextStyle(
+                                              color: PROJECT_GREEN,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12.0,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1148,7 +1083,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       } else {
                                         return ListView.separated(
                                           shrinkWrap: true,
-                                          physics: NeverScrollableScrollPhysics(),
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
                                           itemCount: _topics.length,
                                           itemBuilder: (BuildContext context,
                                               int index) {
@@ -1181,8 +1117,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       _topics.length > 1
-                                          ? IconButton(
-                                              onPressed: () async {
+                                          ? InkWell(
+                                              onTap: () async {
                                                 await _firebaseFirestoreService
                                                     .deleteTopic(
                                                         widget.studyUID,
@@ -1191,24 +1127,39 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                   _topics.removeLast();
                                                 });
                                               },
-                                              icon: Icon(Icons.close_outlined),
-                                              color: Colors.red[700],
+                                              child: Text(
+                                                'Delete Topic',
+                                                style: TextStyle(
+                                                  color: Colors.red[700],
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             )
                                           : SizedBox(),
-                                      IconButton(
-                                        onPressed: () async {
-                                          await _researcherAndModeratorFirestoreService
-                                              .createTopic(widget.studyUID,
-                                                  _topics.length + 1)
-                                              .then((topic) {
-                                            setState(() {
-                                              _topics.add(topic);
-                                            });
-                                          });
-                                        },
-                                        icon: Icon(Icons.add),
-                                        color: PROJECT_GREEN,
+                                      SizedBox(
+                                        width: 20.0,
                                       ),
+                                      InkWell(
+                                        onTap: () async {
+                                          await _researcherAndModeratorFirestoreService
+                                                  .createTopic(widget.studyUID,
+                                                      _topics.length + 1)
+                                                  .then((topic) {
+                                                setState(() {
+                                                  _topics.add(topic);
+                                                });
+                                              });
+                                        },
+                                        child: Text(
+                                          'Add Topic',
+                                          style: TextStyle(
+                                            color: PROJECT_GREEN,
+                                            fontSize: 12.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      )
                                     ],
                                   ),
                                 ),
@@ -1269,6 +1220,130 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
             width: 10.0,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTextEditor(
+      {String initialValue,
+      String titleMessage,
+      String initialValueSetMessage}) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(2.0),
+        border: Border.all(
+          width: 0.75,
+          color: Colors.grey[300],
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
+          js.context.callMethod('setInitialValue', [initialValue]);
+          showGeneralDialog(
+              context: context,
+              pageBuilder: (BuildContext textEditorContext,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation) {
+                return Center(
+                  child: Material(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      padding: EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Introduction Message',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () =>
+                                    Navigator.of(textEditorContext).pop(),
+                                child: Icon(
+                                  Icons.clear,
+                                  color: Colors.red[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                          Container(
+                            height: 1.0,
+                            color: Colors.grey[300],
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Expanded(
+                            child: EasyWebView(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              src: 'quill.html',
+                              onLoaded: () {},
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: RaisedButton(
+                              color: PROJECT_GREEN,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              onPressed: () async {
+                                String text =
+                                    js.context.callMethod('readLocalStorage');
+                                if (text.isNotEmpty) {
+                                  await _researcherAndModeratorFirestoreService
+                                      .saveIntroductionMessage(
+                                          widget.studyUID, text);
+
+                                  mStudy.introPageMessage = text;
+                                  setState(() {});
+
+                                  Navigator.of(textEditorContext).pop();
+                                }
+                              },
+                              child: Text(
+                                'SAVE',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              });
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 10.0,
+          ),
+          child: Text(
+            initialValue != '' ? initialValueSetMessage : titleMessage,
+            style: TextStyle(
+              color: initialValue != '' ? Colors.grey[700] : Colors.grey,
+              fontWeight: FontWeight.bold,
+              fontSize: 14.0,
+            ),
+          ),
+        ),
       ),
     );
   }

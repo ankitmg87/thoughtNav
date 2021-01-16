@@ -1,16 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/constants/misc_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
 import 'package:thoughtnav/screens/researcher/widgets/comment_widget.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 import 'package:video_player/video_player.dart';
+
+import 'dart:js' as js;
 
 class ResponseWidget extends StatefulWidget {
   final String studyUID;
@@ -30,7 +32,8 @@ class ResponseWidget extends StatefulWidget {
   _ResponseWidgetState createState() => _ResponseWidgetState();
 }
 
-class _ResponseWidgetState extends State<ResponseWidget> {
+class _ResponseWidgetState extends State<ResponseWidget>
+    with AutomaticKeepAliveClientMixin {
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
 
@@ -287,6 +290,23 @@ class _ResponseWidgetState extends State<ResponseWidget> {
                               ),
                             ],
                           ),
+                          RaisedButton(
+                            color: PROJECT_GREEN,
+                            onPressed: () {
+                              _buildCommentGeneralDialog();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Comment',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -316,7 +336,8 @@ class _ResponseWidgetState extends State<ResponseWidget> {
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (BuildContext context, int index) {
                         return CommentWidget(
-                          comment: Comment.fromMap(snapshot.data.docs[index].data()),
+                          comment:
+                              Comment.fromMap(snapshot.data.docs[index].data()),
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) {
@@ -346,4 +367,111 @@ class _ResponseWidgetState extends State<ResponseWidget> {
       ],
     );
   }
+
+  void _buildCommentGeneralDialog() async {
+    await showGeneralDialog(
+      context: context,
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10.0),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Add a Comment',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: (){
+                            Navigator.of(context).pop();
+                          },
+                          child: Icon(
+                            Icons.clear,
+                            color: Colors.red[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Container(
+                      height: 1.0,
+                      color: Colors.grey[300],
+                    ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    Expanded(
+                        child: EasyWebView(src: 'quill.html', onLoaded: () {})),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: RaisedButton(
+                        color: PROJECT_GREEN,
+                        onPressed: () async {
+                          String commentStatement =
+                              js.context.callMethod('readLocalStorage');
+                          if (commentStatement.trim().isNotEmpty) {
+                            var comment = Comment(
+                              participantUID: widget.response.participantUID,
+                              commentStatement: commentStatement,
+                              commentTimestamp: Timestamp.now(),
+                              commentType: 'moderatorComment',
+                            );
+
+                            await _researcherAndModeratorFirestoreService
+                                .postModeratorComment(
+                                    widget.studyUID,
+                                    widget.response.participantUID,
+                                    widget.topicUID,
+                                    widget.questionUID,
+                                    widget.response.responseUID,
+                                    widget.response.questionNumber,
+                                    widget.response.questionTitle,
+                                    comment);
+
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: Text(
+                          'Comment',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

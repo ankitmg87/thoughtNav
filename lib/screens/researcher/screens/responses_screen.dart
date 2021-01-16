@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -5,8 +7,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/insight.dart';
+import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/question_and_responses_sub_screen.dart';
+import 'package:thoughtnav/screens/researcher/widgets/insight_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
@@ -29,12 +33,26 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
   bool isExpanded = false;
 
+  Question _currentQuestion;
+
   String _studyUID = '';
   String _topicUID = '';
   String _questionUID = '';
-  String _topicName;
 
   Future<void> _getStudyAndTopicUIDs;
+
+  Stream<QuerySnapshot> _insightsStream;
+
+  Stream<QuerySnapshot> _getInsightsStream(String studyUID, String topicUID, String questionUID){
+    return _researcherAndModeratorFirestoreService.streamInsights(studyUID, topicUID, questionUID);
+  }
+
+  Future<void> _future(
+      String studyUID, String topicUID, String questionUID) async {
+    _currentQuestion = await _researcherAndModeratorFirestoreService
+        .getQuestion(studyUID, topicUID, questionUID);
+
+  }
 
   Future<List<Topic>> _getTopicsAndQuestions;
 
@@ -47,13 +65,16 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
       if (arguments != null) {
         _topicUID = arguments['topicUID'];
         _questionUID = arguments['questionUID'];
-
       } else {
         SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
           Navigator.of(context).pop();
         });
       }
     });
+
+    _currentQuestion = await _researcherAndModeratorFirestoreService
+        .getQuestion(_studyUID, _topicUID, _questionUID);
+    _insightsStream = _getInsightsStream(_studyUID, _topicUID, _questionUID);
   }
 
   void _getTopics() {
@@ -73,16 +94,15 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
   @override
   void didChangeDependencies() {
-
     _getStudyAndTopicUIDs = _getStudyUIDAndTopicUID();
-    _questionAndResponsesFutureBuilderWidget = _questionsAndResponsesFutureBuilder(_getStudyAndTopicUIDs);
+    _questionAndResponsesFutureBuilderWidget =
+        _questionsAndResponsesFutureBuilder(_getStudyAndTopicUIDs);
 
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -200,7 +220,8 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                                     height: 10.0,
                                                   ),
                                                   ListView.separated(
-                                                    physics: NeverScrollableScrollPhysics(),
+                                                    physics:
+                                                        NeverScrollableScrollPhysics(),
                                                     padding: EdgeInsets.only(
                                                       left: 20.0,
                                                       right: 10.0,
@@ -227,8 +248,17 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                                                     questionIndex]
                                                                 .questionUID;
 
+                                                            _getStudyAndTopicUIDs =
+                                                                _future(
+                                                                    _studyUID,
+                                                                    _topicUID,
+                                                                    _questionUID);
 
+                                                            _questionAndResponsesFutureBuilderWidget =
+                                                                _questionsAndResponsesFutureBuilder(
+                                                                    _getStudyAndTopicUIDs);
 
+                                                            _insightsStream = _getInsightsStream(_studyUID, _topicUID, _questionUID);
                                                           });
                                                         },
                                                         splashColor:
@@ -291,12 +321,14 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
           ),
         ],
       ),
-      endDrawer: _buildInsightsDrawer(),
+      endDrawer: _buildInsightsDrawer(_insightsStream),
     );
   }
 
-  Widget _buildInsightsDrawer() {
+  Widget _buildInsightsDrawer(Stream<QuerySnapshot> insightsStream) {
     var insight = Insight();
+
+    var insightController = TextEditingController();
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
@@ -356,7 +388,21 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
           Align(
             alignment: AlignmentDirectional.centerEnd,
             child: RaisedButton(
-              onPressed: () {},
+              onPressed: () async {
+                if (insight.insightStatement != null) {
+                  if (insight.insightStatement.trim().isNotEmpty) {
+
+                    insight.insightTimestamp = Timestamp.now();
+                    insight.questionUID = _currentQuestion.questionUID;
+                    insight.topicUID = _topicUID;
+                    insight.questionTitle = _currentQuestion.questionTitle;
+                    insight.questionNumber = _currentQuestion.questionNumber;
+
+                    await _researcherAndModeratorFirestoreService.postInsight(
+                        _studyUID, _topicUID, _questionUID, insight);
+                  }
+                }
+              },
               color: PROJECT_GREEN,
               child: Padding(
                 padding: EdgeInsets.all(10.0),
@@ -392,70 +438,51 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
           SizedBox(
             height: 20.0,
           ),
-          Container(
-            padding: EdgeInsets.all(8.0),
-            color: Colors.grey[100],
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white
-                      ),
-                      padding: EdgeInsets.all(5.0),
-                      width: 30.0,
-                      height: 30.0,
-                      child: Image(
-                        image: AssetImage(
-                          'images/researcher_images/researcher_dashboard/participant_icon.png',
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Quyen Nguyen',
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12.0,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: ' says:',
-                            style: TextStyle(
-                              fontSize: 12.0,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  children: [
-                    SizedBox(width: 50.0,),
-                    Expanded(
-                      child: Text(
-                        'XYZ has written such a great response. Please have a look.',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          StreamBuilder<QuerySnapshot>(
+            stream: insightsStream,
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  return SizedBox();
+                  break;
+                case ConnectionState.waiting:
+                  return SizedBox();
+                  break;
+                case ConnectionState.active:
+                  if (snapshot.hasData) {
+                    if (snapshot.data.docs.isNotEmpty) {
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: snapshot.data.docs.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return InsightWidget(
+                            insight: Insight.fromMap(
+                                snapshot.data.docs[index].data()),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 10.0,
+                          );
+                        },
+                      );
+                    } else {
+                      return Center(
+
+                      );
+                    }
+                  } else {
+                    return SizedBox();
+                  }
+                  break;
+                case ConnectionState.done:
+                  return SizedBox();
+                  break;
+                default:
+                  return SizedBox();
+              }
+            },
           ),
         ],
       ),
@@ -552,13 +579,17 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
             ),
           ),
         ),
-        SizedBox(width: 10.0,),
+        SizedBox(
+          width: 10.0,
+        ),
         Container(
           width: 1.0,
           height: kToolbarHeight,
           color: Colors.grey[300],
         ),
-        SizedBox(width: 10.0,),
+        SizedBox(
+          width: 10.0,
+        ),
         Padding(
           padding: EdgeInsets.all(10.0),
           child: Center(
@@ -597,6 +628,8 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     );
   }
 }
+
+
 
 class StudyNavigatorExpansionTile extends StatefulWidget {
   final Topic topic;

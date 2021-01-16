@@ -58,7 +58,7 @@ dependencies:
 
   chewie: ^0.12.1+1
 
-  yabwe: ^0.0.2
+  async: ^2.4.2
 
 dev_dependencies:
   flutter_test:
@@ -79,3 +79,9 @@ flutter:
   - images/researcher_images/researcher_dashboard/
   - images/researcher_images/study_setup_images/
   - images/study_categories/
+
+
+  fonts:
+    - family: Sofia
+      fonts:
+        - asset: assets/fonts/sofia_pro_regular.otf

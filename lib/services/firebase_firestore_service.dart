@@ -86,24 +86,7 @@ class FirebaseFirestoreService {
         .snapshots();
   }
 
-  Future<Categories> getCategories(String studyUID) async {
-    var categories;
 
-    var categoriesReference = await _studiesReference
-        .doc(studyUID)
-        .collection(_CATEGORIES_COLLECTION)
-        .get();
-
-    if (categoriesReference.docs.isNotEmpty) {
-      var categoryDoc = categoriesReference.docs[0];
-      categories = Categories.fromMap(categoryDoc.data());
-    } else {
-      categories = Categories();
-      await saveCategories(studyUID, categories);
-    }
-
-    return categories;
-  }
 
   Future<List<Group>> getGroups(String studyUID) async {
     var groups = <Group>[];
@@ -389,17 +372,7 @@ class FirebaseFirestoreService {
 
   /// Create section
 
-  Future<void> saveCategories(String studyUID, Categories categories) async {
-    var categoriesMap = <String, dynamic>{};
 
-    categoriesMap = Categories().toMap(categories);
-
-    await _studiesReference
-        .doc(studyUID)
-        .collection('categories')
-        .doc('categories')
-        .set(categoriesMap, SetOptions(merge: true));
-  }
 
   Future<Study> createStudy() async {
     final created = Timestamp.now();

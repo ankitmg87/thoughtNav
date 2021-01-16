@@ -380,46 +380,135 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         SizedBox(
           height: 40.0,
         ),
-        Center(
-          child: FlatButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6.0),
-            ),
-            color: PROJECT_GREEN,
-            onPressed: () async {
-              switch (_onboardingPageNumber) {
-                case 1:
+        FlatButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6.0),
+          ),
+          color: PROJECT_GREEN,
+          onPressed: () async {
+            switch (_onboardingPageNumber) {
+              case 1:
+                if (_participant.displayName != null) {
                   setState(() {
                     _onboardingPageNumber = 2;
                     _selectedPage = OnboardingPage2(
                       participant: _participant,
+                      phoneNumberController: _phoneNumberController,
                     );
                   });
-                  break;
-                case 2:
+                } else {
+                  await showGeneralDialog(
+                    barrierDismissible: true,
+                    barrierLabel: 'Select Avatar',
+                    context: context,
+                    pageBuilder: (BuildContext context,
+                        Animation<double> animation,
+                        Animation<double> secondaryAnimation) {
+                      return Center(
+                        child: Material(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Text(
+                              'Please select display name and avatar',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+                break;
+              case 2:
+                if (_phoneNumberController.value.text.trim().isEmpty) {
+                  await showGeneralDialog(
+                      barrierDismissible: true,
+                      barrierLabel: 'Enter Phone number',
+                      context: context,
+                      pageBuilder: (BuildContext context,
+                          Animation<double> animation,
+                          Animation<double> secondaryAnimation) {
+                        return Center(
+                          child: Material(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Text(
+                                'Please enter phone number',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                } else
+                if (_participant.gender == null) {
+                  await showGeneralDialog(
+                      barrierDismissible: true,
+                      barrierLabel: 'Enter Gender',
+                      context: context,
+                      pageBuilder: (BuildContext context,
+                          Animation<double> animation,
+                          Animation<double> secondaryAnimation) {
+                        return Center(
+                          child: Material(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Text(
+                                'Please enter gender',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                } else {
                   setState(() {
                     _onboardingPageNumber = 3;
                     _selectedPage = OnboardingPage3(
                       participant: _participant,
                     );
                   });
-                  break;
-                case 3:
-                  await _updatePasswordAndSaveParticipantDetails();
-                  await Navigator.of(context).pushNamedAndRemoveUntil(
-                      SETUP_COMPLETE_SCREEN, (route) => false);
-                  break;
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 60.0, vertical: 16.0),
-              child: Text(
-                _onboardingPageNumber > 1 ? 'LET\'S GET STARTED' : 'CONTINUE',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                ),
+                }
+                break;
+              case 3:
+                await _updatePasswordAndSaveParticipantDetails();
+                await Navigator.of(context).pushNamedAndRemoveUntil(
+                    SETUP_COMPLETE_SCREEN, (route) => false);
+                break;
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 60.0,
+              vertical: 10.0,
+            ),
+            child: Text(
+              _onboardingPageNumber > 2 ? 'LET\'S GET STARTED' : 'CONTINUE',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
               ),
             ),
           ),

@@ -1,41 +1,56 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/notification.dart';
+import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/participant_firestore_service.dart';
+
+import 'dashboard/dashboard_widgets/clap_notification_widget.dart';
+import 'dashboard/dashboard_widgets/comment_notification_widget.dart';
+import 'dashboard/dashboard_widgets/moderator_comment_notification_widget.dart';
 
 class NotificationsScreen extends StatefulWidget {
   @override
   _NotificationsScreenState createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> with SingleTickerProviderStateMixin {
-
-  final _firebaseFirestoreService = FirebaseFirestoreService();
-
-  TabController _tabController;
+class _NotificationsScreenState extends State<NotificationsScreen>
+    with SingleTickerProviderStateMixin {
+  final _participantFirestoreService = ParticipantFirestoreService();
 
   String _studyUID;
+  String _participantUID;
+
+  Future<Participant> _futureParticipant;
+  Stream<QuerySnapshot> _notificationsStream;
+
+  Future<Participant> _getParticipant(String studyUID, String participantUID) async {
+    return _participantFirestoreService.getParticipant(
+        studyUID, participantUID);
+  }
+
+  Stream<QuerySnapshot> _getNotificationsStream(String studyUID, String participantUID) {
+    return _participantFirestoreService
+        .getParticipantNotifications(studyUID, participantUID);
+  }
 
   @override
   void initState() {
-
     var getStorage = GetStorage();
 
     _studyUID = getStorage.read('studyUID');
+    _participantUID = getStorage.read('participantUID');
 
-    _tabController = TabController(length: 2, vsync: this);
+    _futureParticipant = _getParticipant(_studyUID, _participantUID);
+    _notificationsStream = _getNotificationsStream(_studyUID, _participantUID);
+
     super.initState();
-    _getNotifications();
-  }
-
-  Stream _notificationsStream;
-
-  void _getNotifications() {
-    // _notificationsStream =
-    //     _firebaseFirestoreService.getNotifications(_studyUID);
   }
 
   @override
@@ -44,169 +59,115 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
 
     return Scaffold(
       appBar: buildPhoneAppBar(),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          buildPhoneBody(screenSize),
-          buildPhoneBody(screenSize),
-        ],
-      ),
+      body: buildPhoneBody(screenSize),
     );
   }
 
   Widget buildPhoneBody(Size screenSize) {
-    return StreamBuilder(
-      stream: _notificationsStream,
-      builder: (BuildContext context,
-          AsyncSnapshot<dynamic> snapshot) {
-        switch (snapshot.connectionState) {
+    return FutureBuilder<Participant>(
+      future: _futureParticipant,
+      builder: (BuildContext context, AsyncSnapshot<Participant> participant) {
+        switch(participant.connectionState){
           case ConnectionState.none:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return SizedBox();
-            break;
           case ConnectionState.waiting:
           case ConnectionState.active:
-            if (snapshot.hasData) {
-              var notifications =
-                  snapshot.data.documents;
-
-              return ListView.separated(
-                itemBuilder:
-                    (BuildContext context,
-                    int index) {
-                  return _DesktopNotificationWidget(
-                    // time: notifications[index]
-                    // ['time'],
-                    participantAvatar:
-                    notifications[index][
-                    'participantAvatar'],
-                    participantAlias:
-                    notifications[index][
-                    'participantAlias'],
-                    questionNumber:
-                    notifications[index]
-                    ['questionNumber'],
-                    questionTitle:
-                    notifications[index]
-                    ['questionTitle'],
-                  );
-                },
-                separatorBuilder:
-                    (BuildContext context,
-                    int index) {
-                  return SizedBox(
-                    height: 10.0,
-                  );
-                },
-                itemCount: notifications.length,
-              );
-            } else {
-              return SizedBox(
-                child: Text('Loading...'),
-              );
-            }
+            return Center(
+              child: Text(
+                'Loading...'
+              ),
+            );
             break;
           case ConnectionState.done:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return SizedBox();
+            return StreamBuilder<QuerySnapshot>(
+              stream: _notificationsStream,
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    if (snapshot.hasError) {
+                      print(snapshot.error);
+                    }
+                    return SizedBox();
+                    break;
+                  case ConnectionState.waiting:
+                  case ConnectionState.active:
+                    if (snapshot.hasData) {
+                      var notifications = snapshot.data.docs;
+
+                      return ListView.separated(
+                        itemBuilder: (BuildContext context, int index) {
+                          switch (notifications[index]['notificationType']) {
+                            case 'clap':
+                              var clapNotification = ClapNotification.fromMap(
+                                  notifications[index].data());
+
+                              return ClapNotificationWidget(
+                                clapNotification: clapNotification,
+                                participantDisplayName: participant.data.displayName,
+                              );
+                              break;
+
+                            case 'comment':
+                              var commentNotification = CommentNotification.fromMap(
+                                  notifications[index].data());
+
+                              return CommentNotificationWidget(
+                                commentNotification: commentNotification,
+                                participantDisplayName: participant.data.displayName,
+                              );
+                              break;
+
+                            case 'moderatorComment':
+                              var moderatorCommentNotification =
+                              ModeratorCommentNotification.fromMap(
+                                  notifications[index].data());
+
+                              return ModeratorCommentNotificationWidget(
+                                moderatorCommentNotification:
+                                moderatorCommentNotification,
+                              );
+                              break;
+
+                            default:
+                              return SizedBox();
+                          }
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: 16.0,
+                            ),
+                            height: 1.0,
+                            width: double.maxFinite,
+                            color: Colors.grey[300],
+                          );
+                        },
+                        itemCount: notifications.length,
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                    break;
+                  case ConnectionState.done:
+                    if (snapshot.hasError) {
+                      print(snapshot.error);
+                    }
+                    return SizedBox();
+                    break;
+                  default:
+                    if (snapshot.hasError) {
+                      print(snapshot.error);
+                    }
+                    return SizedBox();
+                }
+              },
+            );
             break;
           default:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return SizedBox();
-        }
-      },
-    );
-  }
-
-  StreamBuilder _buildNotificationsStreamBuilder(
-      Stream getNotificationsStream) {
-    return StreamBuilder(
-      stream: getNotificationsStream,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return SizedBox();
-            break;
-          case ConnectionState.waiting:
-          case ConnectionState.active:
-            if (snapshot.hasData) {
-              var notifications = snapshot.data.documents;
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Text(
-                    'Study Activity',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Container(
-                    height: 0.5,
-                    color: Colors.grey[300],
-                    width: double.maxFinite,
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      itemBuilder: (BuildContext context, int index) {
-                        return _DesktopNotificationWidget(
-                          //time: notifications[index]['time'],
-                          participantAvatar: notifications[index]
-                          ['participantAvatar'],
-                          participantAlias: notifications[index]
-                          ['participantAlias'],
-                          questionNumber: notifications[index]
-                          ['questionNumber'],
-                          questionTitle: notifications[index]['questionTitle'],
-                        );
-                      },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return SizedBox(
-                          height: 10.0,
-                        );
-                      },
-                      itemCount: notifications.length,
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return SizedBox(
-                child: Text('Loading...'),
-              );
-            }
-            break;
-          case ConnectionState.done:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return SizedBox();
-            break;
-          default:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return SizedBox();
+            return Center(
+              child: Text(
+                  'Loading...'
+              ),
+            );
         }
       },
     );
@@ -215,116 +176,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
   AppBar buildPhoneAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
+      title: Text(
+        'Notifications',
+        style: TextStyle(
+          color: Colors.black
+        ),
+      ),
+      centerTitle: true,
       leading: IconButton(
         icon: Icon(
           Icons.arrow_back_ios,
           color: Color(0xFF555555),
         ),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(
-            Icons.settings,
-            color: PROJECT_GREEN,
-          ),
-          onPressed: () {},
-        )
-      ],
-      bottom: TabBar(
-        controller: _tabController,
-        labelColor: Colors.black,
-        tabs: [
-          Tab(
-            text: 'Activity',
-          ),
-          Tab(
-            text: 'Announcements',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-class _DesktopNotificationWidget extends StatelessWidget {
-  // final String time;
-  final String participantAvatar;
-  final String participantAlias;
-  final String questionNumber;
-  final String questionTitle;
-
-  const _DesktopNotificationWidget({
-    Key key,
-    // this.time,
-    this.participantAvatar,
-    this.participantAlias,
-    this.questionNumber,
-    this.questionTitle,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 6.0),
-      child: Row(
-        children: [
-          Text(
-            '5:38 pm',
-            style: TextStyle(
-              color: TEXT_COLOR.withOpacity(0.6),
-              fontSize: 13.0,
-            ),
-          ),
-          SizedBox(
-            width: 5.0,
-          ),
-          CachedNetworkImage(
-            imageUrl: participantAvatar,
-            imageBuilder: (context, imageProvider){
-              return Container(
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: PROJECT_LIGHT_GREEN,
-                ),
-                child: Image(
-                  width: 20.0,
-                  image: imageProvider,
-                ),
-              );
-            },
-          ),
-          SizedBox(
-            width: 8.0,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  textAlign: TextAlign.start,
-                  maxLines: 2,
-                  text: TextSpan(
-                    style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.7), fontSize: 13.0),
-                    children: [
-                      TextSpan(
-                          text: '$participantAlias responded to the question '),
-                      TextSpan(
-                        text: '$questionNumber $questionTitle.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        onPressed: () => Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN),
       ),
     );
   }

@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:thoughtnav/screens/researcher/models/categories.dart';
+import 'package:thoughtnav/screens/researcher/models/client.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
+import 'package:thoughtnav/screens/researcher/models/insight.dart';
 import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
@@ -12,13 +15,17 @@ import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:http/http.dart' as http;
 
 const String _STUDIES_COLLECTION = 'studies';
-const String _MODERATORS_COLLECTION = 'moderators';
+const String _CATEGORIES_COLLECTION = 'categories';
 const String _GROUPS_COLLECTION = 'groups';
 const String _TOPICS_COLLECTION = 'topics';
 const String _QUESTIONS_COLLECTION = 'questions';
 const String _RESPONSES_COLLECTION = 'responses';
+const String _INSIGHTS_COLLECTION = 'insights';
+const String _INSIGHT_NOTIFICATIONS_COLLECTION = 'insightNotifications';
 const String _COMMENTS_COLLECTION = 'comments';
 const String _PARTICIPANTS_COLLECTION = 'participants';
+const String _CLIENTS_COLLECTION = 'clients';
+const String _MODERATORS_COLLECTION = 'moderators';
 const String _PARTICIPANT_NOTIFICATIONS_COLLECTION = 'participantNotifications';
 const String _GROUP_NOTIFICATIONS_COLLECTION = 'groupNotifications';
 
@@ -26,17 +33,20 @@ class ResearcherAndModeratorFirestoreService {
   final _studiesReference =
       FirebaseFirestore.instance.collection(_STUDIES_COLLECTION);
 
-  Future<Moderator> getModerator(String studyUID, String userID) async {
-    var moderatorSnapshot = await _studiesReference
-        .doc(studyUID)
-        .collection(_MODERATORS_COLLECTION)
-        .doc(userID)
-        .get();
+  final _moderatorsReference =
+      FirebaseFirestore.instance.collection(_MODERATORS_COLLECTION);
 
-    var moderator = Moderator.fromMap(moderatorSnapshot.data());
-
-    return moderator;
-  }
+  // Future<Moderator> getModerator(String studyUID, String userID) async {
+  //   var moderatorSnapshot = await _studiesReference
+  //       .doc(studyUID)
+  //       .collection(_MODERATORS_COLLECTION)
+  //       .doc(userID)
+  //       .get();
+  //
+  //   var moderator = Moderator.fromMap(moderatorSnapshot.data());
+  //
+  //   return moderator;
+  // }
 
   Future<Study> getStudy(String studyUID) async {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
@@ -100,16 +110,18 @@ class ResearcherAndModeratorFirestoreService {
     return topic;
   }
 
-  Future<Question> createQuestion(
-      String studyUID, int index, String topicUID) async {
+  Future<Question> createQuestion(String studyUID, int index, String topicUID,
+      Timestamp topicTimestamp) async {
     var question = Question(
       questionType: 'Standard',
+      questionTimestamp: topicTimestamp,
       totalComments: 0,
       totalResponses: 0,
       questionNumber: '$index',
       groups: [],
-      groupNames: [],
-      hasMedia: false,
+      groupIndexes: [],
+      allowImage: false,
+      allowVideo: false,
     );
 
     var questionMap = question.toMap();
@@ -152,8 +164,9 @@ class ResearcherAndModeratorFirestoreService {
         'questionTitle': question.questionTitle,
         'questionType': question.questionType,
         'questionTimestamp': question.questionTimestamp,
-        'hasMedia': question.hasMedia,
-        'groupNames': question.groupNames,
+        'allowImage': question.allowImage,
+        'allowVideo': question.allowVideo,
+        'groupIndexes': question.groupIndexes,
         'groups': question.groups,
       },
       SetOptions(merge: true),
@@ -345,12 +358,38 @@ class ResearcherAndModeratorFirestoreService {
         .set(participant.toMap());
   }
 
+  Future<void> createClient(String studyUID, Client client) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_CLIENTS_COLLECTION)
+        .doc(client.clientUID)
+        .set(client.toMap());
+  }
+
+  Future<void> createModerator(Moderator moderator) async {
+    await _moderatorsReference
+        .doc(moderator.moderatorUID)
+        .set(moderator.toMap());
+  }
+
   Stream<QuerySnapshot> getParticipantsAsStream(String studyUID) {
     return _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
         .orderBy('userGroupName')
         .snapshots();
+  }
+
+  Stream<QuerySnapshot> getClientsAsStream(String studyUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_CLIENTS_COLLECTION)
+        .orderBy('email')
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> getModeratorsAsStream() {
+    return _moderatorsReference.orderBy('email').snapshots();
   }
 
   Future<List<Participant>> getParticipants(String studyUID) async {
@@ -536,6 +575,176 @@ class ResearcherAndModeratorFirestoreService {
 
     return topics;
   }
+
+  Future<void> saveIntroductionMessage(
+      String studyUID, String introductionMessage) async {
+    await _studiesReference.doc(studyUID).update({
+      'introPageMessage': introductionMessage,
+    });
+  }
+
+  Future<Categories> getCategories(String studyUID) async {
+    var categories;
+
+    var categoriesReference = await _studiesReference
+        .doc(studyUID)
+        .collection(_CATEGORIES_COLLECTION)
+        .get();
+
+    if (categoriesReference.docs.isNotEmpty) {
+      var categoryDoc = categoriesReference.docs[0];
+      categories = Categories.fromMap(categoryDoc.data());
+    } else {
+      categories = Categories();
+      await saveCategories(studyUID, categories);
+    }
+
+    return categories;
+  }
+
+  Future<void> saveCategories(String studyUID, Categories categories) async {
+    var categoriesMap = <String, dynamic>{};
+
+    categoriesMap = Categories().toMap(categories);
+
+    await _studiesReference
+        .doc(studyUID)
+        .collection('categories')
+        .doc('categories')
+        .set(categoriesMap, SetOptions(merge: true));
+  }
+
+  Future<void> postModeratorComment(
+      String studyUID,
+      String participantUID,
+      String topicUID,
+      String questionUID,
+      String responseUID,
+      String questionNumber,
+      String questionTitle,
+      Comment comment) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .doc(responseUID)
+        .collection(_COMMENTS_COLLECTION)
+        .add(comment.toMap())
+        .then((commentDocumentReference) async {
+      comment.commentUID = commentDocumentReference.id;
+      await commentDocumentReference.update({
+        'commentUID': commentDocumentReference.id,
+      });
+    });
+
+    var moderatorCommentNotification = ModeratorCommentNotification(
+      moderatorCommentStatement: comment.commentStatement,
+      questionNumber: questionNumber,
+      questionTitle: questionTitle,
+      questionUID: questionUID,
+      topicUID: topicUID,
+      responseUID: responseUID,
+      notificationType: 'moderatorCommentNotification',
+      notificationTimestamp: comment.commentTimestamp,
+    );
+
+    await postModeratorCommentNotification(
+        studyUID,
+        participantUID,
+        topicUID,
+        questionUID,
+        responseUID,
+        comment.commentUID,
+        moderatorCommentNotification);
+  }
+
+  Future<void> postModeratorCommentNotification(
+      String studyUID,
+      String participantUID,
+      String topicUID,
+      String questionUID,
+      String responseUID,
+      String commentUID,
+      ModeratorCommentNotification moderatorCommentNotification) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participantUID)
+        .collection(_PARTICIPANT_NOTIFICATIONS_COLLECTION)
+        .add(
+          moderatorCommentNotification.toMap(moderatorCommentNotification),
+        );
+  }
+
+  Future<void> postInsight(String studyUID, String topicUID, String questionUID,
+      Insight insight) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_INSIGHTS_COLLECTION)
+        .add(insight.toMap(insight));
+
+    await postInsightNotification(studyUID, insight);
+  }
+
+  Future<void> postInsightNotification(String studyUID, Insight insight) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_INSIGHT_NOTIFICATIONS_COLLECTION)
+        .add(insight.toMap(insight));
+  }
+
+  Stream<QuerySnapshot> streamInsights(
+      String studyUID, String topicUID, String questionUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_INSIGHTS_COLLECTION)
+        .orderBy('insightTimestamp')
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> streamQuestions(String studyUID, String topicUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .orderBy('questionNumber')
+        .snapshots();
+  }
+
+  Future<void> deleteTopic(String studyUID, String topicUID) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .delete();
+  }
+
+  Future<void> deleteQuestion(
+      String studyUID, String topicUID, String questionUID) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .delete();
+  }
+
+// Future<Moderator> getModerator(String moderatorUID) async {
+//
+// }
 
 // Future<void> updateHasMedia(
 //     String studyUID, String topicUID, String questionUID, bool hasMedia) async {

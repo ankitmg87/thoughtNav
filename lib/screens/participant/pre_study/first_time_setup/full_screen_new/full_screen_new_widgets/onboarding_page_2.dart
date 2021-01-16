@@ -215,7 +215,10 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
             Container(
               constraints: BoxConstraints(maxWidth: screenSize.width),
               child: TextFormField(
-                initialValue: widget.participant.phone,
+                controller: widget.phoneNumberController,
+                inputFormatters: [
+                  _phoneFormatter
+                ],
                 onChanged: (phone) {
                   widget.participant.phone = phone;
                 },

@@ -48,9 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     String userID;
 
-    if(_email != null && _password != null){
-      if(_checkEmail(_email.trim()) && _password.trim().isNotEmpty ){
-
+    if (_email != null && _password != null) {
+      if (_checkEmail(_email.trim()) && _password.trim().isNotEmpty) {
         unAwaited(
           showGeneralDialog(
             context: _context,
@@ -81,7 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
 
-        userID = await _firebaseAuthService.signInUser(_email.trim(), _password.trim());
+        userID = await _firebaseAuthService.signInUser(
+            _email.trim(), _password.trim());
 
         if (userID == 'user-not-found') {
           print('User not Found');
@@ -89,42 +89,39 @@ class _LoginScreenState extends State<LoginScreen> {
           _invalidPassword = true;
           _formKey.currentState.validate();
           Navigator.of(dialogContext).pop();
-        }
-        else if (userID == 'wrong-password') {
+        } else if (userID == 'wrong-password') {
           print('Invalid Password');
-          if(_invalidEmail){
+          if (_invalidEmail) {
             _invalidEmail = false;
           }
           _invalidPassword = true;
           _formKey.currentState.validate();
           Navigator.of(dialogContext).pop();
-        }
-
-        else {
+        } else {
           user = await _firebaseFirestoreService.getUser(userID);
 
           Navigator.of(dialogContext).pop();
 
-          switch(user.userType){
+          switch (user.userType) {
             case USER_TYPE_ROOT_USER:
               await Navigator.of(context).pushNamedAndRemoveUntil(
                   RESEARCHER_MAIN_SCREEN, (route) => false);
               break;
             case USER_TYPE_CLIENT:
               var client = await _clientFirestoreService.getClient(
-                  user.studyUID, 'YWYZQvp9s6KRoSLMW1x3');
+                  user.studyUID, userID);
 
               if (client.isOnboarded) {
                 var getStorage = GetStorage();
                 await getStorage.write('studyUID', user.studyUID);
-                await getStorage.write('clientUID', 'YWYZQvp9s6KRoSLMW1x3');
+                await getStorage.write('clientUID', client.clientUID);
 
                 await Navigator.of(context).pushNamedAndRemoveUntil(
                     CLIENT_DASHBOARD_SCREEN, (route) => false);
               } else {
                 var getStorage = GetStorage();
                 await getStorage.write('studyUID', user.studyUID);
-                await getStorage.write('clientUID', 'YWYZQvp9s6KRoSLMW1x3');
+                await getStorage.write('clientUID', client.clientUID);
 
                 await Navigator.of(context).pushNamedAndRemoveUntil(
                     CLIENT_ONBOARDING_SCREEN, (route) => false);
@@ -141,8 +138,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 var getStorage = GetStorage();
                 await getStorage.write('studyUID', user.studyUID);
                 await getStorage.write('participantUID', user.userUID);
-                await Navigator.of(context)
-                    .pushNamedAndRemoveUntil(PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
+                await Navigator.of(context).pushNamedAndRemoveUntil(
+                    PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
                 break;
               }
               if (!participant.isOnboarded) {
@@ -156,16 +153,13 @@ class _LoginScreenState extends State<LoginScreen> {
               break;
           }
         }
-      }
-      else{
+      } else {
         _invalidEmail = true;
         _invalidPassword = true;
         _formKey.currentState.validate();
         Navigator.of(dialogContext).pop();
       }
-
-    }
-    else {
+    } else {
       _formKey.currentState.validate();
     }
   }
@@ -201,28 +195,41 @@ class _LoginScreenState extends State<LoginScreen> {
               shrinkWrap: true,
               children: [
                 SizedBox(
-                  height: screenHeight * 0.1,
+                  height: 30.0,
                 ),
                 Center(
                   child: Container(
                     constraints: BoxConstraints(
                       maxWidth: 600.0,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
+                    child: Stack(
                       children: [
-                        Image.asset(
-                          'images/login_screen_left.png',
-                          width: screenWidth > 800 ? screenWidth * 0.2 : 200,
+                        Container(
+                          width: 600.0,
+                          height: 250.0,
                         ),
-                        Image.asset(
-                          'images/login_screen_right.png',
-                          width: screenWidth > 800 ? screenWidth * 0.2 : 200,
+                        Positioned(
+                          left: 0.0,
+                          bottom: 0.0,
+                          child: Image.asset(
+                            'images/login_screen_left.png',
+                            width: 175.0,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 5.0,
+                          right: 0.0,
+                          child: Image.asset(
+                            'images/login_screen_right.png',
+                            width: 175.0,
+                          ),
                         ),
                       ],
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 20.0,
                 ),
                 Text(
                   APP_NAME,
@@ -258,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(
-                      horizontal: 40.0, vertical: screenHeight * 0.05),
+                      horizontal: 20.0, vertical: screenHeight * 0.05),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +291,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               validator: (value) {
                                 if (value.isEmpty) {
                                   return 'Email Id cannot be empty';
-                                } else if (!_checkEmail(value) || _invalidEmail) {
+                                } else if (!_checkEmail(value) ||
+                                    _invalidEmail) {
                                   return 'Please enter a valid email id';
                                 } else {
                                   return null;
@@ -317,10 +325,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             TextFormField(
                               validator: (passwordValue) {
-                                if(passwordValue.isEmpty){
+                                if (passwordValue.isEmpty) {
                                   return 'Password cannot be empty';
-                                }
-                                else if (_invalidPassword) {
+                                } else if (_invalidPassword) {
                                   return 'Password is invalid';
                                 } else {
                                   return null;
@@ -366,7 +373,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 40.0),
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -383,9 +390,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 });
                               },
                             ),
-                          ),
-                          SizedBox(
-                            width: 4.0,
                           ),
                           Text(
                             'Remember Me',
@@ -418,7 +422,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: screenHeight * 0.1,
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 40.0),
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
                     children: [
                       Expanded(
@@ -523,8 +527,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         Text(
                           'ThoughtNav is an online focus group platform.'
-                              '\nResearchers use ThoughtNav to get quality'
-                              '\ninsights from participants like you!',
+                          '\nResearchers use ThoughtNav to get quality'
+                          '\ninsights from participants like you!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color(0xFF333333),
@@ -584,7 +588,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         validator: (value) {
                                           if (value.isEmpty) {
                                             return 'Email Id cannot be empty';
-                                          } else if (!_checkEmail(value) || _invalidEmail) {
+                                          } else if (!_checkEmail(value) ||
+                                              _invalidEmail) {
                                             return 'Please enter a valid email id';
                                           } else {
                                             return null;
@@ -620,10 +625,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       TextFormField(
                                         validator: (passwordValue) {
-                                          if(passwordValue.isEmpty){
+                                          if (passwordValue.isEmpty) {
                                             return 'Password cannot be empty';
-                                          }
-                                          else if (_invalidPassword) {
+                                          } else if (_invalidPassword) {
                                             return 'Password is invalid';
                                           } else {
                                             return null;
@@ -661,7 +665,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         onChanged: (password) {
                                           _password = password;
                                         },
-                                        onFieldSubmitted: (password){
+                                        onFieldSubmitted: (password) {
                                           _loginAndRedirectUser(context);
                                         },
                                       ),

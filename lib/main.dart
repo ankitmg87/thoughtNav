@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/email_screen.dart';
 import 'package:thoughtnav/quill_screen.dart';
 import 'package:thoughtnav/screens/client/client_dashboard_screen.dart';
 import 'package:thoughtnav/screens/client/client_onboarding_screen.dart';
@@ -9,10 +8,7 @@ import 'package:thoughtnav/screens/client/client_preferences_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/participant_dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/welcome_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/notifications_screen.dart';
-import 'package:thoughtnav/screens/participant/open_study/questions/day_completed_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/participant_responses_screen.dart';
-import 'package:thoughtnav/screens/participant/open_study/questions/question_screen.dart';
-import 'package:thoughtnav/screens/participant/open_study/questions/questions_first_day_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_complete_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/set_account/contact_us_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/set_account/user_details.dart';
@@ -20,8 +16,6 @@ import 'package:thoughtnav/screens/participant/open_study/set_account/user_prefe
 import 'package:thoughtnav/screens/participant/post_study/post_study_reward_methods_screen.dart';
 import 'package:thoughtnav/screens/participant/post_study/rewards_dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/post_study/study_ended_screen.dart';
-import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/confirm_display_profile_screen.dart';
-import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/reward_method_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/onboarding_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/setup_complete_screen.dart';
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/study_details_screen.dart';
@@ -54,6 +48,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         scaffoldBackgroundColor: SCAFFOLD_BACKGROUND_COLOR,
         unselectedWidgetColor: Colors.white,
+        fontFamily: 'Sofia',
         // textTheme: GoogleFonts.latoTextTheme(
         //   Theme.of(context).textTheme,
         // ),

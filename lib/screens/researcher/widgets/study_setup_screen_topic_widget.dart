@@ -40,7 +40,18 @@ class _StudySetupScreenTopicWidgetState
 
   List<Question> _questions;
 
+  DateTime _topicDateTime;
+  TimeOfDay _topicTimeOfDay;
+
   String _topicDate;
+  String _topicTime;
+
+  Stream<QuerySnapshot> _questionsStream;
+
+  Stream<QuerySnapshot> _getQuestionStream(String studyUID, String topicUID) {
+    return _researcherAndModeratorFirestoreService.streamQuestions(
+        studyUID, topicUID);
+  }
 
   final FocusNode _topicNameFocusNode = FocusNode();
 
@@ -56,9 +67,6 @@ class _StudySetupScreenTopicWidgetState
 
   @override
   void initState() {
-    if (widget.topic.topicDate != null) {
-      _topicDate = _formatTopicDate(widget.topic.topicDate);
-    }
     super.initState();
     _topicNameFocusNode.addListener(() {
       if (!_topicNameFocusNode.hasFocus) {
@@ -66,15 +74,34 @@ class _StudySetupScreenTopicWidgetState
       }
     });
 
+    _questionsStream =
+        _getQuestionStream(widget.studyUID, widget.topic.topicUID);
+
     _questions = widget.topic.questions;
 
     _questions ??= <Question>[];
   }
 
-  String _formatTopicDate(Timestamp timestamp) {
-    var dateTime = timestamp.toDate();
+  @override
+  void didChangeDependencies() {
+    if (widget.topic.topicDate != null) {
+      // _topicDate = _formatTopicDate(widget.topic.topicDate);
+      _topicDateTime = DateTime.fromMillisecondsSinceEpoch(
+          widget.topic.topicDate.millisecondsSinceEpoch);
+      _topicTimeOfDay =
+          TimeOfDay(hour: _topicDateTime.hour, minute: _topicDateTime.minute);
+
+      var dateFormatter = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
+
+      _topicDate = dateFormatter.format(_topicDateTime);
+      _topicTime = _topicTimeOfDay.format(context);
+    }
+    super.didChangeDependencies();
+  }
+
+  String _formatTopicDate(DateTime topicDateTime) {
     var formatter = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
-    return formatter.format(dateTime);
+    return formatter.format(topicDateTime);
   }
 
   @override
@@ -203,12 +230,21 @@ class _StudySetupScreenTopicWidgetState
                         context: context,
                       );
                       if (beginDate != null) {
-                        var editedTime = beginDate.add(Duration(hours: 6));
-                        widget.topic.topicDate = Timestamp.fromDate(editedTime);
-                        _topicDate = _formatTopicDate(widget.topic.topicDate);
-                        _updateTopicDetails();
-                        setState(() {});
+                        _topicDate = _formatTopicDate(beginDate);
+                        _topicDateTime = beginDate;
+
+                        if (_topicDateTime != null && _topicTimeOfDay != null) {
+                          widget.topic.topicDate = Timestamp.fromDate(DateTime(
+                            _topicDateTime.year,
+                            _topicDateTime.month,
+                            _topicDateTime.day,
+                            _topicTimeOfDay.hour,
+                            _topicTimeOfDay.minute,
+                          ));
+                          _updateTopicDetails();
+                        }
                       }
+                      setState(() {});
                     },
                     child: Padding(
                       padding: EdgeInsets.symmetric(
@@ -229,23 +265,83 @@ class _StudySetupScreenTopicWidgetState
                   ),
                 ),
               ),
-              Expanded(
-                child: Row(),
-              ),
               SizedBox(
-                width: 20.0,
+                width: 40.0,
               ),
-              InkWell(
-                highlightColor: Colors.transparent,
-                focusColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                onTap: () {},
-                child: Icon(
-                  Icons.clear,
-                  color: Colors.red[700],
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2.0),
+                    border: Border.all(
+                      width: 0.75,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (time != null) {
+                        _topicTimeOfDay = time;
+
+                        _topicTime = time.format(context);
+
+                        if (_topicDateTime != null && _topicTimeOfDay != null) {
+                          widget.topic.topicDate = Timestamp.fromDate(
+                            DateTime(
+                              _topicDateTime.year,
+                              _topicDateTime.month,
+                              _topicDateTime.day,
+                              _topicTimeOfDay.hour,
+                              _topicTimeOfDay.minute,
+                            ),
+                          );
+                          _updateTopicDetails();
+                        }
+                      }
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
+                        horizontal: 10.0,
+                      ),
+                      child: Text(
+                        _topicTime ?? 'Select Time',
+                        style: TextStyle(
+                          color: _topicTime == null
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
+              SizedBox(
+                width: 40.0,
+              ),
+              widget.topic.isActive
+                  ? SizedBox()
+                  : InkWell(
+                      highlightColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () {},
+                      child: Text(
+                        'Delete Topic',
+                        style: TextStyle(
+                          color: Colors.red[700],
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
               SizedBox(
                 width: 10.0,
               ),
@@ -265,96 +361,124 @@ class _StudySetupScreenTopicWidgetState
                       topicUID: widget.topic.topicUID,
                       question: widget.topic.questions[index],
                       groups: widget.groups,
-                      deleteQuestion: () async {
-                        await _firebaseFirestoreService.deleteQuestion(
-                          widget.studyUID,
-                          widget.topic.topicUID,
-                          widget.topic.questions[index].questionUID,
-                        );
-                      },
+                      topicIsActive: true,
                     );
                   },
                   separatorBuilder: (BuildContext context, int index) {
                     return SizedBox();
                   },
                 )
-              : ReorderableWrap(
-                  needsLongPressDraggable: false,
-                  runSpacing: 10.0,
-                  onReorder: _onReorder,
-                  children: [
-                    for (var _question in _questions)
-                      StudySetupScreenQuestionWidget(
-                        studyUID: widget.studyUID,
-                        topicUID: widget.topic.topicUID,
-                        question: _question,
-                        groups: widget.groups,
-                        deleteQuestion: () async {
-                          await _firebaseFirestoreService.deleteQuestion(
-                            widget.studyUID,
-                            widget.topic.topicUID,
-                            _question.questionUID,
-                          );
-                        },
-                      ),
-                  ],
+              : StreamBuilder<QuerySnapshot>(
+                  stream: _questionsStream,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.none:
+                      case ConnectionState.waiting:
+                        return SizedBox();
+                        break;
+                      case ConnectionState.active:
+                        if (snapshot.hasData) {
+                          if (snapshot.data.docs.isNotEmpty) {
+                            return ReorderableWrap(
+                              needsLongPressDraggable: false,
+                              runSpacing: 10.0,
+                              onReorder: _onReorder,
+                              children: List.generate(snapshot.data.docs.length,
+                                  (index) {
+                                return StudySetupScreenQuestionWidget(
+                                  groups: widget.groups,
+                                  studyUID: widget.studyUID,
+                                  topicUID: widget.topic.topicUID,
+                                  question: Question.fromMap(
+                                      snapshot.data.docs[index].data()),
+                                  topicIsActive: false,
+                                  deleteQuestion: () async {
+                                    await _researcherAndModeratorFirestoreService
+                                        .deleteQuestion(
+                                            widget.studyUID,
+                                            widget.topic.topicUID,
+                                            snapshot.data.docs[index]
+                                                .data()['questionUID']);
+                                  },
+                                );
+                              }).toList(),
+                            );
+                          } else {
+                            return SizedBox();
+                          }
+                        } else {
+                          return SizedBox();
+                        }
+                        break;
+                      case ConnectionState.done:
+                        return SizedBox();
+                        break;
+                      default:
+                        return SizedBox();
+                    }
+                  },
                 ),
           SizedBox(
             height: 10.0,
           ),
-
-          widget.topic.isActive ?
-              SizedBox() :
-          Align(
-            alignment: Alignment.centerRight,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _questions.length > 1
-                    ? IconButton(
-                        onPressed: () async {
-                          await _firebaseFirestoreService.deleteQuestion(
-                              widget.studyUID,
-                              widget.topic.topicUID,
-                              _questions.last.questionUID);
+          widget.topic.isActive
+              ? SizedBox()
+              : Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _questions.length > 1
+                          ? InkWell(
+                              onTap: () async {
+                                await _firebaseFirestoreService.deleteQuestion(
+                                    widget.studyUID,
+                                    widget.topic.topicUID,
+                                    _questions.last.questionUID);
+                                setState(() {
+                                  _questions.removeLast();
+                                });
+                              },
+                              child: Text(
+                                'Delete Question',
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            )
+                          : SizedBox(),
+                      InkWell(
+                        onTap: () async {
+                          var question =
+                              await _researcherAndModeratorFirestoreService
+                                  .createQuestion(
+                            widget.studyUID,
+                            _questions.length + 1,
+                            widget.topic.topicUID,
+                            widget.topic.topicDate,
+                          );
                           setState(() {
-                            _questions.removeLast();
+                            _questions.add(question);
                           });
                         },
-                        icon: Container(
-                          width: 20.0,
-                          height: 20.0,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.red[700],
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.close_outlined,
-                              color: Colors.white,
-                              size: 14.0,
-                            ),
+                        child: Text(
+                          'Add Question',
+                          style: TextStyle(
+                            color: PROJECT_GREEN,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.0,
                           ),
                         ),
-                      )
-                    : SizedBox(),
-                IconButton(
-                  onPressed: () async {
-                    var question = await _researcherAndModeratorFirestoreService
-                        .createQuestion(widget.studyUID, _questions.length + 1,
-                            widget.topic.topicUID);
-                    setState(() {
-                      _questions.add(question);
-                    });
-                  },
-                  icon: Icon(
-                    Icons.add_circle_outlined,
+                      ),
+                      SizedBox(
+                        width: 10.0,
+                      ),
+                    ],
                   ),
-                  color: PROJECT_GREEN,
                 ),
-              ],
-            ),
-          ),
         ],
       ),
     );

@@ -13,9 +13,10 @@ class Question{
   int totalResponses;
   int totalComments;
   List<dynamic> groups;
-  List<dynamic> groupNames;
+  List<dynamic> groupIndexes;
   List<dynamic> respondedBy;
-  bool hasMedia;
+  bool allowImage;
+  bool allowVideo;
 
   Question({
     this.questionUID,
@@ -28,25 +29,27 @@ class Question{
     this.totalResponses,
     this.totalComments,
     this.groups,
-    this.groupNames,
+    this.groupIndexes,
     this.respondedBy,
-    this.hasMedia,
+    this.allowImage,
+    this.allowVideo,
   });
 
   Map<String, dynamic> toMap () {
     var question = <String, dynamic>{};
 
-    question['questionUID'] = questionUID;//
-    question['questionNumber'] = questionNumber;//
-    question['questionTitle'] = questionTitle; //
-    question['questionStatement'] = questionStatement;//
-    question['questionType'] = questionType;//
-    question['questionTimestamp'] = questionTimestamp;//
-    question['totalResponses'] = totalResponses;//
-    question['totalComments'] = totalComments;//
-    question['groups'] = groups ?? <dynamic>[];//
-    question['groupNames'] = groupNames ?? <dynamic>[];//
-    question['hasMedia'] = hasMedia ?? false;//
+    question['questionUID'] = questionUID;
+    question['questionNumber'] = questionNumber;
+    question['questionTitle'] = questionTitle;
+    question['questionStatement'] = questionStatement;
+    question['questionType'] = questionType;
+    question['questionTimestamp'] = questionTimestamp;
+    question['totalResponses'] = totalResponses;
+    question['totalComments'] = totalComments;
+    question['groups'] = groups ?? <dynamic>[];
+    question['groupIndexes'] = groupIndexes ?? <dynamic>[];
+    question['allowImage'] = allowImage ?? false;
+    question['allowVideo'] = allowVideo ?? false;
     question['respondedBy'] = respondedBy ?? [];
 
     return question;
@@ -63,8 +66,9 @@ class Question{
     totalResponses = question['totalResponses'];
     totalComments = question['totalComments'];
     groups = question['groups'];
-    groupNames = question['groupNames'];
-    hasMedia = question['hasMedia'];
+    groupIndexes = question['groupIndexes'];
+    allowImage = question['allowImage'];
+    allowVideo = question['allowVideo'];
     respondedBy = question['respondedBy'];
   }
 

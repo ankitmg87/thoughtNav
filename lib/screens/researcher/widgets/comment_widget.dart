@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/misc_constants.dart';
@@ -84,6 +85,7 @@ class CommentWidget extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              comment.avatarURL != null ?
               CachedNetworkImage(
                 imageUrl: comment.avatarURL,
                 imageBuilder: (imageContext, imageProvider){
@@ -98,6 +100,18 @@ class CommentWidget extends StatelessWidget {
                     ),
                   );
                 },
+              ) : Container(
+                width: 40.0,
+                height: 40.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                padding: EdgeInsets.all(5.0),
+                child: Image(
+                  image: AssetImage(
+                    'images/researcher_images/researcher_dashboard/participant_icon.png'
+                  ),
+                ),
               ),
               SizedBox(
                 width: 10.0,
@@ -112,7 +126,14 @@ class CommentWidget extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            RichText(
+                            comment.commentType == 'moderatorComment' ?
+                            Text(
+                              '${comment.displayName ?? 'Mike The Moderator'}',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ) : RichText(
                               text: TextSpan(
                                 children: [
                                   TextSpan(
@@ -157,7 +178,11 @@ class CommentWidget extends StatelessWidget {
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
+                      child:
+                          comment.commentType == 'moderatorComment' ?
+                          HtmlWidget(comment.commentStatement)
+                          :
+                      Text(
                         comment.commentStatement,
                       ),
                     ),

@@ -24,20 +24,21 @@ class StudyDashboard extends StatefulWidget {
 }
 
 class _StudyDashboardState extends State<StudyDashboard> {
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
 
-  final _researcherAndModeratorFirestoreService = ResearcherAndModeratorFirestoreService();
-
-  Study study;
+  Study _study;
 
   Stream _studyStream;
   Stream _notificationsStream;
 
-  Future<List<Topic>> _futureTopics;
+  Stream<QuerySnapshot> _activeParticipantsStream;
+  Stream<QuerySnapshot> _allParticipantsStream;
 
-  void _getStudyAsStream() {
-    _studyStream =
-        widget.firebaseFirestoreService.getStudyAsStream(widget.studyUID);
-  }
+
+  Future<Study> _futureStudy;
+
+  Future<List<Topic>> _futureTopics;
 
   void _getNotifications() {
     // _notificationsStream =
@@ -45,13 +46,21 @@ class _StudyDashboardState extends State<StudyDashboard> {
   }
 
   void _getTopics() {
-    _futureTopics = _researcherAndModeratorFirestoreService.getTopics(widget.studyUID);
+    _futureTopics =
+        _researcherAndModeratorFirestoreService.getTopics(widget.studyUID);
+  }
+
+  Future<Study> _getFutureStudy(String studyUID) async {
+    _study = await _researcherAndModeratorFirestoreService.getStudy(studyUID);
+    return _study;
   }
 
   @override
   void initState() {
+
+    _futureStudy = _getFutureStudy(widget.studyUID);
+
     super.initState();
-    _getStudyAsStream();
     _getNotifications();
     _getTopics();
   }
@@ -60,194 +69,184 @@ class _StudyDashboardState extends State<StudyDashboard> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-    return Expanded(
-      child: Container(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            StreamBuilder(
-              stream: _studyStream,
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                    if (snapshot.hasError) {
-                      print(snapshot.error);
-                    }
-                    return SizedBox();
-                    break;
-                  case ConnectionState.waiting:
-                  case ConnectionState.active:
-                    if (snapshot.hasData) {
-                      return _StudyDetailsBar(
-                        studyName: snapshot.data['studyName'],
-                        studyStatus: snapshot.data['studyStatus'],
-                        activeParticipants: snapshot.data['activeParticipants'],
-                        totalResponses: snapshot.data['totalResponses'],
-                        startDate: snapshot.data['startDate'],
-                        endDate: snapshot.data['endDate'],
-                      );
-                    } else {
-                      return SizedBox(
-                        child: Text('Loading...'),
-                      );
-                    }
-                    break;
-                  case ConnectionState.done:
-                    if (snapshot.hasError) {
-                      print(snapshot.error);
-                    }
-                    return _StudyDetailsBar();
-                    break;
-                  default:
-                    return SizedBox();
-                }
-              },
-            ),
-            Expanded(
+    return FutureBuilder<Study>(
+      future: _futureStudy,
+      builder: (BuildContext context, AsyncSnapshot<Study> snapshot) {
+        switch(snapshot.connectionState){
+          case ConnectionState.none:
+            return SizedBox();
+            break;
+          case ConnectionState.waiting:
+            return SizedBox();
+            break;
+          case ConnectionState.active:
+            return SizedBox();
+            break;
+          case ConnectionState.done:
+            return Expanded(
               child: Container(
-                padding: EdgeInsets.only(
-                    left: 30.0, right: 30.0, top: 20.0, bottom: 10.0),
-                child: Row(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    _StudyDetailsBar(
+                      studyName: _study.studyName,
+                      studyStatus: _study.studyStatus,
+                      studyUID: _study.studyUID,
+                      startDate: _study.startDate,
+                      endDate: _study.endDate,
+                      totalResponses: _study.totalResponses,
+                    ),
                     Expanded(
-                      child: FutureBuilder(
-                        future: _futureTopics,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<List<Topic>> snapshot) {
-                          switch (snapshot.connectionState) {
-                            case ConnectionState.none:
-                              return SizedBox();
-                              break;
-                            case ConnectionState.waiting:
-                              return SizedBox();
-                              break;
-                            case ConnectionState.active:
-                              return SizedBox();
-                              break;
-                            case ConnectionState.done:
-                              if (snapshot.hasData) {
-                                return ListView.separated(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return TopicWidget(
-                                      studyUID: widget.studyUID,
-                                      topic: snapshot.data[index],
-                                      firebaseFirestoreService:
-                                          widget.firebaseFirestoreService,
-                                    );
-                                  },
-                                  separatorBuilder:
-                                      (BuildContext context, int index) {
-                                    return SizedBox(
-                                      height: 20.0,
-                                    );
-                                  },
-                                );
-                              } else {
-                                return SizedBox();
-                              }
-                              break;
-                            default:
-                              return SizedBox();
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      width: 30.0,
-                    ),
-                    Container(
-                      height: double.maxFinite,
-                      width: screenSize.width * 0.35,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'Insights',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            left: 30.0, right: 30.0, top: 20.0, bottom: 10.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: FutureBuilder(
+                                future: _futureTopics,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<Topic>> snapshot) {
+                                  switch (snapshot.connectionState) {
+                                    case ConnectionState.none:
+                                      return SizedBox();
+                                      break;
+                                    case ConnectionState.waiting:
+                                      return SizedBox();
+                                      break;
+                                    case ConnectionState.active:
+                                      return SizedBox();
+                                      break;
+                                    case ConnectionState.done:
+                                      if (snapshot.hasData) {
+                                        return ListView.separated(
+                                          itemCount: snapshot.data.length,
+                                          itemBuilder:
+                                              (BuildContext context, int index) {
+                                            return TopicWidget(
+                                              studyUID: widget.studyUID,
+                                              topic: snapshot.data[index],
+                                              firebaseFirestoreService:
+                                              widget.firebaseFirestoreService,
+                                            );
+                                          },
+                                          separatorBuilder:
+                                              (BuildContext context, int index) {
+                                            return SizedBox(
+                                              height: 20.0,
+                                            );
+                                          },
+                                        );
+                                      } else {
+                                        return SizedBox();
+                                      }
+                                      break;
+                                    default:
+                                      return SizedBox();
+                                  }
+                                },
+                              ),
                             ),
-                          ),
-                          Divider(),
-                          Expanded(
-                            child: StreamBuilder(
-                              stream: _notificationsStream,
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<dynamic> snapshot) {
-                                switch (snapshot.connectionState) {
-                                  case ConnectionState.none:
-                                    if (snapshot.hasError) {
-                                      print(snapshot.error);
-                                    }
-                                    return SizedBox();
-                                    break;
-                                  case ConnectionState.waiting:
-                                  case ConnectionState.active:
-                                    if (snapshot.hasData) {
-                                      var notifications =
-                                          snapshot.data.documents;
+                            SizedBox(
+                              width: 30.0,
+                            ),
+                            Container(
+                              height: double.maxFinite,
+                              width: screenSize.width * 0.35,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    'Insights',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Divider(),
+                                  Expanded(
+                                    child: StreamBuilder(
+                                      stream: _notificationsStream,
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<dynamic> snapshot) {
+                                        switch (snapshot.connectionState) {
+                                          case ConnectionState.none:
+                                            if (snapshot.hasError) {
+                                              print(snapshot.error);
+                                            }
+                                            return SizedBox();
+                                            break;
+                                          case ConnectionState.waiting:
+                                          case ConnectionState.active:
+                                            if (snapshot.hasData) {
+                                              var notifications =
+                                                  snapshot.data.documents;
 
-                                      return ListView.separated(
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return _DesktopNotificationWidget(
-                                            time: '5:38 pm',
-                                            participantAvatar:
-                                                notifications[index]
+                                              return ListView.separated(
+                                                itemBuilder:
+                                                    (BuildContext context, int index) {
+                                                  return _DesktopNotificationWidget(
+                                                    time: '5:38 pm',
+                                                    participantAvatar:
+                                                    notifications[index]
                                                     ['participantAvatar'],
-                                            participantAlias:
-                                                notifications[index]
+                                                    participantAlias:
+                                                    notifications[index]
                                                     ['participantAlias'],
-                                            questionNumber: notifications[index]
-                                                ['questionNumber'],
-                                            questionTitle: notifications[index]
-                                                ['questionTitle'],
-                                          );
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) {
-                                          return SizedBox(
-                                            height: 10.0,
-                                          );
-                                        },
-                                        itemCount: notifications.length,
-                                      );
-                                    } else {
-                                      return SizedBox(
-                                        child: Text('Loading...'),
-                                      );
-                                    }
-                                    break;
-                                  case ConnectionState.done:
-                                    if (snapshot.hasError) {
-                                      print(snapshot.error);
-                                    }
-                                    return _StudyDetailsBar();
-                                    break;
-                                  default:
-                                    if (snapshot.hasError) {
-                                      print(snapshot.error);
-                                    }
-                                    return SizedBox();
-                                }
-                              },
+                                                    questionNumber: notifications[index]
+                                                    ['questionNumber'],
+                                                    questionTitle: notifications[index]
+                                                    ['questionTitle'],
+                                                  );
+                                                },
+                                                separatorBuilder:
+                                                    (BuildContext context, int index) {
+                                                  return SizedBox(
+                                                    height: 10.0,
+                                                  );
+                                                },
+                                                itemCount: notifications.length,
+                                              );
+                                            } else {
+                                              return SizedBox(
+                                                child: Text('Loading...'),
+                                              );
+                                            }
+                                            break;
+                                          case ConnectionState.done:
+                                            if (snapshot.hasError) {
+                                              print(snapshot.error);
+                                            }
+                                            return _StudyDetailsBar();
+                                            break;
+                                          default:
+                                            if (snapshot.hasError) {
+                                              print(snapshot.error);
+                                            }
+                                            return SizedBox();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            );
+            break;
+          default:
+            return SizedBox();
+        }
+      },
     );
   }
 }
@@ -286,7 +285,7 @@ class _DesktopNotificationWidget extends StatelessWidget {
           ),
           CachedNetworkImage(
             imageUrl: participantAvatar,
-            imageBuilder: (context, imageProvider){
+            imageBuilder: (context, imageProvider) {
               return Container(
                 padding: EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
@@ -334,31 +333,58 @@ class _DesktopNotificationWidget extends StatelessWidget {
   }
 }
 
-class _StudyDetailsBar extends StatelessWidget {
+class _StudyDetailsBar extends StatefulWidget {
+  final String studyUID;
   final String studyName;
   final String studyStatus;
-  final int activeParticipants;
-  final int currentActiveParticipants;
   final int totalResponses;
   final String startDate;
   final String endDate;
 
-  const _StudyDetailsBar(
-      {Key key,
-      this.studyName,
-      this.studyStatus,
-      this.activeParticipants,
-      this.currentActiveParticipants,
-      this.totalResponses,
-      this.startDate,
-      this.endDate})
-      : super(key: key);
+  const _StudyDetailsBar({
+    Key key,
+    this.studyName,
+    this.studyStatus,
+    this.totalResponses,
+    this.startDate,
+    this.endDate,
+    this.studyUID,
+  }) : super(key: key);
+
+  @override
+  __StudyDetailsBarState createState() => __StudyDetailsBarState();
+}
+
+class __StudyDetailsBarState extends State<_StudyDetailsBar> {
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
+
+  int _activeParticipants = 0;
+  int _allParticipants = 1;
+
+  Stream<QuerySnapshot> _activeParticipantsStream;
+  Stream<QuerySnapshot> _allParticipantsStream;
+
+  Stream<QuerySnapshot> _getActiveParticipantsAsStream(String studyUID) {
+    return _researcherAndModeratorFirestoreService
+        .getActiveParticipantsInStudy(studyUID);
+  }
+
+  Stream<QuerySnapshot> _getAllParticipantsAsStream(String studyUID) {
+    return _researcherAndModeratorFirestoreService
+        .getAllParticipantsInStudy(studyUID);
+  }
+
+  @override
+  void initState() {
+    _activeParticipantsStream = _getActiveParticipantsAsStream(widget.studyUID);
+    _allParticipantsStream = _getAllParticipantsAsStream(widget.studyUID);
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var percentInt = activeParticipants;
-    var percentDouble = percentInt / 100;
-
     return Container(
       padding: EdgeInsets.all(20.0),
       color: Colors.grey[100],
@@ -373,7 +399,7 @@ class _StudyDetailsBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      studyName,
+                      widget.studyName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.0,
@@ -384,7 +410,7 @@ class _StudyDetailsBar extends StatelessWidget {
                       width: 20.0,
                     ),
                     Text(
-                      '($studyStatus)',
+                      '(${widget.studyStatus})',
                       style: TextStyle(
                         color: PROJECT_GREEN,
                         fontSize: 18.0,
@@ -396,29 +422,300 @@ class _StudyDetailsBar extends StatelessWidget {
                 SizedBox(
                   height: 20.0,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$activeParticipants% Active participants',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 12.0,
-                      ),
-                    ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20.0),
-                      child: LinearPercentIndicator(
-                        lineHeight: 30.0,
-                        percent: percentDouble,
-                        padding: EdgeInsets.symmetric(horizontal: 0.0),
-                        backgroundColor: Colors.grey[300],
-                        progressColor: Color(0xFF437FEF),
-                      ),
-                    ),
-                  ],
+                StreamBuilder<QuerySnapshot>(
+                  stream: _allParticipantsStream,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> allParticipantsSnapshot) {
+                    switch (allParticipantsSnapshot.connectionState) {
+                      case ConnectionState.none:
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '0 % active participants',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20.0),
+                              child: LinearPercentIndicator(
+                                lineHeight: 30.0,
+                                percent: _activeParticipants / _allParticipants,
+                                padding: EdgeInsets.symmetric(horizontal: 0.0),
+                                backgroundColor: Colors.black12,
+                                progressColor: Color(0xFF437FEF),
+                              ),
+                            ),
+                          ],
+                        );
+                        break;
+                      case ConnectionState.waiting:
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '0 % active participants',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20.0),
+                              child: LinearPercentIndicator(
+                                lineHeight: 30.0,
+                                percent: _activeParticipants / _allParticipants,
+                                padding: EdgeInsets.symmetric(horizontal: 0.0),
+                                backgroundColor: Colors.black12,
+                                progressColor: Color(0xFF437FEF),
+                              ),
+                            ),
+                          ],
+                        );
+                        break;
+                      case ConnectionState.active:
+                        if (allParticipantsSnapshot.hasData) {
+                          if (allParticipantsSnapshot.data.docs.isNotEmpty) {
+                            _allParticipants =
+                                allParticipantsSnapshot.data.docs.length;
+                            return StreamBuilder<QuerySnapshot>(
+                              stream: _activeParticipantsStream,
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<QuerySnapshot>
+                                      activeParticipantsSnapshot) {
+                                switch (activeParticipantsSnapshot
+                                    .connectionState) {
+                                  case ConnectionState.none:
+                                    return SizedBox();
+                                    break;
+                                  case ConnectionState.waiting:
+                                    return SizedBox();
+                                    break;
+                                  case ConnectionState.active:
+                                    if (activeParticipantsSnapshot.hasData) {
+                                      if (activeParticipantsSnapshot
+                                          .data.docs.isNotEmpty) {
+                                        _activeParticipants =
+                                            activeParticipantsSnapshot
+                                                .data.docs.length;
+                                        var percent = (_activeParticipants /
+                                                _allParticipants) *
+                                            100;
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${percent.ceil()} % active participants',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontStyle: FontStyle.italic,
+                                                fontSize: 12.0,
+                                              ),
+                                            ),
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(20.0),
+                                              child: LinearPercentIndicator(
+                                                lineHeight: 30.0,
+                                                percent: _activeParticipants /
+                                                    _allParticipants,
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 0.0),
+                                                backgroundColor: Colors.black12,
+                                                progressColor:
+                                                    Color(0xFF437FEF),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '0 % active participants',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontStyle: FontStyle.italic,
+                                                fontSize: 12.0,
+                                              ),
+                                            ),
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(20.0),
+                                              child: LinearPercentIndicator(
+                                                lineHeight: 30.0,
+                                                percent: _activeParticipants /
+                                                    _allParticipants,
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 0.0),
+                                                backgroundColor: Colors.black12,
+                                                progressColor:
+                                                    Color(0xFF437FEF),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                    } else {
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'No % active participants',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontStyle: FontStyle.italic,
+                                              fontSize: 12.0,
+                                            ),
+                                          ),
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                            child: LinearPercentIndicator(
+                                              lineHeight: 30.0,
+                                              percent: _activeParticipants /
+                                                  _allParticipants,
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 0.0),
+                                              backgroundColor: Colors.black12,
+                                              progressColor: Color(0xFF437FEF),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                    break;
+                                  case ConnectionState.done:
+                                    return SizedBox();
+                                    break;
+                                  default:
+                                    return SizedBox();
+                                }
+                              },
+                            );
+                          } else {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '0 % active participants',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 12.0,
+                                  ),
+                                ),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  child: LinearPercentIndicator(
+                                    lineHeight: 30.0,
+                                    percent:
+                                        _activeParticipants / _allParticipants,
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 0.0),
+                                    backgroundColor: Colors.black12,
+                                    progressColor: Color(0xFF437FEF),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        } else {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '0 % active participants',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20.0),
+                                child: LinearPercentIndicator(
+                                  lineHeight: 30.0,
+                                  percent:
+                                      _activeParticipants / _allParticipants,
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 0.0),
+                                  backgroundColor: Colors.black12,
+                                  progressColor: Color(0xFF437FEF),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        break;
+                      case ConnectionState.done:
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '0 % active participants',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20.0),
+                              child: LinearPercentIndicator(
+                                lineHeight: 30.0,
+                                percent: _activeParticipants / _allParticipants,
+                                padding: EdgeInsets.symmetric(horizontal: 0.0),
+                                backgroundColor: Colors.black12,
+                                progressColor: Color(0xFF437FEF),
+                              ),
+                            ),
+                          ],
+                        );
+                        break;
+                      default:
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '0 % active participants',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20.0),
+                              child: LinearPercentIndicator(
+                                lineHeight: 30.0,
+                                percent: _activeParticipants / _allParticipants,
+                                padding: EdgeInsets.symmetric(horizontal: 0.0),
+                                backgroundColor: Colors.black12,
+                                progressColor: Color(0xFF437FEF),
+                              ),
+                            ),
+                          ],
+                        );
+                    }
+                  },
                 ),
               ],
             ),
@@ -437,31 +734,12 @@ class _StudyDetailsBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Current Active',
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '0',
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 16.0,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
                       'Total Responses',
                       style: TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '$totalResponses',
+                      '${widget.totalResponses}',
                       style: TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold),
                     )
@@ -480,7 +758,7 @@ class _StudyDetailsBar extends StatelessWidget {
                           color: Colors.black, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      startDate,
+                      widget.startDate,
                       style: TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold),
                     )
@@ -499,7 +777,7 @@ class _StudyDetailsBar extends StatelessWidget {
                           color: Colors.black, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      endDate,
+                      widget.endDate,
                       style: TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold),
                     ),

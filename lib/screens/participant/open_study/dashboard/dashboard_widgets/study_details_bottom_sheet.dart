@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:simple_html_css/simple_html_css.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 
@@ -24,17 +25,17 @@ class StudyDetailsBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textSpan = HTML.toTextSpan(
-      context,
-      introMessage,
-      // defaultTextStyle: TextStyle(color: Colors.grey[700]),
-      // overrideStyle: {
-      //   'p': TextStyle(fontSize: 14),
-      //   'a': TextStyle(wordSpacing: 2),
-      //   // specify any tag not just the supported ones,
-      //   // and apply TextStyles to them and/override them
-      // },
-    );
+    // var textSpan = HTML.toTextSpan(
+    //   context,
+    //   introMessage,
+    //   // defaultTextStyle: TextStyle(color: Colors.grey[700]),
+    //   // overrideStyle: {
+    //   //   'p': TextStyle(fontSize: 14),
+    //   //   'a': TextStyle(wordSpacing: 2),
+    //   //   // specify any tag not just the supported ones,
+    //   //   // and apply TextStyles to them and/override them
+    //   // },
+    // );
 
     return Container(
       padding: EdgeInsets.only(
@@ -149,7 +150,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                         Image(
                           width: 30.0,
                           image: AssetImage(
-                            'images/svg_icons/gift_card.png',
+                            'images/svg_icons/dollar.png',
                           ),
                         ),
                         SizedBox(
@@ -187,8 +188,8 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0,),
-                    child: RichText(
-                      text: textSpan,
+                    child: HtmlWidget(
+                      introMessage,
                     ),
                   ),
                   Container(
@@ -209,7 +210,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
-                      'The purpose of this study is to receive your honest feedback about your personal experiences with your power wheelchair.',
+                      'The purpose of this study is to receive your honest feedback.',
                       style: TextStyle(
                         color: Color(0xFF333333),
                         fontSize: 12.0,
@@ -343,7 +344,7 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                       horizontal: 20.0,
                     ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
                           Icons.check_circle_outline,
@@ -353,11 +354,13 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                         SizedBox(
                           width: 8.0,
                         ),
-                        Text(
-                          'All posts are anonymous. Your personal info is confidential.',
-                          style: TextStyle(
-                            color: Color(0xFF333333),
-                            fontSize: 12.0,
+                        Expanded(
+                          child: Text(
+                            'All posts are anonymous. Your personal info is confidential.',
+                            style: TextStyle(
+                              color: Color(0xFF333333),
+                              fontSize: 12.0,
+                            ),
                           ),
                         ),
                       ],

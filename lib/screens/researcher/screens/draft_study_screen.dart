@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_users.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
@@ -14,6 +15,8 @@ class DraftStudyScreen extends StatefulWidget {
 class _DraftStudyScreenState extends State<DraftStudyScreen> {
 
   final _firebaseFirestoreService = FirebaseFirestoreService();
+
+  String _userType = '';
 
   String _studyUID = '';
   String _studyName = '';
@@ -31,18 +34,26 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
     _studyUID = getStorage.read('studyUID');
     _studyName = getStorage.read('studyName');
     _studyStatus = getStorage.read('studyStatus');
+    _userType = getStorage.read('userType');
   }
 
   void _setStudyAsActive() async {
     await _firebaseFirestoreService.updateStudyStatus(_studyUID, 'Active').then((value){
-      Navigator.of(context).pop();
+      if(_userType = null){
+        Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);
+      }
+      if(_userType == 'root'){
+        Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);
+      }
+      if(_userType == 'moderator'){
+        Navigator.of(context).popAndPushNamed(MODERATOR_DASHBOARD_SCREEN);
+      }
     });
   }
 
   @override
   void initState() {
     _getStudyDetails();
-
 
     _draftStudySetup = DraftStudySetup(
       studyUID: _studyUID,

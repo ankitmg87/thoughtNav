@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/constants/misc_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
-import 'package:thoughtnav/screens/researcher/widgets/reponse_widget.dart';
-import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/screens/researcher/widgets/response_widget.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class QuestionAndResponsesSubScreen extends StatefulWidget {
@@ -206,7 +203,8 @@ class _QuestionAndResponsesSubScreenState
                                 topicUID: widget.topicUID,
                                 questionUID: widget.questionUID,
                                 response: Response.fromMap(
-                                    snapshot.data.docs[index].data()),
+                                  snapshot.data.docs[index].data(),
+                                ),
                               );
                             },
                             separatorBuilder:

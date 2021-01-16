@@ -3,8 +3,6 @@
 <head>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
-    <script src=“jquery-3.5.1.min.js”></script>
-
 </head>
 
 <body>
@@ -12,7 +10,7 @@
 
 </div>
 
-<div id='html'></div>
+<!--<div id='html'></div>-->
 
 <!-- Include the Quill library -->
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
@@ -31,19 +29,14 @@ theme: 'snow'
 
   var editor = new Quill('#quillEditor', options);
 
-  var htmlContent = document.getElementById('html');
-
   if(text != null){
-    editor.setContents(text);
-    htmlContent.innerHTML = text;
+    editor.root.innerHTML = text;
   }
 
   editor.on('text-change', function(){
     var html = editor.root.innerHTML;
 
-    htmlContent.innerHTML = html;
-
-    localStorage.setItem("content", htmlContent.innerHTML);
+    localStorage.setItem("content", html);
 
   });
 

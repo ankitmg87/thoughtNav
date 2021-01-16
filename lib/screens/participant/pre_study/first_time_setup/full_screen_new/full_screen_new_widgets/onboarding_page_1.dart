@@ -94,20 +94,167 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
                     break;
                   case ConnectionState.waiting:
                   case ConnectionState.active:
-                    print(snapshot.data.length);
+
+                  if (snapshot.hasData) {
+                    var documents;
+
+                    documents = snapshot.data.documents;
+
+                    _avatarAndDisplayNameRadioModelList.clear();
+
+                    if (widget.participant.displayName != null) {
+                      _displayName = widget.participant.displayName;
+                    }
+
+                    documents.forEach((document) {
+                      if (document['selected'] == false ||
+                          document['displayName'] == _displayName) {
+                        _avatarAndDisplayNameRadioModelList.add(
+                          AvatarRadioModel(
+                            _displayName == null
+                                ? false
+                                : _displayName == document['displayName']
+                                ? true
+                                : false,
+                            AvatarAndDisplayName(
+                              id: document['id'],
+                              avatarURL: document['avatarURL'],
+                              displayName: document['displayName'],
+                              selected: document['selected'],
+                            ),
+                          ),
+                        );
+                      }
+                    });
+
                     return GridView.builder(
-                      itemCount: snapshot.data.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      controller: _avatarsScrollController,
+                      itemCount:
+                      _avatarAndDisplayNameRadioModelList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return InkWell(
+                          splashColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            if (_displayName == null) {
+                              setState(() {
+                                _avatarAndDisplayNameRadioModelList
+                                    .forEach((avatarRadioModel) {
+                                  avatarRadioModel.isSelected = false;
+                                });
+
+                                _avatarAndDisplayNameRadioModelList[index]
+                                    .isSelected = true;
+
+                                _displayName =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .avatarAndDisplayName
+                                        .displayName;
+                                _profilePhotoURL =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .avatarAndDisplayName
+                                        .avatarURL;
+                                _avatarAndDisplayNameRadioModelList[index]
+                                    .avatarAndDisplayName
+                                    .selected =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .isSelected;
+
+                                widget.participant.displayName =
+                                    _displayName;
+                                widget.participant.profilePhotoURL =
+                                    _profilePhotoURL;
+
+                                _currentAvatarAndDisplayNameID =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .avatarAndDisplayName
+                                        .id;
+
+                                _unAwaited(widget
+                                    .participantFirestoreService
+                                    .updateAvatarAndDisplayNameStatus(
+                                    studyUID,
+                                    _currentAvatarAndDisplayNameID,
+                                    true));
+                              });
+                            } else {
+                              _previousAvatarAndDisplayNameID =
+                                  _currentAvatarAndDisplayNameID;
+
+                              _unAwaited(widget
+                                  .participantFirestoreService
+                                  .updateAvatarAndDisplayNameStatus(
+                                  studyUID,
+                                  _previousAvatarAndDisplayNameID,
+                                  false));
+
+                              setState(() {
+                                _avatarAndDisplayNameRadioModelList
+                                    .forEach((avatarRadioModel) {
+                                  avatarRadioModel.isSelected = false;
+                                });
+
+                                _avatarAndDisplayNameRadioModelList[index]
+                                    .isSelected = true;
+
+                                _displayName =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .avatarAndDisplayName
+                                        .displayName;
+                                _profilePhotoURL =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .avatarAndDisplayName
+                                        .avatarURL;
+                                _avatarAndDisplayNameRadioModelList[index]
+                                    .avatarAndDisplayName
+                                    .selected =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .isSelected;
+
+                                widget.participant.displayName =
+                                    _displayName;
+                                widget.participant.profilePhotoURL =
+                                    _profilePhotoURL;
+
+                                _currentAvatarAndDisplayNameID =
+                                    _avatarAndDisplayNameRadioModelList[
+                                    index]
+                                        .avatarAndDisplayName
+                                        .id;
+                              });
+
+                              _unAwaited(widget
+                                  .participantFirestoreService
+                                  .updateAvatarAndDisplayNameStatus(
+                                  studyUID,
+                                  _currentAvatarAndDisplayNameID,
+                                  true));
+                            }
+                          },
+                          child: AvatarRadioItem(
+                            _avatarAndDisplayNameRadioModelList[index],
+                          ),
+                        );
+                      },
+                      gridDelegate:
+                      SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         mainAxisSpacing: 10.0,
                         crossAxisSpacing: 10.0,
                       ),
-                      itemBuilder: (BuildContext context, int index) {
-                        return SizedBox(
-                          child: Text('$index'),
-                        );
-                      },
                     );
+                  } else {
+                    return SizedBox();
+                  }
                     break;
                   case ConnectionState.done:
                     return SizedBox();
@@ -122,27 +269,61 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
             height: 8.0,
           ),
           Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'SCROLL TO VIEW MORE AVATARS',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.bold,
+            child: InkWell(
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                if (_scrollPosition >=
+                    _avatarsScrollController.position.maxScrollExtent) {
+                  _scrollPosition = 0.0;
+                  _avatarsScrollController.animateTo(
+                    _scrollPosition,
+                    duration: Duration(milliseconds: 100),
+                    curve: Curves.easeIn,
+                  );
+                  return;
+                } else if (_scrollPosition == 0) {
+                  _scrollPosition = 120.0;
+                  _avatarsScrollController.animateTo(
+                    _scrollPosition,
+                    duration: Duration(milliseconds: 100),
+                    curve: Curves.easeIn,
+                  );
+                  return;
+                } else {
+                  _scrollPosition += 120.0;
+
+                  _avatarsScrollController.animateTo(
+                    _scrollPosition,
+                    duration: Duration(milliseconds: 100),
+                    curve: Curves.easeIn,
+                  );
+                }
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'SCROLL TO VIEW MORE AVATARS',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 10.0,
-                ),
-                Icon(
-                  Icons.arrow_drop_down_circle_outlined,
-                  size: 32.0,
-                  color: PROJECT_GREEN,
-                ),
-              ],
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Icon(
+                    Icons.arrow_drop_down_circle_outlined,
+                    size: 30.0,
+                    color: PROJECT_GREEN,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -411,7 +592,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
                       ),
                       Icon(
                         Icons.arrow_drop_down_circle_outlined,
-                        size: 16.0,
+                        size: 30.0,
                         color: PROJECT_GREEN,
                       ),
                     ],

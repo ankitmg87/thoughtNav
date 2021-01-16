@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_web_view/easy_web_view.dart';
 
 // import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:intl/intl.dart';
+import 'package:simple_html_css/simple_html_css.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
@@ -11,22 +14,26 @@ import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.da
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
+import 'dart:js' as js;
+
 class StudySetupScreenQuestionWidget extends StatefulWidget {
   final String studyUID;
   final String topicUID;
   final Question question;
-  final Function onTap;
+  // final Function onTap;
   final List<Group> groups;
   final Function deleteQuestion;
+  final bool topicIsActive;
 
   const StudySetupScreenQuestionWidget({
     Key key,
-    this.onTap,
+    // this.onTap,
     this.question,
     this.topicUID,
     this.studyUID,
     this.groups,
     this.deleteQuestion,
+    this.topicIsActive,
   }) : super(key: key);
 
   @override
@@ -52,7 +59,7 @@ class _StudySetupScreenQuestionWidgetState
   int _selectedRadio;
 
   List<dynamic> _groups = [];
-  List<dynamic> _groupNames = [];
+  List<dynamic> _groupIndexes = [];
 
   DateTime _questionDateTime;
   TimeOfDay _questionTimeOFDay;
@@ -62,7 +69,32 @@ class _StudySetupScreenQuestionWidgetState
     _questionTitle = widget.question.questionTitle;
     _questionStatement = widget.question.questionStatement;
     _groups = widget.question.groups;
-    _groupNames = widget.question.groupNames;
+    _groupIndexes = widget.question.groupIndexes;
+  }
+
+  String _getGroupIndexes(List<dynamic> selectedGroups) {
+    var groups = '';
+
+    int comparison(dynamic a, dynamic b) {
+      int cast<int>(x) => x is int ? x : null;
+
+      var c = cast<int>(a);
+      var d = cast<int>(b);
+
+      return c.compareTo(d);
+    }
+
+    selectedGroups.sort(comparison);
+
+    for (var i = 0; i < selectedGroups.length; i++) {
+      if (i < selectedGroups.length - 1) {
+        groups = '$groups ${selectedGroups[i]},';
+      } else {
+        groups = '$groups ${selectedGroups[i]}';
+      }
+    }
+
+    return groups;
   }
 
   @override
@@ -333,31 +365,33 @@ class _StudySetupScreenQuestionWidgetState
                                                 elevation: 2.0,
                                                 checkmarkColor: Colors.white,
                                                 selectedColor: PROJECT_GREEN,
-                                                selected: _groupNames.contains(
-                                                    widget
-                                                        .groups[index].groupName),
+                                                selected: _groupIndexes
+                                                    .contains(widget
+                                                        .groups[index]
+                                                        .groupIndex),
                                                 onSelected: (bool value) {
                                                   groupDialogSetState(() {
                                                     if (value) {
-                                                      _groupNames.add(widget
+                                                      _groupIndexes.add(widget
                                                           .groups[index]
-                                                          .groupName);
+                                                          .groupIndex);
 
                                                       _groups.add(widget
                                                           .groups[index]
                                                           .groupUID);
 
-                                                      widget.question.groupNames =
-                                                          _groupNames;
+                                                      widget.question
+                                                              .groupIndexes =
+                                                          _groupIndexes;
 
                                                       widget.question.groups =
                                                           _groups;
                                                     } else {
-                                                      _groupNames.removeWhere(
+                                                      _groupIndexes.removeWhere(
                                                           (groupName) {
                                                         return groupName ==
                                                             widget.groups[index]
-                                                                .groupName;
+                                                                .groupIndex;
                                                       });
                                                       _groups.removeWhere(
                                                           (groupUID) {
@@ -365,19 +399,22 @@ class _StudySetupScreenQuestionWidgetState
                                                             widget.groups[index]
                                                                 .groupUID;
                                                       });
-                                                      widget.question.groupNames =
-                                                          _groupNames;
+                                                      widget.question
+                                                              .groupIndexes =
+                                                          _groupIndexes;
                                                       widget.question.groups =
                                                           _groups;
                                                     }
                                                   });
                                                 },
                                                 label: Text(
-                                                  widget.groups[index].groupName,
+                                                  widget
+                                                      .groups[index].groupName,
                                                   style: TextStyle(
-                                                      color: _groupNames.contains(
-                                                              widget.groups[index]
-                                                                  .groupName)
+                                                      color: _groupIndexes
+                                                              .contains(widget
+                                                                  .groups[index]
+                                                                  .groupIndex)
                                                           ? Colors.white
                                                           : Colors.black),
                                                 ),
@@ -413,7 +450,7 @@ class _StudySetupScreenQuestionWidgetState
                                               width: 20.0,
                                             ),
                                             RaisedButton(
-                                              onPressed: _groupNames.isEmpty
+                                              onPressed: _groupIndexes.isEmpty
                                                   ? null
                                                   : () async {
                                                       await _researcherAndModeratorFirestoreService
@@ -461,7 +498,7 @@ class _StudySetupScreenQuestionWidgetState
                       child: Text(
                         widget.question.groups.isEmpty
                             ? 'Select groups'
-                            : 'Groups Selected',
+                            : _getGroupIndexes(_groupIndexes),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.0,
@@ -600,133 +637,146 @@ class _StudySetupScreenQuestionWidgetState
               SizedBox(
                 width: 40.0,
               ),
-              IconButton(
-                onPressed: widget.deleteQuestion,
-                icon: Icon(
-                  CupertinoIcons.clear_circled_solid,
-                  size: 16.0,
-                  color: Colors.red[700],
+              widget.deleteQuestion != null ?
+              InkWell(
+                onTap: widget.deleteQuestion,
+                child: Text(
+                  'Delete Question',
+                  style: TextStyle(
+                    color: Colors.red[700],
+                    fontSize: 12.0,
+                  ),
                 ),
-              ),
+              ) : SizedBox(),
+
+              // IconButton(
+              //   onPressed: widget.deleteQuestion,
+              //   icon: Icon(
+              //     CupertinoIcons.clear_circled_solid,
+              //     size: 16.0,
+              //     color: Colors.red[700],
+              //   ),
+              // ),
             ],
           ),
           SizedBox(
             height: 10.0,
           ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(2.0),
-              border: Border.all(
-                width: 0.75,
-                color: Colors.grey[300],
-              ),
-            ),
-            child: InkWell(
-              onTap: () async {
-                final questionStatement = await showGeneralDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  barrierLabel: MaterialLocalizations.of(context)
-                      .modalBarrierDismissLabel,
-                  barrierColor: Colors.black45,
-                  transitionDuration: const Duration(milliseconds: 200),
-                  pageBuilder: (BuildContext context,
-                      Animation<double> animation,
-                      Animation<double> secondaryAnimation) {
-                    return Center(
-                      child: Material(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.6,
-                            maxHeight:
-                                MediaQuery.of(context).size.height * 0.75,
-                          ),
-                          padding: EdgeInsets.all(10.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          // child: EasyWebView(
-                          //   src: 'assets/quill.html',
-                          //   width: MediaQuery.of(context).size.width * 0.5,
-                          //   height: MediaQuery.of(context).size.height * 0.5,
-                          //   convertToWidgets: true,
-                          //   onLoaded: () {},
-                          // ),
-                          child: TextFormField(
-                            initialValue: _questionStatement,
-                            decoration: InputDecoration(
-                              hintText: 'Enter a question',
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(2.0),
-                                borderSide: BorderSide(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(2.0),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[400],
-                                  width: 0.5,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(2.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-
-                    //   CustomTextEditingBox(
-                    //   hintText: 'Enter question statement',
-                    //   initialValue: widget.question.questionStatement,
-                    // );
-                  },
-                );
-                if (questionStatement != null) {
-                  if (questionStatement.toString().trim().isNotEmpty) {
-                    _questionStatement = questionStatement.toString();
-                    setState(() {
-                      widget.question.questionStatement = _questionStatement;
-                    });
-                    _updateQuestionDetails();
-                  }
-                }
-              },
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 16.0,
-                        horizontal: 10.0,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Column(
-                          children: [
-                            Text(
-                              widget.question.questionStatement == null
-                                  ? 'Set a Question'
-                                  : _questionStatement,
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // Container(
+          //   decoration: BoxDecoration(
+          //     borderRadius: BorderRadius.circular(2.0),
+          //     border: Border.all(
+          //       width: 0.75,
+          //       color: Colors.grey[300],
+          //     ),
+          //   ),
+          //   child: InkWell(
+          //     onTap: () async {
+          //       final questionStatement = await showGeneralDialog(
+          //         context: context,
+          //         barrierDismissible: true,
+          //         barrierLabel: MaterialLocalizations.of(context)
+          //             .modalBarrierDismissLabel,
+          //         barrierColor: Colors.black45,
+          //         transitionDuration: const Duration(milliseconds: 200),
+          //         pageBuilder: (BuildContext context,
+          //             Animation<double> animation,
+          //             Animation<double> secondaryAnimation) {
+          //           return Center(
+          //             child: Material(
+          //               shape: RoundedRectangleBorder(
+          //                 borderRadius: BorderRadius.circular(4.0),
+          //               ),
+          //               child: Container(
+          //                 constraints: BoxConstraints(
+          //                   maxWidth: MediaQuery.of(context).size.width * 0.6,
+          //                   maxHeight:
+          //                       MediaQuery.of(context).size.height * 0.75,
+          //                 ),
+          //                 padding: EdgeInsets.all(10.0),
+          //                 decoration: BoxDecoration(
+          //                   borderRadius: BorderRadius.circular(4.0),
+          //                 ),
+          //                 // child: EasyWebView(
+          //                 //   src: 'assets/quill.html',
+          //                 //   width: MediaQuery.of(context).size.width * 0.5,
+          //                 //   height: MediaQuery.of(context).size.height * 0.5,
+          //                 //   convertToWidgets: true,
+          //                 //   onLoaded: () {},
+          //                 // ),
+          //                 child: TextFormField(
+          //                   initialValue: _questionStatement,
+          //                   decoration: InputDecoration(
+          //                     hintText: 'Enter a question',
+          //                     focusedBorder: OutlineInputBorder(
+          //                       borderRadius: BorderRadius.circular(2.0),
+          //                       borderSide: BorderSide(
+          //                         color: Colors.black,
+          //                       ),
+          //                     ),
+          //                     enabledBorder: OutlineInputBorder(
+          //                       borderRadius: BorderRadius.circular(2.0),
+          //                       borderSide: BorderSide(
+          //                         color: Colors.grey[400],
+          //                         width: 0.5,
+          //                       ),
+          //                     ),
+          //                     border: OutlineInputBorder(
+          //                       borderRadius: BorderRadius.circular(2.0),
+          //                     ),
+          //                   ),
+          //                 ),
+          //               ),
+          //             ),
+          //           );
+          //
+          //           //   CustomTextEditingBox(
+          //           //   hintText: 'Enter question statement',
+          //           //   initialValue: widget.question.questionStatement,
+          //           // );
+          //         },
+          //       );
+          //       if (questionStatement != null) {
+          //         if (questionStatement.toString().trim().isNotEmpty) {
+          //           _questionStatement = questionStatement.toString();
+          //           setState(() {
+          //             widget.question.questionStatement = _questionStatement;
+          //           });
+          //           _updateQuestionDetails();
+          //         }
+          //       }
+          //     },
+          //     child: Row(
+          //       children: [
+          //         Expanded(
+          //           child: Padding(
+          //             padding: EdgeInsets.symmetric(
+          //               vertical: 16.0,
+          //               horizontal: 10.0,
+          //             ),
+          //             child: Align(
+          //               alignment: Alignment.centerLeft,
+          //               child: Column(
+          //                 children: [
+          //                   Text(
+          //                     widget.question.questionStatement == null
+          //                         ? 'Set a Question'
+          //                         : _questionStatement,
+          //                     style: TextStyle(
+          //                       fontSize: 14.0,
+          //                       color: Colors.grey[700],
+          //                     ),
+          //                   ),
+          //                 ],
+          //               ),
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          _buildTextEditor(_questionStatement),
           SizedBox(
             height: 10.0,
           ),
@@ -819,32 +869,68 @@ class _StudySetupScreenQuestionWidgetState
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Theme(
-                    data: ThemeData(
-                      accentColor: PROJECT_NAVY_BLUE,
-                      unselectedWidgetColor: Colors.grey[300],
-                    ),
-                    child: Checkbox(
-                      // TODO -> Change tick colour
-                      value: widget.question.hasMedia,
-                      onChanged: (bool value) {
-                        setState(() {
-                          widget.question.hasMedia = value;
-                          _updateQuestionDetails();
-                        });
-                      },
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Theme(
+                        data: ThemeData(
+                          accentColor: PROJECT_NAVY_BLUE,
+                          unselectedWidgetColor: Colors.grey[300],
+                        ),
+                        child: Checkbox(
+                          value: widget.question.allowImage,
+                          onChanged: (bool value) {
+                            setState(() {
+                              widget.question.allowImage = value;
+                              _updateQuestionDetails();
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5.0,
+                      ),
+                      Text(
+                        'Allow Images',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 5.0,
-                  ),
-                  Text(
-                    'Question has media',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12.0,
-                    ),
+                  SizedBox(width: 10.0,),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Theme(
+                        data: ThemeData(
+                          accentColor: PROJECT_NAVY_BLUE,
+                          unselectedWidgetColor: Colors.grey[300],
+                        ),
+                        child: Checkbox(
+                          value: widget.question.allowVideo,
+                          onChanged: (bool value) {
+                            setState(() {
+                              widget.question.allowVideo = value;
+                              _updateQuestionDetails();
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5.0,
+                      ),
+                      Text(
+                        'Allow Video',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -854,87 +940,151 @@ class _StudySetupScreenQuestionWidgetState
       ),
     );
   }
-}
 
-class _AssignedGroupWidget extends StatefulWidget {
-  const _AssignedGroupWidget({
-    Key key,
-    @required this.widget,
-    this.index,
-    this.groups,
-    this.researcherAndModeratorFirestoreService,
-    this.studyUID,
-    this.topicUID,
-    this.questionUID,
-  }) : super(key: key);
-
-  final StudySetupScreenQuestionWidget widget;
-  final int index;
-  final List groups;
-  final ResearcherAndModeratorFirestoreService
-      researcherAndModeratorFirestoreService;
-  final String studyUID;
-  final String topicUID;
-  final String questionUID;
-
-  @override
-  _AssignedGroupWidgetState createState() => _AssignedGroupWidgetState();
-}
-
-class _AssignedGroupWidgetState extends State<_AssignedGroupWidget> {
-  bool _isSelected = false;
-
-  String _groupUID;
-
-  @override
-  void initState() {
-    _groupUID = widget.widget.groups[widget.index].groupUID;
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        if (_isSelected == true) {
-          setState(() {
-            _isSelected = false;
-            widget.groups.remove(_groupUID);
-          });
-          await widget.researcherAndModeratorFirestoreService
-              .removeAssignedGroup(widget.studyUID, widget.topicUID,
-                  widget.questionUID, _groupUID);
-        } else {
-          setState(() {
-            _isSelected = true;
-            widget.groups.add(_groupUID);
-          });
-          await widget.researcherAndModeratorFirestoreService.addAssignedGroup(
-              widget.studyUID, widget.topicUID, widget.questionUID, _groupUID);
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: _isSelected ? PROJECT_LIGHT_GREEN : Colors.white,
-          border: Border.all(
-            color: PROJECT_LIGHT_GREEN,
-            width: 1.5,
-          ),
-          borderRadius: BorderRadius.circular(4.0),
+  Widget _buildTextEditor(
+    String initialValue,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(2.0),
+        border: Border.all(
+          width: 0.75,
+          color: Colors.grey[300],
         ),
-        child: Center(
-          child: Text(
-            widget.widget.groups[widget.index].groupName,
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.bold,
-            ),
+      ),
+      child: InkWell(
+        onTap: () {
+          if(initialValue != null){
+            js.context.callMethod('setInitialValue', [initialValue]);
+          }
+          if (initialValue == null){
+            js.context.callMethod('setInitialValue', ['']);
+          }
+          showGeneralDialog(
+              context: context,
+              pageBuilder: (BuildContext textEditorContext,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation) {
+                return Center(
+                  child: Material(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      padding: EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Question',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () =>
+                                    Navigator.of(textEditorContext).pop(),
+                                child: Icon(
+                                  Icons.clear,
+                                  color: Colors.red[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                          Container(
+                            height: 1.0,
+                            color: Colors.grey[300],
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Expanded(
+                            child: EasyWebView(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              src: 'quill.html',
+                              onLoaded: () {},
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: RaisedButton(
+                              color: PROJECT_GREEN,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              onPressed: () async {
+                                String text =
+                                    js.context.callMethod('readLocalStorage');
+                                if (text.isNotEmpty) {
+                                  _questionStatement = text;
+
+                                  widget.question.questionStatement = _questionStatement;
+
+                                  _updateQuestionDetails();
+
+                                  setState(() {});
+
+                                  Navigator.of(textEditorContext).pop();
+                                }
+                              },
+                              child: Text(
+                                'SAVE',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              });
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 10.0,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: initialValue == null
+                    ? Text(
+                  'Set Question',
+                  style: TextStyle(
+                    color: initialValue != '' ? Colors.grey[700] : Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14.0,
+                  ),
+                )
+                    : HtmlWidget(initialValue),
+                // Builder(
+                //   builder: (BuildContext builderContext) {
+                //     var textSpan = HTML.toTextSpan(
+                //         builderContext, widget.question.questionStatement);
+                //
+                //     return RichText(
+                //       text: textSpan,
+                //     );
+                //   },
+                // )
+                // ,
+              ),
+            ],
           ),
         ),
-        // constraints: BoxConstraints(
-        //   maxWidth: 100.0,
-        //   maxHeight: 40.0,
-        // ),
       ),
     );
   }

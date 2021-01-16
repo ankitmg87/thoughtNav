@@ -50,8 +50,6 @@ class _StudyWidgetState extends State<StudyWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // var percentInt = widget.study.activeParticipants;
-    // var percentDouble = percentInt / 100;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
@@ -64,17 +62,16 @@ class _StudyWidgetState extends State<StudyWidget> {
               getStorage.write('studyUID', widget.study.studyUID);
               getStorage.write('studyName', widget.study.studyName);
               getStorage.write('studyStatus', widget.study.studyStatus);
-              Navigator.pushNamed(context, DRAFT_STUDY_SCREEN);
+              Navigator.popAndPushNamed(context, DRAFT_STUDY_SCREEN);
             } else {
               getStorage.write('studyUID', widget.study.studyUID);
               getStorage.write('studyName', widget.study.studyName);
               getStorage.write('studyStatus', widget.study.studyStatus);
               getStorage.write(
                   'internalStudyLabel', widget.study.internalStudyLabel);
-              Navigator.pushNamed(
+              Navigator.popAndPushNamed(
                 context,
                 MODERATOR_STUDY_SCREEN,
-                arguments: widget.study.studyUID,
               );
             }
           },

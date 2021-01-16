@@ -305,7 +305,8 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
                   fontSize: 20.0,
                 ),
               ),
-              FlatButton(
+              RaisedButton(
+                elevation: 4.0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4.0),
                 ),

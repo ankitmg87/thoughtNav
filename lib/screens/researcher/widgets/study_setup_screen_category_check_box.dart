@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class StudySetupScreenCategoryCheckBox extends StatefulWidget {
   final String studyUID;
@@ -21,7 +22,7 @@ class StudySetupScreenCategoryCheckBox extends StatefulWidget {
 class _StudySetupScreenCategoryCheckBoxState
     extends State<StudySetupScreenCategoryCheckBox> {
 
-  final _firebaseFirestoreService = FirebaseFirestoreService();
+  final _researcherAndModeratorFirestoreService = ResearcherAndModeratorFirestoreService();
 
   bool categorySelected = false;
 
@@ -31,7 +32,7 @@ class _StudySetupScreenCategoryCheckBoxState
   }
 
   void _saveCategories() async {
-    await _firebaseFirestoreService.saveCategories(widget.studyUID, widget.categories);
+    await _researcherAndModeratorFirestoreService.saveCategories(widget.studyUID, widget.categories);
   }
 
   @override

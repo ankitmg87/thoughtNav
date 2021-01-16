@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 
 class QuestionAndDescriptionContainer extends StatelessWidget {
@@ -61,16 +62,12 @@ class QuestionAndDescriptionContainer extends StatelessWidget {
                   left: 25.0,
                   right: 50.0,
                 ),
-                child: Column(
-                  children: [
-                    Text(
-                      description,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.0,
-                      ),
-                    ),
-                  ],
+                child: HtmlWidget(
+                  description,
+                  textStyle: TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],

@@ -39,21 +39,17 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   List<Client> _clients = [];
   List<Moderator> _moderators = [];
 
-  List<String> _selectedUserUID = [];
-
   bool _participantsListSelected;
   bool _clientsListSelected;
   bool _moderatorsListSelected;
 
   Stream<QuerySnapshot> _participantStream;
-
-  Future<void> _futureParticipants;
-  Future<void> _futureClients;
-  Future<void> _futureModerators;
+  Stream<QuerySnapshot> _clientsStream;
+  Stream<QuerySnapshot> _moderatorsStream;
 
   StreamBuilder<QuerySnapshot> _participantsStreamBuilder;
-  FutureBuilder _clientsFutureBuilder;
-  FutureBuilder _moderatorsFutureBuilder;
+  StreamBuilder<QuerySnapshot> _clientsStreamBuilder;
+  StreamBuilder<QuerySnapshot> _moderatorsStreamBuilder;
 
   RaisedButton _addUserButton;
 
@@ -61,20 +57,30 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
   String _masterPassword;
 
-  bool _editing = false;
-
   void _getGroups() async {
     _groups = await _firebaseFirestoreService.getGroups(widget.studyUID);
     setState(() {
       _participantStream = _getParticipantsStream(widget.studyUID);
       _participantsStreamBuilder = _buildParticipantsList(_participantStream);
       _list = _participantsStreamBuilder;
+      _clientsStream = _getClientsStream(widget.studyUID);
+      _clientsStreamBuilder = _buildClientsList(_clientsStream);
+      _moderatorsStream = _getModeratorsStream();
+      _moderatorsStreamBuilder = _buildModeratorsList(_moderatorsStream);
     });
   }
 
   Stream<QuerySnapshot> _getParticipantsStream(String studyUID) {
     return _researcherAndModeratorFirestoreService
         .getParticipantsAsStream(studyUID);
+  }
+
+  Stream<QuerySnapshot> _getClientsStream(String studyUID) {
+    return _researcherAndModeratorFirestoreService.getClientsAsStream(studyUID);
+  }
+
+  Stream<QuerySnapshot> _getModeratorsStream() {
+    return _researcherAndModeratorFirestoreService.getModeratorsAsStream();
   }
 
   Future<void> _addParticipantToFirebase(
@@ -98,6 +104,42 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         studyUID, participant);
   }
 
+  Future<void> _addClientToFirebase(String studyUID, Client client) async {
+    var user = User(
+      userEmail: client.email,
+      userPassword: _masterPassword,
+      userType: 'client',
+      studyUID: studyUID,
+    );
+
+    var createdUser = await _firebaseFirestoreService.createUser(user);
+
+    client.clientUID = createdUser.userUID;
+    client.isOnboarded = false;
+    client.password = _masterPassword;
+
+    await _researcherAndModeratorFirestoreService.createClient(
+        studyUID, client);
+  }
+
+  Future<void> _addModeratorToFirebase(
+      String studyUID, Moderator moderator) async {
+    var user = User(
+      userEmail: moderator.email,
+      userPassword: _masterPassword,
+      userType: 'moderator',
+    );
+
+    var createdUser = await _firebaseFirestoreService.createUser(user);
+
+    moderator.moderatorUID = createdUser.userUID;
+    moderator.password = _masterPassword;
+    moderator.assignedStudies = [];
+    moderator.assignedStudies.add(studyUID);
+
+    await _researcherAndModeratorFirestoreService.createModerator(moderator);
+  }
+
   @override
   void initState() {
     _getGroups();
@@ -110,14 +152,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
     super.initState();
     _getMasterPassword();
-    // _futureParticipants = _getParticipants();
-
-    _futureClients = _getClients();
-    _futureModerators = _getModerators();
 
     _participantsStreamBuilder = _buildParticipantsList(_participantStream);
-    _clientsFutureBuilder = _buildClientsList();
-    _moderatorsFutureBuilder = _buildModeratorsList();
+    _clientsStreamBuilder = _buildClientsList(_clientsStream);
+    _moderatorsStreamBuilder = _buildModeratorsList(_moderatorsStream);
 
     _list = _participantsStreamBuilder;
   }
@@ -140,7 +178,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         _clientsListSelected = true;
         _moderatorsListSelected = false;
 
-        _list = _clientsFutureBuilder;
+        _list = _clientsStreamBuilder;
         _addUserButton = _addClientsButton();
       });
     }
@@ -150,16 +188,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         _clientsListSelected = false;
         _moderatorsListSelected = true;
 
-        _list = _moderatorsFutureBuilder;
+        _list = _moderatorsStreamBuilder;
         _addUserButton = _addModeratorsButton();
       });
     }
-  }
-
-  RaisedButton _addUsersToGroupButton() {
-    return RaisedButton(
-      onPressed: () async {},
-    );
   }
 
   RaisedButton _addParticipantsButton() {
@@ -198,9 +230,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   RaisedButton _addClientsButton() {
     return RaisedButton(
       onPressed: () async {
-        // await _buildGeneralDialog('Clients', MediaQuery.of(context).size,
-        //     'Client Name', 'client', _masterPassword);
-        // setState(() {});
+        await _buildAddClientsDialog();
       },
       color: PROJECT_GREEN,
       child: Padding(
@@ -232,7 +262,9 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
   RaisedButton _addModeratorsButton() {
     return RaisedButton(
-      onPressed: () async {},
+      onPressed: () async {
+        await _buildAddModeratorsDialog();
+      },
       color: PROJECT_GREEN,
       child: Padding(
         padding: const EdgeInsets.all(4.0),
@@ -424,6 +456,225 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     );
                   },
                 ),
+              );
+            } else {
+              return SizedBox();
+            }
+            break;
+          case ConnectionState.done:
+            return Center(
+              child: Text(
+                'Something went wrong',
+              ),
+            );
+            break;
+          default:
+            return Center(
+              child: Text(
+                'Something went wrong',
+              ),
+            );
+        }
+      },
+    );
+  }
+
+  StreamBuilder<QuerySnapshot> _buildClientsList(
+      Stream<QuerySnapshot> clientsStream) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: clientsStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Center(
+              child: Text(
+                'Please wait',
+              ),
+            );
+            break;
+          case ConnectionState.waiting:
+            return Center(
+              child: Text(
+                'Please wait',
+              ),
+            );
+            break;
+          case ConnectionState.active:
+            if (snapshot.hasData) {
+              var clients = <Client>[];
+
+              for (var client in snapshot.data.docs) {
+                clients.add(Client.fromMap(client.data()));
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 10.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Clients',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Container(
+                      height: 1.0,
+                      color: Colors.grey[300],
+                    ),
+                    SizedBox(
+                      height: 16.0,
+                    ),
+                    ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: clients.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                clients[index].email,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Expanded(
+                              child: Text(
+                                clients[index].firstName,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Expanded(
+                              child: Text(
+                                clients[index].lastName,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Expanded(
+                              child: Text(
+                                clients[index].phone ?? '',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            InkWell(
+                              child: Container(
+                                padding: EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: PROJECT_LIGHT_GREEN,
+                                ),
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.grey[700],
+                                  size: 16.0,
+                                ),
+                              ),
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                            ),
+                          ],
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return SizedBox(
+                          height: 10.0,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return SizedBox();
+            }
+            break;
+          case ConnectionState.done:
+            return Center(
+              child: Text(
+                'Something went wrong',
+              ),
+            );
+            break;
+          default:
+            return Center(
+              child: Text(
+                'Something went wrong',
+              ),
+            );
+        }
+      },
+    );
+  }
+
+  StreamBuilder<QuerySnapshot> _buildModeratorsList(
+      Stream<QuerySnapshot> moderatorsStream) {
+    return StreamBuilder(
+      stream: moderatorsStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Center(
+              child: Text(
+                'Please wait 1',
+              ),
+            );
+            break;
+          case ConnectionState.waiting:
+            return Center(
+              child: Text(
+                'Please wait 2',
+              ),
+            );
+            break;
+          case ConnectionState.active:
+            if (snapshot.hasData) {
+              var moderatorAssignedToThisStudy = <Moderator>[];
+              var moderatorsNotAssignedToThisStudy = <Moderator>[];
+
+              for (var moderatorSnapshot in snapshot.data.docs) {
+                var moderator = Moderator.fromMap(moderatorSnapshot.data());
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [],
               );
             } else {
               return SizedBox();
@@ -711,114 +962,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     );
   }
 
-  FutureBuilder _buildClientsList() {
-    return FutureBuilder(
-      future: _futureClients,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting ||
-            snapshot.connectionState == ConnectionState.active) {
-          return Center(
-            child: Text('Loading clients...'),
-          );
-        }
-        if (snapshot.connectionState == ConnectionState.none) {
-          return Center(
-            child: Text(
-              'Please connect to the internet and try again',
-            ),
-          );
-        }
-        if (snapshot.connectionState == ConnectionState.done) {
-          return Column(
-            children: [
-              SizedBox(
-                height: 20.0,
-              ),
-              Expanded(
-                child: _clients.isNotEmpty
-                    ? ListView.separated(
-                        itemCount: _clients.length,
-                        separatorBuilder: (BuildContext context, int index) {
-                          return SizedBox(
-                            height: 10.0,
-                          );
-                        },
-                        itemBuilder: (BuildContext context, int index) {
-                          return ClientTile(
-                            client: _clients[index],
-                          );
-                        },
-                      )
-                    : Center(
-                        child: Text('Please add clients'),
-                      ),
-              ),
-            ],
-          );
-        } else {
-          return Center(
-            child: Text(
-                'Something went wrong. Please try again or contact your administrator.'),
-          );
-        }
-      },
-    );
-  }
-
-  FutureBuilder _buildModeratorsList() {
-    return FutureBuilder(
-      future: _futureModerators,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting ||
-            snapshot.connectionState == ConnectionState.active) {
-          return Center(
-            child: Text('Loading moderators...'),
-          );
-        }
-        if (snapshot.connectionState == ConnectionState.none) {
-          return Center(
-            child: Text(
-              'Please connect to the internet and try again',
-            ),
-          );
-        }
-        if (snapshot.connectionState == ConnectionState.done) {
-          return Column(
-            children: [
-              SizedBox(
-                height: 20.0,
-              ),
-              Expanded(
-                child: _moderators.isNotEmpty
-                    ? ListView.separated(
-                        itemCount: _moderators.length,
-                        separatorBuilder: (BuildContext context, int index) {
-                          return SizedBox(
-                            height: 10.0,
-                          );
-                        },
-                        itemBuilder: (BuildContext context, int index) {
-                          return ModeratorTile(
-                            moderator: _moderators[index],
-                          );
-                        },
-                      )
-                    : Center(
-                        child: Text('Please add moderators'),
-                      ),
-              ),
-            ],
-          );
-        } else {
-          return Center(
-            child: Text(
-                'Something went wrong. Please try again or contact your administrator.'),
-          );
-        }
-      },
-    );
-  }
-
   void _getMasterPassword() async {
     _masterPassword =
         await _firebaseFirestoreService.getMasterPassword(widget.studyUID);
@@ -901,45 +1044,26 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
         fieldDelimiter: ',',
       ).convert(string);
 
-      for (var singleParticipantData in list) {
-        if (singleParticipantData == list[0]) {
-          var participant = Participant(
-            email: singleParticipantData[0].toString().substring(3),
-            userFirstName: singleParticipantData[1].toString(),
-            userLastName: singleParticipantData[2].toString(),
-          );
-
-          for (var group in _groups) {
-            if (group.groupName.toLowerCase() ==
-                singleParticipantData[3].toString().toLowerCase()) {
-              participant.groupUID = group.groupUID;
-              participant.rewardAmount = group.groupRewardAmount;
-              participant.userGroupName = group.groupName;
-            }
+      for (var i = 1; i < list.length; i++) {
+        var participant = Participant(
+          email: list[i][0].toString(),
+          userFirstName: list[i][1].toString(),
+          userLastName: list[i][2].toString(),
+        );
+        for (var group in _groups) {
+          if (group.groupName.toLowerCase() ==
+              list[i][3].toString().toLowerCase()) {
+            participant.groupUID = group.groupUID;
+            participant.rewardAmount = group.groupRewardAmount;
+            participant.userGroupName = group.groupName;
           }
-
-          participants.add(participant);
-        } else {
-          var participant = Participant(
-            email: singleParticipantData[0].toString(),
-            userFirstName: singleParticipantData[1].toString(),
-            userLastName: singleParticipantData[2].toString(),
-          );
-
-          for (var group in _groups) {
-            if (group.groupName.toLowerCase() ==
-                singleParticipantData[3].toString().toLowerCase()) {
-              participant.groupUID = group.groupUID;
-              participant.rewardAmount = group.groupRewardAmount;
-              participant.userGroupName = group.groupName;
-            }
-          }
-
-          participants.add(participant);
         }
+        if (list[i][4] != null) {
+          participant.phone = list[i][4];
+        }
+        participants.add(participant);
       }
     }
-
     return participants;
   }
 
@@ -947,6 +1071,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     var email = '';
     var firstName = '';
     var lastName = '';
+    var phone = '';
     var groupUID = '';
 
     var participant = Participant();
@@ -1091,6 +1216,41 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                       },
                                       decoration: InputDecoration(
                                         hintText: 'Last Name',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey[400],
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20.0,
+                                  ),
+                                  Expanded(
+                                    child: TextFormField(
+                                      onChanged: (value) {
+                                        stateFulBuilderSetState(() {
+                                          phone = value.trim();
+                                          participant.phone = value.trim();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'Phone',
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(2.0),
@@ -1293,6 +1453,586 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                           ),
                         ),
                       ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future _buildAddClientsDialog() async {
+    var email = '';
+    var firstName = '';
+    var lastName = '';
+    var phone = '';
+
+    var client = Client();
+
+    var addingClient = false;
+
+    await showGeneralDialog(
+      context: context,
+      pageBuilder: (BuildContext clientGeneralDialogContext,
+          Animation<double> animation, Animation<double> secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (BuildContext statefulBuilderContext,
+              void Function(void Function()) statefulBuilderSetState) {
+            return Center(
+              child: Container(
+                constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    maxHeight: MediaQuery.of(context).size.height * 0.6),
+                child: addingClient
+                    ? Material(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                        ),
+                      )
+                    : Material(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Add Clients',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Container(
+                                height: 1.0,
+                                color: Colors.grey[300],
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      onChanged: (value) {
+                                        statefulBuilderSetState(() {
+                                          email = value.trim();
+                                          client.email = value.trim();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'Participant Email',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey[400],
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20.0,
+                                  ),
+                                  Expanded(
+                                    child: TextFormField(
+                                      onChanged: (value) {
+                                        statefulBuilderSetState(() {
+                                          firstName = value.trim();
+                                          client.firstName = value.trim();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'First Name',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey[400],
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20.0,
+                                  ),
+                                  Expanded(
+                                    child: TextFormField(
+                                      onChanged: (value) {
+                                        statefulBuilderSetState(() {
+                                          lastName = value.trim();
+                                          client.lastName = value.trim();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'Last Name',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey[400],
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20.0,
+                                  ),
+                                  Expanded(
+                                    child: TextFormField(
+                                      onChanged: (value) {
+                                        statefulBuilderSetState(() {
+                                          phone = value.trim();
+                                          client.phone = value.trim();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'Phone',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey[400],
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.0,
+                                ),
+                                child: InkWell(
+                                  onTap: () async {
+                                    // var clients = await _pickFile();
+                                    //
+                                    // if (clients.isNotEmpty) {
+                                    //   statefulBuilderSetState(() {
+                                    //     addingClient = true;
+                                    //   });
+                                    //
+                                    //   for (var client in clients) {
+                                    //     try {
+                                    //       await _addClientToFirebase(
+                                    //           widget.studyUID, client);
+                                    //     } catch (e) {
+                                    //       print(e);
+                                    //     }
+                                    //   }
+                                    //
+                                    //   Navigator.of(clientGeneralDialogContext)
+                                    //       .pop();
+                                    // }
+                                  },
+                                  hoverColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            CupertinoIcons.tray_arrow_down_fill,
+                                            color: PROJECT_GREEN,
+                                            size: 14.0,
+                                          ),
+                                          SizedBox(
+                                            width: 10.0,
+                                          ),
+                                          Text(
+                                            'Import .csv file',
+                                            style: TextStyle(
+                                              color: Colors.grey[500],
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              ButtonBar(
+                                children: [
+                                  FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(clientGeneralDialogContext)
+                                            .pop(),
+                                    color: Colors.grey[200],
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        fontSize: 12.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                  FlatButton(
+                                    disabledColor: Colors.grey[700],
+                                    onPressed: email != '' &&
+                                            firstName != '' &&
+                                            lastName != ''
+                                        ? () async {
+                                            statefulBuilderSetState(() {
+                                              addingClient = true;
+                                            });
+                                            await _addClientToFirebase(
+                                                widget.studyUID, client);
+                                            Navigator.of(
+                                                    clientGeneralDialogContext)
+                                                .pop();
+                                          }
+                                        : null,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(2.0),
+                                    ),
+                                    color: PROJECT_GREEN,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Text(
+                                        'Add',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future _buildAddModeratorsDialog() async {
+    var email = '';
+    var firstName = '';
+    var lastName = '';
+    var phone = '';
+
+    var moderator = Moderator();
+
+    var addingModerator = false;
+
+    await showGeneralDialog(
+      context: context,
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (BuildContext moderatorGeneralDialogContext,
+              void Function(void Function()) statefulBuilderSetState) {
+            return Center(
+              child: Container(
+                constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    maxHeight: MediaQuery.of(context).size.height * 0.6),
+                child: addingModerator
+                    ? Material(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                  ),
+                )
+                    : Material(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Add Clients',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    email = value.trim();
+                                    moderator.email = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Email',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    firstName = value.trim();
+                                    moderator.firstName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'First Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    lastName = value.trim();
+                                    moderator.lastName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Last Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    phone = value.trim();
+                                    moderator.phone = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ButtonBar(
+                          children: [
+                            FlatButton(
+                              onPressed: () =>
+                                  Navigator.of(moderatorGeneralDialogContext)
+                                      .pop(),
+                              color: Colors.grey[200],
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              disabledColor: Colors.grey[700],
+                              onPressed: email != '' &&
+                                  firstName != '' &&
+                                  lastName != ''
+                                  ? () async {
+                                statefulBuilderSetState(() {
+                                  addingModerator = true;
+                                });
+                                await _addModeratorToFirebase(widget.studyUID, moderator);
+                                Navigator.of(
+                                    moderatorGeneralDialogContext)
+                                    .pop();
+                              }
+                                  : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                              color: PROJECT_GREEN,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  'Add',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             );
           },

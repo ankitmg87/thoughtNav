@@ -1,45 +1,49 @@
 class Moderator {
-  String id;
+  String moderatorAvatar;
   String moderatorUID;
   String email;
+  String firstName;
+  String lastName;
   String password;
   String phone;
-  String userGroupName;
-  bool isOnboarded;
+  List<dynamic> assignedStudies;
 
   Moderator({
-    this.id,
+    this.moderatorAvatar,
     this.moderatorUID,
     this.email,
+    this.firstName,
+    this.lastName,
     this.password,
     this.phone,
-    this.userGroupName,
-    this.isOnboarded,
+    this.assignedStudies,
   });
 
   Map<String, dynamic> toMap() {
 
     var moderatorMap = <String, dynamic>{};
 
-    moderatorMap['id'] = id;
+    moderatorMap['moderatorAvatar'] = moderatorAvatar;
     moderatorMap['moderatorUID'] = moderatorUID;
     moderatorMap['email'] = email;
+    moderatorMap['firstName'] = firstName;
+    moderatorMap['lastName'] = lastName;
     moderatorMap['password'] = password;
     moderatorMap['phone'] = phone;
-    moderatorMap['userGroupName'] = userGroupName ?? 'Unassigned';
-    moderatorMap['isOnboarded'] = isOnboarded;
+    moderatorMap['assignedStudies'] = assignedStudies;
 
     return moderatorMap;
   }
 
   Moderator.fromMap(Map<String, dynamic> moderatorMap){
-    id = moderatorMap['id'];
+    moderatorAvatar = moderatorMap['moderatorAvatar'];
     moderatorUID = moderatorMap['moderatorUID'];
     email = moderatorMap['email'];
+    firstName = moderatorMap['firstName'];
+    lastName = moderatorMap['lastName'];
     password = moderatorMap['password'];
     phone = moderatorMap['phone'];
-    userGroupName = moderatorMap['userGroupName'];
-    isOnboarded = moderatorMap['isOnboarded'];
+    assignedStudies = moderatorMap['assignedStudies'];
 
   }
 }

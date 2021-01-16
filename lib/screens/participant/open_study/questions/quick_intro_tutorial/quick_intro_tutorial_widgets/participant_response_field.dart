@@ -239,6 +239,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                               ),
                               Row(
                                 children: [
+                                  widget.question.allowImage ?
                                   Expanded(
                                     child: RaisedButton(
                                       onPressed: () async {
@@ -246,10 +247,12 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                                       },
                                       child: Text('Image'),
                                     ),
-                                  ),
+                                  ) : SizedBox(),
+                                  widget.question.allowImage && widget.question.allowVideo ?
                                   SizedBox(
                                     width: 20.0,
-                                  ),
+                                  ) : SizedBox(),
+                                  widget.question.allowVideo ?
                                   Expanded(
                                     child: RaisedButton(
                                       onPressed: () async {
@@ -257,7 +260,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                                       },
                                       child: Text('Video'),
                                     ),
-                                  )
+                                  ) : SizedBox(),
                                 ],
                               )
                             ],
@@ -370,7 +373,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                           ),
                         ),
                         SizedBox(
-                          width: widget.question.hasMedia ? 20.0 : 0.0,
+                          width: widget.question.allowImage || widget.question.allowVideo ? 20.0 : 0.0,
                         ),
                         widget.response.questionHasMedia
                             ? _mediaPicked

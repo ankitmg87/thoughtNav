@@ -28,28 +28,23 @@ class _StudyUsersState extends State<StudyUsers> {
   bool _clientsVisible = false;
   bool _moderatorsVisible = false;
 
+  bool _multiSelect = false;
+
   Widget _visibleListView;
 
   List<Group> _groupsList;
+
+  String _sortBy = 'none';
+  String _filterBy = 'none';
 
   // Future<List<Participant>> _participantsFutureList;
   Future<List<Client>> _clientsFutureList;
   Future<List<Moderator>> _moderatorsFutureList;
 
   List<Participant> _participantsList = [];
-
-  // void _getGroups() async {
-  //   _groupsList = await _researcherAndModeratorFirestoreService.getGroups(widget.studyUID);
-  //   setState(() {
-  //     _visibleListView = _participantsFutureBuilder();
-  //     _getParticipants();
-  //   });
-  // }
-
-  // void _getParticipants() {
-  //   _participantsFutureList = _researcherAndModeratorFirestoreService
-  //       .getParticipants(widget.studyUID);
-  // }
+  List<Participant> _bulkSelectedParticipants = [];
+  List<Participant> _sortedParticipants = [];
+  List<Participant> _filteredParticipants = [];
 
   Future<void> _getFutureParticipants() async {
     _groupsList = await _researcherAndModeratorFirestoreService
@@ -66,6 +61,12 @@ class _StudyUsersState extends State<StudyUsers> {
   void _getModerators() {
     _moderatorsFutureList =
         widget.firebaseFirestoreService.getModerators(widget.studyUID);
+  }
+
+  void _setMultiSelectMode() {
+    setState(() {
+      _multiSelect = !_multiSelect;
+    });
   }
 
   FutureBuilder<void> _participantsFutureBuilder(Future<void> future) {
@@ -183,9 +184,7 @@ class _StudyUsersState extends State<StudyUsers> {
             return ListView.separated(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return _ClientDetailsCard(
-                  client: snapshot.data[index],
-                );
+                return SizedBox();
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -225,9 +224,7 @@ class _StudyUsersState extends State<StudyUsers> {
             return ListView.separated(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return _ModeratorDetailsCard(
-                  moderator: snapshot.data[index],
-                );
+                return SizedBox();
               },
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(
@@ -288,6 +285,8 @@ class _StudyUsersState extends State<StudyUsers> {
     super.initState();
     _visibleListView = _participantsFutureBuilder(_getFutureParticipants());
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -454,7 +453,7 @@ class _StudyUsersState extends State<StudyUsers> {
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
+                            fontSize: 16.0,
                           ),
                         ),
                         SizedBox(
@@ -478,6 +477,71 @@ class _StudyUsersState extends State<StudyUsers> {
                         SizedBox(
                           height: 10.0,
                         ),
+                        Wrap(
+                          runSpacing: 10.0,
+                          spacing: 10.0,
+                          children: [
+                            ChoiceChip(
+                              elevation: 2.0,
+                              selectedColor: PROJECT_GREEN,
+                              selected: _sortBy == 'none',
+                              label: Text(
+                                'None',
+                                style: TextStyle(
+                                  color: _sortBy == 'none' ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              onSelected: (selected){
+                                setState(() {
+                                  _sortBy = 'none';
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              elevation: 2.0,
+                              selectedColor: PROJECT_GREEN,
+                              selected: _sortBy == 'mostResponses',
+                              label: Text(
+                                'Responses: High to Low',
+                                style: TextStyle(
+                                  color: _sortBy == 'mostResponses' ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              onSelected: (selected){
+                                setState(() {
+                                  _sortBy = 'mostResponses';
+                                  _filterBy = 'none';
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              elevation: 2.0,
+                              selectedColor: PROJECT_GREEN,
+                              selected: _sortBy == 'leastResponses',
+                              label: Text(
+                                'Responses: Low to High',
+                                style: TextStyle(
+                                  color: _sortBy == 'leastResponses' ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              onSelected: (selected){
+                                setState(() {
+                                  _sortBy = 'leastResponses';
+                                  _filterBy = 'none';
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
                         Text(
                           'Filter By:',
                           style: TextStyle(
@@ -485,6 +549,74 @@ class _StudyUsersState extends State<StudyUsers> {
                             fontWeight: FontWeight.bold,
                             fontSize: 14.0,
                           ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Wrap(
+                          spacing: 10.0,
+                          runSpacing: 10.0,
+                          children: [
+                            ChoiceChip(
+                              elevation: 2.0,
+                              selectedColor: PROJECT_GREEN,
+                              selected: _filterBy == 'none',
+                              label: Text(
+                                'None',
+                                style: TextStyle(
+                                  color: _filterBy == 'none' ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              onSelected: (selected){
+                                setState(() {
+                                  _filterBy = 'none';
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              elevation: 2.0,
+                              selectedColor: PROJECT_GREEN,
+                              selected: _filterBy == 'mostAnswered',
+                              label: Text(
+                                'Questions Answered: Most',
+                                style: TextStyle(
+                                  color: _filterBy == 'mostAnswered' ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              onSelected: (selected){
+                                setState(() {
+                                  _filterBy = 'mostAnswered';
+                                  _sortBy = 'none';
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              elevation: 2.0,
+                              selectedColor: PROJECT_GREEN,
+                              selected: _filterBy == 'leastAnswered',
+                              label: Text(
+                                'Questions Answered: Least',
+                                style: TextStyle(
+                                  color: _filterBy == 'leastAnswered' ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              onSelected: (selected){
+                                setState(() {
+                                  _filterBy = 'leastAnswered';
+                                  _sortBy = 'none';
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10.0,
                         ),
                       ],
                     ),
@@ -828,82 +960,6 @@ class _EmailWidgetState extends State<EmailWidget> {
               )
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ClientDetailsCard extends StatelessWidget {
-  final Client client;
-
-  const _ClientDetailsCard({Key key, this.client}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 30.0,
-          vertical: 20.0,
-        ),
-        child: Row(
-          children: [
-            Text(
-              client.id,
-            ),
-            SizedBox(
-              width: 40.0,
-            ),
-            Expanded(
-              child: Text(client.email),
-            ),
-            SizedBox(
-              width: 40.0,
-            ),
-            Expanded(
-              child: Text(client.userGroupName ?? 'Unassigned'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ModeratorDetailsCard extends StatelessWidget {
-  final Moderator moderator;
-
-  const _ModeratorDetailsCard({Key key, this.moderator}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 30.0,
-          vertical: 20.0,
-        ),
-        child: Row(
-          children: [
-            Text(
-              moderator.id,
-            ),
-            SizedBox(
-              width: 40.0,
-            ),
-            Expanded(
-              child: Text(moderator.email),
-            ),
-            SizedBox(
-              width: 40.0,
-            ),
-            Expanded(
-              child: Text(moderator.userGroupName ?? 'Unassigned'),
-            ),
-          ],
         ),
       ),
     );
