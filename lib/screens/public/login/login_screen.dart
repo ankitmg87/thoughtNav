@@ -8,6 +8,7 @@ import 'package:thoughtnav/models/user.dart';
 import 'package:thoughtnav/services/client_firestore_service.dart';
 import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -29,6 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
       FirebaseFirestoreService();
 
   final _clientFirestoreService = ClientFirestoreService();
+
+  final _researcherModeratorFirestoreService = ResearcherAndModeratorFirestoreService();
 
   String _email;
   String _password;
@@ -104,6 +107,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
           switch (user.userType) {
             case USER_TYPE_ROOT_USER:
+
+              var getStorage = GetStorage();
+              await getStorage.write('userType', 'root');
+
               await Navigator.of(context).pushNamedAndRemoveUntil(
                   RESEARCHER_MAIN_SCREEN, (route) => false);
               break;
@@ -115,6 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 var getStorage = GetStorage();
                 await getStorage.write('studyUID', user.studyUID);
                 await getStorage.write('clientUID', client.clientUID);
+                await getStorage.write('userType', 'client');
 
                 await Navigator.of(context).pushNamedAndRemoveUntil(
                     CLIENT_DASHBOARD_SCREEN, (route) => false);
@@ -122,15 +130,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 var getStorage = GetStorage();
                 await getStorage.write('studyUID', user.studyUID);
                 await getStorage.write('clientUID', client.clientUID);
+                await getStorage.write('userType', 'client');
 
                 await Navigator.of(context).pushNamedAndRemoveUntil(
-                    CLIENT_ONBOARDING_SCREEN, (route) => false);
+                    CLIENT_DASHBOARD_SCREEN, (route) => false);
               }
               break;
             case USER_TYPE_MODERATOR:
+              var getStorage = GetStorage();
+
+              var moderator = await _researcherModeratorFirestoreService.getModerator(userID);
+
+              await getStorage.write('moderatorUID', moderator.moderatorUID);
+              await getStorage.write('userType', 'moderator');
+
               await Navigator.of(context).pushNamedAndRemoveUntil(
-                  RESEARCHER_MAIN_SCREEN, (route) => false);
+                  MODERATOR_DASHBOARD_SCREEN, (route) => false);
               break;
+
             case USER_TYPE_PARTICIPANT:
               var participant = await _firebaseFirestoreService.getParticipant(
                   user.studyUID, userID);

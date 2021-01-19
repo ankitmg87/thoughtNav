@@ -39,9 +39,6 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
 
   void _setStudyAsActive() async {
     await _firebaseFirestoreService.updateStudyStatus(_studyUID, 'Active').then((value){
-      if(_userType = null){
-        Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);
-      }
       if(_userType == 'root'){
         Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);
       }
@@ -121,44 +118,6 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
         ),
       ),
       centerTitle: true,
-      // actions: [
-      //   Padding(
-      //     padding: const EdgeInsets.all(8.0),
-      //     child: Center(
-      //       child: Stack(
-      //         children: [
-      //           Container(
-      //             child: Image(
-      //               image: AssetImage('images/avatars/batman.png'),
-      //             ),
-      //             decoration: BoxDecoration(
-      //               shape: BoxShape.circle,
-      //             ),
-      //           ),
-      //           Positioned(
-      //             bottom: 0,
-      //             right: 0,
-      //             child: Container(
-      //               padding: EdgeInsets.all(2.0),
-      //               decoration: BoxDecoration(
-      //                 color: Colors.black,
-      //                 shape: BoxShape.circle,
-      //                 border: Border.all(
-      //                   color: Colors.white,
-      //                 ),
-      //               ),
-      //               child: Icon(
-      //                 Icons.menu,
-      //                 color: Colors.white,
-      //                 size: 12.0,
-      //               ),
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // ],
     );
   }
 
@@ -179,7 +138,12 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
               _DraftStudySecondaryAppBarWidget(
                 label: 'Studies',
                 onTap: () {
-                  Navigator.of(context).pop();
+                  if(_userType == 'root'){
+                    Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);
+                  }
+                  if(_userType == 'moderator'){
+                    Navigator.of(context).popAndPushNamed(MODERATOR_DASHBOARD_SCREEN);
+                  }
                 },
                 selected: false,
               ),

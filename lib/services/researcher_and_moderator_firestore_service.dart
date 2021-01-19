@@ -36,18 +36,6 @@ class ResearcherAndModeratorFirestoreService {
   final _moderatorsReference =
       FirebaseFirestore.instance.collection(_MODERATORS_COLLECTION);
 
-  // Future<Moderator> getModerator(String studyUID, String userID) async {
-  //   var moderatorSnapshot = await _studiesReference
-  //       .doc(studyUID)
-  //       .collection(_MODERATORS_COLLECTION)
-  //       .doc(userID)
-  //       .get();
-  //
-  //   var moderator = Moderator.fromMap(moderatorSnapshot.data());
-  //
-  //   return moderator;
-  // }
-
   Future<Study> getStudy(String studyUID) async {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
 
@@ -595,7 +583,9 @@ class ResearcherAndModeratorFirestoreService {
       var categoryDoc = categoriesReference.docs[0];
       categories = Categories.fromMap(categoryDoc.data());
     } else {
-      categories = Categories();
+      categories = Categories(
+        customCategories: [],
+      );
       await saveCategories(studyUID, categories);
     }
 
@@ -713,6 +703,14 @@ class ResearcherAndModeratorFirestoreService {
         .snapshots();
   }
 
+  Stream<QuerySnapshot> streamInsightNotifications(String studyUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_INSIGHT_NOTIFICATIONS_COLLECTION)
+        .orderBy('insightTimestamp')
+        .snapshots();
+  }
+
   Stream<QuerySnapshot> streamQuestions(String studyUID, String topicUID) {
     return _studiesReference
         .doc(studyUID)
@@ -742,20 +740,32 @@ class ResearcherAndModeratorFirestoreService {
         .delete();
   }
 
-// Future<Moderator> getModerator(String moderatorUID) async {
-//
-// }
+  Future<Moderator> getModerator(String userID) async {
+    var moderatorSnapshot = await _moderatorsReference.doc(userID).get();
 
-// Future<void> updateHasMedia(
-//     String studyUID, String topicUID, String questionUID, bool hasMedia) async {
-//   await _studiesReference
-//       .doc(studyUID)
-//       .collection(_TOPICS_COLLECTION)
-//       .doc(topicUID)
-//       .collection(_QUESTIONS_COLLECTION)
-//       .doc(questionUID)
-//       .update({
-//     'hasMedia': hasMedia,
-//   });
-// }
+    var moderator = Moderator.fromMap(moderatorSnapshot.data());
+
+    return moderator;
+  }
+
+  Future<List<Study>> getModeratorAssignedStudies(
+      List<dynamic> assignedStudies) async {
+    var studies = <Study>[];
+
+    for (var assignedStudy in assignedStudies) {
+      var studySnapshot = await _studiesReference.doc(assignedStudy).get();
+
+      var study = Study.basicDetailsFromMap(studySnapshot.data());
+
+      studies.add(study);
+    }
+
+    return studies;
+  }
+
+  Future<void> updateModerator(Moderator moderator) async {
+    await _moderatorsReference
+        .doc(moderator.moderatorUID)
+        .update(moderator.toMap());
+  }
 }

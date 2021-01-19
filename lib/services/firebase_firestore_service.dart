@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/models/avatar_and_display_name.dart';
 import 'package:thoughtnav/models/user.dart';
 import 'package:thoughtnav/screens/researcher/models/all_avatars_and_display_names.dart';
@@ -388,9 +389,9 @@ class FirebaseFirestoreService {
       endDate: 'Study end date not set',
       created: created,
       lastSaveTime: created,
-      introPageMessage: null,
-      commonInviteMessage: null,
-      studyClosedMessage: null,
+      introPageMessage: INTRO_PAGE_MESSAGE,
+      studyClosedMessage: 'This is study closed message',
+      commonInviteMessage: 'This is a common invite message',
       archived: false,
     );
 
@@ -503,6 +504,7 @@ class FirebaseFirestoreService {
         .doc(topic.topicUID)
         .set(
       {
+        'topicNumber': topic.topicNumber,
         'topicDate': topic.topicDate,
         'topicName': topic.topicName,
       },

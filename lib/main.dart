@@ -5,6 +5,8 @@ import 'package:thoughtnav/quill_screen.dart';
 import 'package:thoughtnav/screens/client/client_dashboard_screen.dart';
 import 'package:thoughtnav/screens/client/client_onboarding_screen.dart';
 import 'package:thoughtnav/screens/client/client_preferences_screen.dart';
+import 'package:thoughtnav/screens/moderator/moderator_dashboard_screen.dart';
+import 'package:thoughtnav/screens/moderator/moderator_preferences_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/participant_dashboard_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/welcome_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/notifications_screen.dart';
@@ -99,6 +101,8 @@ class MyApp extends StatelessWidget {
 
         //Client and Moderator Study Dashboard
         MODERATOR_STUDY_SCREEN: (context) => ModeratorStudyScreen(),
+        MODERATOR_DASHBOARD_SCREEN: (context) => ModeratorDashboardScreen(),
+        MODERATOR_PREFERENCES_SCREEN: (context) => ModeratorPreferencesScreen(),
 
         //Client and Moderator Responses Screen
         CLIENT_MODERATOR_RESPONSES_SCREEN: (context) => ResponsesScreen(),

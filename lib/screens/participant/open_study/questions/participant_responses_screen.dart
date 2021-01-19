@@ -65,9 +65,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
   FutureBuilder _phoneFutureBuilder;
 
-  Future<void> _openEndDrawer() async {
-
-  }
+  Future<void> _openEndDrawer() async {}
 
   Stream<DocumentSnapshot> _questionStream;
 
@@ -267,121 +265,131 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                               barrierLabel: 'Are you sure',
                               context: context,
                               pageBuilder: (BuildContext exitDialogContext,
-                              Animation<double> animation,
-                              Animation<double> secondaryAnimation) {
-                            return Center(
-                              child: Container(
-                                constraints: BoxConstraints(
-                                    maxWidth: MediaQuery.of(context).size.width * 0.3
-                                ),
-                                child: Material(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Confirm Exit',
-                                          style: TextStyle(
-                                            color: Colors.grey[900],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 20.0,
-                                        ),
-                                        Align(
-                                          child: Container(
-                                            height: 1.0,
-                                            width: double.maxFinite,
-                                            color: Colors.grey,
-                                            constraints: BoxConstraints(
-                                              maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                                  0.3,
+                                  Animation<double> animation,
+                                  Animation<double> secondaryAnimation) {
+                                return Center(
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.3),
+                                    child: Material(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Confirm Exit',
+                                              style: TextStyle(
+                                                color: Colors.grey[900],
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14.0,
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 20.0,
-                                        ),
-                                        Text(
-                                          'The response which has\'nt been posted will be lost.',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontSize: 16.0,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 30.0,
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              RaisedButton(
-                                                onPressed: () {
-                                                  Navigator.of(exitDialogContext)
-                                                      .pop();
-                                                },
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(10.0),
-                                                  child: Text(
-                                                    'CANCEL',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[700],
-                                                      fontSize: 12.0,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
+                                            SizedBox(
+                                              height: 20.0,
+                                            ),
+                                            Align(
+                                              child: Container(
+                                                height: 1.0,
+                                                width: double.maxFinite,
+                                                color: Colors.grey,
+                                                constraints: BoxConstraints(
+                                                  maxWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.3,
                                                 ),
                                               ),
-                                              SizedBox(
-                                                width: 10.0,
+                                            ),
+                                            SizedBox(
+                                              height: 20.0,
+                                            ),
+                                            Text(
+                                              'The response which has\'nt been posted will be lost.',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                                fontSize: 16.0,
                                               ),
-                                              RaisedButton(
-                                                color: Colors.red[700],
-                                                onPressed: () {
-                                                  Navigator.of(exitDialogContext)
-                                                      .pushNamedAndRemoveUntil(
-                                                      PARTICIPANT_DASHBOARD_SCREEN,
-                                                          (route) => false);
-                                                },
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(10.0),
-                                                  child: Text(
-                                                    'EXIT',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12.0,
-                                                      fontWeight: FontWeight.bold,
+                                            ),
+                                            SizedBox(
+                                              height: 30.0,
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  RaisedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(
+                                                              exitDialogContext)
+                                                          .pop();
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(10.0),
+                                                      child: Text(
+                                                        'CANCEL',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors.grey[700],
+                                                          fontSize: 12.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
+                                                  SizedBox(
+                                                    width: 10.0,
+                                                  ),
+                                                  RaisedButton(
+                                                    color: Colors.red[700],
+                                                    onPressed: () {
+                                                      Navigator.of(
+                                                              exitDialogContext)
+                                                          .pushNamedAndRemoveUntil(
+                                                              PARTICIPANT_DASHBOARD_SCREEN,
+                                                              (route) => false);
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(10.0),
+                                                      child: Text(
+                                                        'EXIT',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 12.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            );
-                          });
-                      } else {
-                      _unAwaited(Navigator.of(context)
-                          .popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN));
+                                );
+                              });
+                        } else {
+                          _unAwaited(Navigator.of(context)
+                              .popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN));
+                        }
                       }
-                    }
                     },
                     highlightColor: Colors.transparent,
                     focusColor: Colors.transparent,
@@ -412,121 +420,131 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                               barrierLabel: 'Are you sure',
                               context: context,
                               pageBuilder: (BuildContext exitDialogContext,
-                              Animation<double> animation,
-                              Animation<double> secondaryAnimation) {
-                            return Center(
-                              child: Container(
-                                constraints: BoxConstraints(
-                                    maxWidth: MediaQuery.of(context).size.width * 0.3
-                                ),
-                                child: Material(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Confirm Exit',
-                                          style: TextStyle(
-                                            color: Colors.grey[900],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 20.0,
-                                        ),
-                                        Align(
-                                          child: Container(
-                                            height: 1.0,
-                                            width: double.maxFinite,
-                                            color: Colors.grey,
-                                            constraints: BoxConstraints(
-                                              maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                                  0.3,
+                                  Animation<double> animation,
+                                  Animation<double> secondaryAnimation) {
+                                return Center(
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.3),
+                                    child: Material(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Confirm Exit',
+                                              style: TextStyle(
+                                                color: Colors.grey[900],
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14.0,
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 20.0,
-                                        ),
-                                        Text(
-                                          'The response which has\'nt been posted will be lost.',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontSize: 16.0,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 30.0,
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              RaisedButton(
-                                                onPressed: () {
-                                                  Navigator.of(exitDialogContext)
-                                                      .pop();
-                                                },
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(10.0),
-                                                  child: Text(
-                                                    'CANCEL',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[700],
-                                                      fontSize: 12.0,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
+                                            SizedBox(
+                                              height: 20.0,
+                                            ),
+                                            Align(
+                                              child: Container(
+                                                height: 1.0,
+                                                width: double.maxFinite,
+                                                color: Colors.grey,
+                                                constraints: BoxConstraints(
+                                                  maxWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.3,
                                                 ),
                                               ),
-                                              SizedBox(
-                                                width: 10.0,
+                                            ),
+                                            SizedBox(
+                                              height: 20.0,
+                                            ),
+                                            Text(
+                                              'The response which has\'nt been posted will be lost.',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                                fontSize: 16.0,
                                               ),
-                                              RaisedButton(
-                                                color: Colors.red[700],
-                                                onPressed: () {
-                                                  Navigator.of(exitDialogContext)
-                                                      .pushNamedAndRemoveUntil(
-                                                      PARTICIPANT_DASHBOARD_SCREEN,
-                                                          (route) => false);
-                                                },
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(10.0),
-                                                  child: Text(
-                                                    'EXIT',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12.0,
-                                                      fontWeight: FontWeight.bold,
+                                            ),
+                                            SizedBox(
+                                              height: 30.0,
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  RaisedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(
+                                                              exitDialogContext)
+                                                          .pop();
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(10.0),
+                                                      child: Text(
+                                                        'CANCEL',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors.grey[700],
+                                                          fontSize: 12.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
+                                                  SizedBox(
+                                                    width: 10.0,
+                                                  ),
+                                                  RaisedButton(
+                                                    color: Colors.red[700],
+                                                    onPressed: () {
+                                                      Navigator.of(
+                                                              exitDialogContext)
+                                                          .pushNamedAndRemoveUntil(
+                                                              PARTICIPANT_DASHBOARD_SCREEN,
+                                                              (route) => false);
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(10.0),
+                                                      child: Text(
+                                                        'EXIT',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 12.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            );
-                          });
-                      } else {
-                      _unAwaited(Navigator.of(context)
-                          .popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN));
+                                );
+                              });
+                        } else {
+                          _unAwaited(Navigator.of(context)
+                              .popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN));
+                        }
                       }
-                    }
                     },
                     highlightColor: Colors.transparent,
                     focusColor: Colors.transparent,
@@ -628,7 +646,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
                                             var response = Response(
                                               questionHasMedia:
-                                                  _question.allowImage || _question.allowVideo,
+                                                  _question.allowImage ||
+                                                      _question.allowVideo,
                                             );
 
                                             print(response.questionHasMedia);
@@ -764,8 +783,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                         participant:
                                                             _participant,
                                                         topicUID: _topicUID,
-                                                        question:
-                                                            _question,
+                                                        question: _question,
                                                         response: response,
                                                       );
                                                     } catch (e) {
@@ -905,8 +923,9 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                             return Center(
                               child: Container(
                                 constraints: BoxConstraints(
-                                  maxWidth: MediaQuery.of(context).size.width * 0.3
-                                ),
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width *
+                                            0.3),
                                 child: Material(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
@@ -962,7 +981,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                             children: [
                                               RaisedButton(
                                                 onPressed: () {
-                                                  Navigator.of(exitDialogContext)
+                                                  Navigator.of(
+                                                          exitDialogContext)
                                                       .pop();
                                                 },
                                                 child: Padding(
@@ -972,7 +992,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                     style: TextStyle(
                                                       color: Colors.grey[700],
                                                       fontSize: 12.0,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
@@ -983,7 +1004,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                               RaisedButton(
                                                 color: Colors.red[700],
                                                 onPressed: () {
-                                                  Navigator.of(exitDialogContext)
+                                                  Navigator.of(
+                                                          exitDialogContext)
                                                       .pushNamedAndRemoveUntil(
                                                           PARTICIPANT_DASHBOARD_SCREEN,
                                                           (route) => false);
@@ -995,7 +1017,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12.0,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
@@ -1352,7 +1375,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   Widget buildPhoneScaffold(BuildContext context, Size screenSize) {
     return WillPopScope(
       onWillPop: () async {
-        await Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
+        await Navigator.of(context)
+            .popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
         return true;
       },
       child: Scaffold(
@@ -1364,7 +1388,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
               Icons.arrow_back_ios,
               color: Color(0xFF333333),
             ),
-            onPressed: () => Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN),
+            onPressed: () => Navigator.of(context)
+                .popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN),
           ),
           title: Text(
             APP_NAME,
@@ -1376,22 +1401,22 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
           centerTitle: true,
           actions: [
             IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: PROJECT_GREEN,
-              ),
-              // onPressed: () => _participantResponseScreenScaffoldKey.currentState
-              //     .openEndDrawer(),
-                onPressed: () {_participantResponseScreenScaffoldKey.currentState
-                   .openEndDrawer();}
-            ),
+                icon: Icon(
+                  Icons.menu,
+                  color: PROJECT_GREEN,
+                ),
+                // onPressed: () => _participantResponseScreenScaffoldKey.currentState
+                //     .openEndDrawer(),
+                onPressed: () {
+                  _participantResponseScreenScaffoldKey.currentState
+                      .openEndDrawer();
+                }),
           ],
         ),
         endDrawer: _buildPhoneEndDrawer(),
         body: FutureBuilder(
           future: _futureQuestion,
-          builder: (BuildContext context,
-              AsyncSnapshot<dynamic> snapshot) {
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
                 return Center(
@@ -1424,8 +1449,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                     StreamBuilder<DocumentSnapshot>(
                       stream: _questionStream,
                       builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot>
-                          snapshot) {
+                          AsyncSnapshot<DocumentSnapshot> snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.none:
                             return SizedBox();
@@ -1441,20 +1465,19 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                 _participantResponded = true;
                                 return Text(
                                   'Your response has been posted.\n'
-                                      'Please read and comment on other posts.\n'
-                                      'Scroll to the bottom to continue',
+                                  'Please read and comment on other posts.\n'
+                                  'Scroll to the bottom to continue',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 );
                               } else {
-                                _responseController =
-                                    TextEditingController();
+                                _responseController = TextEditingController();
 
                                 var response = Response(
-                                  questionHasMedia:
-                                  _question.allowImage || _question.allowVideo,
+                                  questionHasMedia: _question.allowImage ||
+                                      _question.allowVideo,
                                 );
 
                                 print(response.questionHasMedia);
@@ -1464,8 +1487,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   participant: _participant,
                                   question: _question,
                                   topicUID: _topicUID,
-                                  responseController:
-                                  _responseController,
+                                  responseController: _responseController,
                                   response: response,
                                   onTap: () async {
                                     response.responseUID = '';
@@ -1473,33 +1495,27 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                         _question.questionNumber;
                                     response.questionTitle =
                                         _question.questionTitle;
-                                    response.participantUID =
-                                        _participantUID;
+                                    response.participantUID = _participantUID;
                                     response.participantDisplayName =
                                         _participant.displayName;
                                     response.avatarURL =
-                                        _participant
-                                            .profilePhotoURL;
+                                        _participant.profilePhotoURL;
                                     response.claps = [];
                                     response.comments = 0;
                                     response.hasMedia ??= false;
                                     response.userName =
-                                    '${_participant.userFirstName} ${_participant.userLastName}';
+                                        '${_participant.userFirstName} ${_participant.userLastName}';
                                     response.responseTimestamp =
                                         Timestamp.now();
 
                                     await _participantFirestoreService
-                                        .postResponse(
-                                        _studyUID,
-                                        _topicUID,
-                                        _question.questionUID,
-                                        response);
+                                        .postResponse(_studyUID, _topicUID,
+                                            _question.questionUID, response);
 
                                     setState(() {
                                       _responseController = null;
                                       _futureStudyNavigatorTopics =
-                                          _getStudyNavigatorTopics(
-                                              _studyUID);
+                                          _getStudyNavigatorTopics(_studyUID);
                                     });
                                   },
                                 );
@@ -1536,8 +1552,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 40.0),
                                     child: Row(
                                       children: [
@@ -1553,11 +1568,9 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                         Text(
                                           'All Responses',
                                           style: TextStyle(
-                                            color:
-                                            PROJECT_NAVY_BLUE,
+                                            color: PROJECT_NAVY_BLUE,
                                             fontSize: 12.0,
-                                            fontWeight:
-                                            FontWeight.bold,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ],
@@ -1567,28 +1580,21 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                     height: 20.0,
                                   ),
                                   ListView.builder(
-                                    physics:
-                                    NeverScrollableScrollPhysics(),
+                                    physics: NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
                                     itemCount: responses.length,
                                     itemBuilder:
-                                        (BuildContext context,
-                                        int index) {
-                                      var response =
-                                      Response.fromMap(
-                                          responses[index]
-                                              .data());
+                                        (BuildContext context, int index) {
+                                      var response = Response.fromMap(
+                                          responses[index].data());
 
-                                      if (responses[index]
-                                      ['responseUID'] !=
+                                      if (responses[index]['responseUID'] !=
                                           null) {
                                         try {
                                           return UserResponseWidget(
-                                            participant:
-                                            _participant,
+                                            participant: _participant,
                                             topicUID: _topicUID,
-                                            question:
-                                            _question,
+                                            question: _question,
                                             response: response,
                                           );
                                         } catch (e) {
@@ -1625,44 +1631,40 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                     ),
                     _participantResponded
                         ? Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            right: 40.0),
-                        child: FlatButton(
-                          onPressed: () {
-                            if (_nextTopicUID ==
-                                'lastTopicInThisStudy'
-                            // _nextQuestionUID ==
-                            //     'lastQuestionInThisStudy'
-                            ) {
-                              Navigator.of(context)
-                                  .popAndPushNamed(
-                                  PARTICIPANT_DASHBOARD_SCREEN);
-                            } else {
-                              _continueToNextQuestion(
-                                  _nextTopicUID,
-                                  _nextQuestionUID);
-                            }
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 10.0,
-                              horizontal: 12.0,
-                            ),
-                            child: Text(
-                              'CONTINUE',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.bold,
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 40.0),
+                              child: FlatButton(
+                                onPressed: () {
+                                  if (_nextTopicUID == 'lastTopicInThisStudy'
+                                      // _nextQuestionUID ==
+                                      //     'lastQuestionInThisStudy'
+                                      ) {
+                                    Navigator.of(context).popAndPushNamed(
+                                        PARTICIPANT_DASHBOARD_SCREEN);
+                                  } else {
+                                    _continueToNextQuestion(
+                                        _nextTopicUID, _nextQuestionUID);
+                                  }
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 10.0,
+                                    horizontal: 12.0,
+                                  ),
+                                  child: Text(
+                                    'CONTINUE',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                color: PROJECT_GREEN,
                               ),
                             ),
-                          ),
-                          color: PROJECT_GREEN,
-                        ),
-                      ),
-                    )
+                          )
                         : SizedBox(),
                     SizedBox(
                       height: 20.0,
@@ -1749,9 +1751,9 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                             );
                           } else {
                             if (_studyNavigatorTopics[topicIndex - 1]
-                                .questions
-                                .last
-                                .respondedBy !=
+                                    .questions
+                                    .last
+                                    .respondedBy !=
                                 null) {
                               if (_studyNavigatorTopics[topicIndex - 1]
                                   .questions
@@ -1772,12 +1774,12 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                       pageBuilder: (BuildContext context,
                                           Animation<double> animation,
                                           Animation<double>
-                                          secondaryAnimation) {
+                                              secondaryAnimation) {
                                         return Center(
                                           child: Material(
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                              BorderRadius.circular(10.0),
+                                                  BorderRadius.circular(10.0),
                                             ),
                                             child: Padding(
                                               padding: EdgeInsets.all(20.0),
@@ -1814,7 +1816,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                         child: Material(
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                            BorderRadius.circular(10.0),
+                                                BorderRadius.circular(10.0),
                                           ),
                                           child: Padding(
                                             padding: EdgeInsets.all(20.0),
@@ -1856,27 +1858,190 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   }
 }
 
-
 class ParticipantSmartphoneResponsesScreen extends StatefulWidget {
   @override
-  _ParticipantSmartphoneResponsesScreenState createState() => _ParticipantSmartphoneResponsesScreenState();
+  _ParticipantSmartphoneResponsesScreenState createState() =>
+      _ParticipantSmartphoneResponsesScreenState();
 }
 
-class _ParticipantSmartphoneResponsesScreenState extends State<ParticipantSmartphoneResponsesScreen> {
+class _ParticipantSmartphoneResponsesScreenState
+    extends State<ParticipantSmartphoneResponsesScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _participantFirestoreService = ParticipantFirestoreService();
 
-  Future<Topic> _futureTopics;
+  TextEditingController _responseController;
+
+  Future<List<Topic>> _futureTopics;
   Future<Question> _futureQuestion;
   Future<Response> _participantResponse;
+
+  Stream<QuerySnapshot> _responsesStream;
+
+  Stream<QuerySnapshot> _getResponsesStream(
+      String studyUID, String topicUID, String questionUID) {
+    return _participantFirestoreService.getResponses(
+        studyUID, topicUID, questionUID);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: _buildAppBar(),
+      endDrawer: _buildEndDrawer(),
+    );
+  }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      leading: IconButton(
+        onPressed: () {
+          // if (_responseController == null) {
+          //   Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
+          // }
+          // if (_responseController != null) {
+          //   if (_responseController.text != '') {
+          //     showDialog(
+          //       context: context,
+          //       builder: (context) => _buildAlertDialog(),
+          //     );
+          //   }
+          // }
+        },
+        icon: Icon(
+          Icons.keyboard_arrow_left,
+          color: Colors.black,
+        ),
       ),
+      title: Text(
+        'Responses',
+      ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.menu,
+            color: PROJECT_GREEN,
+          ),
+          onPressed: () {
+            _scaffoldKey.currentState.openEndDrawer();
+          },
+        ),
+      ],
+    );
+  }
+
+  AlertDialog _buildAlertDialog() {
+    return AlertDialog();
+  }
+
+  Widget _buildEndDrawer() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Study Navigator',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          height: 1.0,
+          color: Colors.grey[300],
+        ),
+        SizedBox(
+          height: 10.0,
+        ),
+        FutureBuilder<List<Topic>>(
+          future: _futureTopics,
+          builder: (BuildContext context,
+              AsyncSnapshot<List<Topic>> topicsSnapshot) {
+            switch (topicsSnapshot.connectionState) {
+              case ConnectionState.none:
+              case ConnectionState.waiting:
+              case ConnectionState.active:
+                return SizedBox();
+                break;
+              case ConnectionState.done:
+                if (topicsSnapshot.hasData) {
+                  if (topicsSnapshot.data.isNotEmpty) {
+                    var topics = <Topic>[];
+
+                    for (var topicSnapshot in topicsSnapshot.data) {
+                      topics.add(
+                        Topic(
+                          topicUID: topicSnapshot.topicUID,
+                          topicDate: topicSnapshot.topicDate,
+                          topicName: topicSnapshot.topicName,
+                          topicNumber: topicSnapshot.topicNumber,
+                          isActive: topicSnapshot.isActive,
+                          questions: topicSnapshot.questions,
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      itemCount: topics.length,
+                      itemBuilder: (BuildContext context, int topicIndex) {
+                        return Theme(
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.black,
+                            accentColor: PROJECT_GREEN,
+                          ),
+                          child: ExpansionTile(
+                            title: Text(
+                              topics[topicIndex].topicName,
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                            children: List.generate(
+                              topics[topicIndex].questions.length,
+                              (questionIndex) => InkWell(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      topics[topicIndex]
+                                          .questions[questionIndex]
+                                          .questionTitle,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ).toList(),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return SizedBox();
+                      },
+                    );
+                  } else {
+                    return SizedBox();
+                  }
+                } else {
+                  return SizedBox();
+                }
+                break;
+              default:
+                return SizedBox();
+            }
+          },
+        ),
+      ],
     );
   }
 }
-

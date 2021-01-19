@@ -1,8 +1,6 @@
 import 'dart:html';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase/firebase.dart' as fb;
-import 'package:firebase_storage/firebase_storage.dart';
 
 const String _FIREBASE_STORAGE_URL = 'gs://thoughtnav-51841.appspot.com';
 
@@ -54,8 +52,6 @@ class ParticipantStorageService {
 
       if(previousMediaMetadata != null) {
         await participantStorageReference.child('$studyName/$participantUID/$questionNumber/$questionTitle').delete();
-
-        print('Media Deleted');
       }
     }
     catch (e) {

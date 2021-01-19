@@ -18,10 +18,21 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
 
-  final List<String> _customCategories = [];
-  final List<TextEditingController> _textEditingControllers = [];
+  List<dynamic> _customCategories = [];
+  final List<TextEditingController> _controllers = [];
 
   int _totalCustomCategories = 1;
+
+  @override
+  void initState() {
+    if (widget.categories.customCategories != null) {
+      if (widget.categories.customCategories.isNotEmpty) {
+        _totalCustomCategories = widget.categories.customCategories.length;
+        _customCategories = widget.categories.customCategories;
+      }
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +44,18 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
             pageBuilder: (BuildContext generalDialogContext,
                 Animation<double> animation,
                 Animation<double> secondaryAnimation) {
+
+              if(_customCategories.isNotEmpty){
+                for(var category in _customCategories){
+                  var textEditingController = TextEditingController();
+                  textEditingController.text = category.toString();
+                  _controllers.add(textEditingController);
+                }
+              }
+              else {
+                _controllers.add(TextEditingController());
+              }
+
               return StatefulBuilder(
                 builder: (BuildContext context,
                     void Function(void Function()) setGeneralDialogState) {
@@ -96,8 +119,19 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                                   itemCount: _totalCustomCategories,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-
                                     return TextFormField(
+                                      controller: _controllers[index],
+                                      onChanged: (categoryName) {
+                                        // if (_customCategories.isNotEmpty) {
+                                        //   _customCategories.removeAt(index);
+                                        //   _customCategories.insert(
+                                        //       index, categoryName);
+                                        //   print(_customCategories[index]);
+                                        // } else {
+                                        //   _customCategories.insert(
+                                        //       index, categoryName);
+                                        // }
+                                      },
                                       decoration: InputDecoration(
                                         hintText: 'Enter Category Name',
                                         border: OutlineInputBorder(
@@ -151,6 +185,7 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                                           onTap: () {
                                             setGeneralDialogState(() {
                                               _totalCustomCategories--;
+                                              _controllers.removeLast();
                                             });
                                           },
                                           splashColor: Colors.transparent,
@@ -171,6 +206,7 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                                     onTap: () {
                                       setGeneralDialogState(() {
                                         _totalCustomCategories++;
+                                        _controllers.add(TextEditingController());
                                       });
                                     },
                                     splashColor: Colors.transparent,
@@ -192,22 +228,22 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
                                 alignment: Alignment.centerRight,
                                 child: RaisedButton(
                                   onPressed: () async {
-                                    // _textEditingControllers.forEach((element) {
-                                    //   if (element.text.isNotEmpty) {
-                                    //     _customCategories.add(element.text);
-                                    //   }
-                                    //
-                                    //   if (_customCategories.isNotEmpty) {
-                                    //     widget.categories.customCategories =
-                                    //         _customCategories;
-                                    //   }
-                                    // });
 
-                                    // await _researcherAndModeratorFirestoreService
-                                    //     .saveCategories(
-                                    //         widget.studyUID, widget.categories);
+                                    for(var controller in _controllers){
+                                      _customCategories.add(controller.text);
+                                    }
 
-                                    Navigator.of(generalDialogContext).pop();
+                                    if(_customCategories.isNotEmpty){
+                                      widget.categories.customCategories = _customCategories;
+
+                                      await _researcherAndModeratorFirestoreService
+                                          .saveCategories(
+                                          widget.studyUID, widget.categories);
+                                      Navigator.of(generalDialogContext).pop();
+                                    }
+                                    else{
+                                      Navigator.of(generalDialogContext).pop();
+                                    }
                                   },
                                   color: PROJECT_GREEN,
                                   shape: RoundedRectangleBorder(

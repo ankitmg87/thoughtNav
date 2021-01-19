@@ -29,20 +29,18 @@ class _StudyDashboardState extends State<StudyDashboard> {
 
   Study _study;
 
-  Stream _studyStream;
-  Stream _notificationsStream;
+  Stream<QuerySnapshot> _insightNotificationsStream;
 
   Stream<QuerySnapshot> _activeParticipantsStream;
   Stream<QuerySnapshot> _allParticipantsStream;
-
 
   Future<Study> _futureStudy;
 
   Future<List<Topic>> _futureTopics;
 
-  void _getNotifications() {
-    // _notificationsStream =
-    //     widget.firebaseFirestoreService.getNotifications(widget.studyUID);
+  Stream<QuerySnapshot> _getInsightNotificationsStream(String studyUID) {
+    return _researcherAndModeratorFirestoreService
+        .streamInsightNotifications(studyUID);
   }
 
   void _getTopics() {
@@ -57,11 +55,13 @@ class _StudyDashboardState extends State<StudyDashboard> {
 
   @override
   void initState() {
-
     _futureStudy = _getFutureStudy(widget.studyUID);
 
     super.initState();
-    _getNotifications();
+
+    _insightNotificationsStream =
+        _getInsightNotificationsStream(widget.studyUID);
+
     _getTopics();
   }
 
@@ -72,7 +72,7 @@ class _StudyDashboardState extends State<StudyDashboard> {
     return FutureBuilder<Study>(
       future: _futureStudy,
       builder: (BuildContext context, AsyncSnapshot<Study> snapshot) {
-        switch(snapshot.connectionState){
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
             return SizedBox();
             break;
@@ -121,17 +121,18 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                       if (snapshot.hasData) {
                                         return ListView.separated(
                                           itemCount: snapshot.data.length,
-                                          itemBuilder:
-                                              (BuildContext context, int index) {
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
                                             return TopicWidget(
                                               studyUID: widget.studyUID,
                                               topic: snapshot.data[index],
-                                              firebaseFirestoreService:
-                                              widget.firebaseFirestoreService,
+                                              firebaseFirestoreService: widget
+                                                  .firebaseFirestoreService,
                                             );
                                           },
                                           separatorBuilder:
-                                              (BuildContext context, int index) {
+                                              (BuildContext context,
+                                                  int index) {
                                             return SizedBox(
                                               height: 20.0,
                                             );
@@ -168,10 +169,11 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                   ),
                                   Divider(),
                                   Expanded(
-                                    child: StreamBuilder(
-                                      stream: _notificationsStream,
+                                    child: StreamBuilder<QuerySnapshot>(
+                                      stream: _insightNotificationsStream,
                                       builder: (BuildContext context,
-                                          AsyncSnapshot<dynamic> snapshot) {
+                                          AsyncSnapshot<QuerySnapshot>
+                                              snapshot) {
                                         switch (snapshot.connectionState) {
                                           case ConnectionState.none:
                                             if (snapshot.hasError) {
@@ -182,34 +184,36 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                           case ConnectionState.waiting:
                                           case ConnectionState.active:
                                             if (snapshot.hasData) {
-                                              var notifications =
-                                                  snapshot.data.documents;
-
-                                              return ListView.separated(
-                                                itemBuilder:
-                                                    (BuildContext context, int index) {
-                                                  return _DesktopNotificationWidget(
-                                                    time: '5:38 pm',
-                                                    participantAvatar:
-                                                    notifications[index]
-                                                    ['participantAvatar'],
-                                                    participantAlias:
-                                                    notifications[index]
-                                                    ['participantAlias'],
-                                                    questionNumber: notifications[index]
-                                                    ['questionNumber'],
-                                                    questionTitle: notifications[index]
-                                                    ['questionTitle'],
-                                                  );
-                                                },
-                                                separatorBuilder:
-                                                    (BuildContext context, int index) {
-                                                  return SizedBox(
-                                                    height: 10.0,
-                                                  );
-                                                },
-                                                itemCount: notifications.length,
-                                              );
+                                              var insightNotifications =
+                                                  snapshot.data.docs;
+                                              if (insightNotifications
+                                                  .isNotEmpty) {
+                                                return ListView.separated(
+                                                  itemCount:
+                                                      insightNotifications
+                                                          .length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    return Text(
+                                                        '${insightNotifications[index].data()['moderatorName']}');
+                                                  },
+                                                  separatorBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    return SizedBox(
+                                                      height: 10.0,
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                              else {
+                                                return Center(
+                                                  child: Text(
+                                                    'No insights yet.'
+                                                  ),
+                                                );
+                                              }
                                             } else {
                                               return SizedBox(
                                                 child: Text('Loading...'),
@@ -220,7 +224,7 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                             if (snapshot.hasError) {
                                               print(snapshot.error);
                                             }
-                                            return _StudyDetailsBar();
+                                            return SizedBox();
                                             break;
                                           default:
                                             if (snapshot.hasError) {

@@ -17,6 +17,7 @@ class Question{
   List<dynamic> respondedBy;
   bool allowImage;
   bool allowVideo;
+  bool isProbe;
 
   Question({
     this.questionUID,
@@ -33,6 +34,7 @@ class Question{
     this.respondedBy,
     this.allowImage,
     this.allowVideo,
+    this.isProbe,
   });
 
   Map<String, dynamic> toMap () {
@@ -50,6 +52,7 @@ class Question{
     question['groupIndexes'] = groupIndexes ?? <dynamic>[];
     question['allowImage'] = allowImage ?? false;
     question['allowVideo'] = allowVideo ?? false;
+    question['isProbe'] = isProbe ?? false;
     question['respondedBy'] = respondedBy ?? [];
 
     return question;
@@ -69,6 +72,7 @@ class Question{
     groupIndexes = question['groupIndexes'];
     allowImage = question['allowImage'];
     allowVideo = question['allowVideo'];
+    isProbe = question['isProbe'];
     respondedBy = question['respondedBy'];
   }
 

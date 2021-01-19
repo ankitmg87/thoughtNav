@@ -24,7 +24,16 @@ var text = localStorage.getItem("content");
 
 var options = {
 placeholder: 'Please type something',
-theme: 'snow'
+theme: 'snow',
+modules: {
+toolbar: [
+[{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+['link', 'image'],
+]
+}
+
 }
 
   var editor = new Quill('#quillEditor', options);
@@ -39,6 +48,7 @@ theme: 'snow'
     localStorage.setItem("content", html);
 
   });
+
 
 
 </script>

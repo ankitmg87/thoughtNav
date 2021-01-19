@@ -315,6 +315,7 @@ class TNHomeScreen extends StatelessWidget {
                                       color: Color(0xFF747476),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16.0,
+                                      fontFamily: 'Sofia',
                                     ),
                                   ),
                                   TextSpan(
@@ -323,6 +324,7 @@ class TNHomeScreen extends StatelessWidget {
                                     style: TextStyle(
                                       color: Color(0xFF747476),
                                       fontSize: 16.0,
+                                        fontFamily: 'Sofia',
                                     ),
                                   ),
                                 ],

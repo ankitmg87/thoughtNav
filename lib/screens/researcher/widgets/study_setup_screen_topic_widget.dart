@@ -53,6 +53,7 @@ class _StudySetupScreenTopicWidgetState
         studyUID, topicUID);
   }
 
+  final FocusNode _topicNumberFocusNode = FocusNode();
   final FocusNode _topicNameFocusNode = FocusNode();
 
   void _updateTopicDetails() async {
@@ -68,6 +69,13 @@ class _StudySetupScreenTopicWidgetState
   @override
   void initState() {
     super.initState();
+
+    _topicNumberFocusNode.addListener((){
+      if(!_topicNumberFocusNode.hasFocus){
+        _updateTopicDetails();
+      }
+    });
+
     _topicNameFocusNode.addListener(() {
       if (!_topicNameFocusNode.hasFocus) {
         _updateTopicDetails();
@@ -127,15 +135,14 @@ class _StudySetupScreenTopicWidgetState
                 width: 60.0,
                 child: TextFormField(
                   initialValue: widget.topic.topicNumber,
-                  // focusNode: _questionNumberFocusNode,
+                  focusNode: _topicNumberFocusNode,
                   onFieldSubmitted: (topicNumber) {
                     if (topicNumber != null || topicNumber.isNotEmpty) {
-                      // _updateQuestionDetails();
+                      _updateTopicDetails();
                     }
                   },
                   onChanged: (topicNumber) {
-                    // _questionNumber = topicNumber;
-                    // widget.question.questionNumber = _questionNumber;
+                    widget.topic.topicNumber = topicNumber;
                   },
                   decoration: InputDecoration(
                     hintText: 'No.',
@@ -361,7 +368,7 @@ class _StudySetupScreenTopicWidgetState
                       topicUID: widget.topic.topicUID,
                       question: widget.topic.questions[index],
                       groups: widget.groups,
-                      topicIsActive: true,
+                      topicIsActive: widget.topic.isActive,
                     );
                   },
                   separatorBuilder: (BuildContext context, int index) {
@@ -392,7 +399,7 @@ class _StudySetupScreenTopicWidgetState
                                   topicUID: widget.topic.topicUID,
                                   question: Question.fromMap(
                                       snapshot.data.docs[index].data()),
-                                  topicIsActive: false,
+                                  topicIsActive: widget.topic.isActive,
                                   deleteQuestion: () async {
                                     await _researcherAndModeratorFirestoreService
                                         .deleteQuestion(
@@ -450,6 +457,9 @@ class _StudySetupScreenTopicWidgetState
                               ),
                             )
                           : SizedBox(),
+                      SizedBox(
+                        width: 20.0,
+                      ),
                       InkWell(
                         onTap: () async {
                           var question =

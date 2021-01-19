@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_dashboard.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_reports.dart';
@@ -16,6 +17,8 @@ class ModeratorStudyScreen extends StatefulWidget {
 class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
   final _firebaseFirestoreService = FirebaseFirestoreService();
+
+  String _userType;
 
   bool dashboardSelected = true;
   bool usersSelected = false;
@@ -35,10 +38,10 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
     final getStorage = GetStorage();
 
     var studyUID = getStorage.read('studyUID');
+    _userType = getStorage.read('userType');
 
     dashboardScreen = StudyDashboard(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
     usersScreen = StudyUsers(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
-    // setupScreen = StudySetup(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
     setupScreen = Expanded(child: DraftStudySetup(studyUID: studyUID,));
     reportsScreen = StudyReports(studyUID: studyUID,);
 
@@ -49,7 +52,12 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
   void setSubScreen(String label) {
     if (label == 'Studies') {
-      Navigator.of(context).pop();
+      if(_userType == 'moderator'){
+        Navigator.of(context).popAndPushNamed(MODERATOR_DASHBOARD_SCREEN);
+      }
+      if(_userType == 'root'){
+        Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);
+      }
       return;
     }
     if (label == 'Dashboard') {
