@@ -47,7 +47,7 @@ class NewQuestionNotificationWidget extends StatelessWidget {
                         text: 'A new question has been added in the topic ',
                       ),
                       TextSpan(
-                        text: newQuestionNotification.topicTitle,
+                        text: newQuestionNotification.topicName,
                       ),
                     ],
                   ),

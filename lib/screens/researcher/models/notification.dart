@@ -145,18 +145,14 @@ class ModeratorCommentNotification {
 }
 
 class NewQuestionNotification {
-  String questionNumber;
-  String questionTitle;
-  String topicTitle;
+  String topicName;
   String notificationType;
   String topicUID;
   String questionUID;
   Timestamp notificationTimestamp;
 
   NewQuestionNotification({
-    this.questionNumber,
-    this.questionTitle,
-    this.topicTitle,
+    this.topicName,
     this.notificationType,
     this.topicUID,
     this.questionUID,
@@ -165,31 +161,21 @@ class NewQuestionNotification {
 
   NewQuestionNotification.fromMap(
       Map<String, dynamic> newQuestionNotificationMap) {
-    questionNumber = newQuestionNotificationMap['questionNumber'];
-    questionTitle = newQuestionNotificationMap['questionTitle'];
-    topicTitle = newQuestionNotificationMap['topicTitle'];
+    topicName = newQuestionNotificationMap['topicName'];
     notificationType = newQuestionNotificationMap['notificationType'];
     topicUID = newQuestionNotificationMap['topicUID'];
     questionUID = newQuestionNotificationMap['questionUID'];
     notificationTimestamp = newQuestionNotificationMap['notificationTimestamp'];
   }
 
-  Map<String, dynamic> toMap(NewQuestionNotification newQuestionNotification) {
+  Map<String, dynamic> toMap() {
     var newQuestionNotificationMap = <String, dynamic>{};
 
-    newQuestionNotificationMap['questionNumber'] =
-        newQuestionNotification.questionNumber;
-    newQuestionNotificationMap['questionTitle'] =
-        newQuestionNotification.questionTitle;
-    newQuestionNotificationMap['topicTitle'] =
-        newQuestionNotification.topicTitle;
-    newQuestionNotificationMap['notificationType'] =
-        newQuestionNotification.notificationType;
-    newQuestionNotificationMap['topicUID'] = newQuestionNotification.topicUID;
-    newQuestionNotificationMap['questionUID'] =
-        newQuestionNotification.questionUID;
-    newQuestionNotificationMap['notificationTimestamp'] =
-        newQuestionNotification.notificationTimestamp;
+    newQuestionNotificationMap['topicName'] = topicName;
+    newQuestionNotificationMap['notificationType'] = notificationType;
+    newQuestionNotificationMap['topicUID'] = topicUID;
+    newQuestionNotificationMap['questionUID'] = questionUID;
+    newQuestionNotificationMap['notificationTimestamp'] = notificationTimestamp;
 
     return newQuestionNotificationMap;
   }

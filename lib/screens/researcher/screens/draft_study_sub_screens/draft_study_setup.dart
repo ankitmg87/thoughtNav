@@ -1054,44 +1054,57 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         AsyncSnapshot<dynamic> snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.done) {
-                                        if (mStudy.studyStatus == 'Draft') {
-                                          return ReorderableWrap(
-                                            needsLongPressDraggable: false,
-                                            runSpacing: 10.0,
-                                            spacing: 10.0,
-                                            onReorder: _onReorder,
-                                            children: [
-                                              for (var topic in _topics)
-                                                StudySetupScreenTopicWidget(
-                                                  topic: topic,
-                                                  studyUID: widget.studyUID,
-                                                  groups: _groups,
-                                                ),
-                                            ],
-                                          );
-                                        } else {
-                                          return ListView.separated(
-                                            shrinkWrap: true,
-                                            physics:
-                                            NeverScrollableScrollPhysics(),
-                                            itemCount: _topics.length,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              return StudySetupScreenTopicWidget(
-                                                topic: _topics[index],
+
+                                        return ReorderableWrap(
+                                          needsLongPressDraggable: false,
+                                          runSpacing: 10.0,
+                                          spacing: 10.0,
+                                          onReorder: _onReorder,
+                                          children: [
+                                            for (var topic in _topics)
+                                              StudySetupScreenTopicWidget(
+                                                key: UniqueKey(),
+                                                topic: topic,
                                                 studyUID: widget.studyUID,
                                                 groups: _groups,
-                                              );
-                                            },
-                                            separatorBuilder:
-                                                (BuildContext context,
-                                                int index) {
-                                              return SizedBox(
-                                                height: 10.0,
-                                              );
-                                            },
-                                          );
-                                        }
+                                                deleteTopic: () async {
+                                                  await _researcherAndModeratorFirestoreService.deleteTopic(widget.studyUID, topic.topicUID);
+
+                                                  setState(() {
+                                                    _topics.removeWhere((mTopic){
+                                                      return topic.topicUID == mTopic.topicUID;
+                                                    });
+                                                  });
+                                                },
+                                              ),
+                                          ],
+                                        );
+
+                                        // if (mStudy.studyStatus == 'Draft') {
+                                        //
+                                        // } else {
+                                        //   // return ListView.separated(
+                                        //   //   shrinkWrap: true,
+                                        //   //   physics:
+                                        //   //   NeverScrollableScrollPhysics(),
+                                        //   //   itemCount: _topics.length,
+                                        //   //   itemBuilder: (BuildContext context,
+                                        //   //       int index) {
+                                        //   //     return StudySetupScreenTopicWidget(
+                                        //   //       topic: _topics[index],
+                                        //   //       studyUID: widget.studyUID,
+                                        //   //       groups: _groups,
+                                        //   //     );
+                                        //   //   },
+                                        //   //   separatorBuilder:
+                                        //   //       (BuildContext context,
+                                        //   //       int index) {
+                                        //   //     return SizedBox(
+                                        //   //       height: 10.0,
+                                        //   //     );
+                                        //   //   },
+                                        //   // );
+                                        // }
                                       } else {
                                         return SizedBox();
                                       }

@@ -10,6 +10,7 @@ import 'package:simple_html_css/simple_html_css.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
+import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
@@ -18,8 +19,9 @@ import 'dart:js' as js;
 
 class StudySetupScreenQuestionWidget extends StatefulWidget {
   final String studyUID;
-  final String topicUID;
+  final Topic topic;
   final Question question;
+
   // final Function onTap;
   final List<Group> groups;
   final Function deleteQuestion;
@@ -29,11 +31,10 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
     Key key,
     // this.onTap,
     this.question,
-    this.topicUID,
     this.studyUID,
     this.groups,
     this.deleteQuestion,
-    this.topicIsActive,
+    this.topicIsActive, this.topic,
   }) : super(key: key);
 
   @override
@@ -44,7 +45,7 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
 class _StudySetupScreenQuestionWidgetState
     extends State<StudySetupScreenQuestionWidget> {
   final _researcherAndModeratorFirestoreService =
-      ResearcherAndModeratorFirestoreService();
+  ResearcherAndModeratorFirestoreService();
 
   final _questionTitleFocusNode = FocusNode();
   final _questionNumberFocusNode = FocusNode();
@@ -117,7 +118,7 @@ class _StudySetupScreenQuestionWidgetState
 
   void _updateQuestionDetails() async {
     await _researcherAndModeratorFirestoreService.updateQuestion(
-        widget.studyUID, widget.topicUID, widget.question);
+        widget.studyUID, widget.topic.topicUID, widget.question);
   }
 
   void _setSelectedRadio(int value) {
@@ -208,7 +209,7 @@ class _StudySetupScreenQuestionWidgetState
               SizedBox(
                 width: 60.0,
                 child: TextFormField(
-                  enabled: !widget.topicIsActive,
+                  enabled: widget.question.isProbe,
                   initialValue: _questionNumber,
                   focusNode: _questionNumberFocusNode,
                   onFieldSubmitted: (questionNumber) {
@@ -306,7 +307,8 @@ class _StudySetupScreenQuestionWidgetState
                     onTap: () async {
                       await showGeneralDialog(
                         context: context,
-                        barrierLabel: MaterialLocalizations.of(context)
+                        barrierLabel: MaterialLocalizations
+                            .of(context)
                             .modalBarrierDismissLabel,
                         barrierColor: Colors.black45,
                         transitionDuration: const Duration(milliseconds: 200),
@@ -316,7 +318,7 @@ class _StudySetupScreenQuestionWidgetState
                           return StatefulBuilder(
                             builder: (BuildContext context,
                                 void Function(void Function())
-                                    groupDialogSetState) {
+                                groupDialogSetState) {
                               return Center(
                                 child: Material(
                                   borderRadius: BorderRadius.circular(10.0),
@@ -327,16 +329,22 @@ class _StudySetupScreenQuestionWidgetState
                                     ),
                                     constraints: BoxConstraints(
                                       maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              0.3,
+                                      MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width *
+                                          0.3,
                                       maxHeight:
-                                          MediaQuery.of(context).size.height *
-                                              0.3,
+                                      MediaQuery
+                                          .of(context)
+                                          .size
+                                          .height *
+                                          0.3,
                                     ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Select Groups',
@@ -368,8 +376,8 @@ class _StudySetupScreenQuestionWidgetState
                                                 selectedColor: PROJECT_GREEN,
                                                 selected: _groupIndexes
                                                     .contains(widget
-                                                        .groups[index]
-                                                        .groupIndex),
+                                                    .groups[index]
+                                                    .groupIndex),
                                                 onSelected: (bool value) {
                                                   groupDialogSetState(() {
                                                     if (value) {
@@ -382,26 +390,28 @@ class _StudySetupScreenQuestionWidgetState
                                                           .groupUID);
 
                                                       widget.question
-                                                              .groupIndexes =
+                                                          .groupIndexes =
                                                           _groupIndexes;
 
                                                       widget.question.groups =
                                                           _groups;
                                                     } else {
                                                       _groupIndexes.removeWhere(
-                                                          (groupName) {
-                                                        return groupName ==
-                                                            widget.groups[index]
-                                                                .groupIndex;
-                                                      });
+                                                              (groupName) {
+                                                            return groupName ==
+                                                                widget
+                                                                    .groups[index]
+                                                                    .groupIndex;
+                                                          });
                                                       _groups.removeWhere(
-                                                          (groupUID) {
-                                                        return groupUID ==
-                                                            widget.groups[index]
-                                                                .groupUID;
-                                                      });
+                                                              (groupUID) {
+                                                            return groupUID ==
+                                                                widget
+                                                                    .groups[index]
+                                                                    .groupUID;
+                                                          });
                                                       widget.question
-                                                              .groupIndexes =
+                                                          .groupIndexes =
                                                           _groupIndexes;
                                                       widget.question.groups =
                                                           _groups;
@@ -409,13 +419,15 @@ class _StudySetupScreenQuestionWidgetState
                                                   });
                                                 },
                                                 label: Text(
-                                                  '${widget.groups[index].groupIndex}. ${widget
-                                                      .groups[index].groupName}',
+                                                  '${widget.groups[index]
+                                                      .groupIndex}. ${widget
+                                                      .groups[index]
+                                                      .groupName}',
                                                   style: TextStyle(
                                                       color: _groupIndexes
-                                                              .contains(widget
-                                                                  .groups[index]
-                                                                  .groupIndex)
+                                                          .contains(widget
+                                                          .groups[index]
+                                                          .groupIndex)
                                                           ? Colors.white
                                                           : Colors.black),
                                                 ),
@@ -434,9 +446,9 @@ class _StudySetupScreenQuestionWidgetState
                                                   Navigator.pop(context),
                                               child: Padding(
                                                 padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 4.0,
-                                                        horizontal: 8.0),
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 4.0,
+                                                    horizontal: 8.0),
                                                 child: Text(
                                                   'CANCEL',
                                                   style: TextStyle(
@@ -454,18 +466,18 @@ class _StudySetupScreenQuestionWidgetState
                                               onPressed: _groupIndexes.isEmpty
                                                   ? null
                                                   : () async {
-                                                      await _researcherAndModeratorFirestoreService
-                                                          .updateQuestion(
-                                                              widget.studyUID,
-                                                              widget.topicUID,
-                                                              widget.question);
-                                                      Navigator.pop(context);
-                                                    },
+                                                await _researcherAndModeratorFirestoreService
+                                                    .updateQuestionGroup(
+                                                    widget.studyUID, widget.topic,
+                                                    widget.question.questionUID, widget.question.groups,
+                                                    widget.question.isProbe);
+                                                Navigator.pop(context);
+                                              },
                                               child: Padding(
                                                 padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 4.0,
-                                                        horizontal: 8.0),
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 4.0,
+                                                    horizontal: 8.0),
                                                 child: Text(
                                                   'DONE',
                                                   style: TextStyle(
@@ -504,7 +516,7 @@ class _StudySetupScreenQuestionWidgetState
                           fontWeight: FontWeight.bold,
                           fontSize: 14.0,
                           color: widget.question.groups == null ||
-                                  widget.question.groups.isEmpty
+                              widget.question.groups.isEmpty
                               ? Colors.grey[400]
                               : Colors.grey[700],
                         ),
@@ -537,21 +549,21 @@ class _StudySetupScreenQuestionWidgetState
                         _questionDateTime = date;
 
                         var dateFormatter =
-                            DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
+                        DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY);
                         _questionDate = dateFormatter.format(date);
 
                         if (_questionDateTime != null &&
                             _questionTimeOFDay != null) {
                           widget.question.questionTimestamp =
                               Timestamp.fromDate(
-                            DateTime(
-                              _questionDateTime.year,
-                              _questionDateTime.month,
-                              _questionDateTime.day,
-                              _questionTimeOFDay.hour,
-                              _questionTimeOFDay.minute,
-                            ),
-                          );
+                                DateTime(
+                                  _questionDateTime.year,
+                                  _questionDateTime.month,
+                                  _questionDateTime.day,
+                                  _questionTimeOFDay.hour,
+                                  _questionTimeOFDay.minute,
+                                ),
+                              );
                           _updateQuestionDetails();
                         }
                       }
@@ -603,14 +615,14 @@ class _StudySetupScreenQuestionWidgetState
                             _questionTimeOFDay != null) {
                           widget.question.questionTimestamp =
                               Timestamp.fromDate(
-                            DateTime(
-                              _questionDateTime.year,
-                              _questionDateTime.month,
-                              _questionDateTime.day,
-                              _questionTimeOFDay.hour,
-                              _questionTimeOFDay.minute,
-                            ),
-                          );
+                                DateTime(
+                                  _questionDateTime.year,
+                                  _questionDateTime.month,
+                                  _questionDateTime.day,
+                                  _questionTimeOFDay.hour,
+                                  _questionTimeOFDay.minute,
+                                ),
+                              );
                           _updateQuestionDetails();
                         }
                       }
@@ -638,7 +650,6 @@ class _StudySetupScreenQuestionWidgetState
               SizedBox(
                 width: 40.0,
               ),
-              widget.deleteQuestion != null ?
               InkWell(
                 onTap: widget.deleteQuestion,
                 child: Text(
@@ -648,7 +659,7 @@ class _StudySetupScreenQuestionWidgetState
                     fontSize: 12.0,
                   ),
                 ),
-              ) : SizedBox(),
+              ),
             ],
           ),
           SizedBox(
@@ -819,9 +830,7 @@ class _StudySetupScreenQuestionWidgetState
     );
   }
 
-  Widget _buildTextEditor(
-    String initialValue,
-  ) {
+  Widget _buildTextEditor(String initialValue,) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(2.0),
@@ -832,10 +841,10 @@ class _StudySetupScreenQuestionWidgetState
       ),
       child: InkWell(
         onTap: () {
-          if(initialValue != null){
+          if (initialValue != null) {
             js.context.callMethod('setInitialValue', [initialValue]);
           }
-          if (initialValue == null){
+          if (initialValue == null) {
             js.context.callMethod('setInitialValue', ['']);
           }
           showGeneralDialog(
@@ -847,8 +856,14 @@ class _StudySetupScreenQuestionWidgetState
                   child: Material(
                     borderRadius: BorderRadius.circular(10.0),
                     child: Container(
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      height: MediaQuery.of(context).size.height * 0.6,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.4,
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height * 0.6,
                       padding: EdgeInsets.all(20.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -886,7 +901,10 @@ class _StudySetupScreenQuestionWidgetState
                           ),
                           Expanded(
                             child: EasyWebView(
-                              width: MediaQuery.of(context).size.width * 0.4,
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.4,
                               src: 'quill.html',
                               onLoaded: () {},
                             ),
@@ -900,11 +918,12 @@ class _StudySetupScreenQuestionWidgetState
                               ),
                               onPressed: () async {
                                 String text =
-                                    js.context.callMethod('readLocalStorage');
+                                js.context.callMethod('readLocalStorage');
                                 if (text.isNotEmpty) {
                                   _questionStatement = text;
 
-                                  widget.question.questionStatement = _questionStatement;
+                                  widget.question.questionStatement =
+                                      _questionStatement;
 
                                   _updateQuestionDetails();
 

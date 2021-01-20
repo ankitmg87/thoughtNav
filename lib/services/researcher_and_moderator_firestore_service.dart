@@ -98,18 +98,19 @@ class ResearcherAndModeratorFirestoreService {
     return topic;
   }
 
-  Future<Question> createQuestion(String studyUID, int index, String topicUID,
-      Timestamp topicTimestamp) async {
+  Future<Question> createQuestion(String studyUID, String topicUID,
+      Timestamp topicTimestamp, bool isProbe) async {
     var question = Question(
       questionType: 'Standard',
       questionTimestamp: topicTimestamp,
       totalComments: 0,
       totalResponses: 0,
-      questionNumber: '$index',
+      questionNumber: '',
       groups: [],
       groupIndexes: [],
       allowImage: false,
       allowVideo: false,
+      isProbe: isProbe,
     );
 
     var questionMap = question.toMap();
@@ -168,30 +169,39 @@ class ResearcherAndModeratorFirestoreService {
     );
   }
 
-  Future<void> addAssignedGroup(String studyUID, String topicUID,
-      String questionUID, String groupUID) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
-        .collection(_QUESTIONS_COLLECTION)
-        .doc(questionUID)
-        .update({
-      'groups': FieldValue.arrayUnion([groupUID])
-    });
-  }
+  Future<void> updateQuestionGroup(String studyUID, Topic topic,
+      String questionUID, List groups, bool isProbe) async {
+    var lastSaveTime = Timestamp.now();
 
-  Future<void> removeAssignedGroup(
-      String studyUID, String topicUID, questionUID, String groupUID) async {
     await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
-        .doc(topicUID)
+        .doc(topic.topicUID)
         .collection(_QUESTIONS_COLLECTION)
         .doc(questionUID)
         .update({
-      'groups': FieldValue.arrayRemove([groupUID])
+      'groups': groups,
     });
+
+    await _studiesReference.doc(studyUID).set(
+      {
+        'lastSaveTime': lastSaveTime,
+      },
+      SetOptions(merge: true),
+    );
+
+    if (isProbe) {
+      var newQuestionNotification = NewQuestionNotification(
+        topicName: topic.topicName,
+        notificationType: 'newQuestionNotification',
+        topicUID: topic.topicUID,
+        questionUID: questionUID,
+        notificationTimestamp: Timestamp.now(),
+      );
+
+      await addNewQuestionNotification(
+          studyUID, groups, newQuestionNotification);
+    }
   }
 
   /// GET SECTION
@@ -283,17 +293,20 @@ class ResearcherAndModeratorFirestoreService {
             ModeratorCommentNotification().toMap(moderatorCommentNotification));
   }
 
-  Future<void> addNewQuestionNotification(
-      String studyUID,
-      List<String> groupUIDs,
+  Future<void> addNewQuestionNotification(String studyUID, List groupUIDs,
       NewQuestionNotification newQuestionNotification) async {
     for (var groupUID in groupUIDs) {
-      await _studiesReference
+      var participantsOfGroupSnapshot = await _studiesReference
           .doc(studyUID)
-          .collection(_GROUPS_COLLECTION)
-          .doc(groupUID)
-          .collection(_GROUP_NOTIFICATIONS_COLLECTION)
-          .add(NewQuestionNotification().toMap(newQuestionNotification));
+          .collection(_PARTICIPANTS_COLLECTION)
+          .where('groupUID', isEqualTo: groupUID)
+          .get();
+
+      for (var participantSnapshot in participantsOfGroupSnapshot.docs) {
+        await participantSnapshot.reference
+            .collection(_PARTICIPANT_NOTIFICATIONS_COLLECTION)
+            .add(newQuestionNotification.toMap());
+      }
     }
   }
 
@@ -768,4 +781,11 @@ class ResearcherAndModeratorFirestoreService {
         .doc(moderator.moderatorUID)
         .update(moderator.toMap());
   }
+
+  Future<void> updateStudyStatus(String studyUID, String studyStatus) async {
+    await _studiesReference.doc(studyUID).update({
+      'studyStatus': studyStatus,
+    });
+  }
+
 }

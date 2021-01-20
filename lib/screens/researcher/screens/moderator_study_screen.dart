@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -8,6 +9,8 @@ import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_reports.
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_users.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
+import 'package:thoughtnav/services/researcher_and_moderator_storage_service.dart';
 
 class ModeratorStudyScreen extends StatefulWidget {
   @override
@@ -15,10 +18,13 @@ class ModeratorStudyScreen extends StatefulWidget {
 }
 
 class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
-
   final _firebaseFirestoreService = FirebaseFirestoreService();
 
+  final _researcherAndModeratorFirestoreService = ResearcherAndModeratorFirestoreService();
+
+  String _studyUID;
   String _userType;
+  String _studyStatus;
 
   bool dashboardSelected = true;
   bool usersSelected = false;
@@ -34,16 +40,27 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
   @override
   void initState() {
-
     final getStorage = GetStorage();
 
-    var studyUID = getStorage.read('studyUID');
+    _studyUID = getStorage.read('studyUID');
     _userType = getStorage.read('userType');
+    _studyStatus = getStorage.read('studyStatus');
 
-    dashboardScreen = StudyDashboard(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
-    usersScreen = StudyUsers(studyUID: studyUID, firebaseFirestoreService: _firebaseFirestoreService,);
-    setupScreen = Expanded(child: DraftStudySetup(studyUID: studyUID,));
-    reportsScreen = StudyReports(studyUID: studyUID,);
+    dashboardScreen = StudyDashboard(
+      studyUID: _studyUID,
+      firebaseFirestoreService: _firebaseFirestoreService,
+    );
+    usersScreen = StudyUsers(
+      studyUID: _studyUID,
+      firebaseFirestoreService: _firebaseFirestoreService,
+    );
+    setupScreen = Expanded(
+        child: DraftStudySetup(
+      studyUID: _studyUID,
+    ));
+    reportsScreen = StudyReports(
+      studyUID: _studyUID,
+    );
 
     subScreen = dashboardScreen;
 
@@ -52,10 +69,10 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
   void setSubScreen(String label) {
     if (label == 'Studies') {
-      if(_userType == 'moderator'){
+      if (_userType == 'moderator') {
         Navigator.of(context).popAndPushNamed(MODERATOR_DASHBOARD_SCREEN);
       }
-      if(_userType == 'root'){
+      if (_userType == 'root') {
         Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);
       }
       return;
@@ -104,8 +121,6 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final Study study = Study.fromMap(ModalRoute.of(context).settings.arguments);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
@@ -127,13 +142,13 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
                       width: 16.0,
                     ),
                     StudyScreenSecondaryAppBarWidget(
-                            label: 'Dashboard',
-                            selected: dashboardSelected,
-                            onTap: () => setSubScreen('Dashboard'),
-                          ),
+                      label: 'Dashboard',
+                      selected: dashboardSelected,
+                      onTap: () => setSubScreen('Dashboard'),
+                    ),
                     SizedBox(
-                            width: 16.0,
-                          ),
+                      width: 16.0,
+                    ),
                     StudyScreenSecondaryAppBarWidget(
                       label: 'Users',
                       selected: usersSelected,
@@ -151,11 +166,57 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
                       width: 16.0,
                     ),
                     StudyScreenSecondaryAppBarWidget(
-                            label: 'Reports',
-                            selected: reportsSelected,
-                            onTap: () => setSubScreen('Reports'),
-                          ),
+                      label: 'Reports',
+                      selected: reportsSelected,
+                      onTap: () => setSubScreen('Reports'),
+                    ),
                   ],
+                ),
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  color: PROJECT_GREEN,
+                  onPressed: () async {
+                    if(_studyStatus == 'Active'){
+                      setState(() {
+                        _studyStatus = 'Completed';
+                      });
+                      await _researcherAndModeratorFirestoreService.updateStudyStatus(_studyUID, _studyStatus);
+                      return;
+                    }
+                    if(_studyStatus == 'Completed'){
+                      setState(() {
+                        _studyStatus = 'Closed';
+                      });
+                      await _researcherAndModeratorFirestoreService.updateStudyStatus(_studyUID, _studyStatus);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.done,
+                          color: Colors.white,
+                          size: 16.0,
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Text(
+                          _studyStatus == 'Active' ?
+                          'Mark As Completed' : _studyStatus == 'Completed' ? 'Mark As Closed' : 'Study Closed',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
