@@ -126,16 +126,16 @@ class _ParticipantDashboardScreenState
         }
       }
     }
-    var studyNavigatorTopics = <Topic>[];
-
-    for (var topic in _topics) {
-      if (topic.isActive) {
-        studyNavigatorTopics.add(topic);
-      }
-    }
+    // var studyNavigatorTopics = <Topic>[];
+    //
+    // for (var topic in _topics) {
+    //   if (topic.isActive) {
+    //     studyNavigatorTopics.add(topic);
+    //   }
+    // }
 
     setState(() {
-      _studyNavigatorTopics = studyNavigatorTopics;
+      _studyNavigatorTopics = _topics;
       _answeredQuestions = answeredQuestions;
       _totalQuestions = totalQuestions;
     });
@@ -376,37 +376,11 @@ class _ParticipantDashboardScreenState
                                   itemCount: _topics.length,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    if (index == 0 && _topics[index].isActive) {
+                                    if (_topics[index].isActive) {
                                       return ActiveTaskWidget(
                                         topic: _topics[index],
                                         participantUID: _participantUID,
                                       );
-                                    } else if (index >= 1) {
-                                      if (_topics[index - 1]
-                                              .questions
-                                              .last
-                                              .respondedBy !=
-                                          null) {
-                                        if (_topics[index - 1]
-                                                .questions
-                                                .last
-                                                .respondedBy
-                                                .contains(_participantUID) &&
-                                            _topics[index].isActive) {
-                                          return ActiveTaskWidget(
-                                            topic: _topics[index],
-                                            participantUID: _participantUID,
-                                          );
-                                        } else {
-                                          return LockedTaskWidget(
-                                            topic: _topics[index],
-                                          );
-                                        }
-                                      } else {
-                                        return LockedTaskWidget(
-                                          topic: _topics[index],
-                                        );
-                                      }
                                     } else {
                                       return LockedTaskWidget(
                                           topic: _topics[index]);
@@ -430,12 +404,11 @@ class _ParticipantDashboardScreenState
                   ),
                   SizedBox(
                     height: 20.0,
-                  )
+                  ),
                 ],
               ),
             );
             break;
-
           default:
             return SizedBox();
         }
@@ -448,6 +421,7 @@ class _ParticipantDashboardScreenState
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
                 icon: Icon(
@@ -456,21 +430,19 @@ class _ParticipantDashboardScreenState
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
-              Expanded(
-                child: Text(
-                  'Study Navigator',
-                  style: TextStyle(
-                    color: Color(0xFF333333),
-                  ),
+              Text(
+                'Study Navigator',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.transparent,
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(
+                  Icons.close,
+                  color: Colors.transparent,
                 ),
               ),
             ],
@@ -487,7 +459,7 @@ class _ParticipantDashboardScreenState
             child: ListView.builder(
               itemCount: _studyNavigatorTopics.length,
               itemBuilder: (BuildContext context, int index) {
-                if (index == 0) {
+                if (_studyNavigatorTopics[index].isActive) {
                   return EndDrawerExpansionTile(
                     title: _studyNavigatorTopics[index].topicName,
                     questions: _studyNavigatorTopics[index].questions,
@@ -495,123 +467,49 @@ class _ParticipantDashboardScreenState
                     topicUID: _studyNavigatorTopics[index].topicUID,
                   );
                 } else {
-                  if (_studyNavigatorTopics[index - 1]
-                          .questions
-                          .last
-                          .respondedBy ==
-                      null) {
-                    return ListTile(
-                      onTap: () {
-                        showGeneralDialog(
-                            context: context,
-                            pageBuilder:
-                                (BuildContext studyNavigatorLockedTopicContext,
-                                    Animation<double> animation,
-                                    Animation<double> secondaryAnimation) {
-                              return Center(
-                                child: Material(
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Text(
-                                      'All questions in previous topic must be answered',
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18.0,
-                                      ),
-                                    ),
+                  return ListTile(
+                    onTap: () {
+                      showGeneralDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        barrierLabel: 'Topic Locked',
+                        pageBuilder:
+                            (BuildContext studyNavigatorLockedTopicContext,
+                                Animation<double> animation,
+                                Animation<double> secondaryAnimation) {
+                          return Center(
+                            child: Material(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text(
+                                  'This topic is still locked',
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0,
                                   ),
                                 ),
-                              );
-                            });
-                      },
-                      title: Text('Topic Locked'),
-                    );
-                  } else if (!_studyNavigatorTopics[index - 1]
-                      .questions
-                      .last
-                      .respondedBy
-                      .contains(_participantUID)) {
-                    return ListTile(
-                      title: Text('Topic Locked'),
-                      onTap: () {
-                        showGeneralDialog(
-                            context: context,
-                            pageBuilder:
-                                (BuildContext studyNavigatorLockedTopicContext,
-                                    Animation<double> animation,
-                                    Animation<double> secondaryAnimation) {
-                              return Center(
-                                child: Material(
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Text(
-                                      'All questions in previous topic must be answered',
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            });
-                      },
-                    );
-                  } else {
-                    return EndDrawerExpansionTile(
-                      title: _studyNavigatorTopics[index].topicName,
-                      questions: _studyNavigatorTopics[index].questions,
-                      participantUID: _participantUID,
-                      topicUID: _studyNavigatorTopics[index].topicUID,
-                    );
-                  }
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    title: Text(
+                      'Topic Locked',
+                      style: TextStyle(
+                        color: Colors.black,
+
+                      ),
+                    ),
+                  );
                 }
               },
             ),
-
-            // child: FutureBuilder(
-            //   future: _futureStudyNavigatorTopics,
-            //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            //     switch (snapshot.connectionState) {
-            //       case ConnectionState.none:
-            //       case ConnectionState.waiting:
-            //       case ConnectionState.active:
-            //         return Center(
-            //           child: Text('Loading Topics...'),
-            //         );
-            //         break;
-            //       case ConnectionState.done:
-            //         if (_studyNavigatorTopics != null) {
-            //           return ListView.builder(
-            //             itemCount: _studyNavigatorTopics.length,
-            //             itemBuilder: (BuildContext context, int index) {
-            //               return EndDrawerExpansionTile(
-            //                 title: _studyNavigatorTopics[index].topicName,
-            //                 questions: _studyNavigatorTopics[index].questions,
-            //               );
-            //             },
-            //           );
-            //         } else {
-            //           return Center(
-            //             child: Text('Some error occurred'),
-            //           );
-            //         }
-            //         break;
-            //       default:
-            //         return SizedBox();
-            //     }
-            //   },
-            // ),
           ),
         ],
       ),
@@ -1186,41 +1084,12 @@ class _ParticipantDashboardScreenState
                                             itemCount: _topics.length,
                                             itemBuilder: (BuildContext context,
                                                 int index) {
-                                              if (index == 0 &&
-                                                  _topics[index].isActive) {
+                                              if (_topics[index].isActive) {
                                                 return ActiveTaskWidget(
                                                   topic: _topics[index],
                                                   participantUID:
                                                       _participantUID,
                                                 );
-                                              } else if (index >= 1) {
-                                                if (_topics[index - 1]
-                                                        .questions
-                                                        .last
-                                                        .respondedBy !=
-                                                    null) {
-                                                  if (_topics[index - 1]
-                                                          .questions
-                                                          .last
-                                                          .respondedBy
-                                                          .contains(
-                                                              _participantUID) &&
-                                                      _topics[index].isActive) {
-                                                    return ActiveTaskWidget(
-                                                      topic: _topics[index],
-                                                      participantUID:
-                                                          _participantUID,
-                                                    );
-                                                  } else {
-                                                    return LockedTaskWidget(
-                                                      topic: _topics[index],
-                                                    );
-                                                  }
-                                                } else {
-                                                  return LockedTaskWidget(
-                                                    topic: _topics[index],
-                                                  );
-                                                }
                                               } else {
                                                 return LockedTaskWidget(
                                                     topic: _topics[index]);
@@ -1452,7 +1321,7 @@ class _ParticipantDashboardScreenState
                     child: ListView.builder(
                       itemCount: _studyNavigatorTopics.length,
                       itemBuilder: (BuildContext context, int index) {
-                        if (index == 0) {
+                        if (_studyNavigatorTopics[index].isActive) {
                           return EndDrawerExpansionTile(
                             title: _studyNavigatorTopics[index].topicName,
                             questions: _studyNavigatorTopics[index].questions,
@@ -1460,89 +1329,47 @@ class _ParticipantDashboardScreenState
                             topicUID: _studyNavigatorTopics[index].topicUID,
                           );
                         } else {
-                          if (_studyNavigatorTopics[index - 1]
-                                  .questions
-                                  .last
-                                  .respondedBy ==
-                              null) {
-                            return ListTile(
-                              onTap: () {
-                                showGeneralDialog(
-                                    context: context,
-                                    pageBuilder: (BuildContext
-                                            studyNavigatorLockedTopicContext,
-                                        Animation<double> animation,
-                                        Animation<double> secondaryAnimation) {
-                                      return Center(
-                                        child: Material(
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child: Text(
-                                              'All questions in previous topic must be answered',
-                                              style: TextStyle(
-                                                color: Colors.grey[700],
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18.0,
-                                              ),
-                                            ),
+                          return ListTile(
+                            onTap: () {
+                              showGeneralDialog(
+                                context: context,
+                                barrierDismissible: true,
+                                barrierLabel: 'Topic Locked',
+                                pageBuilder:
+                                    (BuildContext studyNavigatorLockedTopicContext,
+                                    Animation<double> animation,
+                                    Animation<double> secondaryAnimation) {
+                                  return Center(
+                                    child: Material(
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Text(
+                                          'This topic is still locked',
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18.0,
                                           ),
                                         ),
-                                      );
-                                    });
-                              },
-                              title: Text('Topic Locked'),
-                            );
-                          } else if (!_studyNavigatorTopics[index - 1]
-                              .questions
-                              .last
-                              .respondedBy
-                              .contains(_participantUID)) {
-                            return ListTile(
-                              title: Text('Topic Locked'),
-                              onTap: () {
-                                showGeneralDialog(
-                                    context: context,
-                                    pageBuilder: (BuildContext
-                                            studyNavigatorLockedTopicContext,
-                                        Animation<double> animation,
-                                        Animation<double> secondaryAnimation) {
-                                      return Center(
-                                        child: Material(
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child: Text(
-                                              'All questions in previous topic must be answered',
-                                              style: TextStyle(
-                                                color: Colors.grey[700],
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    });
-                              },
-                            );
-                          } else {
-                            return EndDrawerExpansionTile(
-                              title: _studyNavigatorTopics[index].topicName,
-                              questions: _studyNavigatorTopics[index].questions,
-                              participantUID: _participantUID,
-                              topicUID: _studyNavigatorTopics[index].topicUID,
-                            );
-                          }
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            title: Text(
+                              'Topic Locked',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          );
                         }
+
                       },
                     ),
                   )

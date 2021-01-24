@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_radio_button/radio_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -46,9 +47,9 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
 
   void _unAwaited(Future<void> future) {}
 
-  Stream _avatarAndDisplayNameStream;
+  Stream<QuerySnapshot> _avatarAndDisplayNameStream;
 
-  Stream _getAvatarAndDisplayNameStream() {
+  Stream<QuerySnapshot> _getAvatarAndDisplayNameStream() {
     var getStorage = GetStorage();
 
     studyUID = getStorage.read('studyUID');
@@ -356,10 +357,10 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomAvatarRadioWidget(
-                avatarStreamBuilder: StreamBuilder(
+                avatarStreamBuilder: StreamBuilder<QuerySnapshot>(
                   stream: _avatarAndDisplayNameStream,
                   builder:
-                      (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                      (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
                         return SizedBox();
@@ -371,7 +372,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
                         if (snapshot.hasData) {
                           var documents;
 
-                          documents = snapshot.data.documents;
+                          documents = snapshot.data.docs;
 
                           _avatarAndDisplayNameRadioModelList.clear();
 

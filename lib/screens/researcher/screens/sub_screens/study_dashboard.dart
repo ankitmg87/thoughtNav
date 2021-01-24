@@ -31,9 +31,6 @@ class _StudyDashboardState extends State<StudyDashboard> {
 
   Stream<QuerySnapshot> _insightNotificationsStream;
 
-  Stream<QuerySnapshot> _activeParticipantsStream;
-  Stream<QuerySnapshot> _allParticipantsStream;
-
   Future<Study> _futureStudy;
 
   Future<List<Topic>> _futureTopics;

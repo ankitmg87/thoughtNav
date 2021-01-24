@@ -221,6 +221,10 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
               ],
             ),
           ),
+          Container(
+            height: 1.0,
+            color: Colors.grey[300],
+          ),
           subScreen,
         ],
       ),

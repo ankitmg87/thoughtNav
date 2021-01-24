@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
@@ -331,10 +332,13 @@ class __QuestionDisplayBarState extends State<_QuestionDisplayBar> {
                 SizedBox(
                   height: 20.0,
                 ),
-                Text(
-                  widget.questionStatement ?? 'questionStatement',
-                  style: TextStyle(color: Colors.black),
-                ),
+
+                HtmlWidget(widget.questionStatement,textStyle: TextStyle(color: Colors.black),),
+
+                // Text(
+                //   widget.questionStatement ?? 'questionStatement',
+                //   style: TextStyle(color: Colors.black),
+                // ),
               ],
             ),
           ),

@@ -10,7 +10,8 @@ class EndDrawerExpansionTile extends StatefulWidget {
     Key key,
     this.title,
     this.questions,
-    this.participantUID, this.topicUID,
+    this.participantUID,
+    this.topicUID,
   }) : super(key: key);
 
   final String title;
@@ -38,8 +39,7 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
             title: Text(
               widget.title,
               style: TextStyle(
-                color: TEXT_COLOR,
-                fontSize: 14.0,
+                color: Colors.black,
               ),
             ),
             trailing: _isExpanded
@@ -62,7 +62,6 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                 itemCount: widget.questions.length,
                 itemBuilder: (BuildContext context, int index) {
                   if (index == 0) {
-
                     return ActiveQuestionExpansionTileChild(
                       question: widget.questions[index],
                       participantUID: widget.participantUID,
@@ -71,29 +70,34 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                             PARTICIPANT_RESPONSES_SCREEN,
                             arguments: {
                               'topicUID': widget.topicUID,
-                              'questionUID': widget.questions[index].questionUID,
+                              'questionUID':
+                                  widget.questions[index].questionUID,
                             });
                       },
                     );
                   } else {
-                    if (widget.questions[index - 1].respondedBy == null) {
-                      return LockedQuestionExpansionTileChild();
-                    } else if (!widget.questions[index - 1].respondedBy
-                        .contains(widget.participantUID)) {
-                      return LockedQuestionExpansionTileChild();
-                    } else {
-                      return ActiveQuestionExpansionTileChild(
-                        question: widget.questions[index],
-                        participantUID: widget.participantUID,
+                    if (widget.questions[index - 1].respondedBy != null) {
+                      if (widget.questions[index - 1].respondedBy
+                              .contains(widget.participantUID) ||
+                          widget.questions[index].isProbe) {
+                        return ActiveQuestionExpansionTileChild(
+                          question: widget.questions[index],
+                          participantUID: widget.participantUID,
                           onTap: () {
                             Navigator.of(context).popAndPushNamed(
                                 PARTICIPANT_RESPONSES_SCREEN,
                                 arguments: {
                                   'topicUID': widget.topicUID,
-                                  'questionUID': widget.questions[index].questionUID,
+                                  'questionUID':
+                                      widget.questions[index].questionUID,
                                 });
-                          }
-                      );
+                          },
+                        );
+                      } else {
+                        return LockedQuestionExpansionTileChild();
+                      }
+                    } else {
+                      return LockedQuestionExpansionTileChild();
                     }
                   }
                 },

@@ -10,6 +10,9 @@ class Study {
   String studyStatus;
   int activeParticipants;
   int totalResponses;
+  int totalComments;
+  int totalParticipants;
+  int totalInsights;
   String startDate;
   String endDate;
   Timestamp created;
@@ -38,6 +41,9 @@ class Study {
     this.studyStatus,
     this.activeParticipants,
     this.totalResponses,
+    this.totalComments,
+    this.totalParticipants,
+    this.totalInsights,
     this.startDate,
     this.endDate,
     this.created,
@@ -76,6 +82,9 @@ class Study {
     basicDetailsMap['studyTimeZone'] = study.studyTimeZone;
     basicDetailsMap['activeParticipants'] = study.activeParticipants;
     basicDetailsMap['totalResponses'] = study.totalResponses;
+    basicDetailsMap['totalComments'] = study.totalComments;
+    basicDetailsMap['totalParticipants'] = study.totalParticipants;
+    basicDetailsMap['totalInsights'] = study.totalInsights;
 
     return basicDetailsMap;
   }
@@ -97,7 +106,8 @@ class Study {
     studyTimeZone = study['studyTimeZone'];
     activeParticipants = study['activeParticipants'];
     totalResponses = study['totalResponses'];
-
-    // print(study['studyTimeZone']);
+    totalComments = study['totalComments'];
+    totalParticipants = study['totalParticipants'];
+    totalInsights = study['totalInsights'];
   }
 }

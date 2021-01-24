@@ -1,4 +1,3 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -202,43 +201,43 @@ class __PaymentModeSelectionWidgetState
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8.0),
         height: widget.screenHeight * 0.3,
-        child: DottedBorder(
-          color: Colors.grey[300],
-          radius: Radius.circular(20.0),
-          borderType: BorderType.RRect,
-          padding: EdgeInsets.all(20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image(
-                  image: AssetImage(
-                    widget.logoPath,
-                  ),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                Container(
-                  padding: EdgeInsets.all(4.0),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.grey[300],
-                    ),
-                  ),
-                  child: Icon(
-                    CupertinoIcons.add,
-                    color: Colors.grey[300],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // child: DottedBorder(
+        //   color: Colors.grey[300],
+        //   radius: Radius.circular(20.0),
+        //   borderType: BorderType.RRect,
+        //   padding: EdgeInsets.all(20.0),
+        //   child: Container(
+        //     decoration: BoxDecoration(
+        //       borderRadius: BorderRadius.circular(20.0),
+        //     ),
+        //     child: Column(
+        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //       children: [
+        //         Image(
+        //           image: AssetImage(
+        //             widget.logoPath,
+        //           ),
+        //         ),
+        //         SizedBox(
+        //           height: 20.0,
+        //         ),
+        //         Container(
+        //           padding: EdgeInsets.all(4.0),
+        //           decoration: BoxDecoration(
+        //             shape: BoxShape.circle,
+        //             border: Border.all(
+        //               color: Colors.grey[300],
+        //             ),
+        //           ),
+        //           child: Icon(
+        //             CupertinoIcons.add,
+        //             color: Colors.grey[300],
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ),
     );
   }

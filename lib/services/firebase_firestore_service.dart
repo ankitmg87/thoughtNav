@@ -381,6 +381,9 @@ class FirebaseFirestoreService {
     final study = Study(
       activeParticipants: 0,
       totalResponses: 0,
+      totalComments: 0,
+      totalParticipants: 0,
+      totalInsights: 0,
       studyName: 'Draft Study',
       internalStudyLabel: 'Internal Label',
       studyStatus: 'Draft',

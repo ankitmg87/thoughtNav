@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
@@ -305,7 +304,7 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
                           },
                         ),
                       ),
-                      Text('Other'),
+                      Text('Not Selected'),
                     ],
                   ),
                   SizedBox(
@@ -319,7 +318,7 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
       );
     } else {
       return Container(
-        constraints: BoxConstraints(maxWidth: 700.0),
+        constraints: BoxConstraints(maxWidth: 800.0),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -345,126 +344,117 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          constraints: BoxConstraints(maxWidth: 400.0),
-                          child: TextFormField(
-                            initialValue: widget.participant.displayName,
-                            enabled: false,
-                            // onChanged: (displayName) {
-                            //   widget.participant.displayName = displayName;
-                            // },
-                            style: TextStyle(
+                        TextFormField(
+                          initialValue: widget.participant.displayName,
+                          enabled: false,
+                          // onChanged: (displayName) {
+                          //   widget.participant.displayName = displayName;
+                          // },
+                          style: TextStyle(
+                            fontSize: 14.0,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Display Name',
+                            labelStyle: TextStyle(
                               fontSize: 14.0,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Display Name',
-                              labelStyle: TextStyle(
-                                fontSize: 14.0,
-                              ),
                             ),
                           ),
                         ),
                         SizedBox(
                           height: 20.0,
                         ),
-                        Container(
-                          constraints: BoxConstraints(maxWidth: 400.0),
-                          child: TextFormField(
-                            initialValue: _password,
-                            onChanged: (password) {
-                              _password = password;
-                              _confirmPasswordKey.currentState.validate();
-                            },
-                            style: TextStyle(
+                        TextFormField(
+                          initialValue: _password,
+                          onChanged: (password) {
+                            _password = password;
+                            _confirmPasswordKey.currentState.validate();
+                          },
+                          style: TextStyle(
+                            fontSize: 14.0,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            labelStyle: TextStyle(
                               fontSize: 14.0,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              labelStyle: TextStyle(
-                                fontSize: 14.0,
-                              ),
                             ),
                           ),
                         ),
                         SizedBox(
                           height: 20.0,
                         ),
-                        Container(
-                          constraints: BoxConstraints(maxWidth: 400.0),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Gender: ',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            Text(
+                              'Gender: ',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Theme(
+                                  data: ThemeData(
+                                    disabledColor: Colors.grey[400],
+                                    accentColor: PROJECT_NAVY_BLUE,
+                                  ),
+                                  child: Radio(
+                                    value: 1,
+                                    groupValue: _selectedRadio,
+                                    onChanged: (value) {
+                                      _setSelectedRadio(value);
+                                      widget.participant.gender = 'male';
+                                    },
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Theme(
-                                    data: ThemeData(
-                                      disabledColor: Colors.grey[400],
-                                      accentColor: PROJECT_NAVY_BLUE,
-                                    ),
-                                    child: Radio(
-                                      value: 1,
-                                      groupValue: _selectedRadio,
-                                      onChanged: (value) {
-                                        _setSelectedRadio(value);
-                                        widget.participant.gender = 'male';
-                                      },
-                                    ),
+                                Text('Male'),
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Theme(
+                                  data: ThemeData(
+                                    disabledColor: Colors.grey[400],
+                                    accentColor: PROJECT_NAVY_BLUE,
                                   ),
-                                  Text('Male'),
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Theme(
-                                    data: ThemeData(
-                                      disabledColor: Colors.grey[400],
-                                      accentColor: PROJECT_NAVY_BLUE,
-                                    ),
-                                    child: Radio(
-                                      value: 2,
-                                      groupValue: _selectedRadio,
-                                      onChanged: (value) {
-                                        _setSelectedRadio(value);
-                                        widget.participant.gender = 'female';
-                                      },
-                                    ),
+                                  child: Radio(
+                                    value: 2,
+                                    groupValue: _selectedRadio,
+                                    onChanged: (value) {
+                                      _setSelectedRadio(value);
+                                      widget.participant.gender = 'female';
+                                    },
                                   ),
-                                  Text('Female'),
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Theme(
-                                    data: ThemeData(
-                                      disabledColor: Colors.grey[400],
-                                      accentColor: PROJECT_NAVY_BLUE,
-                                    ),
-                                    child: Radio(
-                                      value: 3,
-                                      groupValue: _selectedRadio,
-                                      onChanged: (value) {
-                                        _setSelectedRadio(value);
-                                        widget.participant.gender = 'other';
-                                      },
-                                    ),
+                                ),
+                                Text('Female'),
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Theme(
+                                  data: ThemeData(
+                                    disabledColor: Colors.grey[400],
+                                    accentColor: PROJECT_NAVY_BLUE,
                                   ),
-                                  Text('Not Selected'),
-                                ],
-                              ),
-                              SizedBox(
-                                width: 20.0,
-                              ),
-                            ],
-                          ),
+                                  child: Radio(
+                                    value: 3,
+                                    groupValue: _selectedRadio,
+                                    onChanged: (value) {
+                                      _setSelectedRadio(value);
+                                      widget.participant.gender = 'other';
+                                    },
+                                  ),
+                                ),
+                                Text('Not Selected'),
+                              ],
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                          ],
                         ),
                       ],
                     ),

@@ -17,6 +17,10 @@ class LockedTaskWidget extends StatelessWidget {
     var time = formatTime.format(topic.topicDate.toDate());
 
     return InkWell(
+      highlightColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      splashColor: Colors.transparent,
       onTap: () {
         showGeneralDialog(
           barrierDismissible: true,
@@ -24,20 +28,21 @@ class LockedTaskWidget extends StatelessWidget {
           pageBuilder: (BuildContext context, Animation<double> animation,
               Animation<double> secondaryAnimation) {
             return Center(
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    topic.topicDate.millisecondsSinceEpoch >
-                            Timestamp.now().millisecondsSinceEpoch
-                        ? 'This topic will be unlocked after $date at $time'
-                        : 'All questions in previous topics must be answered to unlock this topic',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0,
-                      color: Colors.grey[700],
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      'This topic will be unlocked after $date at $time',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                        color: Colors.grey[700],
+                      ),
                     ),
                   ),
                 ),

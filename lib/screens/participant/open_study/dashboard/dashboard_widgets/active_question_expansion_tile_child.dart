@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 
@@ -43,16 +45,26 @@ class ActiveQuestionExpansionTileChild extends StatelessWidget {
 }
 
 class LockedQuestionExpansionTileChild extends StatelessWidget {
+  final Question question;
+
+  const LockedQuestionExpansionTileChild({Key key, this.question})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    var formatDate = DateFormat(DateFormat.ABBR_MONTH_DAY);
+    var formatTime = DateFormat.jm();
+
+    var date = formatDate.format(question.questionTimestamp.toDate());
+    var time = formatTime.format(question.questionTimestamp.toDate());
+
     return InkWell(
       onTap: () {
         showGeneralDialog(
             barrierDismissible: true,
-            barrierLabel: 'Enter Gender',
+            barrierLabel: 'Question locked barrier',
             context: context,
-            pageBuilder: (BuildContext context,
-                Animation<double> animation,
+            pageBuilder: (BuildContext context, Animation<double> animation,
                 Animation<double> secondaryAnimation) {
               return Center(
                 child: Material(
@@ -62,7 +74,10 @@ class LockedQuestionExpansionTileChild extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
                     child: Text(
-                      'All previous questions must be answered before this question can be answered',
+                      Timestamp.now().millisecondsSinceEpoch <
+                              question.questionTimestamp.millisecondsSinceEpoch
+                          ? 'This question will unlock after $date at $time'
+                          : 'All previous questions must be answered before this question can be answered',
                       style: TextStyle(
                         color: Colors.grey[700],
                         fontWeight: FontWeight.bold,

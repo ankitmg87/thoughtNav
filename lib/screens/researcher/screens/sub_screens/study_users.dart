@@ -15,11 +15,9 @@ import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.d
 
 class StudyUsers extends StatefulWidget {
   final String studyUID;
-  final List<Group> groups;
   final FirebaseFirestoreService firebaseFirestoreService;
 
-  const StudyUsers(
-      {Key key, this.studyUID, this.firebaseFirestoreService, this.groups})
+  const StudyUsers({Key key, this.studyUID, this.firebaseFirestoreService})
       : super(key: key);
 
   @override
@@ -31,6 +29,8 @@ class _StudyUsersState extends State<StudyUsers> {
 
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
+
+  final _searchFocusNode = FocusNode();
 
   bool _participantsVisible = true;
   bool _clientsVisible = false;
@@ -52,9 +52,9 @@ class _StudyUsersState extends State<StudyUsers> {
   Future<void> _futureGroups;
 
   Future<void> _getGroups() async {
-    _groupsList = await _researcherAndModeratorFirestoreService.getGroups(widget.studyUID);
+    _groupsList = await _researcherAndModeratorFirestoreService
+        .getGroups(widget.studyUID);
   }
-
 
   Stream<QuerySnapshot> _getParticipantsStream() {
     return _researcherAndModeratorFirestoreService
@@ -141,36 +141,43 @@ class _StudyUsersState extends State<StudyUsers> {
     });
   }
 
-  FutureBuilder<void> _participantsFutureBuilder(Future<void> future) {
-    return FutureBuilder<void>(
-      future: future,
-      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+  StreamBuilder<QuerySnapshot> _participantsStreamBuilder(
+      Stream<QuerySnapshot> participantsStream) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: participantsStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
-            return Center(
-              child: Text('Some error occurred'),
-            );
-            break;
           case ConnectionState.waiting:
-          case ConnectionState.active:
             return Center(
-              child: Text('Loading...'),
+              child: Text(
+                'Loading...',
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
+                ),
+              ),
             );
             break;
-          case ConnectionState.done:
+          case ConnectionState.active:
             return ListView.separated(
               shrinkWrap: true,
               itemCount: _groupsList.length,
               itemBuilder: (BuildContext context, int groupIndex) {
                 var groupParticipants = <Participant>[];
+                for (var participantDoc in snapshot.data.docs) {
+                  var participant = Participant.fromMap(participantDoc.data());
 
-                for (var participant in _participantsList) {
-                  if (_groupsList[groupIndex].groupName ==
-                      participant.userGroupName) {
+                  _participantsList = <Participant>[];
+
+                  _participantsList.add(participant);
+
+                  if (participant.groupUID ==
+                      _groupsList[groupIndex].groupUID) {
                     groupParticipants.add(participant);
                   }
                 }
-
                 if (groupParticipants.isNotEmpty) {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
@@ -225,165 +232,12 @@ class _StudyUsersState extends State<StudyUsers> {
               },
             );
             break;
-          default:
-            return Center(
-              child: Text(
-                'Some error occurred',
-              ),
-            );
-        }
-      },
-    );
-  }
-
-  FutureBuilder _clientsFutureBuilder() {
-    return FutureBuilder(
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-            return Center(
-              child: Text('Some error occurred'),
-            );
-            break;
-          case ConnectionState.waiting:
-          case ConnectionState.active:
-            return Center(
-              child: Text('Loading...'),
-            );
-            break;
           case ConnectionState.done:
-            return ListView.separated(
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext context, int index) {
-                return SizedBox();
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return SizedBox(
-                  height: 20.0,
-                );
-              },
-            );
+            return SizedBox();
             break;
           default:
-            return Center(
-              child: Text(
-                'Some error occurred',
-              ),
-            );
+            return SizedBox();
         }
-      },
-    );
-  }
-
-  FutureBuilder _moderatorsFutureBuilder() {
-    return FutureBuilder(
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-            return Center(
-              child: Text('Some error occurred'),
-            );
-            break;
-          case ConnectionState.waiting:
-          case ConnectionState.active:
-            return Center(
-              child: Text('Loading...'),
-            );
-            break;
-          case ConnectionState.done:
-            return ListView.separated(
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext context, int index) {
-                return SizedBox();
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return SizedBox(
-                  height: 20.0,
-                );
-              },
-            );
-            break;
-          default:
-            return Center(
-              child: Text(
-                'Some error occurred',
-              ),
-            );
-        }
-      },
-    );
-  }
-
-  StreamBuilder<QuerySnapshot> _participantsStreamBuilder(
-      Stream<QuerySnapshot> participantsStream) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: participantsStream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        return ListView.separated(
-          shrinkWrap: true,
-          itemCount: _groupsList.length,
-          itemBuilder: (BuildContext context, int groupIndex) {
-            var groupParticipants = <Participant>[];
-
-            for (var participant in _participantsList) {
-              if (_groupsList[groupIndex].groupName ==
-                  participant.userGroupName) {
-                groupParticipants.add(participant);
-              }
-            }
-            if (groupParticipants.isNotEmpty) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${_groupsList[groupIndex].groupName}',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Container(
-                    height: 1.0,
-                    color: Colors.grey[300],
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: groupParticipants.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ParticipantDetailsWidget(
-                        participant: groupParticipants[index],
-                        firebaseFirestoreService:
-                            widget.firebaseFirestoreService,
-                        studyUID: widget.studyUID,
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return SizedBox(
-                        height: 10.0,
-                      );
-                    },
-                  ),
-                ],
-              );
-            } else {
-              return SizedBox();
-            }
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              height: 20.0,
-            );
-          },
-        );
       },
     );
   }
@@ -393,7 +247,151 @@ class _StudyUsersState extends State<StudyUsers> {
     return StreamBuilder<QuerySnapshot>(
       stream: clientsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        return SizedBox();
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(
+              child: Text(
+                'Loading...',
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
+                ),
+              ),
+            );
+            break;
+          case ConnectionState.active:
+            if (snapshot.hasData) {
+              var clients = <Client>[];
+
+              for (var client in snapshot.data.docs) {
+                clients.add(Client.fromMap(client.data()));
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 10.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Clients',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Container(
+                      height: 1.0,
+                      color: Colors.grey[300],
+                    ),
+                    SizedBox(
+                      height: 16.0,
+                    ),
+                    ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: clients.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                clients[index].email,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Expanded(
+                              child: Text(
+                                clients[index].firstName,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Expanded(
+                              child: Text(
+                                clients[index].lastName,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Expanded(
+                              child: Text(
+                                clients[index].phone ?? '',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            InkWell(
+                              child: Container(
+                                padding: EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: PROJECT_LIGHT_GREEN,
+                                ),
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.grey[700],
+                                  size: 16.0,
+                                ),
+                              ),
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                            ),
+                          ],
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return SizedBox(
+                          height: 10.0,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return SizedBox();
+            }
+            break;
+          case ConnectionState.done:
+            return SizedBox();
+            break;
+          default:
+            return SizedBox();
+        }
       },
     );
   }
@@ -403,7 +401,298 @@ class _StudyUsersState extends State<StudyUsers> {
     return StreamBuilder<QuerySnapshot>(
       stream: moderatorsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        return SizedBox();
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(
+              child: Text(
+                'Loading...',
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
+                ),
+              ),
+            );
+            break;
+          case ConnectionState.active:
+            if (snapshot.hasData) {
+              var moderatorAssignedToThisStudy = <Moderator>[];
+              var moderatorsNotAssignedToThisStudy = <Moderator>[];
+
+              for (var moderatorSnapshot in snapshot.data.docs) {
+                var moderator = Moderator.fromMap(moderatorSnapshot.data());
+
+                if (moderator.assignedStudies.contains(widget.studyUID)) {
+                  moderatorAssignedToThisStudy.add(moderator);
+                } else {
+                  moderatorsNotAssignedToThisStudy.add(moderator);
+                }
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 10.0,
+                ),
+                child: ListView(
+                  children: [
+                    moderatorAssignedToThisStudy.isEmpty
+                        ? SizedBox()
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Assigned to this study:',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Container(
+                                height: 1.0,
+                                color: Colors.grey[300],
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: moderatorAssignedToThisStudy.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          moderatorAssignedToThisStudy[index]
+                                              .email,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          moderatorAssignedToThisStudy[index]
+                                              .firstName,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          moderatorAssignedToThisStudy[index]
+                                              .lastName,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          moderatorAssignedToThisStudy[index]
+                                                  .phone ??
+                                              '',
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      InkWell(
+                                        child: Container(
+                                          padding: EdgeInsets.all(8.0),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: PROJECT_LIGHT_GREEN,
+                                          ),
+                                          child: Icon(
+                                            Icons.edit,
+                                            color: Colors.grey[700],
+                                            size: 16.0,
+                                          ),
+                                        ),
+                                        splashColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        focusColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                      ),
+                                    ],
+                                  );
+                                },
+                                separatorBuilder:
+                                    (BuildContext context, int index) {
+                                  return SizedBox(
+                                    height: 10.0,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    moderatorsNotAssignedToThisStudy.isEmpty
+                        ? SizedBox()
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Not assigned to this study:',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Container(
+                                height: 1.0,
+                                color: Colors.grey[300],
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount:
+                                    moderatorsNotAssignedToThisStudy.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          moderatorsNotAssignedToThisStudy[
+                                                  index]
+                                              .email,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          moderatorsNotAssignedToThisStudy[
+                                                  index]
+                                              .firstName,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          moderatorsNotAssignedToThisStudy[
+                                                  index]
+                                              .lastName,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          moderatorsNotAssignedToThisStudy[
+                                                      index]
+                                                  .phone ??
+                                              '',
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      InkWell(
+                                        child: Container(
+                                          padding: EdgeInsets.all(8.0),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: PROJECT_LIGHT_GREEN,
+                                          ),
+                                          child: Icon(
+                                            Icons.edit,
+                                            color: Colors.grey[700],
+                                            size: 16.0,
+                                          ),
+                                        ),
+                                        splashColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        focusColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                      ),
+                                    ],
+                                  );
+                                },
+                                separatorBuilder:
+                                    (BuildContext context, int index) {
+                                  return SizedBox(
+                                    height: 10.0,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                  ],
+                ),
+              );
+            } else {
+              return SizedBox();
+            }
+            break;
+          case ConnectionState.done:
+            return SizedBox();
+            break;
+          default:
+            return SizedBox();
+        }
       },
     );
   }
@@ -464,7 +753,7 @@ class _StudyUsersState extends State<StudyUsers> {
             case ConnectionState.none:
             case ConnectionState.waiting:
             case ConnectionState.active:
-              return SizedBox();
+              return Text('Loading');
               break;
             case ConnectionState.done:
               return Padding(
@@ -846,10 +1135,183 @@ class _StudyUsersState extends State<StudyUsers> {
               );
               break;
             default:
-              return SizedBox();
+              return Text('Error');
           }
         },
       ),
+    );
+  }
+
+  FutureBuilder<void> _participantsFutureBuilder(Future<void> future) {
+    return FutureBuilder<void>(
+      future: future,
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Center(
+              child: Text('Some error occurred'),
+            );
+            break;
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            return Center(
+              child: Text('Loading...'),
+            );
+            break;
+          case ConnectionState.done:
+            return ListView.separated(
+              shrinkWrap: true,
+              itemCount: _groupsList.length,
+              itemBuilder: (BuildContext context, int groupIndex) {
+                var groupParticipants = <Participant>[];
+
+                for (var participant in _participantsList) {
+                  if (_groupsList[groupIndex].groupName ==
+                      participant.userGroupName) {
+                    groupParticipants.add(participant);
+                  }
+                }
+
+                if (groupParticipants.isNotEmpty) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${_groupsList[groupIndex].groupName}',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Container(
+                        height: 1.0,
+                        color: Colors.grey[300],
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: groupParticipants.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ParticipantDetailsWidget(
+                            participant: groupParticipants[index],
+                            firebaseFirestoreService:
+                                widget.firebaseFirestoreService,
+                            studyUID: widget.studyUID,
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 10.0,
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                } else {
+                  return SizedBox();
+                }
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(
+                  height: 20.0,
+                );
+              },
+            );
+            break;
+          default:
+            return Center(
+              child: Text(
+                'Some error occurred',
+              ),
+            );
+        }
+      },
+    );
+  }
+
+  FutureBuilder _clientsFutureBuilder() {
+    return FutureBuilder(
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Center(
+              child: Text('Some error occurred'),
+            );
+            break;
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            return Center(
+              child: Text('Loading...'),
+            );
+            break;
+          case ConnectionState.done:
+            return ListView.separated(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext context, int index) {
+                return SizedBox();
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(
+                  height: 20.0,
+                );
+              },
+            );
+            break;
+          default:
+            return Center(
+              child: Text(
+                'Some error occurred',
+              ),
+            );
+        }
+      },
+    );
+  }
+
+  FutureBuilder _moderatorsFutureBuilder() {
+    return FutureBuilder(
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Center(
+              child: Text('Some error occurred'),
+            );
+            break;
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            return Center(
+              child: Text('Loading...'),
+            );
+            break;
+          case ConnectionState.done:
+            return ListView.separated(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext context, int index) {
+                return SizedBox();
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(
+                  height: 20.0,
+                );
+              },
+            );
+            break;
+          default:
+            return Center(
+              child: Text(
+                'Some error occurred',
+              ),
+            );
+        }
+      },
     );
   }
 }

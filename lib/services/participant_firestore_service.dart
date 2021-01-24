@@ -76,6 +76,12 @@ class ParticipantFirestoreService {
         'totalResponses': responses.docs.length,
       },
     );
+
+
+    var totalStudyResponses = await getStudyDetail(studyUID, 'totalResponses');
+
+    await updateStudyDetail(studyUID, 'totalResponses', totalStudyResponses + 1);
+
     return response;
   }
 
@@ -247,6 +253,10 @@ class ParticipantFirestoreService {
 
     await addCommentNotification(
         studyUID, respondedParticipantUID, commentNotification);
+
+    var studyTotalComments = await getStudyDetail(studyUID, 'totalComments');
+
+    await updateStudyDetail(studyUID, 'totalComments', studyTotalComments + 1);
 
     return comment;
   }
@@ -525,6 +535,16 @@ class ParticipantFirestoreService {
         .snapshots();
   }
 
-// Stream<QuerySnapshot> streamComments(String studyUID, String topicUID, String questionUID, String )
+  Future<int> getStudyDetail(String studyUID, String key) async {
+    var studySnapshot = await _studiesReference.doc(studyUID).get();
+    var detail = studySnapshot.data()[key];
+    return int.parse(detail);
+  }
+
+  Future<void> updateStudyDetail(String studyUID, String key, int value) async {
+    await _studiesReference.doc(studyUID).update({
+      key: value,
+    });
+  }
 
 }

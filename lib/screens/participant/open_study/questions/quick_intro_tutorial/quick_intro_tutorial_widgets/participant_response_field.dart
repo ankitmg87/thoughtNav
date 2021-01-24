@@ -60,6 +60,8 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
   bool _uploadingVideo = false;
   bool _mediaPicked = false;
 
+  bool _smartphoneScreen;
+
   NetworkImage _pickedImage;
 
   VideoPlayerController _videoPlayerController;
@@ -137,7 +139,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
 
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController,
-        autoPlay: true,
+        autoPlay: false,
         looping: true,
         showControls: false,
       );
@@ -154,7 +156,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
     }
   }
 
-  void _showMediaPickerDialog() async {
+  void _showMediaPickerDialog(bool smartphoneScreen) async {
     await showGeneralDialog(
       context: context,
       barrierLabel: 'Media Picker',
@@ -171,29 +173,47 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                     borderRadius: BorderRadius.circular(10.0)),
                 child: Container(
                   constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.3),
+                      maxWidth: MediaQuery.of(context).size.width * 0.4),
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
                     child: _uploadingVideo || _uploadingImage
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(
-                                width: 20.0,
-                              ),
-                              Text(
-                                _uploadingVideo
-                                    ? 'Uploading Video'
-                                    : 'Uploading Image',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14.0,
-                                ),
-                              ),
-                            ],
-                          )
+                        ? _smartphoneScreen ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Text(
+                          _uploadingVideo
+                              ? 'Uploading Video'
+                              : 'Uploading Image',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ],
+                    ) : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          width: 20.0,
+                        ),
+                        Text(
+                          _uploadingVideo
+                              ? 'Uploading Video'
+                              : 'Uploading Image',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ],
+                    )
                         : Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -282,16 +302,14 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
     _studyUID = getStorage.read('studyUID');
     _participantUID = getStorage.read('participantUID');
 
-    print(widget.response.questionHasMedia);
-
-    // _response = Response(
-    //   questionHasMedia: widget.question.hasMedia,
-    // );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    _smartphoneScreen = MediaQuery.of(context).size.width < MediaQuery.of(context).size.height;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30.0),
       child: Card(
@@ -349,7 +367,125 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                       borderRadius: BorderRadius.circular(10.0),
                       color: Colors.grey[100],
                     ),
-                    child: Row(
+                    child: _smartphoneScreen ? Column(
+                      children: [
+                        TextFormField(
+                          minLines: 3,
+                          maxLines: 20,
+                          controller: widget.responseController,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            hintText: 'Write your response here',
+                          ),
+                          onChanged: (responseStatement) {
+                            setState(() {
+                              widget.response.responseStatement = responseStatement;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          width: widget.question.allowImage || widget.question.allowVideo ? 20.0 : 0.0,
+                        ),
+                        widget.response.questionHasMedia
+                            ? _mediaPicked
+                            ? widget.response.mediaType == 'image'
+                            ? CachedNetworkImage(
+                          imageUrl: widget.response.mediaURL,
+                          imageBuilder: (context, imageProvider) {
+                            return Align(
+                              child: InkWell(
+                                onTap: () {
+                                  _showMediaPickerDialog(_smartphoneScreen);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(
+                                          10.0),
+                                      color: Colors.white),
+                                  constraints: BoxConstraints(
+                                    maxHeight: 200.0,
+                                    maxWidth: 300.0,
+                                  ),
+                                  padding: EdgeInsets.all(10.0),
+                                  child: ClipRRect(
+                                    borderRadius:
+                                    BorderRadius.circular(
+                                        10.0),
+                                    child: Image(
+                                      fit: BoxFit.cover,
+                                      image: imageProvider,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                            : Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                            BorderRadius.circular(10.0),
+                          ),
+                          padding: EdgeInsets.all(10.0),
+                          constraints: BoxConstraints(
+                            maxHeight: 200.0,
+                            maxWidth: 300.0,
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              _showMediaPickerDialog(_smartphoneScreen);
+                            },
+                            child: Chewie(
+                              controller: _chewieController,
+                            ),
+                          ),
+                        )
+                            : InkWell(
+                          onTap: () {
+                            _showMediaPickerDialog(_smartphoneScreen);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                              BorderRadius.circular(10.0),
+                              border: Border.all(
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.add_circle_outline,
+                                  color: Colors.grey[900],
+                                  size: 16.0,
+                                ),
+                                SizedBox(
+                                  width: 20.0,
+                                ),
+                                Text(
+                                  'Image/Video',
+                                  style: TextStyle(
+                                    color: Colors.grey[900],
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                            : SizedBox(),
+                      ],
+                    ) : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
@@ -384,7 +520,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                                           return Align(
                                             child: InkWell(
                                               onTap: () {
-                                                _showMediaPickerDialog();
+                                                _showMediaPickerDialog(_smartphoneScreen);
                                               },
                                               child: Container(
                                                 decoration: BoxDecoration(
@@ -424,7 +560,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                                         ),
                                         child: InkWell(
                                           onTap: () {
-                                            _showMediaPickerDialog();
+                                            _showMediaPickerDialog(_smartphoneScreen);
                                           },
                                           child: Chewie(
                                             controller: _chewieController,
@@ -433,7 +569,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                                       )
                                 : InkWell(
                                     onTap: () {
-                                      _showMediaPickerDialog();
+                                      _showMediaPickerDialog(_smartphoneScreen);
                                     },
                                     child: Container(
                                       padding: EdgeInsets.all(10.0),
@@ -470,7 +606,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                                   )
                             : SizedBox(),
                       ],
-                    ),
+                    ) ,
                   ),
                   SizedBox(
                     height: 20.0,

@@ -50,6 +50,18 @@ class ResearcherAndModeratorFirestoreService {
     });
   }
 
+  Future<int> getStudyDetail(String studyUID, String key) async {
+    var studySnapshot = await _studiesReference.doc(studyUID).get();
+    var detail = studySnapshot.data()[key];
+    return int.parse(detail);
+  }
+
+  Future<void> updateStudyDetail(String studyUID, String key, int value) async {
+    await _studiesReference.doc(studyUID).update({
+      key: value,
+    });
+  }
+
   Future<Group> createGroup(String studyUID, int index) async {
     var group = Group(
       groupIndex: index,
@@ -357,6 +369,11 @@ class ResearcherAndModeratorFirestoreService {
         .collection(_PARTICIPANTS_COLLECTION)
         .doc(participant.participantUID)
         .set(participant.toMap());
+
+    var totalParticipants = await getStudyDetail(studyUID, 'totalParticipants');
+
+    await updateStudyDetail(studyUID, 'totalParticipants', totalParticipants + 1);
+
   }
 
   Future<void> createClient(String studyUID, Client client) async {
@@ -508,75 +525,6 @@ class ResearcherAndModeratorFirestoreService {
         .snapshots();
   }
 
-  Future<List<Topic>> generateReport(String studyUID) async {
-    var topics = <Topic>[];
-
-    var topicsSnapshot = await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .orderBy('topicNumber')
-        .get();
-
-    for (var topicSnapshot in topicsSnapshot.docs) {
-      topics.add(Topic.fromMap(topicSnapshot.data()));
-      print('Here');
-    }
-
-    for (var topic in topics) {
-      var questionsSnapshot = await _studiesReference
-          .doc(studyUID)
-          .collection(_TOPICS_COLLECTION)
-          .doc(topic.topicUID)
-          .collection(_QUESTIONS_COLLECTION)
-          .orderBy('questionNumber')
-          .get();
-
-      for (var questionSnapshot in questionsSnapshot.docs) {
-        topic.questions.add(Question.fromMap(questionSnapshot.data()));
-        print('Here 2');
-      }
-
-      for (var question in topic.questions) {
-        var responsesSnapshot = await _studiesReference
-            .doc(studyUID)
-            .collection(_TOPICS_COLLECTION)
-            .doc(topic.topicUID)
-            .collection(_QUESTIONS_COLLECTION)
-            .doc(question.questionUID)
-            .collection(_RESPONSES_COLLECTION)
-            .orderBy('responseTimestamp')
-            .get();
-
-        for (var responseSnapshot in responsesSnapshot.docs) {
-          question.responses.add(Response.fromMap(responseSnapshot.data()));
-          print('Here 3');
-        }
-
-        for (var response in question.responses) {
-          var commentsSnapshot = await _studiesReference
-              .doc(studyUID)
-              .collection(_TOPICS_COLLECTION)
-              .doc(topic.topicUID)
-              .collection(_QUESTIONS_COLLECTION)
-              .doc(question.questionUID)
-              .collection(_RESPONSES_COLLECTION)
-              .doc(response.responseUID)
-              .collection(_COMMENTS_COLLECTION)
-              .orderBy('commentTimestamp')
-              .get();
-
-          for (var commentSnapshot in commentsSnapshot.docs) {
-            response.commentStatements
-                .add(Comment.fromMap(commentSnapshot.data()));
-            print('Here 4');
-          }
-        }
-      }
-    }
-
-    return topics;
-  }
-
   Future<void> saveIntroductionMessage(
       String studyUID, String introductionMessage) async {
     await _studiesReference.doc(studyUID).update({
@@ -662,6 +610,11 @@ class ResearcherAndModeratorFirestoreService {
         responseUID,
         comment.commentUID,
         moderatorCommentNotification);
+
+    var totalComments = await getStudyDetail(studyUID, 'totalComments');
+
+    await updateStudyDetail(studyUID, 'totalComments', totalComments + 1);
+
   }
 
   Future<void> postModeratorCommentNotification(
@@ -694,6 +647,11 @@ class ResearcherAndModeratorFirestoreService {
         .add(insight.toMap(insight));
 
     await postInsightNotification(studyUID, insight);
+
+
+    var totalInsights = await getStudyDetail(studyUID, 'totalInsights');
+
+    await updateStudyDetail(studyUID, 'totalInsights', totalInsights + 1);
   }
 
   Future<void> postInsightNotification(String studyUID, Insight insight) async {
@@ -788,4 +746,74 @@ class ResearcherAndModeratorFirestoreService {
     });
   }
 
+  Future<List<Topic>> generateReport(String studyUID) async {
+    var topics = <Topic>[];
+
+    var topicsSnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .orderBy('topicNumber')
+        .get();
+
+    for (var topicSnapshot in topicsSnapshot.docs) {
+      var topic = Topic.fromMap(topicSnapshot.data());
+      var questions = <Question>[];
+
+      var questionsSnapshot = await _studiesReference
+          .doc(studyUID)
+          .collection(_TOPICS_COLLECTION)
+          .doc(topic.topicUID)
+          .collection(_QUESTIONS_COLLECTION)
+          .orderBy('questionNumber')
+          .get();
+
+      for (var questionSnapshot in questionsSnapshot.docs) {
+        var question = Question.fromMap(questionSnapshot.data());
+        var responses = <Response>[];
+
+        var responsesSnapshot = await _studiesReference
+            .doc(studyUID)
+            .collection(_TOPICS_COLLECTION)
+            .doc(topic.topicUID)
+            .collection(_QUESTIONS_COLLECTION)
+            .doc(question.questionUID)
+            .collection(_RESPONSES_COLLECTION)
+            .orderBy('responseTimestamp')
+            .get();
+
+        for (var responseSnapshot in responsesSnapshot.docs) {
+          var response = Response.fromMap(responseSnapshot.data());
+          var comments = <Comment>[];
+
+          var commentsSnapshot = await _studiesReference
+              .doc(studyUID)
+              .collection(_TOPICS_COLLECTION)
+              .doc(topic.topicUID)
+              .collection(_QUESTIONS_COLLECTION)
+              .doc(question.questionUID)
+              .collection(_RESPONSES_COLLECTION)
+              .doc(response.responseUID)
+              .collection(_COMMENTS_COLLECTION)
+              .orderBy('commentTimestamp')
+              .get();
+
+          for(var commentSnapshot in commentsSnapshot.docs){
+            var comment = Comment.fromMap(commentSnapshot.data());
+            comments.add(comment);
+          }
+
+          response.commentStatements = comments;
+          responses.add(response);
+        }
+
+        question.responses = responses;
+        questions.add(question);
+      }
+
+      topic.questions = questions;
+      topics.add(topic);
+    }
+
+    return topics;
+  }
 }

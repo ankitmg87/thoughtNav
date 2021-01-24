@@ -655,14 +655,14 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
           case ConnectionState.none:
             return Center(
               child: Text(
-                'Please wait 1',
+                'Please wait',
               ),
             );
             break;
           case ConnectionState.waiting:
             return Center(
               child: Text(
-                'Please wait 2',
+                'Please wait',
               ),
             );
             break;
