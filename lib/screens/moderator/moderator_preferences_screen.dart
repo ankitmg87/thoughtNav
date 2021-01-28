@@ -160,6 +160,15 @@ class _ModeratorPreferencesScreenState
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Text(
+                      'PREFERENCES',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    SizedBox(height: 20.0,),
                     moderatorSnapshot.data.moderatorAvatar == null
                         ? InkWell(
                             onTap: () async {

@@ -6,9 +6,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/client.dart';
+import 'package:thoughtnav/screens/researcher/models/insight.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
-import 'package:thoughtnav/screens/researcher/widgets/topic_widget.dart';
 import 'package:thoughtnav/services/client_firestore_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
@@ -21,30 +22,47 @@ class ClientDashboardScreen extends StatefulWidget {
 class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
   final _clientFirestoreService = ClientFirestoreService();
 
-  final _researcherAndModeratorFirestoreService = ResearcherAndModeratorFirestoreService();
+  final _researcherAndModeratorFirestoreService =
+      ResearcherAndModeratorFirestoreService();
 
   final _firebaseFirestoreService = FirebaseFirestoreService();
 
   Study _study;
   String _studyUID;
-  //
-  // List<Topic> _topics;
+  String _clientUID;
+
+  Client _client;
+
+  Future<void> _getClient(String studyUID, String clientUID) async {
+    _client = await _clientFirestoreService.getClient(studyUID, clientUID);
+  }
 
   Future<Study> _futureStudy;
 
   Future<List<Topic>> _futureTopics;
 
-  Stream _notificationsStream;
+  Stream<QuerySnapshot> _insightsStream;
 
-
-  void _getTopics(String studyUID) {
-    _futureTopics =
-        _researcherAndModeratorFirestoreService.getTopics(studyUID);
+  Stream<QuerySnapshot> _getInsightNotificationsStream(String studyUID) {
+    return _clientFirestoreService.getClientInsightNotifications(studyUID);
   }
 
-  Future<Study> _getFutureStudy(String studyUID) async {
+  void _getTopics(String studyUID) {
+    _futureTopics = _researcherAndModeratorFirestoreService.getTopics(studyUID);
+  }
+
+  Future<Study> _getFutureStudy(String studyUID, String clientUID) async {
+    await _getClient(studyUID, clientUID);
     _study = await _researcherAndModeratorFirestoreService.getStudy(studyUID);
     return _study;
+  }
+
+  void _viewResponses(String topicUID, String questionUID) {
+    Navigator.of(context)
+        .pushNamed(CLIENT_RESPONSES_SCREEN, arguments: {
+      'questionUID': questionUID,
+      'topicUID': topicUID,
+    });
   }
 
   @override
@@ -52,10 +70,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
     var getStorage = GetStorage();
 
     _studyUID = getStorage.read('studyUID');
+    _clientUID = getStorage.read('clientUID');
 
-    _futureStudy = _getFutureStudy(_studyUID);
+    _futureStudy = _getFutureStudy(_studyUID, _clientUID);
     _getTopics(_studyUID);
 
+    _insightsStream = _getInsightNotificationsStream(_studyUID);
 
     super.initState();
   }
@@ -84,7 +104,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
                 color: Colors.black,
                 size: 18.0,
               ),
-              onPressed: (){
+              onPressed: () {
                 Navigator.of(context).pushNamed(CLIENT_PREFERENCES_SCREEN);
               },
             ),
@@ -107,7 +127,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
     return FutureBuilder<Study>(
       future: _futureStudy,
       builder: (BuildContext context, AsyncSnapshot<Study> snapshot) {
-        switch(snapshot.connectionState){
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
             return SizedBox();
             break;
@@ -137,49 +157,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: FutureBuilder(
-                              future: _futureTopics,
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<List<Topic>> snapshot) {
-                                switch (snapshot.connectionState) {
-                                  case ConnectionState.none:
-                                    return SizedBox();
-                                    break;
-                                  case ConnectionState.waiting:
-                                    return SizedBox();
-                                    break;
-                                  case ConnectionState.active:
-                                    return SizedBox();
-                                    break;
-                                  case ConnectionState.done:
-                                    if (snapshot.hasData) {
-                                      return ListView.separated(
-                                        itemCount: snapshot.data.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return TopicWidget(
-                                            studyUID: _studyUID,
-                                            topic: snapshot.data[index],
-                                            firebaseFirestoreService:
-                                            _firebaseFirestoreService,
-                                          );
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) {
-                                          return SizedBox(
-                                            height: 20.0,
-                                          );
-                                        },
-                                      );
-                                    } else {
-                                      return SizedBox();
-                                    }
-                                    break;
-                                  default:
-                                    return SizedBox();
-                                }
-                              },
-                            ),
+                            child: _buildTopicsFutureBuilder(_futureTopics),
                           ),
                           SizedBox(
                             width: 30.0,
@@ -188,82 +166,31 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
                             height: double.maxFinite,
                             width: MediaQuery.of(context).size.width * 0.35,
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Text(
                                   'Insights',
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16.0,
+                                    color: Colors.grey[700],
+                                    fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Divider(),
+                                SizedBox(
+                                  height: 10.0,
+                                ),
+                                Container(
+                                  height: 1.0,
+                                  color: Colors.grey[300],
+                                ),
+                                SizedBox(
+                                  height: 10.0,
+                                ),
                                 Expanded(
-                                  child: StreamBuilder(
-                                    stream: _notificationsStream,
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<dynamic> snapshot) {
-                                      switch (snapshot.connectionState) {
-                                        case ConnectionState.none:
-                                          if (snapshot.hasError) {
-                                            print(snapshot.error);
-                                          }
-                                          return SizedBox();
-                                          break;
-                                        case ConnectionState.waiting:
-                                        case ConnectionState.active:
-                                          if (snapshot.hasData) {
-                                            var notifications =
-                                                snapshot.data.documents;
-
-                                            return ListView.separated(
-                                              itemBuilder:
-                                                  (BuildContext context, int index) {
-                                                return _DesktopNotificationWidget(
-                                                  time: '5:38 pm',
-                                                  participantAvatar:
-                                                  notifications[index]
-                                                  ['participantAvatar'],
-                                                  participantAlias:
-                                                  notifications[index]
-                                                  ['participantAlias'],
-                                                  questionNumber: notifications[index]
-                                                  ['questionNumber'],
-                                                  questionTitle: notifications[index]
-                                                  ['questionTitle'],
-                                                );
-                                              },
-                                              separatorBuilder:
-                                                  (BuildContext context, int index) {
-                                                return SizedBox(
-                                                  height: 10.0,
-                                                );
-                                              },
-                                              itemCount: notifications.length,
-                                            );
-                                          } else {
-                                            return SizedBox(
-                                              child: Text('Loading...'),
-                                            );
-                                          }
-                                          break;
-                                        case ConnectionState.done:
-                                          if (snapshot.hasError) {
-                                            print(snapshot.error);
-                                          }
-                                          return _StudyDetailsBar();
-                                          break;
-                                        default:
-                                          if (snapshot.hasError) {
-                                            print(snapshot.error);
-                                          }
-                                          return SizedBox();
-                                      }
-                                    },
-                                  ),
+                                  child:
+                                      _buildInsightNotificationsStreamBuilder(
+                                          _insightsStream),
                                 ),
                               ],
                             ),
@@ -283,7 +210,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
     );
   }
 
-  FutureBuilder<List<Topic>> _buildTopicsFutureBuilder(Future<List<Topic>> getTopicsFuture) {
+  FutureBuilder<List<Topic>> _buildTopicsFutureBuilder(
+      Future<List<Topic>> getTopicsFuture) {
     return FutureBuilder<List<Topic>>(
       future: getTopicsFuture,
       builder: (BuildContext context, AsyncSnapshot<List<Topic>> snapshot) {
@@ -295,7 +223,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
               child: Text(
                 'Loading Topics...',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.grey[700],
                   fontWeight: FontWeight.bold,
                   fontSize: 12.0,
                 ),
@@ -306,9 +234,6 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 20.0,
-                ),
                 Text(
                   'Topics',
                   style: TextStyle(
@@ -350,102 +275,147 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
           default:
             return Center(
               child: Text(
-                  'Something went wrong. Please contact the administrator'),
+                'Something went wrong. Please contact the administrator',
+              ),
             );
         }
       },
     );
   }
 
-  StreamBuilder _buildNotificationsStreamBuilder(
-      Stream getNotificationsStream) {
+  StreamBuilder<QuerySnapshot> _buildInsightNotificationsStreamBuilder(
+      Stream<QuerySnapshot> insightNotificationsStream) {
     return StreamBuilder(
-      stream: getNotificationsStream,
-      builder: (BuildContext context,
-          AsyncSnapshot<dynamic> snapshot) {
+      stream: insightNotificationsStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return SizedBox();
-            break;
           case ConnectionState.waiting:
+            return Center(
+              child: Text('Loading...'),
+            );
+            break;
           case ConnectionState.active:
             if (snapshot.hasData) {
-              var notifications =
-                  snapshot.data.documents;
+              if (snapshot.data.docs.isNotEmpty) {
+                var insights = <Insight>[];
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Text(
-                    'Study Activity',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Container(
-                    height: 0.5,
-                    color: Colors.grey[300],
-                    width: double.maxFinite,
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      itemBuilder:
-                          (BuildContext context, int index) {
-                        return _DesktopNotificationWidget(
-                          //time: notifications[index]['time'],
-                          participantAvatar:
-                          notifications[index]
-                          ['participantAvatar'],
-                          participantAlias:
-                          notifications[index]
-                          ['participantAlias'],
-                          questionNumber: notifications[index]
-                          ['questionNumber'],
-                          questionTitle: notifications[index]
-                          ['questionTitle'],
-                        );
+                for (var insightSnapshot in snapshot.data.docs) {
+                  var insight = Insight.fromMap(insightSnapshot.data());
+                  insights.add(insight);
+                }
+
+                return ListView.separated(
+                  itemCount: insights.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      focusColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: (){
+                        _viewResponses(insights[index].topicUID, insights[index].questionUID);
                       },
-                      separatorBuilder:
-                          (BuildContext context, int index) {
-                        return SizedBox(
-                          height: 10.0,
-                        );
-                      },
-                      itemCount: notifications.length,
-                    ),
-                  ),
-                ],
-              );
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          children: [
+                            insights[index].avatarURL != null && insights[index].avatarURL != 'null'
+                                ? CachedNetworkImage(
+                                    imageUrl: insights[index].avatarURL,
+                                    imageBuilder: (context, provider) {
+                                      return Container(
+                                        width: 30.0,
+                                        height: 30.0,
+                                        padding: EdgeInsets.all(8.0),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: PROJECT_LIGHT_GREEN,
+                                        ),
+                                        child: Image(
+                                          image: provider,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Container(
+                                    width: 30.0,
+                                    height: 30.0,
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: PROJECT_LIGHT_GREEN,
+                                    ),
+                                    child: Image(
+                                      image: AssetImage(
+                                        'images/researcher_images/researcher_dashboard/participant_icon.png',
+                                      ),
+                                    ),
+                                  ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: insights[index].name ?? 'Mike Courtney',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ' gained a new insight in ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '${insights[index].questionNumber} ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '${insights[index].questionTitle}.',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox();
+                  },
+                );
+              } else {
+                return Center(
+                  child: Text('No insights yet'),
+                );
+              }
             } else {
-              return SizedBox(
-                child: Text('Loading...'),
-              );
+              return SizedBox();
             }
             break;
           case ConnectionState.done:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
-            return _StudyDetailsBar();
+            return Center(
+              child: Text(
+                'Something went wrong',
+              ),
+            );
             break;
           default:
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
             return SizedBox();
         }
       },
@@ -477,7 +447,7 @@ class _StudyDetailsBar extends StatefulWidget {
 
 class __StudyDetailsBarState extends State<_StudyDetailsBar> {
   final _researcherAndModeratorFirestoreService =
-  ResearcherAndModeratorFirestoreService();
+      ResearcherAndModeratorFirestoreService();
 
   int _activeParticipants = 0;
   int _allParticipants = 1;
@@ -608,7 +578,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                               stream: _activeParticipantsStream,
                               builder: (BuildContext context,
                                   AsyncSnapshot<QuerySnapshot>
-                                  activeParticipantsSnapshot) {
+                                      activeParticipantsSnapshot) {
                                 switch (activeParticipantsSnapshot
                                     .connectionState) {
                                   case ConnectionState.none:
@@ -625,12 +595,12 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                             activeParticipantsSnapshot
                                                 .data.docs.length;
                                         var percent = (_activeParticipants /
-                                            _allParticipants) *
+                                                _allParticipants) *
                                             100;
                                         return Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               '${percent.ceil()} % active participants',
@@ -642,7 +612,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                             ),
                                             ClipRRect(
                                               borderRadius:
-                                              BorderRadius.circular(20.0),
+                                                  BorderRadius.circular(20.0),
                                               child: LinearPercentIndicator(
                                                 lineHeight: 30.0,
                                                 percent: _activeParticipants /
@@ -651,7 +621,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                                     horizontal: 0.0),
                                                 backgroundColor: Colors.black12,
                                                 progressColor:
-                                                Color(0xFF437FEF),
+                                                    Color(0xFF437FEF),
                                               ),
                                             ),
                                           ],
@@ -660,7 +630,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                         return Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               '0 % active participants',
@@ -672,7 +642,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                             ),
                                             ClipRRect(
                                               borderRadius:
-                                              BorderRadius.circular(20.0),
+                                                  BorderRadius.circular(20.0),
                                               child: LinearPercentIndicator(
                                                 lineHeight: 30.0,
                                                 percent: _activeParticipants /
@@ -681,7 +651,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                                     horizontal: 0.0),
                                                 backgroundColor: Colors.black12,
                                                 progressColor:
-                                                Color(0xFF437FEF),
+                                                    Color(0xFF437FEF),
                                               ),
                                             ),
                                           ],
@@ -691,7 +661,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                       return Column(
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'No % active participants',
@@ -703,7 +673,7 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                           ),
                                           ClipRRect(
                                             borderRadius:
-                                            BorderRadius.circular(20.0),
+                                                BorderRadius.circular(20.0),
                                             child: LinearPercentIndicator(
                                               lineHeight: 30.0,
                                               percent: _activeParticipants /
@@ -744,9 +714,9 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                   child: LinearPercentIndicator(
                                     lineHeight: 30.0,
                                     percent:
-                                    _activeParticipants / _allParticipants,
+                                        _activeParticipants / _allParticipants,
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 0.0),
+                                        EdgeInsets.symmetric(horizontal: 0.0),
                                     backgroundColor: Colors.black12,
                                     progressColor: Color(0xFF437FEF),
                                   ),
@@ -772,9 +742,9 @@ class __StudyDetailsBarState extends State<_StudyDetailsBar> {
                                 child: LinearPercentIndicator(
                                   lineHeight: 30.0,
                                   percent:
-                                  _activeParticipants / _allParticipants,
+                                      _activeParticipants / _allParticipants,
                                   padding:
-                                  EdgeInsets.symmetric(horizontal: 0.0),
+                                      EdgeInsets.symmetric(horizontal: 0.0),
                                   backgroundColor: Colors.black12,
                                   progressColor: Color(0xFF437FEF),
                                 ),
@@ -924,6 +894,14 @@ class _TopicWidget extends StatefulWidget {
 class __TopicWidgetState extends State<_TopicWidget> {
   bool _isExpanded = false;
 
+  void _viewResponses() {
+    Navigator.of(context)
+        .pushNamed(CLIENT_RESPONSES_SCREEN, arguments: {
+      'questionUID': widget.topic.questions.first.questionUID,
+      'topicUID': widget.topic.topicUID,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -950,17 +928,7 @@ class __TopicWidgetState extends State<_TopicWidget> {
                   FlatButton(
                     color: PROJECT_GREEN,
                     onPressed: () {
-
-                      Navigator.of(context).pushNamed(CLIENT_MODERATOR_RESPONSES_SCREEN);
-
-                      // Navigator.of(context).pushNamed(
-                      //   PARTICIPANT_RESPONSES_SCREEN,
-                      //   arguments: {
-                      //     'topicUID': widget.topic.topicUID,
-                      //     'questionUID':
-                      //     widget.topic.questions.first.questionUID,
-                      //   },
-                      // );
+                      _viewResponses();
                     },
                     child: Text(
                       'View Responses',
@@ -1053,33 +1021,37 @@ class __TopicWidgetState extends State<_TopicWidget> {
                           shrinkWrap: true,
                           itemCount: widget.topic.questions.length,
                           itemBuilder: (BuildContext context, int index) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${widget.topic.questions[index].questionNumber} ${widget.topic.questions[index].questionTitle}',
-                                  style: TextStyle(
-                                    color: PROJECT_GREEN,
-                                    fontSize: 12.0,
+                            return InkWell(
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              onTap: () {
+                                Navigator.of(context).pushNamed(
+                                    CLIENT_RESPONSES_SCREEN,
+                                    arguments: {
+                                      'questionUID': widget
+                                          .topic.questions[index].questionUID,
+                                      'topicUID': widget.topic.topicUID,
+                                    });
+                              },
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${widget.topic.questions[index].questionNumber} ${widget.topic.questions[index].questionTitle}',
+                                    style: TextStyle(
+                                      color: PROJECT_GREEN,
+                                      fontSize: 12.0,
+                                    ),
                                   ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
+                                  Icon(
                                     Icons.arrow_forward,
                                     color: PROJECT_GREEN,
-                                  ),
-                                  onPressed: () {
-                                    // Navigator.of(context).pushNamed(
-                                    //   PARTICIPANT_RESPONSES_SCREEN,
-                                    //   arguments: {
-                                    //     'topicUID': widget.topic.topicUID,
-                                    //     'questionUID': widget
-                                    //         .topic.questions[index].questionUID,
-                                    //   },
-                                    // );
-                                  },
-                                ),
-                              ],
+                                  )
+                                ],
+                              ),
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) {
@@ -1096,178 +1068,6 @@ class __TopicWidgetState extends State<_TopicWidget> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// class _DesktopNotificationWidget extends StatelessWidget {
-//   final Timestamp notificationTimestamp;
-//   final String avatarURL;
-//   final String displayName;
-//   final String questionTitle;
-//   final String topicName;
-//   final String questionNumber;
-//
-//   // final String time;
-//   // final String participantAvatar;
-//   // final String participantAlias;
-//   // final String questionNumber;
-//   // final String questionTitle;
-//
-//   const _DesktopNotificationWidget({
-//     Key key,
-//     this.notificationTimestamp,
-//     this.avatarURL,
-//     this.displayName,
-//     this.questionTitle,
-//     this.topicName,
-//     this.questionNumber,
-//   }) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 6.0),
-//       child: Row(
-//         children: [
-//           Text(
-//             '5:30 pm',
-//             style: TextStyle(
-//               color: TEXT_COLOR.withOpacity(0.6),
-//               fontSize: 13.0,
-//             ),
-//           ),
-//           SizedBox(
-//             width: 5.0,
-//           ),
-//           CachedNetworkImage(
-//             imageUrl: avatarURL,
-//             imageBuilder: (context, imageProvider) {
-//               return Container(
-//                 padding: EdgeInsets.all(6.0),
-//                 margin: EdgeInsets.symmetric(horizontal: 8.0),
-//                 decoration: BoxDecoration(
-//                   shape: BoxShape.circle,
-//                   color: PROJECT_LIGHT_GREEN,
-//                 ),
-//                 child: Image(
-//                   width: 20.0,
-//                   image: imageProvider,
-//                 ),
-//               );
-//             },
-//           ),
-//           SizedBox(
-//             width: 8.0,
-//           ),
-//           Expanded(
-//             child: Column(
-//               children: [
-//                 RichText(
-//                   textAlign: TextAlign.start,
-//                   maxLines: 2,
-//                   text: TextSpan(
-//                     style: TextStyle(
-//                         color: TEXT_COLOR.withOpacity(0.7), fontSize: 13.0),
-//                     children: [
-//                       TextSpan(
-//                           text: '$displayName responded to the question '),
-//                       TextSpan(
-//                         text: '$questionNumber $questionTitle.',
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-class _DesktopNotificationWidget extends StatelessWidget {
-  final String time;
-  final String participantAvatar;
-  final String participantAlias;
-  final String questionNumber;
-  final String questionTitle;
-
-  const _DesktopNotificationWidget({
-    Key key,
-    this.time,
-    this.participantAvatar,
-    this.participantAlias,
-    this.questionNumber,
-    this.questionTitle,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 6.0),
-      child: Row(
-        children: [
-          Text(
-            '5:40 pm',
-            style: TextStyle(
-              color: TEXT_COLOR.withOpacity(0.6),
-              fontSize: 13.0,
-            ),
-          ),
-          SizedBox(
-            width: 5.0,
-          ),
-          CachedNetworkImage(
-            imageUrl: participantAvatar,
-            imageBuilder: (context, imageProvider){
-              return Container(
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: PROJECT_LIGHT_GREEN,
-                ),
-                child: Image(
-                  width: 20.0,
-                  image: imageProvider,
-                ),
-              );
-            },
-          ),
-          SizedBox(
-            width: 8.0,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                RichText(
-                  textAlign: TextAlign.start,
-                  maxLines: 2,
-                  text: TextSpan(
-                    style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.7), fontSize: 13.0),
-                    children: [
-                      TextSpan(
-                          text: '$participantAlias responded to the question '),
-                      TextSpan(
-                        text: '$questionNumber $questionTitle.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

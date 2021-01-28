@@ -20,11 +20,11 @@ class ParticipantSmartphoneResponsesScreen extends StatefulWidget {
 
   const ParticipantSmartphoneResponsesScreen(
       {Key key,
-        this.studyUID,
-        this.participant,
-        this.topicUID,
-        this.questionUID,
-        this.studyName})
+      this.studyUID,
+      this.participant,
+      this.topicUID,
+      this.questionUID,
+      this.studyName})
       : super(key: key);
 
   @override
@@ -43,7 +43,12 @@ class _ParticipantSmartphoneResponsesScreenState
   String _topicUID;
   String _questionUID;
 
+  String _nextQuestionUID;
+  String _nextTopicUID;
+
   Question _question;
+
+  List<Topic> _studyNavigatorTopics;
 
   TextEditingController _responseController;
 
@@ -56,10 +61,10 @@ class _ParticipantSmartphoneResponsesScreenState
 
   Future<List<Topic>> _getTopics(
       String studyUID, String participantGroupUID) async {
-    var topics = await _participantFirestoreService.getParticipantTopics(
-        studyUID, participantGroupUID);
+    _studyNavigatorTopics = await _participantFirestoreService
+        .getParticipantTopics(studyUID, participantGroupUID);
 
-    return topics;
+    return _studyNavigatorTopics;
   }
 
   Future<Question> _getQuestion(String topicUID, String questionUID) async {
@@ -78,6 +83,61 @@ class _ParticipantSmartphoneResponsesScreenState
       String questionUID, String participantUID) {
     return _participantFirestoreService.streamRespondedBy(
         studyUID, topicUID, questionUID, participantUID);
+  }
+
+  void _setNextQuestionUIDAndNextTopicUID() {
+    var topicIndex = _studyNavigatorTopics.indexWhere((topic) {
+      if (topic.topicUID == _topicUID) {
+        var questionIndex = topic.questions.indexWhere((question) {
+          if (question.questionUID == _questionUID) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (questionIndex != -1) {
+          if (topic.questions.length - 1 >= questionIndex + 1) {
+            _nextQuestionUID = topic.questions[questionIndex + 1].questionUID;
+            _nextTopicUID = topic.topicUID;
+          } else {
+            _nextQuestionUID = 'lastQuestionInThisTopic';
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    if (_nextQuestionUID == 'lastQuestionInThisTopic') {
+      if (topicIndex != -1) {
+        if (_studyNavigatorTopics.length - 1 >= topicIndex + 1) {
+          if (_studyNavigatorTopics[topicIndex + 1].isActive) {
+            _nextTopicUID = _studyNavigatorTopics[topicIndex + 1].topicUID;
+            _nextQuestionUID = _studyNavigatorTopics[topicIndex + 1]
+                .questions
+                .first
+                .questionUID;
+          } else {
+            _nextTopicUID = 'lastTopicInThisStudy';
+          }
+        } else {
+          _nextTopicUID = 'lastTopicInThisStudy';
+        }
+      }
+    }
+  }
+
+  void _continueToNextQuestion(String nextTopicUID, String nextQuestionUID) {
+    setState(() {
+      _topicUID = nextTopicUID;
+      _questionUID = nextQuestionUID;
+
+      _futureTopics = _getTopics(widget.studyUID, widget.participant.groupUID);
+      _futureQuestion = _getQuestion(nextTopicUID, nextQuestionUID);
+      _responsesStream =
+          _getResponsesStream(widget.studyUID, nextTopicUID, nextQuestionUID);
+    });
   }
 
   @override
@@ -117,245 +177,380 @@ class _ParticipantSmartphoneResponsesScreenState
               );
               break;
             case ConnectionState.done:
-              return ListView(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 10.0,
-                    color: PROJECT_GREEN.withOpacity(0.2),
-                  ),
-                  QuestionAndDescriptionContainer(
-                    screenSize: MediaQuery.of(context).size,
-                    number: _question.questionNumber,
-                    title: _question.questionTitle,
-                    description: _question.questionStatement,
-                  ),
-                  SizedBox(
-                    height: 40.0,
-                  ),
-                  StreamBuilder<DocumentSnapshot>(
-                    stream: _questionStream,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none:
-                          return SizedBox();
-                          break;
-                        case ConnectionState.waiting:
-                          return SizedBox();
-                          break;
-                        case ConnectionState.active:
-                          if (snapshot.hasData) {
-                            if (snapshot.data
-                                .data()['respondedBy']
-                                .contains(widget.participant.participantUID)) {
-                              _participantResponded = true;
-                              return Text(
-                                'Your response has been posted.\n'
-                                    'Please read and comment on other posts.\n'
-                                    'Scroll to the bottom to continue',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 10.0,
+                      color: PROJECT_GREEN.withOpacity(0.2),
+                    ),
+                    QuestionAndDescriptionContainer(
+                      screenSize: MediaQuery.of(context).size,
+                      number: _question.questionNumber,
+                      title: _question.questionTitle,
+                      description: _question.questionStatement,
+                    ),
+                    SizedBox(
+                      height: 40.0,
+                    ),
+                    StreamBuilder<DocumentSnapshot>(
+                      stream: _questionStream,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                            return SizedBox();
+                            break;
+                          case ConnectionState.waiting:
+                            return SizedBox();
+                            break;
+                          case ConnectionState.active:
+                            if (snapshot.hasData) {
+                              if (snapshot.data.data()['respondedBy'].contains(
+                                  widget.participant.participantUID)) {
+                                _participantResponded = true;
+                                return Text(
+                                  'Your response has been posted.\n'
+                                  'Please read and comment on other posts.\n'
+                                  'Scroll to the bottom to continue',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              } else {
+                                _responseController = TextEditingController();
+
+                                var response = Response(
+                                  questionHasMedia: _question.allowImage ||
+                                      _question.allowVideo,
+                                );
+
+                                return ParticipantResponseField(
+                                  studyName: widget.studyName,
+                                  participant: widget.participant,
+                                  question: _question,
+                                  topicUID: _topicUID,
+                                  responseController: _responseController,
+                                  response: response,
+                                  onTap: () async {
+                                    response.responseUID = '';
+                                    response.questionNumber =
+                                        _question.questionNumber;
+                                    response.questionTitle =
+                                        _question.questionTitle;
+                                    response.participantUID =
+                                        widget.participant.participantUID;
+                                    response.participantGroupUID =
+                                        widget.participant.groupUID;
+                                    response.participantDisplayName =
+                                        widget.participant.displayName;
+                                    response.avatarURL =
+                                        widget.participant.profilePhotoURL;
+                                    response.claps = [];
+                                    response.comments = 0;
+                                    response.hasMedia ??= false;
+                                    response.userName =
+                                        '${widget.participant.userFirstName} ${widget.participant.userLastName}';
+                                    response.responseTimestamp =
+                                        Timestamp.now();
+
+                                    await _participantFirestoreService
+                                        .postResponse(
+                                            widget.studyUID,
+                                            widget.participant.participantUID,
+                                            _topicUID,
+                                            _question.questionUID,
+                                            response);
+
+                                    setState(() {
+                                      _responseController = null;
+                                      _futureTopics = _getTopics(
+                                          widget.studyUID,
+                                          widget.participant.groupUID);
+                                    });
+                                  },
+                                );
+                              }
                             } else {
-                              _responseController = TextEditingController();
-
-                              var response = Response(
-                                questionHasMedia: _question.allowImage ||
-                                    _question.allowVideo,
-                              );
-
-                              return ParticipantResponseField(
-                                studyName: widget.studyName,
-                                participant: widget.participant,
-                                question: _question,
-                                topicUID: _topicUID,
-                                responseController: _responseController,
-                                response: response,
-                                onTap: () async {
-                                  response.responseUID = '';
-                                  response.questionNumber =
-                                      _question.questionNumber;
-                                  response.questionTitle =
-                                      _question.questionTitle;
-                                  response.participantUID =
-                                      widget.participant.participantUID;
-                                  response.participantGroupUID = widget.participant.groupUID;
-                                  response.participantDisplayName =
-                                      widget.participant.displayName;
-                                  response.avatarURL =
-                                      widget.participant.profilePhotoURL;
-                                  response.claps = [];
-                                  response.comments = 0;
-                                  response.hasMedia ??= false;
-                                  response.userName =
-                                  '${widget.participant.userFirstName} ${widget.participant.userLastName}';
-                                  response.responseTimestamp = Timestamp.now();
-
-                                  await _participantFirestoreService
-                                      .postResponse(widget.studyUID, _topicUID,
-                                      _question.questionUID, response);
-
-                                  setState(() {
-                                    _responseController = null;
-                                    _futureTopics = _getTopics(widget.studyUID,
-                                        widget.participant.groupUID);
-                                  });
-                                },
-                              );
+                              return Text('1');
                             }
-                          } else {
-                            return Text('1');
-                          }
-                          break;
-                        case ConnectionState.done:
-                          return SizedBox();
-                          break;
-                        default:
-                          return SizedBox();
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  StreamBuilder<QuerySnapshot>(
-                    stream: _responsesStream,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none:
-                          return SizedBox();
-                          break;
-                        case ConnectionState.waiting:
-                        case ConnectionState.active:
-                          if (snapshot.hasData) {
-                            var responses = snapshot.data.docs;
+                            break;
+                          case ConnectionState.done:
+                            return SizedBox();
+                            break;
+                          default:
+                            return SizedBox();
+                        }
+                      },
+                    ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    StreamBuilder<QuerySnapshot>(
+                      stream: _responsesStream,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                            return SizedBox();
+                            break;
+                          case ConnectionState.waiting:
+                          case ConnectionState.active:
+                            if (snapshot.hasData) {
+                              if (_question.questionType == 'Standard') {
+                                var responses = snapshot.data.docs;
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 40.0),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              height: 1.0,
+                                              color: Colors.grey[300],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10.0,
+                                          ),
+                                          Text(
+                                            'All Responses',
+                                            style: TextStyle(
+                                              color: PROJECT_NAVY_BLUE,
+                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 20.0,
+                                    ),
+                                    ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: responses.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var response = Response.fromMap(
+                                            responses[index].data());
 
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 40.0),
-                                  child: Row(
+                                        if (responses[index]['responseUID'] !=
+                                            null) {
+                                          try {
+                                            return UserResponseWidget(
+                                              participant: widget.participant,
+                                              topicUID: _topicUID,
+                                              question: _question,
+                                              response: response,
+                                            );
+                                          } catch (e) {
+                                            print(e);
+                                            return SizedBox();
+                                          }
+                                        } else {
+                                          return SizedBox();
+                                        }
+                                      },
+                                    )
+                                  ],
+                                );
+                              } else if (_question.questionType ==
+                                  'Uninfluenced') {
+                                if (_participantResponded) {
+                                  var responses = snapshot.data.docs;
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Expanded(
-                                        child: Container(
-                                          height: 1.0,
-                                          color: Colors.grey[300],
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40.0),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                height: 1.0,
+                                                color: Colors.grey[300],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            Text(
+                                              'All Responses',
+                                              style: TextStyle(
+                                                color: PROJECT_NAVY_BLUE,
+                                                fontSize: 12.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       SizedBox(
-                                        width: 10.0,
+                                        height: 20.0,
                                       ),
-                                      Text(
-                                        'All Responses',
-                                        style: TextStyle(
-                                          color: PROJECT_NAVY_BLUE,
-                                          fontSize: 12.0,
-                                          fontWeight: FontWeight.bold,
+                                      ListView.builder(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: responses.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          var response = Response.fromMap(
+                                              responses[index].data());
+
+                                          if (responses[index]['responseUID'] !=
+                                              null) {
+                                            try {
+                                              return UserResponseWidget(
+                                                participant: widget.participant,
+                                                topicUID: _topicUID,
+                                                question: _question,
+                                                response: response,
+                                              );
+                                            } catch (e) {
+                                              print(e);
+                                              return SizedBox();
+                                            }
+                                          } else {
+                                            return SizedBox();
+                                          }
+                                        },
+                                      )
+                                    ],
+                                  );
+                                } else {
+                                  return SizedBox();
+                                }
+                              } else {
+                                if (_participantResponded) {
+                                  var responses = snapshot.data.docs;
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40.0),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                height: 1.0,
+                                                color: Colors.grey[300],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            Text(
+                                              'Response',
+                                              style: TextStyle(
+                                                color: PROJECT_NAVY_BLUE,
+                                                fontSize: 12.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
+                                      SizedBox(
+                                        height: 20.0,
+                                      ),
+                                      ListView.builder(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: responses.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          var response = Response.fromMap(
+                                              responses[index].data());
+
+                                          if (response.participantUID ==
+                                              widget
+                                                  .participant.participantUID) {
+                                            return UserResponseWidget(
+                                              participant: widget.participant,
+                                              topicUID: _topicUID,
+                                              question: _question,
+                                              response: response,
+                                            );
+                                          } else {
+                                            return SizedBox();
+                                          }
+                                        },
+                                      )
                                     ],
+                                  );
+                                } else {
+                                  return SizedBox();
+                                }
+                              }
+                            } else if (snapshot.data == null) {
+                              return Center(
+                                child: Text('No responses yet'),
+                              );
+                            } else {
+                              return Center(
+                                child: Text('No responses yet'),
+                              );
+                            }
+                            break;
+                          case ConnectionState.done:
+                          default:
+                            return Center(
+                              child: Text('No responses yet'),
+                            );
+                        }
+                      },
+                    ),
+                    SizedBox(
+                      height: 40.0,
+                    ),
+                    _participantResponded
+                        ? Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 40.0),
+                              child: FlatButton(
+                                onPressed: () {
+                                  if (_nextTopicUID == 'lastTopicInThisStudy') {
+                                    Navigator.of(context).popAndPushNamed(
+                                        PARTICIPANT_DASHBOARD_SCREEN);
+                                  } else {
+                                    _continueToNextQuestion(
+                                        _nextTopicUID, _nextQuestionUID);
+                                  }
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 10.0,
+                                    horizontal: 12.0,
+                                  ),
+                                  child: Text(
+                                    'CONTINUE',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 20.0,
-                                ),
-                                ListView.builder(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: responses.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    var response = Response.fromMap(
-                                        responses[index].data());
-
-                                    if (responses[index]['responseUID'] !=
-                                        null) {
-                                      try {
-                                        return UserResponseWidget(
-                                          participant: widget.participant,
-                                          topicUID: _topicUID,
-                                          question: _question,
-                                          response: response,
-                                        );
-                                      } catch (e) {
-                                        print(e);
-                                        return SizedBox();
-                                      }
-                                    } else {
-                                      return SizedBox();
-                                    }
-                                  },
-                                )
-                              ],
-                            );
-                          } else if (snapshot.data == null) {
-                            return Center(
-                              child: Text('No responses yet'),
-                            );
-                          } else {
-                            return Center(
-                              child: Text('No responses yet'),
-                            );
-                          }
-                          break;
-                        case ConnectionState.done:
-                        default:
-                          return Center(
-                            child: Text('No responses yet'),
-                          );
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: 40.0,
-                  ),
-                  _participantResponded
-                      ? Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 40.0),
-                      child: FlatButton(
-                        onPressed: () {
-                          // if (_nextTopicUID == 'lastTopicInThisStudy'
-                          // // _nextQuestionUID ==
-                          // //     'lastQuestionInThisStudy'
-                          // ) {
-                          //   Navigator.of(context).popAndPushNamed(
-                          //       PARTICIPANT_DASHBOARD_SCREEN);
-                          // } else {
-                          //   _continueToNextQuestion(
-                          //       _nextTopicUID, _nextQuestionUID);
-                          // }
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 10.0,
-                            horizontal: 12.0,
-                          ),
-                          child: Text(
-                            'CONTINUE',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12.0,
-                              fontWeight: FontWeight.bold,
+                                color: PROJECT_GREEN,
+                              ),
                             ),
-                          ),
-                        ),
-                        color: PROJECT_GREEN,
-                      ),
+                          )
+                        : SizedBox(),
+                    SizedBox(
+                      height: 20.0,
                     ),
-                  )
-                      : SizedBox(),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                ],
+                  ],
+                ),
               );
               break;
             default:
@@ -458,6 +653,8 @@ class _ParticipantSmartphoneResponsesScreenState
                   case ConnectionState.done:
                     if (topicsSnapshot.hasData) {
                       if (topicsSnapshot.data.isNotEmpty) {
+                        _setNextQuestionUIDAndNextTopicUID();
+
                         var topics = <Topic>[];
 
                         for (var topicSnapshot in topicsSnapshot.data) {
@@ -544,9 +741,9 @@ class _ParticipantSmartphoneResponsesScreenState
               question.respondedBy == null
                   ? Icons.arrow_forward
                   : question.respondedBy
-                  .contains(widget.participant.participantUID)
-                  ? Icons.check_circle_outline_rounded
-                  : Icons.arrow_forward,
+                          .contains(widget.participant.participantUID)
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.arrow_forward,
               color: PROJECT_GREEN,
               size: 14.0,
             ),
@@ -645,7 +842,7 @@ class _ParticipantSmartphoneResponsesScreenState
               } else {
                 if (topic.questions[questionIndex - 1].respondedBy != null) {
                   if (topic.questions[questionIndex - 1].respondedBy
-                      .contains(widget.participant.participantUID) ||
+                          .contains(widget.participant.participantUID) ||
                       topic.questions[questionIndex].isProbe) {
                     return _buildStudyNavigatorActiveQuestion(
                         topic.questions[questionIndex], topic.topicUID);

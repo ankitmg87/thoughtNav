@@ -83,7 +83,7 @@ class CommentReportWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CachedNetworkImage(
-                imageUrl: comment.avatarURL,
+                imageUrl: comment.avatarURL ?? 'images/researcher_images/researcher_dashboard/participant_icon.png',
                 imageBuilder: (avatarContext, imageProvider) {
                   return Container(
                     width: 30.0,

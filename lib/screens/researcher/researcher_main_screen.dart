@@ -238,51 +238,51 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
       ),
       centerTitle: true,
       actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: InkWell(
-              highlightColor: Colors.transparent,
-              focusColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              onTap: () {},
-              child: Stack(
-                children: [
-                  Container(
-                    child: Image(
-                      image: AssetImage(
-                        'images/researcher_images/researcher_dashboard/researcher_avatar.png',
-                      ),
-                    ),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: EdgeInsets.all(2.0),
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.menu,
-                        color: Colors.white,
-                        size: 12.0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        // Padding(
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: Center(
+        //     child: InkWell(
+        //       highlightColor: Colors.transparent,
+        //       focusColor: Colors.transparent,
+        //       hoverColor: Colors.transparent,
+        //       splashColor: Colors.transparent,
+        //       onTap: () {},
+        //       child: Stack(
+        //         children: [
+        //           Container(
+        //             child: Image(
+        //               image: AssetImage(
+        //                 'images/researcher_images/researcher_dashboard/researcher_avatar.png',
+        //               ),
+        //             ),
+        //             decoration: BoxDecoration(
+        //               shape: BoxShape.circle,
+        //             ),
+        //           ),
+        //           Positioned(
+        //             bottom: 0,
+        //             right: 0,
+        //             child: Container(
+        //               padding: EdgeInsets.all(2.0),
+        //               decoration: BoxDecoration(
+        //                 color: Colors.black,
+        //                 shape: BoxShape.circle,
+        //                 border: Border.all(
+        //                   color: Colors.white,
+        //                 ),
+        //               ),
+        //               child: Icon(
+        //                 Icons.menu,
+        //                 color: Colors.white,
+        //                 size: 12.0,
+        //               ),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

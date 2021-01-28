@@ -99,6 +99,8 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
     participant.isOnboarded = false;
     participant.isDeleted = false;
     participant.password = _masterPassword;
+    participant.responses = 0;
+    participant.comments = 0;
 
     await _researcherAndModeratorFirestoreService.createParticipant(
         studyUID, participant);
@@ -1217,7 +1219,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
   void _getMasterPassword() async {
     _masterPassword =
-        await _firebaseFirestoreService.getMasterPassword(widget.studyUID);
+        await _researcherAndModeratorFirestoreService.getMasterPassword(widget.studyUID);
   }
 
   @override

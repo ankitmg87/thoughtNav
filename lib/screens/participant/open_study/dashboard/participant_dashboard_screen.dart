@@ -25,6 +25,7 @@ import 'dashboard_widgets/desktop_dropdown_menu_options_row.dart';
 import 'dashboard_widgets/drawer_tile.dart';
 import 'dashboard_widgets/locked_task_widget.dart';
 import 'dashboard_widgets/end_drawer_expansion_tile.dart';
+import 'dashboard_widgets/new_question_notification_widget.dart';
 import 'dashboard_widgets/study_details_general_dialog_widget.dart';
 
 class ParticipantDashboardScreen extends StatefulWidget {
@@ -126,13 +127,6 @@ class _ParticipantDashboardScreenState
         }
       }
     }
-    // var studyNavigatorTopics = <Topic>[];
-    //
-    // for (var topic in _topics) {
-    //   if (topic.isActive) {
-    //     studyNavigatorTopics.add(topic);
-    //   }
-    // }
 
     setState(() {
       _studyNavigatorTopics = _topics;
@@ -1222,6 +1216,13 @@ class _ParticipantDashboardScreenState
                         );
                         break;
 
+                      case 'newQuestionNotification':
+                        var newQuestionNotification = NewQuestionNotification.fromMap(notifications[index].data());
+
+                        return NewQuestionNotificationWidget(
+                          newQuestionNotification: newQuestionNotification,
+                        );
+                        break;
                       default:
                         return SizedBox();
                     }

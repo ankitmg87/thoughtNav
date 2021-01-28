@@ -175,7 +175,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController,
         //allowFullScreen: false,
-        autoPlay: true,
+        autoPlay: false,
         looping: true,
         showControls: false,
       );
@@ -793,17 +793,6 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                 SizedBox(
                   width: 10.0,
                 ),
-                // Text(
-                //   widget.participant.displayName,
-                //   style: TextStyle(
-                //     color: Colors.grey[700],
-                //     fontSize: 14.0,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
-                // SizedBox(
-                //   width: 20.0,
-                // ),
                 Expanded(
                   child: TextFormField(
                     maxLines: 3,
@@ -834,42 +823,6 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                 SizedBox(
                   width: 10.0,
                 ),
-                // FloatingActionButton(
-                //   child: Icon(
-                //     Icons.send,
-                //     color: white,
-                //   ),
-                //   foregroundColor: PROJECT_GREEN,
-                //   disabledElevation: 4.0,
-                //   onPressed: _commentController.value.text.trim().isNotEmpty
-                //       ? () async {
-                //     setState(() {
-                //       _commentController.clear();
-                //     });
-                //
-                //     var comment = Comment(
-                //       avatarURL: widget.participant.profilePhotoURL,
-                //       displayName: widget.participant.displayName,
-                //       participantName:
-                //       '${widget.participant.userFirstName} ${widget.participant.userLastName}',
-                //       commentStatement: _commentStatement,
-                //       participantUID: widget.participant.participantUID,
-                //       commentTimestamp: Timestamp.now(),
-                //     );
-                //
-                //     await _postComment(
-                //         _studyUID,
-                //         widget.response.participantUID,
-                //         _participantUID,
-                //         widget.topicUID,
-                //         widget.question.questionUID,
-                //         widget.response.responseUID,
-                //         widget.response.questionNumber,
-                //         widget.response.questionTitle,
-                //         comment);
-                //   }
-                //       : null,
-                // ),
                 FlatButton(
                   minWidth: 0.0,
                   onPressed: _commentController.value.text.trim().isNotEmpty
@@ -949,6 +902,8 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                               : Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    snapshot.data.docs.last
+                                        .data()['avatarURL'] != null ?
                                     CachedNetworkImage(
                                       imageUrl: snapshot.data.docs.last
                                           .data()['avatarURL'],
@@ -965,12 +920,24 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                                           ),
                                         );
                                       },
+                                    ) : Container(
+                                      padding: EdgeInsets.all(4.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.indigo[100],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image(
+                                        width: 20.0,
+                                        image: AssetImage(
+                                          'images/researcher_images/researcher_dashboard/participant_icon.png'
+                                        ),
+                                      ),
                                     ),
                                     SizedBox(
                                       width: 10.0,
                                     ),
                                     Text(
-                                      '${snapshot.data.docs.last.data()['displayName']}',
+                                      '${snapshot.data.docs.last.data()['displayName'] ?? 'Mike'}',
                                       style: TextStyle(
                                         color: TEXT_COLOR,
                                         fontWeight: FontWeight.bold,

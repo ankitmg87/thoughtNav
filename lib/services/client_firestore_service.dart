@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
+import 'package:thoughtnav/screens/researcher/models/insight.dart';
 import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
@@ -10,6 +11,8 @@ const String _TOPICS_COLLECTION = 'topics';
 const String _QUESTIONS_COLLECTION = 'questions';
 const String _NOTIFICATIONS_COLLECTION = 'notifications';
 const String _CLIENTS_COLLECTION = 'clients';
+const String _INSIGHTS_COLLECTION = 'insights';
+const String _INSIGHT_NOTIFICATIONS_COLLECTION = 'insightNotifications';
 
 class ClientFirestoreService {
   final _studiesReference =
@@ -41,7 +44,7 @@ class ClientFirestoreService {
     var topicsCollectionSnapshot = await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
-        .orderBy('topicIndex')
+        .orderBy('topicNumber')
         .get();
 
     for (var topicSnapshot in topicsCollectionSnapshot.docs) {
@@ -64,7 +67,7 @@ class ClientFirestoreService {
         .collection(_TOPICS_COLLECTION)
         .doc(topicUID)
         .collection(_QUESTIONS_COLLECTION)
-        .orderBy('questionIndex')
+        .orderBy('questionNumber')
         .get();
 
     for (var questionSnapshot in questionsCollectionSnapshot.docs) {
@@ -76,13 +79,85 @@ class ClientFirestoreService {
     return questions;
   }
 
-  Stream<QuerySnapshot> getClientNotifications(String studyUID) {
+  Future<Question> getQuestion(
+      String studyUID, String topicUID, String questionUID) async {
+    var questionDocumentSnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .get();
+
+    var question = Question.fromMap(questionDocumentSnapshot.data());
+    return question;
+  }
+
+  Future<void> postInsight(String studyUID, String topicUID, String questionUID,
+      Insight insight) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_INSIGHTS_COLLECTION)
+        .add(insight.toMap());
+
+    await postInsightNotification(studyUID, insight);
+
+    var totalInsights = await getStudyDetail(studyUID, 'totalInsights');
+
+    await updateStudyDetail(studyUID, 'totalInsights', totalInsights + 1);
+  }
+
+  Future<void> postInsightNotification(String studyUID, Insight insight) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_INSIGHT_NOTIFICATIONS_COLLECTION)
+        .add(insight.toMap());
+  }
+
+  Future<dynamic> getStudyDetail(String studyUID, String key) async {
+    var studySnapshot = await _studiesReference.doc(studyUID).get();
+    var detail = studySnapshot.data()[key];
+    return detail;
+  }
+
+  Future<void> updateStudyDetail(String studyUID, String key, int value) async {
+    await _studiesReference.doc(studyUID).update({
+      key: value,
+    });
+  }
+
+  Stream<QuerySnapshot> getClientInsightNotifications(String studyUID) {
     var notificationsSnapshot = _studiesReference
         .doc(studyUID)
-        .collection(_NOTIFICATIONS_COLLECTION)
-        .orderBy('notificationTimestamp')
+        .collection(_INSIGHT_NOTIFICATIONS_COLLECTION)
+        .orderBy('insightTimestamp')
         .snapshots();
 
     return notificationsSnapshot;
+  }
+
+  Stream<QuerySnapshot> streamInsights(
+      String studyUID, String topicUID, String questionUID) {
+    return _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_INSIGHTS_COLLECTION)
+        .orderBy('insightTimestamp')
+        .snapshots();
+  }
+
+  Future<void> updateClient(String studyUID, Client client) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_CLIENTS_COLLECTION)
+        .doc(client.clientUID)
+        .update(client.toMap());
   }
 }

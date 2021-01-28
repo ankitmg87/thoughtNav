@@ -86,9 +86,9 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
                 'You cannot change your selection after your account has been created.',
           ),
           CustomAvatarRadioWidget(
-            avatarStreamBuilder: StreamBuilder(
+            avatarStreamBuilder: StreamBuilder<QuerySnapshot>(
               stream: _avatarAndDisplayNameStream,
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
                     return SizedBox();
@@ -99,7 +99,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
                   if (snapshot.hasData) {
                     var documents;
 
-                    documents = snapshot.data.documents;
+                    documents = snapshot.data.docs;
 
                     _avatarAndDisplayNameRadioModelList.clear();
 

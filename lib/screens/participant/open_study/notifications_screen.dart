@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/new_question_notification_widget.dart';
 import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
@@ -57,9 +58,16 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
 
-    return Scaffold(
-      appBar: buildPhoneAppBar(),
-      body: buildPhoneBody(screenSize),
+    return WillPopScope(
+      onWillPop: () {
+        Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
+        return;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: buildPhoneAppBar(),
+        body: buildPhoneBody(screenSize),
+      ),
     );
   }
 
@@ -94,6 +102,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                       var notifications = snapshot.data.docs;
 
                       return ListView.separated(
+                        padding: EdgeInsets.all(20.0),
                         itemBuilder: (BuildContext context, int index) {
                           switch (notifications[index]['notificationType']) {
                             case 'clap':
@@ -124,6 +133,15 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                               return ModeratorCommentNotificationWidget(
                                 moderatorCommentNotification:
                                 moderatorCommentNotification,
+                              );
+                              break;
+
+                            case 'newQuestionNotification':
+                              var newQuestionNotification =
+                              NewQuestionNotification.fromMap(notifications[index].data());
+
+                              return NewQuestionNotificationWidget(
+                                newQuestionNotification: newQuestionNotification,
                               );
                               break;
 

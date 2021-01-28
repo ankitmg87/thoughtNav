@@ -63,7 +63,7 @@ class _CommentWidgetState extends State<CommentWidget> {
 
     return Container(
       padding: EdgeInsets.only(left: 6.0),
-      margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 5.0, right: 30.0),
+      margin: EdgeInsets.only(left: 30.0, top: 5.0, bottom: 5.0, right: 30.0),
       decoration: BoxDecoration(
           color: Color(0xFF27A6B6),
           borderRadius: BorderRadius.circular(4.0),
@@ -94,6 +94,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    widget.comment.avatarURL != null ?
                     CachedNetworkImage(
                       imageUrl: widget.comment.avatarURL,
                       imageBuilder: (context, imageProvider) {
@@ -109,6 +110,18 @@ class _CommentWidgetState extends State<CommentWidget> {
                           ),
                         );
                       },
+                    ) :  Container(
+                      padding: EdgeInsets.all(4.0),
+                      decoration: BoxDecoration(
+                        color: Colors.indigo[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image(
+                        width: 20.0,
+                        image: AssetImage(
+                            'images/researcher_images/researcher_dashboard/participant_icon.png'
+                        ),
+                      ),
                     ),
                     SizedBox(
                       width: 10.0,
@@ -117,7 +130,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.comment.displayName,
+                          widget.comment.displayName ?? 'Mike the Moderator',
                           style: TextStyle(
                             color: TEXT_COLOR.withOpacity(0.8),
                             fontWeight: FontWeight.bold,
@@ -207,13 +220,19 @@ class _CommentWidgetState extends State<CommentWidget> {
                           : SizedBox(),
                     ],
                   )
-                : Text(
-                    _commentStatement,
-                    style: TextStyle(
-                      color: TEXT_COLOR,
-                      fontSize: 14.0,
+                : Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                          _commentStatement,
+                          style: TextStyle(
+                            color: TEXT_COLOR,
+                            fontSize: 14.0,
+                          ),
+                        ),
                     ),
-                  ),
+                  ],
+                ),
           ],
         ),
       ),

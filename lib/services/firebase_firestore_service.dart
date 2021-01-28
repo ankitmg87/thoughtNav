@@ -223,12 +223,6 @@ class FirebaseFirestoreService {
     return question;
   }
 
-  Future<String> getMasterPassword(String studyUID) async {
-    var studySnapshot = await _studiesReference.doc(studyUID).get();
-    var masterPassword = studySnapshot.data()['masterPassword'];
-    return masterPassword;
-  }
-
   Future<Participant> getParticipant(
       String studyUID, String participantUID) async {
     var participantSnapshot = await _studiesReference
@@ -438,15 +432,6 @@ class FirebaseFirestoreService {
     await _usersReference.doc(userUID).set(user.toMap());
 
     return user;
-  }
-
-  Future<void> createParticipant(
-      String studyUID, Participant participant) async {
-    await _studiesReference
-        .doc(studyUID)
-        .collection(_PARTICIPANTS_COLLECTION)
-        .doc(participant.participantUID)
-        .set(participant.toMap());
   }
 
   Future<Client> createClient(String studyUID, Client client) async {

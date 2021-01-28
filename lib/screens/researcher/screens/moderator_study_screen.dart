@@ -23,6 +23,7 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
   final _researcherAndModeratorFirestoreService = ResearcherAndModeratorFirestoreService();
 
   String _studyUID;
+  String _studyName;
   String _userType;
   String _studyStatus;
 
@@ -43,6 +44,7 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
     final getStorage = GetStorage();
 
     _studyUID = getStorage.read('studyUID');
+    _studyName = getStorage.read('studyName');
     _userType = getStorage.read('userType');
     _studyStatus = getStorage.read('studyStatus');
 
@@ -247,7 +249,7 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
         ),
       ),
       title: Text(
-        'Study Dashboard',
+        _studyName,
         style: TextStyle(
           color: Colors.black,
         ),

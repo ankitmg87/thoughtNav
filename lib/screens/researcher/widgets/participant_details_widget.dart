@@ -239,26 +239,26 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                         ],
                       ),
                       SizedBox(height: 10.0),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Edit',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12.0,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 30.0,
-                          ),
-                          Icon(
-                            Icons.edit,
-                            color: PROJECT_GREEN,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10.0),
+                      // Row(
+                      //   mainAxisSize: MainAxisSize.min,
+                      //   children: [
+                      //     Text(
+                      //       'Edit',
+                      //       style: TextStyle(
+                      //         color: Colors.black,
+                      //         fontSize: 12.0,
+                      //       ),
+                      //     ),
+                      //     SizedBox(
+                      //       width: 30.0,
+                      //     ),
+                      //     Icon(
+                      //       Icons.edit,
+                      //       color: PROJECT_GREEN,
+                      //     ),
+                      //   ],
+                      // ),
+                      // SizedBox(height: 10.0),
                       InkWell(
                         highlightColor: Colors.transparent,
                         focusColor: Colors.transparent,

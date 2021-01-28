@@ -16,6 +16,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
 
   String _studyName = '';
 
+  String _message;
+
   Participant _participant;
 
   Future<void> _futureParticipant;
@@ -238,6 +240,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                                 height: 20.0,
                                               ),
                                               TextFormField(
+                                                onChanged: (message){
+                                                  _message = message;
+                                                },
                                                 style: TextStyle(
                                                   color: TEXT_COLOR
                                                       .withOpacity(0.5),
@@ -293,10 +298,16 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                                       ],
                                                     ),
                                                   ),
-                                                  onPressed: () {
-                                                    Navigator.of(context)
-                                                        .popAndPushNamed(
-                                                            PARTICIPANT_DASHBOARD_SCREEN);
+                                                  onPressed: ()async {
+
+                                                    await _participantFirestoreService.sendEmail(
+                                                        _participant.email,
+                                                        _message,
+                                                        '${_participant.userFirstName} ${_participant.userLastName}',
+                                                        'Contact Us');
+
+                                                    await Navigator.of(context).popAndPushNamed(
+                                                        PARTICIPANT_DASHBOARD_SCREEN);
                                                   },
                                                   color: PROJECT_GREEN,
                                                 ),
@@ -399,14 +410,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     return FutureBuilder(
       future: _futureParticipant,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        switch(snapshot.connectionState){
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
           case ConnectionState.waiting:
           case ConnectionState.active:
             return Center(
-              child: Text(
-                'Loading...'
-              ),
+              child: Text('Loading...'),
             );
             break;
           case ConnectionState.done:
@@ -545,7 +554,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       child: Column(
                         children: [
                           TextFormField(
-                            initialValue: '${_participant.userFirstName} ${_participant.userLastName}',
+                            initialValue:
+                                '${_participant.userFirstName} ${_participant.userLastName}',
                             enabled: false,
                             decoration: InputDecoration(
                               hintText: 'Name',
@@ -575,6 +585,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                             height: 20.0,
                           ),
                           TextFormField(
+                            onChanged: (message) {
+                              _message = message;
+                            },
                             decoration: InputDecoration(
                               hintText: 'Type your message here',
                               hintStyle: TextStyle(
@@ -592,7 +605,16 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                           ),
                           Center(
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () async {
+                                await _participantFirestoreService.sendEmail(
+                                    _participant.email,
+                                    _message,
+                                    '${_participant.userFirstName} ${_participant.userLastName}',
+                                    'Contact Us');
+
+                                await Navigator.of(context).popAndPushNamed(
+                                    PARTICIPANT_DASHBOARD_SCREEN);
+                              },
                               child: Container(
                                 padding: EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
@@ -620,9 +642,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             break;
           default:
             return Center(
-              child: Text(
-                  'Loading...'
-              ),
+              child: Text('Loading...'),
             );
         }
       },
@@ -632,12 +652,15 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   AppBar buildPhoneAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
-      leading: IconButton(icon: Icon(
-        Icons.keyboard_arrow_left,
-        color: Colors.black,
-      ), onPressed: () {
-        Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
-      },),
+      leading: IconButton(
+        icon: Icon(
+          Icons.keyboard_arrow_left,
+          color: Colors.black,
+        ),
+        onPressed: () {
+          Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
+        },
+      ),
       backgroundColor: Colors.white,
       title: Text(
         'Contact Us',

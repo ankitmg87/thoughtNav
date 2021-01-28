@@ -5,6 +5,7 @@ import 'package:thoughtnav/quill_screen.dart';
 import 'package:thoughtnav/screens/client/client_dashboard_screen.dart';
 import 'package:thoughtnav/screens/client/client_onboarding_screen.dart';
 import 'package:thoughtnav/screens/client/client_preferences_screen.dart';
+import 'package:thoughtnav/screens/client/client_responses_screen.dart';
 import 'package:thoughtnav/screens/moderator/moderator_dashboard_screen.dart';
 import 'package:thoughtnav/screens/moderator/moderator_preferences_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/participant_dashboard_screen.dart';
@@ -114,6 +115,7 @@ class MyApp extends StatelessWidget {
         CLIENT_ONBOARDING_SCREEN: (context) => ClientOnboardingScreen(),
         CLIENT_DASHBOARD_SCREEN: (context) => ClientDashboardScreen(),
         CLIENT_PREFERENCES_SCREEN: (context) => ClientPreferencesScreen(),
+        CLIENT_RESPONSES_SCREEN: (context) => ClientResponsesScreen(),
       },
     );
   }

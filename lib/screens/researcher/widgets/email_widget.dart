@@ -5,14 +5,18 @@ import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
+import 'dart:js' as js;
+
 class EmailWidget extends StatefulWidget {
   final List<Group> groupsList;
   final List<Participant> participantsList;
+  final List<Participant> bulkSelectedParticipants;
 
   const EmailWidget({
     Key key,
     this.groupsList,
     this.participantsList,
+    this.bulkSelectedParticipants,
   }) : super(key: key);
 
   @override
@@ -21,7 +25,7 @@ class EmailWidget extends StatefulWidget {
 
 class _EmailWidgetState extends State<EmailWidget> {
   final _researcherAndModeratorFirestoreService =
-  ResearcherAndModeratorFirestoreService();
+      ResearcherAndModeratorFirestoreService();
 
   String _selected = 'groups';
 
@@ -34,9 +38,11 @@ class _EmailWidgetState extends State<EmailWidget> {
       child: Material(
         borderRadius: BorderRadius.circular(10.0),
         child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
           padding: EdgeInsets.all(20.0),
           width: MediaQuery.of(context).size.width * 0.7,
-          height: MediaQuery.of(context).size.height * 0.7,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -58,242 +64,324 @@ class _EmailWidgetState extends State<EmailWidget> {
               SizedBox(
                 height: 20.0,
               ),
-              Row(
-                children: [
-                  Text(
-                    'Send Email To: ',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.0,
+              Expanded(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Send Email To: ',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        widget.bulkSelectedParticipants.isEmpty
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  ChoiceChip(
+                                    selectedColor: PROJECT_GREEN,
+                                    label: Text(
+                                      'Groups',
+                                      style: TextStyle(
+                                        fontSize: 12.0,
+                                        color: _selected == 'groups'
+                                            ? Colors.white
+                                            : Colors.black,
+                                        fontWeight: _selected == 'groups'
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                    selected: _selected == 'groups',
+                                    onSelected: (value) {
+                                      setState(() {
+                                        _selected = 'groups';
+                                      });
+                                    },
+                                  ),
+                                  SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  ChoiceChip(
+                                    selectedColor: PROJECT_GREEN,
+                                    label: Text(
+                                      'Participants',
+                                      style: TextStyle(
+                                        fontSize: 12.0,
+                                        color: _selected == 'participants'
+                                            ? Colors.white
+                                            : Colors.black,
+                                        fontWeight: _selected == 'participants'
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                    selected: _selected == 'participants',
+                                    onSelected: (value) {
+                                      setState(() {
+                                        _selected = 'participants';
+                                      });
+                                    },
+                                  ),
+                                ],
+                              )
+                            : SizedBox(),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    width: 10.0,
-                  ),
-                  ChoiceChip(
-                    selectedColor: PROJECT_GREEN,
-                    label: Text(
-                      'Groups',
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        color:
-                        _selected == 'groups' ? Colors.white : Colors.black,
-                        fontWeight: _selected == 'groups'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
+                    SizedBox(
+                      height: 10.0,
                     ),
-                    selected: _selected == 'groups',
-                    onSelected: (value) {
-                      setState(() {
-                        _selected = 'groups';
-                      });
-                    },
-                  ),
-                  SizedBox(
-                    width: 10.0,
-                  ),
-                  ChoiceChip(
-                    selectedColor: PROJECT_GREEN,
-                    label: Text(
-                      'Participants',
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        color: _selected == 'participants'
-                            ? Colors.white
-                            : Colors.black,
-                        fontWeight: _selected == 'participants'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
+                    Container(
+                      height: 1.0,
+                      color: Colors.grey[300],
                     ),
-                    selected: _selected == 'participants',
-                    onSelected: (value) {
-                      setState(() {
-                        _selected = 'participants';
-                      });
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 10.0,
-              ),
-              Container(
-                height: 1.0,
-                color: Colors.grey[300],
-              ),
-              SizedBox(
-                height: 10.0,
-              ),
-              ListView(
-                shrinkWrap: true,
-                children: [
-                  _selected == 'groups'
-                      ? Align(
-                    alignment: Alignment.centerLeft,
-                    child: Wrap(
-                      spacing: 10.0,
-                      runSpacing: 10.0,
-                      children: List.generate(
-                        widget.groupsList.length,
-                            (index) {
-                          return FilterChip(
-                            selectedColor: PROJECT_GREEN,
-                            checkmarkColor: Colors.white,
-                            selected: _selectedGroups
-                                .contains(widget.groupsList[index]),
-                            label: Text(
-                              '${widget.groupsList[index].groupName}',
-                              style: TextStyle(
-                                color: _selectedGroups.contains(
-                                    widget.groupsList[index])
-                                    ? Colors.white
-                                    : Colors.grey[700],
-                                fontWeight: _selectedGroups.contains(
-                                    widget.groupsList[index])
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                            onSelected: (bool value) {
-                              setState(() {
-                                if (value) {
-                                  _selectedGroups
-                                      .add(widget.groupsList[index]);
-                                } else {
-                                  _selectedGroups.removeWhere((group) {
-                                    return group ==
-                                        widget.groupsList[index];
-                                  });
-                                }
-                              });
-                            },
-                          );
-                        },
-                      ).toList(),
+                    SizedBox(
+                      height: 10.0,
                     ),
-                  )
-                      : Align(
-                    alignment: Alignment.centerLeft,
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: widget.groupsList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        var groupParticipants = <Participant>[];
-
-                        for (var participant
-                        in widget.participantsList) {
-                          if (widget.groupsList[index].groupName ==
-                              participant.userGroupName) {
-                            groupParticipants.add(participant);
-                          }
-                        }
-
-                        if (groupParticipants.isNotEmpty) {
-                          return Column(
+                    widget.bulkSelectedParticipants.isEmpty
+                        ? Column(
                             mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                '${widget.groupsList[index].groupName}',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Wrap(
-                                children: List.generate(
-                                    groupParticipants.length,
-                                        (chipIndex) {
-                                      return FilterChip(
-                                        selectedColor: PROJECT_GREEN,
-                                        checkmarkColor: Colors.white,
-                                        selected: _selectedParticipants
-                                            .contains(groupParticipants[
-                                        chipIndex]),
-                                        label: Text(
-                                          '${groupParticipants[chipIndex].userFirstName} ${groupParticipants[chipIndex].userLastName}',
-                                          style: TextStyle(
-                                            color: _selectedParticipants
-                                                .contains(
-                                                groupParticipants[
-                                                chipIndex])
-                                                ? Colors.white
-                                                : Colors.grey[700],
-                                            fontWeight: _selectedParticipants
-                                                .contains(
-                                                groupParticipants[
-                                                chipIndex])
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                            fontSize: 12.0,
-                                          ),
-                                        ),
-                                        onSelected: (bool value) {
-                                          setState(() {
-                                            if (value) {
-                                              _selectedParticipants.add(
-                                                  groupParticipants[
-                                                  chipIndex]);
-                                            } else {
-                                              _selectedParticipants
-                                                  .removeWhere(
-                                                      (participant) {
-                                                    return participant ==
-                                                        groupParticipants[
-                                                        chipIndex];
-                                                  });
+                              _selected == 'groups'
+                                  ? Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Wrap(
+                                        spacing: 10.0,
+                                        runSpacing: 10.0,
+                                        children: List.generate(
+                                          widget.groupsList.length,
+                                          (index) {
+                                            return FilterChip(
+                                              selectedColor: PROJECT_GREEN,
+                                              checkmarkColor: Colors.white,
+                                              selected:
+                                                  _selectedGroups.contains(
+                                                      widget.groupsList[index]),
+                                              label: Text(
+                                                '${widget.groupsList[index].groupName}',
+                                                style: TextStyle(
+                                                  color:
+                                                      _selectedGroups.contains(
+                                                              widget.groupsList[
+                                                                  index])
+                                                          ? Colors.white
+                                                          : Colors.grey[700],
+                                                  fontWeight:
+                                                      _selectedGroups.contains(
+                                                              widget.groupsList[
+                                                                  index])
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                              onSelected: (bool value) {
+                                                setState(() {
+                                                  if (value) {
+                                                    _selectedGroups.add(widget
+                                                        .groupsList[index]);
+                                                  } else {
+                                                    _selectedGroups
+                                                        .removeWhere((group) {
+                                                      return group ==
+                                                          widget.groupsList[
+                                                              index];
+                                                    });
+                                                  }
+                                                });
+                                              },
+                                            );
+                                          },
+                                        ).toList(),
+                                      ),
+                                    )
+                                  : Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ListView.separated(
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: widget.groupsList.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          var groupParticipants =
+                                              <Participant>[];
+
+                                          for (var participant
+                                              in widget.participantsList) {
+                                            if (widget.groupsList[index]
+                                                    .groupName ==
+                                                participant.userGroupName) {
+                                              groupParticipants
+                                                  .add(participant);
                                             }
-                                          });
+                                          }
+                                          if (groupParticipants.isNotEmpty) {
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${widget.groupsList[index].groupName}',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[700],
+                                                    fontSize: 16.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                                Container(
+                                                  height: 1.0,
+                                                  color: Colors.grey[300],
+                                                ),
+                                                SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                                Wrap(
+                                                  spacing: 10.0,
+                                                  runSpacing: 10.0,
+                                                  children: List.generate(
+                                                      groupParticipants.length,
+                                                      (chipIndex) {
+                                                    return FilterChip(
+                                                      selectedColor:
+                                                          PROJECT_GREEN,
+                                                      checkmarkColor:
+                                                          Colors.white,
+                                                      selected: _selectedParticipants
+                                                          .contains(
+                                                              groupParticipants[
+                                                                  chipIndex]),
+                                                      label: Text(
+                                                        '${groupParticipants[chipIndex].userFirstName} ${groupParticipants[chipIndex].userLastName}',
+                                                        style: TextStyle(
+                                                          color: _selectedParticipants
+                                                                  .contains(
+                                                                      groupParticipants[
+                                                                          chipIndex])
+                                                              ? Colors.white
+                                                              : Colors
+                                                                  .grey[700],
+                                                          fontWeight: _selectedParticipants
+                                                                  .contains(
+                                                                      groupParticipants[
+                                                                          chipIndex])
+                                                              ? FontWeight.bold
+                                                              : FontWeight
+                                                                  .normal,
+                                                          fontSize: 12.0,
+                                                        ),
+                                                      ),
+                                                      onSelected: (bool value) {
+                                                        setState(() {
+                                                          if (value) {
+                                                            _selectedParticipants.add(
+                                                                groupParticipants[
+                                                                    chipIndex]);
+                                                          } else {
+                                                            _selectedParticipants
+                                                                .removeWhere(
+                                                                    (participant) {
+                                                              return participant ==
+                                                                  groupParticipants[
+                                                                      chipIndex];
+                                                            });
+                                                          }
+                                                        });
+                                                      },
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ],
+                                            );
+                                          } else {
+                                            return SizedBox();
+                                          }
                                         },
-                                      );
-                                    }).toList(),
-                              ),
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return SizedBox(
+                                            height: 10.0,
+                                          );
+                                        },
+                                      ),
+                                    ),
                             ],
-                          );
-                        } else {
-                          return SizedBox();
-                        }
-                      },
-                      separatorBuilder:
-                          (BuildContext context, int index) {
-                        return SizedBox(
-                          height: 10.0,
-                        );
-                      },
+                          )
+                        : Wrap(
+                            children: List.generate(
+                                widget.bulkSelectedParticipants.length,
+                                (participantIndex) {
+                              return FilterChip(
+                                selectedColor: PROJECT_GREEN,
+                                checkmarkColor: Colors.white,
+                                selected: _selectedParticipants.contains(
+                                    widget.bulkSelectedParticipants[
+                                        participantIndex]),
+                                label: Text(
+                                  '${widget.bulkSelectedParticipants[participantIndex].userFirstName} ${widget.bulkSelectedParticipants[participantIndex].userLastName}',
+                                  style: TextStyle(
+                                    color: _selectedParticipants.contains(
+                                            widget.bulkSelectedParticipants[
+                                                participantIndex])
+                                        ? Colors.white
+                                        : Colors.grey[700],
+                                    fontWeight: _selectedParticipants.contains(
+                                            widget.bulkSelectedParticipants[
+                                                participantIndex])
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    fontSize: 12.0,
+                                  ),
+                                ),
+                                onSelected: (bool value) {
+                                  setState(() {
+                                    if (value) {
+                                      _selectedParticipants.add(
+                                          widget.bulkSelectedParticipants[
+                                              participantIndex]);
+                                    } else {
+                                      _selectedParticipants
+                                          .removeWhere((participant) {
+                                        return participant ==
+                                            widget.bulkSelectedParticipants[
+                                                participantIndex];
+                                      });
+                                    }
+                                  });
+                                },
+                              );
+                            }),
+                          ),
+                    SizedBox(
+                      height: 10.0,
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 10.0,
-              ),
-              Container(
-                height: 1.0,
-                color: Colors.grey[300],
-              ),
-              SizedBox(
-                height: 10.0,
-              ),
-              Expanded(child: EasyWebView(src: 'quill.html', onLoaded: (){})),
-              SizedBox(
-                height: 10.0,
+                    Container(
+                      height: 1.0,
+                      color: Colors.grey[300],
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    EasyWebView(
+                      src: 'quill.html',
+                      onLoaded: () {},
+                      height: 100.0,
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                  ],
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -318,8 +406,29 @@ class _EmailWidgetState extends State<EmailWidget> {
                   SizedBox(width: 20.0),
                   RaisedButton(
                     color: PROJECT_GREEN,
-                    onPressed: () {
-                      Navigator.of(context).pop();
+                    onPressed: () async {
+                      if (_selected == 'groups') {
+                        _selectedParticipants = [];
+                        for (var selectedGroup in _selectedGroups) {
+                          for (var participant in widget.participantsList) {
+                            if (selectedGroup.groupUID ==
+                                participant.groupUID) {
+                              _selectedParticipants.add(participant);
+                            }
+                          }
+                        }
+                      }
+
+                      var message = js.context.callMethod('readLocalStorage');
+
+                      for (var selectedParticipant in _selectedParticipants) {
+                        await _researcherAndModeratorFirestoreService.sendEmail(
+                          selectedParticipant.email,
+                          message,
+                          'Mike Courtney',
+                          'From ThoughtNav',
+                        );
+                      }
                     },
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
@@ -334,7 +443,7 @@ class _EmailWidgetState extends State<EmailWidget> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

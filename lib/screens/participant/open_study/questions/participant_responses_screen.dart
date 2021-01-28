@@ -106,9 +106,15 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
     if (_nextQuestionUID == 'lastQuestionInThisTopic') {
       if (topicIndex != -1) {
         if (_studyNavigatorTopics.length - 1 >= topicIndex + 1) {
-          _nextTopicUID = _studyNavigatorTopics[topicIndex + 1].topicUID;
-          _nextQuestionUID =
-              _studyNavigatorTopics[topicIndex + 1].questions.first.questionUID;
+          if (_studyNavigatorTopics[topicIndex + 1].isActive) {
+            _nextTopicUID = _studyNavigatorTopics[topicIndex + 1].topicUID;
+            _nextQuestionUID = _studyNavigatorTopics[topicIndex + 1]
+                .questions
+                .first
+                .questionUID;
+          } else {
+            _nextTopicUID = 'lastTopicInThisStudy';
+          }
         } else {
           _nextTopicUID = 'lastTopicInThisStudy';
         }
@@ -716,6 +722,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 await _participantFirestoreService
                                                     .postResponse(
                                                         _studyUID,
+                                                        _participantUID,
                                                         _topicUID,
                                                         _question.questionUID,
                                                         response);
@@ -755,80 +762,175 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                       case ConnectionState.waiting:
                                       case ConnectionState.active:
                                         if (snapshot.hasData) {
-                                          var responses = snapshot.data.docs;
+                                          if (_question.questionType ==
+                                              'Standard') {
+                                            var responses = snapshot.data.docs;
 
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 40.0),
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Container(
-                                                        height: 1.0,
-                                                        color: Colors.grey[300],
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 40.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Container(
+                                                          height: 1.0,
+                                                          color:
+                                                              Colors.grey[300],
+                                                        ),
                                                       ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 10.0,
-                                                    ),
-                                                    Text(
-                                                      'All Responses',
-                                                      style: TextStyle(
-                                                        color:
-                                                            PROJECT_NAVY_BLUE,
-                                                        fontSize: 12.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                      SizedBox(
+                                                        width: 10.0,
                                                       ),
-                                                    ),
-                                                  ],
+                                                      Text(
+                                                        'All Responses',
+                                                        style: TextStyle(
+                                                          color:
+                                                              PROJECT_NAVY_BLUE,
+                                                          fontSize: 12.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                              SizedBox(
-                                                height: 20.0,
-                                              ),
-                                              ListView.builder(
-                                                physics:
-                                                    NeverScrollableScrollPhysics(),
-                                                shrinkWrap: true,
-                                                itemCount: responses.length,
-                                                itemBuilder:
-                                                    (BuildContext context,
-                                                        int index) {
-                                                  var commentController =
-                                                      TextEditingController();
+                                                SizedBox(
+                                                  height: 20.0,
+                                                ),
+                                                ListView.builder(
+                                                  physics:
+                                                      NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemCount: responses.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    var commentController =
+                                                        TextEditingController();
 
-                                                  var response =
-                                                      Response.fromMap(
-                                                          responses[index]
-                                                              .data());
+                                                    var response =
+                                                        Response.fromMap(
+                                                            responses[index]
+                                                                .data());
 
-                                                  if (responses[index]
-                                                          ['responseUID'] !=
-                                                      null) {
-                                                    try {
-                                                      return UserResponseWidget(
-                                                        participant:
-                                                            _participant,
-                                                        topicUID: _topicUID,
-                                                        question: _question,
-                                                        response: response,
-                                                      );
-                                                    } catch (e) {
-                                                      print(e);
+                                                    if (responses[index]
+                                                            ['responseUID'] !=
+                                                        null) {
+                                                      try {
+                                                        return UserResponseWidget(
+                                                          participant:
+                                                              _participant,
+                                                          topicUID: _topicUID,
+                                                          question: _question,
+                                                          response: response,
+                                                        );
+                                                      } catch (e) {
+                                                        print(e);
+                                                        return SizedBox();
+                                                      }
+                                                    } else {
                                                       return SizedBox();
                                                     }
-                                                  } else {
-                                                    return SizedBox();
-                                                  }
-                                                },
-                                              )
-                                            ],
-                                          );
+                                                  },
+                                                )
+                                              ],
+                                            );
+                                          } else if (_question.questionType ==
+                                              'Uninfluenced') {
+                                            if (_participantResponded) {
+                                              var responses =
+                                                  snapshot.data.docs;
+
+                                              return Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 40.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Container(
+                                                            height: 1.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 10.0,
+                                                        ),
+                                                        Text(
+                                                          'All Responses',
+                                                          style: TextStyle(
+                                                            color:
+                                                                PROJECT_NAVY_BLUE,
+                                                            fontSize: 12.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20.0,
+                                                  ),
+                                                  ListView.builder(
+                                                    physics:
+                                                        NeverScrollableScrollPhysics(),
+                                                    shrinkWrap: true,
+                                                    itemCount: responses.length,
+                                                    itemBuilder:
+                                                        (BuildContext context,
+                                                            int index) {
+                                                      var commentController =
+                                                          TextEditingController();
+
+                                                      var response =
+                                                          Response.fromMap(
+                                                              responses[index]
+                                                                  .data());
+
+                                                      if (responses[index]
+                                                              ['responseUID'] !=
+                                                          null) {
+                                                        try {
+                                                          return UserResponseWidget(
+                                                            participant:
+                                                                _participant,
+                                                            topicUID: _topicUID,
+                                                            question: _question,
+                                                            response: response,
+                                                          );
+                                                        } catch (e) {
+                                                          print(e);
+                                                          return SizedBox();
+                                                        }
+                                                      } else {
+                                                        return SizedBox();
+                                                      }
+                                                    },
+                                                  )
+                                                ],
+                                              );
+                                            } else {
+                                              return Center(
+                                                child: Text(
+                                                  'Please respond to view other responses',
+                                                ),
+                                              );
+                                            }
+                                          } else if (_question.questionType ==
+                                              'Private') {
+                                            return SizedBox();
+                                          } else {
+                                            return SizedBox();
+                                          }
                                         } else if (snapshot.data == null) {
                                           return Center(
                                             child: Text('No responses yet'),
@@ -1403,7 +1505,4 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
       ),
     );
   }
-
 }
-
-

@@ -161,6 +161,7 @@ class _TopicWidgetState extends State<TopicWidget> {
                         itemCount: widget.topic.questions.length,
                         itemBuilder: (BuildContext context, int index) {
                           return QuestionTile(
+                            topicUID: widget.topic.topicUID,
                             question: widget.topic.questions[index],
                           );
                         },

@@ -8,6 +8,8 @@ import 'package:thoughtnav/screens/researcher/models/response.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 
+import 'package:http/http.dart' as http;
+
 const String _STUDIES_COLLECTION = 'studies';
 const String _TOPICS_COLLECTION = 'topics';
 const String _QUESTIONS_COLLECTION = 'questions';
@@ -40,8 +42,8 @@ class ParticipantFirestoreService {
     return participant;
   }
 
-  Future<Response> postResponse(String studyUID, String topicUID,
-      String questionUID, Response response) async {
+  Future<Response> postResponse(String studyUID, String participantUID, String topicUID,
+      String questionUID, Response response,) async {
     await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -77,12 +79,33 @@ class ParticipantFirestoreService {
       },
     );
 
+    var participantResponses = await getParticipantDetail(studyUID, participantUID, 'responses');
+
+    await saveParticipantDetail(studyUID, participantUID, 'responses', participantResponses++);
 
     var totalStudyResponses = await getStudyDetail(studyUID, 'totalResponses');
 
-    await updateStudyDetail(studyUID, 'totalResponses', totalStudyResponses + 1);
+    await updateStudyDetail(
+        studyUID, 'totalResponses', totalStudyResponses + 1);
 
     return response;
+  }
+
+  Future<int> getParticipantDetail(String studyUID, String participantUID,
+      String detail) async {
+    var participantSnapshot = await _studiesReference.doc(studyUID).collection(
+        _PARTICIPANTS_COLLECTION).doc(participantUID).get();
+
+    var intDetail = participantSnapshot.data()[detail];
+
+    return int.parse('$intDetail');
+
+  }
+
+  Future<void> saveParticipantDetail(String studyUID, String participantUID, String key, int value) async {
+    await _studiesReference.doc(studyUID).collection(_PARTICIPANTS_COLLECTION).doc(participantUID).update({
+      key: value,
+    });
   }
 
   Future<Response> getParticipantResponse(String studyUID, String topicUID,
@@ -258,6 +281,11 @@ class ParticipantFirestoreService {
 
     await updateStudyDetail(studyUID, 'totalComments', studyTotalComments + 1);
 
+
+    var participantComments = await getParticipantDetail(studyUID, participantUID, 'comments');
+
+    await saveParticipantDetail(studyUID, participantUID, 'comments', participantComments++);
+
     return comment;
   }
 
@@ -388,7 +416,7 @@ class ParticipantFirestoreService {
     return questions;
   }
 
-  Stream getAvatarsAndDisplayNames(String studyUID) {
+  Stream<QuerySnapshot> getAvatarsAndDisplayNames(String studyUID) {
     return _studiesReference
         .doc(studyUID)
         .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
@@ -545,6 +573,23 @@ class ParticipantFirestoreService {
     await _studiesReference.doc(studyUID).update({
       key: value,
     });
+  }
+
+  Future<http.Response> sendEmail(String email, String message, String name,
+      String subject) async {
+    var url = 'http://koodo.m-staging.in/Koodo/flutter/send-email';
+
+    var response = await http.post(url, body: {
+      'email': email,
+      'message': message,
+      'name': name,
+      'subject': subject,
+    });
+
+    print(response.body.toString());
+    print(response.statusCode);
+
+    return response;
   }
 
 }

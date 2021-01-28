@@ -69,15 +69,15 @@ class _QuestionAndResponsesSubScreenState
     _streamResponses = _getResponsesStream(
         widget.studyUID, widget.topicUID, widget.questionUID);
 
-    // _getResponsesStream();
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
+      child: ListView(
+        padding: EdgeInsets.all(0),
+        shrinkWrap: true,
         children: [
           FutureBuilder<Topic>(
             future: _futureTopic,
@@ -109,29 +109,6 @@ class _QuestionAndResponsesSubScreenState
               }
             },
           ),
-
-          // StreamBuilder(
-          //   stream: _getQuestionStream(widget.studyUID, widget.topicUID, widget.questionUID),
-          //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          //     if(snapshot.connectionState == ConnectionState.active){
-          //       if(snapshot.hasData){
-          //         return _QuestionDisplayBar(
-          //           topicName: _topicName,
-          //           questionTitle: snapshot.data['questionTitle'],
-          //           questionStatement: snapshot.data['questionStatement'],
-          //           responses: snapshot.data['totalResponses'],
-          //           comments: snapshot.data['totalComments'],
-          //         );
-          //       }
-          //       else {
-          //         return SizedBox();
-          //       }
-          //     }
-          //     else {
-          //       return SizedBox();
-          //     }
-          //   },
-          // ),
           SizedBox(
             height: 20.0,
           ),
@@ -146,100 +123,69 @@ class _QuestionAndResponsesSubScreenState
                     color: PROJECT_LIGHT_GREEN,
                   ),
                 ),
-                // SizedBox(
-                //   width: 10.0,
-                // ),
-                // Row(
-                //   mainAxisSize: MainAxisSize.min,
-                //   children: [
-                //     Text(
-                //       'Sort by Recent',
-                //       style: TextStyle(
-                //         color: PROJECT_GREEN,
-                //         fontWeight: FontWeight.bold,
-                //         fontSize: 12.0,
-                //       ),
-                //     ),
-                //     SizedBox(
-                //       width: 4.0,
-                //     ),
-                //     Icon(
-                //       CupertinoIcons.chevron_down,
-                //       size: 10.0,
-                //       color: PROJECT_GREEN,
-                //     ),
-                //   ],
-                // ),
               ],
             ),
           ),
 
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 30.0,
-                vertical: 20.0,
-              ),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 30.0,
+              vertical: 20.0,
+            ),
 
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _streamResponses,
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.none:
-                      return SizedBox();
-                      break;
-                    case ConnectionState.waiting:
-                      return SizedBox();
-                      break;
-                    case ConnectionState.active:
-                      if (snapshot.hasData) {
-                        if (snapshot.data.docs.isNotEmpty) {
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: snapshot.data.docs.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return ResponseWidget(
-                                studyUID: widget.studyUID,
-                                topicUID: widget.topicUID,
-                                questionUID: widget.questionUID,
-                                response: Response.fromMap(
-                                  snapshot.data.docs[index].data(),
-                                ),
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return SizedBox(
-                                height: 10.0,
-                              );
-                            },
-                          );
-                        } else {
-                          return Center(
-                            child: Text(
-                              'No responses yet',
-                            ),
-                          );
-                        }
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _streamResponses,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    return SizedBox();
+                    break;
+                  case ConnectionState.waiting:
+                    return SizedBox();
+                    break;
+                  case ConnectionState.active:
+                    if (snapshot.hasData) {
+                      if (snapshot.data.docs.isNotEmpty) {
+                        return ListView.separated(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: snapshot.data.docs.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return ResponseWidget(
+                              studyUID: widget.studyUID,
+                              topicUID: widget.topicUID,
+                              questionUID: widget.questionUID,
+                              response: Response.fromMap(
+                                snapshot.data.docs[index].data(),
+                              ),
+                            );
+                          },
+                          separatorBuilder:
+                              (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
+                        );
                       } else {
-                        return SizedBox();
+                        return Center(
+                          child: Text(
+                            'No responses yet',
+                          ),
+                        );
                       }
-                      break;
-                    case ConnectionState.done:
+                    } else {
                       return SizedBox();
-                      break;
-                    default:
-                      return SizedBox();
-                  }
-                },
-              ),
-
-              // child: ListView(
-              //   children: [
-              //     ResponseWidget(),
-              //   ],
-              // ),
+                    }
+                    break;
+                  case ConnectionState.done:
+                    return SizedBox();
+                    break;
+                  default:
+                    return SizedBox();
+                }
+              },
             ),
           ),
         ],

@@ -151,21 +151,29 @@ class _LoginScreenState extends State<LoginScreen> {
             case USER_TYPE_PARTICIPANT:
               var participant = await _firebaseFirestoreService.getParticipant(
                   user.studyUID, userID);
-              if (participant.isOnboarded) {
-                var getStorage = GetStorage();
-                await getStorage.write('studyUID', user.studyUID);
-                await getStorage.write('participantUID', user.userUID);
-                await Navigator.of(context).pushNamedAndRemoveUntil(
-                    PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
-                break;
+              var study = await _firebaseFirestoreService.getStudy(user.studyUID);
+              if(study.studyStatus == 'Active' || study.studyStatus == 'Completed'){
+                if (participant.isOnboarded) {
+                  var getStorage = GetStorage();
+                  await getStorage.write('studyUID', user.studyUID);
+                  await getStorage.write('participantUID', user.userUID);
+                  await Navigator.of(context).pushNamedAndRemoveUntil(
+                      PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
+                  break;
+                }
+                if (!participant.isOnboarded) {
+                  var getStorage = GetStorage();
+                  await getStorage.write('studyUID', user.studyUID);
+                  await getStorage.write('participantUID', user.userUID);
+                  await Navigator.of(context).pushNamedAndRemoveUntil(
+                      STUDY_DETAILS_SCREEN, (route) => false);
+                  break;
+                }
               }
-              if (!participant.isOnboarded) {
+              if(study.studyStatus == 'Closed' || study.studyStatus == 'Draft'){
                 var getStorage = GetStorage();
                 await getStorage.write('studyUID', user.studyUID);
-                await getStorage.write('participantUID', user.userUID);
-                await Navigator.of(context).pushNamedAndRemoveUntil(
-                    STUDY_DETAILS_SCREEN, (route) => false);
-                break;
+                await Navigator.of(context).pushNamedAndRemoveUntil(STUDY_ENDED_SCREEN, (route) => false);
               }
               break;
           }

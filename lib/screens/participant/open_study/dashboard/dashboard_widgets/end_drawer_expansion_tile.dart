@@ -94,10 +94,14 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                           },
                         );
                       } else {
-                        return LockedQuestionExpansionTileChild();
+                        return LockedQuestionExpansionTileChild(
+                          question: widget.questions[index],
+                        );
                       }
                     } else {
-                      return LockedQuestionExpansionTileChild();
+                      return LockedQuestionExpansionTileChild(
+                        question: widget.questions[index],
+                      );
                     }
                   }
                 },

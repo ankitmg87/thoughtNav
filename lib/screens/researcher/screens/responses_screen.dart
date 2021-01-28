@@ -1,11 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/insight.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
@@ -38,6 +36,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
   String _studyUID = '';
   String _topicUID = '';
   String _questionUID = '';
+  String _userType = '';
 
   Future<void> _getStudyAndTopicUIDs;
 
@@ -87,6 +86,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     studyNavigatorWidth = minMenuWidth;
     var getStorage = GetStorage();
     _studyUID = getStorage.read('studyUID');
+    _userType = getStorage.read('userType');
 
     _getTopics();
     super.initState();
@@ -489,13 +489,6 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     );
   }
 
-  // FutureBuilder _insightsFutureBuilder(Future<void> futureInsights) {
-  //   return FutureBuilder(
-  //     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-  //       return ;
-  //     },);
-  // }
-
   FutureBuilder _questionsAndResponsesFutureBuilder(Future<void> future) {
     return FutureBuilder(
       future: future,
@@ -506,13 +499,6 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
             topicUID: _topicUID,
             questionUID: _questionUID,
           );
-
-          // return QuestionAndResponsesSubScreen(
-          //   firebaseFirestoreService: _firebaseFirestoreService,
-          //   studyUID: _studyUID,
-          //   topicUID: _topicUID,
-          //   questionUID: _questionUID,
-          // );
         } else {
           return SizedBox();
         }
@@ -631,71 +617,71 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
 
 
-class StudyNavigatorExpansionTile extends StatefulWidget {
-  final Topic topic;
-  final Function onQuestionTap;
-
-  const StudyNavigatorExpansionTile({Key key, this.topic, this.onQuestionTap})
-      : super(key: key);
-
-  @override
-  _StudyNavigatorExpansionTileState createState() =>
-      _StudyNavigatorExpansionTileState();
-}
-
-class _StudyNavigatorExpansionTileState
-    extends State<StudyNavigatorExpansionTile> {
-  @override
-  Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(
-        widget.topic.topicName,
-        style: TextStyle(
-          color: Colors.grey[700],
-          fontWeight: FontWeight.bold,
-          fontSize: 14.0,
-        ),
-      ),
-      children: [
-        SizedBox(
-          height: 10.0,
-        ),
-        ListView.separated(
-          padding: EdgeInsets.only(
-            left: 20.0,
-            right: 10.0,
-          ),
-          shrinkWrap: true,
-          itemCount: widget.topic.questions.length,
-          itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {},
-              splashColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              focusColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              child: Row(
-                children: [
-                  Text(
-                    '${widget.topic.questions[index].questionNumber}  ${widget.topic.questions[index].questionTitle}',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13.0,
-                    ),
-                  )
-                ],
-              ),
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(height: 20.0);
-          },
-        ),
-        SizedBox(
-          height: 20.0,
-        ),
-      ],
-    );
-  }
-}
+// class StudyNavigatorExpansionTile extends StatefulWidget {
+//   final Topic topic;
+//   final Function onQuestionTap;
+//
+//   const StudyNavigatorExpansionTile({Key key, this.topic, this.onQuestionTap})
+//       : super(key: key);
+//
+//   @override
+//   _StudyNavigatorExpansionTileState createState() =>
+//       _StudyNavigatorExpansionTileState();
+// }
+//
+// class _StudyNavigatorExpansionTileState
+//     extends State<StudyNavigatorExpansionTile> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return ExpansionTile(
+//       title: Text(
+//         widget.topic.topicName,
+//         style: TextStyle(
+//           color: Colors.grey[700],
+//           fontWeight: FontWeight.bold,
+//           fontSize: 14.0,
+//         ),
+//       ),
+//       children: [
+//         SizedBox(
+//           height: 10.0,
+//         ),
+//         ListView.separated(
+//           padding: EdgeInsets.only(
+//             left: 20.0,
+//             right: 10.0,
+//           ),
+//           shrinkWrap: true,
+//           itemCount: widget.topic.questions.length,
+//           itemBuilder: (BuildContext context, int index) {
+//             return InkWell(
+//               onTap: () {},
+//               splashColor: Colors.transparent,
+//               hoverColor: Colors.transparent,
+//               focusColor: Colors.transparent,
+//               highlightColor: Colors.transparent,
+//               child: Row(
+//                 children: [
+//                   Text(
+//                     '${widget.topic.questions[index].questionNumber}  ${widget.topic.questions[index].questionTitle}',
+//                     style: TextStyle(
+//                       color: Colors.grey[800],
+//                       fontWeight: FontWeight.bold,
+//                       fontSize: 13.0,
+//                     ),
+//                   )
+//                 ],
+//               ),
+//             );
+//           },
+//           separatorBuilder: (BuildContext context, int index) {
+//             return SizedBox(height: 20.0);
+//           },
+//         ),
+//         SizedBox(
+//           height: 20.0,
+//         ),
+//       ],
+//     );
+//   }
+// }

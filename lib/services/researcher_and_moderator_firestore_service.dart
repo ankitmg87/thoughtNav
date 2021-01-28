@@ -50,10 +50,10 @@ class ResearcherAndModeratorFirestoreService {
     });
   }
 
-  Future<int> getStudyDetail(String studyUID, String key) async {
+  Future<dynamic> getStudyDetail(String studyUID, String key) async {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
     var detail = studySnapshot.data()[key];
-    return int.parse(detail);
+    return detail;
   }
 
   Future<void> updateStudyDetail(String studyUID, String key, int value) async {
@@ -322,19 +322,15 @@ class ResearcherAndModeratorFirestoreService {
     }
   }
 
-  Future<http.Response> sendEmail() async {
-    var url = 'http://koodo.m-staging.in/Koodo/flutter/send-email';
+  Future<http.Response> sendEmail(String email, String message, String name, String subject) async {
+    var url = 'http://bluechipdigitech.com/Thoughtnav_C/thoughtnav/flutter/send-email';
 
     var response = await http.post(url, body: {
-      'email': 'aaomazelene@example.com',
-      'message': 'Hello mhan parat sonali',
-      'name': 'Kay milnare naav kalun',
-      'subject': 'Kashala pahije subject',
+      'email': email,
+      'message': message,
+      'name': name,
+      'subject': subject,
     });
-
-    print(response.body.toString());
-    print(response.statusCode);
-
     return response;
   }
 
@@ -371,6 +367,8 @@ class ResearcherAndModeratorFirestoreService {
         .set(participant.toMap());
 
     var totalParticipants = await getStudyDetail(studyUID, 'totalParticipants');
+
+    print(totalParticipants);
 
     await updateStudyDetail(studyUID, 'totalParticipants', totalParticipants + 1);
 
@@ -644,10 +642,9 @@ class ResearcherAndModeratorFirestoreService {
         .collection(_QUESTIONS_COLLECTION)
         .doc(questionUID)
         .collection(_INSIGHTS_COLLECTION)
-        .add(insight.toMap(insight));
+        .add(insight.toMap());
 
     await postInsightNotification(studyUID, insight);
-
 
     var totalInsights = await getStudyDetail(studyUID, 'totalInsights');
 
@@ -658,7 +655,7 @@ class ResearcherAndModeratorFirestoreService {
     await _studiesReference
         .doc(studyUID)
         .collection(_INSIGHT_NOTIFICATIONS_COLLECTION)
-        .add(insight.toMap(insight));
+        .add(insight.toMap());
   }
 
   Stream<QuerySnapshot> streamInsights(
@@ -816,4 +813,11 @@ class ResearcherAndModeratorFirestoreService {
 
     return topics;
   }
+
+  Future<String> getMasterPassword(String studyUID) async {
+    var studySnapshot = await _studiesReference.doc(studyUID).get();
+    var masterPassword = studySnapshot.data()['masterPassword'];
+    return masterPassword;
+  }
+
 }

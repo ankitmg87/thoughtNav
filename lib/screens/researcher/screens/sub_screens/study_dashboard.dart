@@ -164,74 +164,74 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  Divider(),
-                                  Expanded(
-                                    child: StreamBuilder<QuerySnapshot>(
-                                      stream: _insightNotificationsStream,
-                                      builder: (BuildContext context,
-                                          AsyncSnapshot<QuerySnapshot>
-                                              snapshot) {
-                                        switch (snapshot.connectionState) {
-                                          case ConnectionState.none:
-                                            if (snapshot.hasError) {
-                                              print(snapshot.error);
-                                            }
-                                            return SizedBox();
-                                            break;
-                                          case ConnectionState.waiting:
-                                          case ConnectionState.active:
-                                            if (snapshot.hasData) {
-                                              var insightNotifications =
-                                                  snapshot.data.docs;
-                                              if (insightNotifications
-                                                  .isNotEmpty) {
-                                                return ListView.separated(
-                                                  itemCount:
-                                                      insightNotifications
-                                                          .length,
-                                                  itemBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    return Text(
-                                                        '${insightNotifications[index].data()['moderatorName']}');
-                                                  },
-                                                  separatorBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    return SizedBox(
-                                                      height: 10.0,
-                                                    );
-                                                  },
-                                                );
-                                              }
-                                              else {
-                                                return Center(
-                                                  child: Text(
-                                                    'No insights yet.'
-                                                  ),
-                                                );
-                                              }
-                                            } else {
-                                              return SizedBox(
-                                                child: Text('Loading...'),
-                                              );
-                                            }
-                                            break;
-                                          case ConnectionState.done:
-                                            if (snapshot.hasError) {
-                                              print(snapshot.error);
-                                            }
-                                            return SizedBox();
-                                            break;
-                                          default:
-                                            if (snapshot.hasError) {
-                                              print(snapshot.error);
-                                            }
-                                            return SizedBox();
-                                        }
-                                      },
-                                    ),
-                                  ),
+                                  // Divider(),
+                                  // Expanded(
+                                  //   child: StreamBuilder<QuerySnapshot>(
+                                  //     stream: _insightNotificationsStream,
+                                  //     builder: (BuildContext context,
+                                  //         AsyncSnapshot<QuerySnapshot>
+                                  //             snapshot) {
+                                  //       switch (snapshot.connectionState) {
+                                  //         case ConnectionState.none:
+                                  //           if (snapshot.hasError) {
+                                  //             print(snapshot.error);
+                                  //           }
+                                  //           return SizedBox();
+                                  //           break;
+                                  //         case ConnectionState.waiting:
+                                  //         case ConnectionState.active:
+                                  //           if (snapshot.hasData) {
+                                  //             var insightNotifications =
+                                  //                 snapshot.data.docs;
+                                  //             if (insightNotifications
+                                  //                 .isNotEmpty) {
+                                  //               return ListView.separated(
+                                  //                 itemCount:
+                                  //                     insightNotifications
+                                  //                         .length,
+                                  //                 itemBuilder:
+                                  //                     (BuildContext context,
+                                  //                         int index) {
+                                  //                   return Text(
+                                  //                       '${insightNotifications[index].data()['moderatorName']}');
+                                  //                 },
+                                  //                 separatorBuilder:
+                                  //                     (BuildContext context,
+                                  //                         int index) {
+                                  //                   return SizedBox(
+                                  //                     height: 10.0,
+                                  //                   );
+                                  //                 },
+                                  //               );
+                                  //             }
+                                  //             else {
+                                  //               return Center(
+                                  //                 child: Text(
+                                  //                   'No insights yet.'
+                                  //                 ),
+                                  //               );
+                                  //             }
+                                  //           } else {
+                                  //             return SizedBox(
+                                  //               child: Text('Loading...'),
+                                  //             );
+                                  //           }
+                                  //           break;
+                                  //         case ConnectionState.done:
+                                  //           if (snapshot.hasError) {
+                                  //             print(snapshot.error);
+                                  //           }
+                                  //           return SizedBox();
+                                  //           break;
+                                  //         default:
+                                  //           if (snapshot.hasError) {
+                                  //             print(snapshot.error);
+                                  //           }
+                                  //           return SizedBox();
+                                  //       }
+                                  //     },
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             ),

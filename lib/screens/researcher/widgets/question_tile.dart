@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 
 class QuestionTile extends StatelessWidget {
 
   final Question question;
+  final String topicUID;
 
   const QuestionTile({
-    Key key, this.question,
+    Key key, this.question, this.topicUID,
   }) : super(key: key);
 
   @override
@@ -15,7 +17,13 @@ class QuestionTile extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: 20.0),
       child: InkWell(
-        onTap: (){},
+        onTap: (){
+          Navigator.of(context)
+              .pushNamed(CLIENT_MODERATOR_RESPONSES_SCREEN, arguments: {
+            'questionUID': question.questionUID,
+            'topicUID': topicUID,
+          });
+        },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

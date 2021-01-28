@@ -24,7 +24,7 @@ class _EmailScreenState extends State<EmailScreen> {
           children: [
             RaisedButton(
               onPressed: () async {
-                response = await moderatorService.sendEmail();
+                // response = await moderatorService.sendEmail();
                 setState(() {});
               },
               color: PROJECT_GREEN,

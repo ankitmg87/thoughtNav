@@ -240,8 +240,10 @@ class _PostStudyRewardMethodsScreenState
                               borderRadius: BorderRadius.circular(6.0),
                             ),
                             color: PROJECT_GREEN,
-                            onPressed: () {
-                              Navigator.of(context).popAndPushNamed(
+                            onPressed: () async {
+                              await _firebaseFirestoreService.updateParticipant(
+                                  _studyUID, _participant);
+                              await Navigator.of(context).popAndPushNamed(
                                   PARTICIPANT_DASHBOARD_SCREEN);
                             },
                             child: Padding(
@@ -279,13 +281,13 @@ class _PostStudyRewardMethodsScreenState
     return FutureBuilder(
       future: _futureParticipant,
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-        switch(snapshot.connectionState){
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
           case ConnectionState.waiting:
           case ConnectionState.active:
-          return Center(
-            child: Text('Loading...'),
-          );
+            return Center(
+              child: Text('Loading...'),
+            );
             break;
           case ConnectionState.done:
             return Column(
@@ -312,7 +314,9 @@ class _PostStudyRewardMethodsScreenState
                     ),
                   ],
                 ),
-                SizedBox(height: 40.0,),
+                SizedBox(
+                  height: 40.0,
+                ),
                 Container(
                   color: TEXT_COLOR.withOpacity(0.1),
                   padding: EdgeInsets.all(30.0),
@@ -344,19 +348,17 @@ class _PostStudyRewardMethodsScreenState
                                   onTap: () {
                                     setState(() {
                                       _amazonPaymentModel.isSelected = true;
-                                      _paypalPaymentModel.isSelected =
-                                      false;
+                                      _paypalPaymentModel.isSelected = false;
 
                                       _participant != null
                                           ? _participant.paymentMode =
-                                          _amazonPaymentModel
-                                              .paymentMode
+                                              _amazonPaymentModel.paymentMode
                                           : null;
                                     });
                                   },
                                   child: PaymentOptionRadioItem(
                                     paymentModeAssetURL:
-                                    'images/amazon_logo.png',
+                                        'images/amazon_logo.png',
                                     paymentRadioModel: _amazonPaymentModel,
                                   ),
                                 ),
@@ -368,19 +370,17 @@ class _PostStudyRewardMethodsScreenState
                                 child: InkWell(
                                   onTap: () {
                                     setState(() {
-                                      _amazonPaymentModel.isSelected =
-                                      false;
+                                      _amazonPaymentModel.isSelected = false;
                                       _paypalPaymentModel.isSelected = true;
                                       _participant != null
                                           ? _participant.paymentMode =
-                                          _paypalPaymentModel
-                                              .paymentMode
+                                              _paypalPaymentModel.paymentMode
                                           : null;
                                     });
                                   },
                                   child: PaymentOptionRadioItem(
                                     paymentModeAssetURL:
-                                    'images/paypal_logo.png',
+                                        'images/paypal_logo.png',
                                     paymentRadioModel: _paypalPaymentModel,
                                   ),
                                 ),
@@ -424,8 +424,7 @@ class _PostStudyRewardMethodsScreenState
                                   filled: true,
                                   fillColor: Colors.grey[200],
                                   border: OutlineInputBorder(
-                                    borderRadius:
-                                    BorderRadius.circular(16.0),
+                                    borderRadius: BorderRadius.circular(16.0),
                                     borderSide: BorderSide(
                                       width: 0,
                                       style: BorderStyle.none,
@@ -433,8 +432,7 @@ class _PostStudyRewardMethodsScreenState
                                   ),
                                 ),
                                 onChanged: (secondaryEmail) {
-                                  _participant.secondaryEmail =
-                                      secondaryEmail;
+                                  _participant.secondaryEmail = secondaryEmail;
                                 },
                               ),
                             ],
@@ -450,8 +448,8 @@ class _PostStudyRewardMethodsScreenState
                         ),
                         color: PROJECT_GREEN,
                         onPressed: () {
-                          Navigator.of(context).popAndPushNamed(
-                              PARTICIPANT_DASHBOARD_SCREEN);
+                          Navigator.of(context)
+                              .popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
                         },
                         child: Padding(
                           padding: EdgeInsets.symmetric(

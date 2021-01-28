@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
@@ -34,6 +35,9 @@ class ResponseWidget extends StatefulWidget {
 
 class _ResponseWidgetState extends State<ResponseWidget>
     with AutomaticKeepAliveClientMixin {
+
+  String _userType;
+
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
 
@@ -97,6 +101,11 @@ class _ResponseWidgetState extends State<ResponseWidget>
 
   @override
   void initState() {
+
+    var getStorage = GetStorage();
+
+    _userType = getStorage.read('userType');
+
     _commentsStream = _getCommentsStream(widget.studyUID, widget.topicUID,
         widget.questionUID, widget.response.responseUID);
 
@@ -293,6 +302,9 @@ class _ResponseWidgetState extends State<ResponseWidget>
                               ),
                             ],
                           ),
+
+                          _userType != 'client' ?
+
                           RaisedButton(
                             color: PROJECT_GREEN,
                             onPressed: () {
@@ -309,7 +321,7 @@ class _ResponseWidgetState extends State<ResponseWidget>
                                 ),
                               ),
                             ),
-                          ),
+                          ) : SizedBox(),
                         ],
                       ),
                     ],

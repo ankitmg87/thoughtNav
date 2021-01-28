@@ -21,9 +21,9 @@ class InsightWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              insight.moderatorAvatarURL != null
+              insight.avatarURL != null && insight.avatarURL != 'null'
                   ? CachedNetworkImage(
-                imageUrl: insight.moderatorAvatarURL,
+                imageUrl: insight.avatarURL,
                 imageBuilder: (context, imageProvider) {
                   return Container(
                     decoration: BoxDecoration(
@@ -54,7 +54,7 @@ class InsightWidget extends StatelessWidget {
               ),
               RichText(
                 text: TextSpan(
-                  text: insight.moderatorName ?? 'Mike Courtney',
+                  text: insight.name ?? 'Mike Courtney',
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontWeight: FontWeight.bold,

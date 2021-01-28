@@ -125,6 +125,9 @@ class _OnboardingPage3State extends State<OnboardingPage3> {
                     ),
                     TextFormField(
                       initialValue: widget.participant.email,
+                      onChanged: (secondaryEmail){
+                        widget.participant.secondaryEmail = secondaryEmail;
+                      },
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[200],
