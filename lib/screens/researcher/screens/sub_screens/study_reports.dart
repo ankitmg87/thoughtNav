@@ -408,71 +408,42 @@ class _StudyReportsState extends State<StudyReports> {
     var topicRows = <List<dynamic>>[];
 
     topicRows.add([
-      'Topic Number',
-      'Topic Name',
-      'Questions',
+      'Topic',
+      'Question Type',
+      'Question Title',
+      'Group',
+      'Display Name',
+      'Response',
+      'Attached Media',
+      'Active Date',
     ]);
 
     for(var topic in topics){
 
       var topicRow = <dynamic>[];
+      topicRow.add('${topic.topicNumber} ${topic.topicName}');
 
-      topicRow.add(topic.topicNumber);
-      topicRow.add(topic.topicName);
-
-      for(var question in topic.questions){
-
-        var questionRow = <dynamic>[];
-
-        questionRow.add(question.questionNumber);
-        questionRow.add(question.questionTitle);
-        questionRow.add(question.questionStatement);
+      for (var question in topic.questions){
+        topicRow.add(question.questionType);
+        topicRow.add('${question.questionNumber} ${question.questionTitle}');
+        topicRow.add(question.groupIndexes);
 
         for (var response in question.responses){
-          var responseRow = <dynamic>[];
+          topicRow.add(response.participantDisplayName);
+          topicRow.add(response.responseStatement);
+          topicRow.add(response.mediaURL);
+          topicRow.add(question.questionTimestamp.toDate());
 
-          responseRow.add(response.participantDisplayName);
-          responseRow.add(response.responseStatement);
-
-          questionRow.add(responseRow);
         }
-        topicRow.add(questionRow);
       }
       topicRows.add(topicRow);
     }
-
     var csv = ListToCsvConverter().convert(topicRows);
 
     final bytes = utf8.encode(csv);
     final blob = html.Blob([bytes]);
 
-    js.context.callMethod("webSaveAs", [blob, 'test.csv']);
-
+    js.context.callMethod('webSaveAs', [blob, '${_study.studyName}.csv']);
   }
-
 }
-
-
-// class CsvTopic{
-//   String topicName;
-//   String topicNumber;
-//   List<dynamic> csvQuestions;
-// }
-//
-// class CsvQuestion{
-//   String questionNumber;
-//   String questionTitle;
-//   String questionStatement;
-//   List<dynamic> csvResponses;
-// }
-//
-// class CsvResponse{
-//   String displayName;
-//   String responseStatement;
-// }
-//
-// class CsvComment{
-//
-// }
-
 

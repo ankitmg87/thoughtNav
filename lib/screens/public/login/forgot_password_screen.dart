@@ -4,14 +4,32 @@ import 'package:flutter/services.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/services/firebase_auth_service.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
+  @override
+  _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+
+  final _firebaseAuthService = FirebaseAuthService();
+
+
+  String _email;
+
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
-    if (screenWidth < screenHeight)
+    if (screenWidth < screenHeight) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: PROJECT_GREEN,
@@ -95,7 +113,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 12.0),
                   child: Text(
-                    'Enter the six-digit code sent to your email',
+                    'Enter your valid email id',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xFF666666),
@@ -103,16 +121,14 @@ class ForgotPasswordScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _CustomOtpField(),
-                    _CustomOtpField(),
-                    _CustomOtpField(),
-                    _CustomOtpField(),
-                    _CustomOtpField(),
-                    _CustomOtpField(),
-                  ],
+                TextFormField(
+                  onChanged: (email) {
+                    if (email
+                        .trim()
+                        .isNotEmpty) {
+                      _email = email;
+                    }
+                  },
                 ),
                 SizedBox(
                   height: screenHeight * 0.05,
@@ -131,8 +147,10 @@ class ForgotPasswordScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6.0),
                           ),
-                          onPressed: () => Navigator.of(context)
-                              .pushNamed(RESET_PASSWORD_SCREEN),
+                          onPressed: () {
+                            // Navigator.of(context)
+                            //     .pushNamed(RESET_PASSWORD_SCREEN);
+                          },
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
@@ -156,7 +174,7 @@ class ForgotPasswordScreen extends StatelessWidget {
           ),
         ),
       );
-    else
+    } else {
       return Scaffold(
         appBar: AppBar(
           elevation: 0.0,
@@ -266,7 +284,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                             height: 5.0,
                           ),
                           Text(
-                            'Enter the six-digit code sent to your email',
+                            'Enter your valid email id',
                             style: TextStyle(
                               color: TEXT_COLOR.withOpacity(0.7),
                               fontSize: 16.0,
@@ -275,22 +293,23 @@ class ForgotPasswordScreen extends StatelessWidget {
                           SizedBox(
                             height: 30.0,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _CustomOtpField(),
-                              _CustomOtpField(),
-                              _CustomOtpField(),
-                              _CustomOtpField(),
-                              _CustomOtpField(),
-                              _CustomOtpField(),
-                            ],
+                          TextFormField(
+                            onChanged: (email) {
+                              if (email
+                                  .trim()
+                                  .isNotEmpty) {
+                                _email = email;
+                              }
+                            },
                           ),
                           SizedBox(
                             height: 30.0,
                           ),
                           OutlineButton(
-                            onPressed: () => Navigator.of(context).popAndPushNamed(RESET_PASSWORD_SCREEN),
+                            onPressed: () async {
+                              await _firebaseAuthService.resetPassword(_email);
+                              Navigator.pop(context);
+                            },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
@@ -301,8 +320,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                               ),
                             ),
                             borderSide: BorderSide(
-                              color: Color(0xFF50D2C3),
-                              width: 2.0
+                                color: Color(0xFF50D2C3),
+                                width: 2.0
                             ),
                             color: Color(0xFF50D2C3),
                           ),
@@ -316,37 +335,38 @@ class ForgotPasswordScreen extends StatelessWidget {
           ],
         ),
       );
+    }
   }
 }
 
-class _CustomOtpField extends StatelessWidget {
-  const _CustomOtpField({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40.0,
-      height: 40.0,
-      margin: EdgeInsets.symmetric(horizontal: 8.0),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(
-            width: 1.0,
-            color: Colors.grey,
-          )),
-      child: Center(
-        child: TextField(
-          textAlign: TextAlign.center,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(1),
-          ],
-          decoration: InputDecoration(border: InputBorder.none, isDense: true),
-        ),
-      ),
-    );
-  }
-}
+// class _CustomOtpField extends StatelessWidget {
+//   const _CustomOtpField({
+//     Key key,
+//   }) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: 40.0,
+//       height: 40.0,
+//       margin: EdgeInsets.symmetric(horizontal: 8.0),
+//       decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(10.0),
+//           border: Border.all(
+//             width: 1.0,
+//             color: Colors.grey,
+//           )),
+//       child: Center(
+//         child: TextField(
+//           textAlign: TextAlign.center,
+//           keyboardType: TextInputType.number,
+//           inputFormatters: [
+//             LengthLimitingTextInputFormatter(1),
+//           ],
+//           decoration: InputDecoration(border: InputBorder.none, isDense: true),
+//         ),
+//       ),
+//     );
+//   }
+// }
