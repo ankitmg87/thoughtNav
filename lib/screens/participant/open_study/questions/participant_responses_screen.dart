@@ -224,12 +224,14 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
             case ConnectionState.waiting:
             case ConnectionState.active:
               return Center(
-                child: Text(
-                  'Loading...',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.bold,
+                child: Material(
+                  child: Text(
+                    'Loading...',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               );

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
@@ -61,7 +60,7 @@ class _StudySetupState extends State<StudySetup> {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'images/researcher_images/study_setup_images/setup_study_poster.png'),
+                    'images/researcher_images/study_setup_images/setup_study_poster.png',),
                 fit: BoxFit.cover,
               ),
             ),
@@ -101,7 +100,6 @@ class _StudySetupState extends State<StudySetup> {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w900,
-                      fontFamily: GoogleFonts.montserrat().fontFamily,
                       fontSize: 20.0,
                     ),
                   ),

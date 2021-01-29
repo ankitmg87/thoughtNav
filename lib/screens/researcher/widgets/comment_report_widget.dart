@@ -112,14 +112,14 @@ class CommentReportWidget extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '${comment.displayName} - ',
+                                text: '${comment.displayName ?? 'Mike the Moderator'} - ',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               TextSpan(
-                                text: comment.participantName,
+                                text: comment.participantName ?? 'Mike Courtney',
                                 style: TextStyle(
                                   color: PROJECT_GREEN,
                                   fontWeight: FontWeight.bold,

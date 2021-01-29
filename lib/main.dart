@@ -27,6 +27,7 @@ import 'package:thoughtnav/screens/public/login/forgot_password_screen.dart';
 import 'package:thoughtnav/screens/public/login/login_screen.dart';
 import 'package:thoughtnav/screens/public/login/reset_password_screen.dart';
 import 'package:thoughtnav/screens/public/tn_home_screen.dart';
+import 'package:thoughtnav/screens/reports_screen.dart';
 import 'package:thoughtnav/screens/researcher/researcher_main_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/responses_screen.dart';
@@ -116,6 +117,8 @@ class MyApp extends StatelessWidget {
         CLIENT_DASHBOARD_SCREEN: (context) => ClientDashboardScreen(),
         CLIENT_PREFERENCES_SCREEN: (context) => ClientPreferencesScreen(),
         CLIENT_RESPONSES_SCREEN: (context) => ClientResponsesScreen(),
+
+        REPORTS_SCREEN:(context) => ReportsScreen(),
       },
     );
   }

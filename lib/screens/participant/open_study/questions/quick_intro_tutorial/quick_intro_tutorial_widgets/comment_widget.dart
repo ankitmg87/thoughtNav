@@ -63,7 +63,7 @@ class _CommentWidgetState extends State<CommentWidget> {
 
     return Container(
       padding: EdgeInsets.only(left: 6.0),
-      margin: EdgeInsets.only(left: 30.0, top: 5.0, bottom: 5.0, right: 30.0),
+      margin: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0, right: 30.0),
       decoration: BoxDecoration(
           color: Color(0xFF27A6B6),
           borderRadius: BorderRadius.circular(4.0),
@@ -80,10 +80,10 @@ class _CommentWidgetState extends State<CommentWidget> {
           ),
         ),
         padding: EdgeInsets.only(
-          left: 20.0,
-          right: 20.0,
+          left: 10.0,
+          right: 10.0,
           top: 10.0,
-          bottom: 20.0,
+          bottom: 10.0,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

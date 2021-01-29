@@ -52,28 +52,41 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: ListView(
               children: [
                 SizedBox(
-                  height: screenHeight * 0.1,
+                  height: 30.0,
                 ),
                 Center(
                   child: Container(
                     constraints: BoxConstraints(
                       maxWidth: 600.0,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
+                    child: Stack(
                       children: [
-                        Image.asset(
-                          'images/login_screen_left.png',
-                          width: screenWidth > 800 ? screenWidth * 0.2 : 200,
+                        Container(
+                          width: 600.0,
+                          height: 250.0,
                         ),
-                        Image.asset(
-                          'images/login_screen_right.png',
-                          width: screenWidth > 800 ? screenWidth * 0.2 : 200,
+                        Positioned(
+                          left: 0.0,
+                          bottom: 0.0,
+                          child: Image.asset(
+                            'images/login_screen_left.png',
+                            width: 175.0,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 5.0,
+                          right: 0.0,
+                          child: Image.asset(
+                            'images/login_screen_right.png',
+                            width: 175.0,
+                          ),
                         ),
                       ],
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 20.0,
                 ),
                 Text(
                   APP_NAME,
@@ -121,14 +134,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ),
                   ),
                 ),
-                TextFormField(
-                  onChanged: (email) {
-                    if (email
-                        .trim()
-                        .isNotEmpty) {
-                      _email = email;
-                    }
-                  },
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: TextFormField(
+                    onChanged: (email) {
+                      if (email
+                          .trim()
+                          .isNotEmpty) {
+                        _email = email;
+                      }
+                    },
+                  ),
                 ),
                 SizedBox(
                   height: screenHeight * 0.05,

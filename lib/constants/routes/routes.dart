@@ -40,3 +40,5 @@ const String MODERATOR_PREFERENCES_SCREEN = 'moderator_preferences_screen';
 
 const String QUILL_SCREEN = 'quill_screen';
 const String EMAIL_SCREEN = 'email_screen';
+
+const String REPORTS_SCREEN = 'reports_screen';

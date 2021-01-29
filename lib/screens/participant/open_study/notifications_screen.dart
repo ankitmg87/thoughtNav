@@ -1,15 +1,11 @@
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/new_question_notification_widget.dart';
 import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
-import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/participant_firestore_service.dart';
 
 import 'dashboard/dashboard_widgets/clap_notification_widget.dart';

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/insight.dart';
+import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/question_and_responses_sub_screen.dart';
@@ -38,12 +40,16 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
   String _questionUID = '';
   String _userType = '';
 
+  Moderator _moderator = Moderator();
+
   Future<void> _getStudyAndTopicUIDs;
 
   Stream<QuerySnapshot> _insightsStream;
 
-  Stream<QuerySnapshot> _getInsightsStream(String studyUID, String topicUID, String questionUID){
-    return _researcherAndModeratorFirestoreService.streamInsights(studyUID, topicUID, questionUID);
+  Stream<QuerySnapshot> _getInsightsStream(
+      String studyUID, String topicUID, String questionUID) {
+    return _researcherAndModeratorFirestoreService.streamInsights(
+        studyUID, topicUID, questionUID);
   }
 
   Future<void> _future(
@@ -51,6 +57,14 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     _currentQuestion = await _researcherAndModeratorFirestoreService
         .getQuestion(studyUID, topicUID, questionUID);
 
+    if (_userType == 'moderator') {
+      var getStorage = GetStorage();
+
+      var moderatorUID = getStorage.read('moderatorUID');
+
+      _moderator = await _researcherAndModeratorFirestoreService
+          .getModerator(moderatorUID);
+    }
   }
 
   Future<List<Topic>> _getTopicsAndQuestions;
@@ -66,7 +80,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
         _questionUID = arguments['questionUID'];
       } else {
         SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-          Navigator.of(context).pop();
+          Navigator.of(context).popAndPushNamed(LOGIN_SCREEN);
         });
       }
     });
@@ -103,7 +117,6 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
@@ -113,6 +126,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
         children: [
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AnimatedContainer(
                   curve: Curves.easeOut,
@@ -258,7 +272,11 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                                                 _questionsAndResponsesFutureBuilder(
                                                                     _getStudyAndTopicUIDs);
 
-                                                            _insightsStream = _getInsightsStream(_studyUID, _topicUID, _questionUID);
+                                                            _insightsStream =
+                                                                _getInsightsStream(
+                                                                    _studyUID,
+                                                                    _topicUID,
+                                                                    _questionUID);
                                                           });
                                                         },
                                                         splashColor:
@@ -372,6 +390,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
           ),
           Container(
             child: TextFormField(
+              controller: insightController,
               minLines: 1,
               maxLines: 20,
               decoration: InputDecoration(
@@ -392,11 +411,17 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                 if (insight.insightStatement != null) {
                   if (insight.insightStatement.trim().isNotEmpty) {
 
+                    insight.avatarURL = _moderator.moderatorAvatar;
+                    insight.name = _moderator.firstName != null
+                        ? '${_moderator.firstName} ${_moderator.lastName}'
+                        : null;
                     insight.insightTimestamp = Timestamp.now();
                     insight.questionUID = _currentQuestion.questionUID;
                     insight.topicUID = _topicUID;
                     insight.questionTitle = _currentQuestion.questionTitle;
                     insight.questionNumber = _currentQuestion.questionNumber;
+
+                    insightController.clear();
 
                     await _researcherAndModeratorFirestoreService.postInsight(
                         _studyUID, _topicUID, _questionUID, insight);
@@ -468,9 +493,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                         },
                       );
                     } else {
-                      return Center(
-
-                      );
+                      return Center();
                     }
                   } else {
                     return SizedBox();
@@ -614,8 +637,6 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
     );
   }
 }
-
-
 
 // class StudyNavigatorExpansionTile extends StatefulWidget {
 //   final Topic topic;

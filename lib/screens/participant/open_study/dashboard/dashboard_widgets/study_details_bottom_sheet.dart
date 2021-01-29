@@ -1,10 +1,7 @@
 import 'dart:html';
-import 'dart:ui' as ui;
-import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:simple_html_css/simple_html_css.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 
 class StudyDetailsBottomSheet extends StatelessWidget {

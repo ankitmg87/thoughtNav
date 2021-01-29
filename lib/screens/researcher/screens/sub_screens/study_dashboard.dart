@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
+import 'package:thoughtnav/constants/routes/routes.dart';
+import 'package:thoughtnav/screens/researcher/models/insight.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/widgets/topic_widget.dart';
@@ -29,11 +31,11 @@ class _StudyDashboardState extends State<StudyDashboard> {
 
   Study _study;
 
-  Stream<QuerySnapshot> _insightNotificationsStream;
-
   Future<Study> _futureStudy;
 
   Future<List<Topic>> _futureTopics;
+
+  Stream<QuerySnapshot> _insightsStream;
 
   Stream<QuerySnapshot> _getInsightNotificationsStream(String studyUID) {
     return _researcherAndModeratorFirestoreService
@@ -50,14 +52,21 @@ class _StudyDashboardState extends State<StudyDashboard> {
     return _study;
   }
 
+  void _viewResponses(String topicUID, String questionUID) {
+    Navigator.of(context)
+        .pushNamed(CLIENT_MODERATOR_RESPONSES_SCREEN, arguments: {
+      'questionUID': questionUID,
+      'topicUID': topicUID,
+    });
+  }
+
   @override
   void initState() {
     _futureStudy = _getFutureStudy(widget.studyUID);
 
     super.initState();
 
-    _insightNotificationsStream =
-        _getInsightNotificationsStream(widget.studyUID);
+    _insightsStream = _getInsightNotificationsStream(widget.studyUID);
 
     _getTopics();
   }
@@ -159,10 +168,25 @@ class _StudyDashboardState extends State<StudyDashboard> {
                                     'Insights',
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
+                                      color: Colors.grey[700],
+                                      fontSize: 14.0,
                                       fontWeight: FontWeight.bold,
                                     ),
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Container(
+                                    height: 1.0,
+                                    color: Colors.grey[300],
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Expanded(
+                                    child:
+                                    _buildInsightNotificationsStreamBuilder(
+                                        _insightsStream),
                                   ),
                                   // Divider(),
                                   // Expanded(
@@ -250,88 +274,146 @@ class _StudyDashboardState extends State<StudyDashboard> {
       },
     );
   }
-}
 
-class _DesktopNotificationWidget extends StatelessWidget {
-  final String time;
-  final String participantAvatar;
-  final String participantAlias;
-  final String questionNumber;
-  final String questionTitle;
+  StreamBuilder<QuerySnapshot> _buildInsightNotificationsStreamBuilder(
+      Stream<QuerySnapshot> insightNotificationsStream) {
+    return StreamBuilder(
+      stream: insightNotificationsStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(
+              child: Text('Loading...'),
+            );
+            break;
+          case ConnectionState.active:
+            if (snapshot.hasData) {
+              if (snapshot.data.docs.isNotEmpty) {
+                var insights = <Insight>[];
 
-  const _DesktopNotificationWidget({
-    Key key,
-    this.time,
-    this.participantAvatar,
-    this.participantAlias,
-    this.questionNumber,
-    this.questionTitle,
-  }) : super(key: key);
+                for (var insightSnapshot in snapshot.data.docs) {
+                  var insight = Insight.fromMap(insightSnapshot.data());
+                  insights.add(insight);
+                }
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 6.0),
-      child: Row(
-        children: [
-          Text(
-            time,
-            style: TextStyle(
-              color: TEXT_COLOR.withOpacity(0.6),
-              fontSize: 13.0,
-            ),
-          ),
-          SizedBox(
-            width: 5.0,
-          ),
-          CachedNetworkImage(
-            imageUrl: participantAvatar,
-            imageBuilder: (context, imageProvider) {
-              return Container(
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: PROJECT_LIGHT_GREEN,
-                ),
-                child: Image(
-                  width: 20.0,
-                  image: imageProvider,
-                ),
-              );
-            },
-          ),
-          SizedBox(
-            width: 8.0,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  textAlign: TextAlign.start,
-                  maxLines: 2,
-                  text: TextSpan(
-                    style: TextStyle(
-                        color: TEXT_COLOR.withOpacity(0.7), fontSize: 13.0),
-                    children: [
-                      TextSpan(
-                          text: '$participantAlias responded to the question '),
-                      TextSpan(
-                        text: '$questionNumber $questionTitle.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                return ListView.separated(
+                  itemCount: insights.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      focusColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: (){
+                        _viewResponses(insights[index].topicUID, insights[index].questionUID);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          children: [
+                            insights[index].avatarURL != null && insights[index].avatarURL != 'null'
+                                ? CachedNetworkImage(
+                              imageUrl: insights[index].avatarURL,
+                              imageBuilder: (context, provider) {
+                                return Container(
+                                  width: 30.0,
+                                  height: 30.0,
+                                  padding: EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: PROJECT_LIGHT_GREEN,
+                                  ),
+                                  child: Image(
+                                    image: provider,
+                                  ),
+                                );
+                              },
+                            )
+                                : Container(
+                              width: 30.0,
+                              height: 30.0,
+                              padding: EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: PROJECT_LIGHT_GREEN,
+                              ),
+                              child: Image(
+                                image: AssetImage(
+                                  'images/researcher_images/researcher_dashboard/participant_icon.png',
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: insights[index].name ?? 'Mike Courtney',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ' gained a new insight in ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '${insights[index].questionNumber} ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '${insights[index].questionTitle}.',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox();
+                  },
+                );
+              } else {
+                return Center(
+                  child: Text('No insights yet'),
+                );
+              }
+            } else {
+              return SizedBox();
+            }
+            break;
+          case ConnectionState.done:
+            return Center(
+              child: Text(
+                'Something went wrong',
+              ),
+            );
+            break;
+          default:
+            return SizedBox();
+        }
+      },
     );
   }
+
 }
 
 class _StudyDetailsBar extends StatefulWidget {

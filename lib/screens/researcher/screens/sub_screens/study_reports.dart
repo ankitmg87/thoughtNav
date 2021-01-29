@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:csv/csv.dart';
+import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -53,6 +56,45 @@ class _StudyReportsState extends State<StudyReports> {
     _topics = await _researcherAndModeratorService.generateReport(studyUID);
 
     return _topics;
+  }
+
+  Future<pw.ImageProvider> _getImage(String url, {bool cache = true, PdfImageOrientation orientation, double dpi}) async {
+    //final img = await _download(url, cache: cache);
+
+
+
+    final img = NetworkImage(url);
+    final image = await flutterImageProvider(img);
+    return image;
+
+    // return pw.MemoryImage(img, orientation: orientation, dpi: dpi);
+  }
+
+  Future<Uint8List> _download(
+      String url, {
+        bool cache = true,
+      }) async {
+
+
+    print('Downloading $url');
+
+    var dio = Dio();
+
+    var request;
+    var response;
+    var builder;
+    List<int> data;
+
+    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) async {
+      request = await client.getUrl(Uri.parse(url));
+      response = await request.close();
+      builder = await response.fold(
+          BytesBuilder(), (BytesBuilder b, List<int> d) => b..add(d));
+      data = builder.takeBytes();
+    };
+
+    return Uint8List.fromList(data);
+
   }
 
   void _createPDF() {
@@ -129,11 +171,24 @@ class _StudyReportsState extends State<StudyReports> {
                                     .responses
                                     .length,
                                 itemBuilder: (context, responseIndex) {
+
+                                  pw.ImageProvider image;
+
+                                  _getImage(_topics[topicIndex]
+                                        .questions[questionIndex]
+                                        .responses[responseIndex].avatarURL).then((value) {
+                                          image = value;
+                                          print(image);
+                                  });
+
                                   return pw.Column(
                                     crossAxisAlignment:
                                     pw.CrossAxisAlignment.start,
                                     mainAxisSize: pw.MainAxisSize.min,
                                     children: [
+                                      pw.Image(
+                                        image
+                                      ),
                                       pw.Text(
                                         _topics[topicIndex]
                                             .questions[questionIndex]
@@ -419,24 +474,23 @@ class _StudyReportsState extends State<StudyReports> {
     ]);
 
     for(var topic in topics){
-
-      var topicRow = <dynamic>[];
-      topicRow.add('${topic.topicNumber} ${topic.topicName}');
-
       for (var question in topic.questions){
-        topicRow.add(question.questionType);
-        topicRow.add('${question.questionNumber} ${question.questionTitle}');
-        topicRow.add(question.groupIndexes);
-
         for (var response in question.responses){
+          var topicRow = <dynamic>[];
+          topicRow.add('${topic.topicNumber} ${topic.topicName}');
+
+          topicRow.add(question.questionType);
+          topicRow.add('${question.questionNumber} ${question.questionTitle}');
+          topicRow.add(question.groupIndexes);
+
           topicRow.add(response.participantDisplayName);
           topicRow.add(response.responseStatement);
-          topicRow.add(response.mediaURL);
-          topicRow.add(question.questionTimestamp.toDate());
+          topicRow.add(response.mediaURL ?? '');
+          topicRow.add(topic.topicDate.toDate());
 
+          topicRows.add(topicRow);
         }
       }
-      topicRows.add(topicRow);
     }
     var csv = ListToCsvConverter().convert(topicRows);
 

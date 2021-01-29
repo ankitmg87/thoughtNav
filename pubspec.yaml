@@ -10,9 +10,6 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: 1.0.0
-  carousel_pro: ^1.0.0
-  auto_size_text: ^2.1.0
-  google_fonts: ^1.1.0
   percent_indicator: ^2.1.7+4
   flutter_switch: ^0.1.3
   intl: ^0.16.1
@@ -21,7 +18,6 @@ dependencies:
   csv: ^4.1.0
   cached_network_image: ^2.3.3
 
-  custom_radio_button: ^0.0.3
   http: ^0.12.2
 
   firebase: ^8.0.0
@@ -35,17 +31,11 @@ dependencies:
 
   webview_flutter: ^0.3.15+1
 
-  simple_html_css: ^2.0.0+3
-
-  flutter_spinkit: ^4.1.2+1
-
   mask_text_input_formatter: ^1.1.0
 
   image_picker_web_redux: ^1.1.3
 
   video_player: ^1.0.1
-
-  image_whisperer: ^0.11.1
 
   flutter_widget_from_html_core: ^0.5.1+4
 
@@ -55,7 +45,7 @@ dependencies:
 
   printing: ^4.0.0
 
-  widget_to_image: ^1.0.4
+  dio: ^3.0.10
 
 dev_dependencies:
   flutter_test:

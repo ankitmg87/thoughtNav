@@ -27,10 +27,23 @@ class _EmailWidgetState extends State<EmailWidget> {
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
 
-  String _selected = 'groups';
+  String _selected;
 
   List<Participant> _selectedParticipants = [];
   List<Group> _selectedGroups = [];
+
+  @override
+  void initState() {
+    if(widget.bulkSelectedParticipants.isEmpty){
+      _selected = 'groups';
+    }
+
+    if(widget.bulkSelectedParticipants.isNotEmpty){
+      _selectedParticipants = widget.bulkSelectedParticipants;
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -406,7 +419,7 @@ class _EmailWidgetState extends State<EmailWidget> {
                   SizedBox(width: 20.0),
                   RaisedButton(
                     color: PROJECT_GREEN,
-                    onPressed: () async {
+                    onPressed: _selectedGroups.isNotEmpty || _selectedParticipants.isNotEmpty ? () async {
                       if (_selected == 'groups') {
                         _selectedParticipants = [];
                         for (var selectedGroup in _selectedGroups) {
@@ -419,17 +432,24 @@ class _EmailWidgetState extends State<EmailWidget> {
                         }
                       }
 
-                      var message = js.context.callMethod('readLocalStorage');
+                      if(_selectedParticipants.isNotEmpty){
+                        var message = js.context.callMethod('readLocalStorage');
 
-                      for (var selectedParticipant in _selectedParticipants) {
-                        await _researcherAndModeratorFirestoreService.sendEmail(
-                          selectedParticipant.email,
-                          message,
-                          'Mike Courtney',
-                          'From ThoughtNav',
-                        );
+                        for (var selectedParticipant in _selectedParticipants) {
+                          await _researcherAndModeratorFirestoreService.sendEmail(
+                            selectedParticipant.email,
+                            message,
+                            'Mike Courtney',
+                            'From ThoughtNav',
+                          );
+                        }
+                        Navigator.of(context).pop();
                       }
-                    },
+
+                      else {
+                        Navigator.of(context).pop();
+                      }
+                    } : null,
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(

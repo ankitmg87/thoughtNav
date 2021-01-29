@@ -90,7 +90,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           ),
                         ),
                         Text(
-                          widget.participant.userFirstName ?? 'Name not set',
+                          '${widget.participant.userFirstName} ${widget.participant.userLastName}',
                           style: TextStyle(
                             color: Colors.grey[700],
                             fontSize: 14.0,

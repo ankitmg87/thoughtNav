@@ -2,11 +2,9 @@ import 'dart:html';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker_web_redux/image_picker_web_redux.dart';
-import 'package:image_whisperer/image_whisperer.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
@@ -36,7 +34,9 @@ class ParticipantResponseField extends StatefulWidget {
     this.participant,
     this.onTap,
     this.studyName,
-    this.topicUID, this.responseController, this.response,
+    this.topicUID,
+    this.responseController,
+    this.response,
     // this.questionNumber,
     // this.questionTitle
   }) : super(key: key);
@@ -90,13 +90,6 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
           pickedImageFile);
 
       widget.response.mediaURL = imageURI.toString();
-
-      // var blobImage = BlobImage(pickedImageFile, name: pickedImageFile.name);
-      //
-      // _response.mediaURL = blobImage.url;
-      // print(blobImage.url);
-      //
-      // _pickedImage = NetworkImage(blobImage.url);
 
       _mediaPickerDialogKey.currentState.setState(() {
         _uploadingImage = false;
@@ -177,43 +170,45 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
                     child: _uploadingVideo || _uploadingImage
-                        ? _smartphoneScreen ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        Text(
-                          _uploadingVideo
-                              ? 'Uploading Video'
-                              : 'Uploading Image',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
-                          ),
-                        ),
-                      ],
-                    ) : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(
-                          width: 20.0,
-                        ),
-                        Text(
-                          _uploadingVideo
-                              ? 'Uploading Video'
-                              : 'Uploading Image',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
-                          ),
-                        ),
-                      ],
-                    )
+                        ? _smartphoneScreen
+                            ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  Text(
+                                    _uploadingVideo
+                                        ? 'Uploading Video'
+                                        : 'Uploading Image',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(
+                                    width: 20.0,
+                                  ),
+                                  Text(
+                                    _uploadingVideo
+                                        ? 'Uploading Video'
+                                        : 'Uploading Image',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ],
+                              )
                         : Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -259,28 +254,34 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                               ),
                               Row(
                                 children: [
-                                  widget.question.allowImage ?
-                                  Expanded(
-                                    child: RaisedButton(
-                                      onPressed: () async {
-                                        await _pickImage(mediaPickerContext);
-                                      },
-                                      child: Text('Image'),
-                                    ),
-                                  ) : SizedBox(),
-                                  widget.question.allowImage && widget.question.allowVideo ?
-                                  SizedBox(
-                                    width: 20.0,
-                                  ) : SizedBox(),
-                                  widget.question.allowVideo ?
-                                  Expanded(
-                                    child: RaisedButton(
-                                      onPressed: () async {
-                                        await _pickVideo(mediaPickerContext);
-                                      },
-                                      child: Text('Video'),
-                                    ),
-                                  ) : SizedBox(),
+                                  widget.question.allowImage
+                                      ? Expanded(
+                                          child: RaisedButton(
+                                            onPressed: () async {
+                                              await _pickImage(
+                                                  mediaPickerContext);
+                                            },
+                                            child: Text('Image'),
+                                          ),
+                                        )
+                                      : SizedBox(),
+                                  widget.question.allowImage &&
+                                          widget.question.allowVideo
+                                      ? SizedBox(
+                                          width: 20.0,
+                                        )
+                                      : SizedBox(),
+                                  widget.question.allowVideo
+                                      ? Expanded(
+                                          child: RaisedButton(
+                                            onPressed: () async {
+                                              await _pickVideo(
+                                                  mediaPickerContext);
+                                            },
+                                            child: Text('Video'),
+                                          ),
+                                        )
+                                      : SizedBox(),
                                 ],
                               )
                             ],
@@ -307,8 +308,8 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
 
   @override
   Widget build(BuildContext context) {
-
-    _smartphoneScreen = MediaQuery.of(context).size.width < MediaQuery.of(context).size.height;
+    _smartphoneScreen =
+        MediaQuery.of(context).size.width < MediaQuery.of(context).size.height;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -367,246 +368,272 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                       borderRadius: BorderRadius.circular(10.0),
                       color: Colors.grey[100],
                     ),
-                    child: _smartphoneScreen ? Column(
-                      children: [
-                        TextFormField(
-                          minLines: 3,
-                          maxLines: 20,
-                          controller: widget.responseController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            hintText: 'Write your response here',
-                          ),
-                          onChanged: (responseStatement) {
-                            setState(() {
-                              widget.response.responseStatement = responseStatement;
-                            });
-                          },
-                        ),
-                        SizedBox(
-                          width: widget.question.allowImage || widget.question.allowVideo ? 20.0 : 0.0,
-                        ),
-                        widget.response.questionHasMedia
-                            ? _mediaPicked
-                            ? widget.response.mediaType == 'image'
-                            ? CachedNetworkImage(
-                          imageUrl: widget.response.mediaURL,
-                          imageBuilder: (context, imageProvider) {
-                            return Align(
-                              child: InkWell(
-                                onTap: () {
-                                  _showMediaPickerDialog(_smartphoneScreen);
+                    child: _smartphoneScreen
+                        ? Column(
+                            children: [
+                              TextFormField(
+                                minLines: 3,
+                                maxLines: 20,
+                                controller: widget.responseController,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  hintText: 'Write your response here',
+                                ),
+                                onChanged: (responseStatement) {
+                                  setState(() {
+                                    widget.response.responseStatement =
+                                        responseStatement;
+                                  });
                                 },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                      BorderRadius.circular(
-                                          10.0),
-                                      color: Colors.white),
-                                  constraints: BoxConstraints(
-                                    maxHeight: 200.0,
-                                    maxWidth: 300.0,
-                                  ),
-                                  padding: EdgeInsets.all(10.0),
-                                  child: ClipRRect(
-                                    borderRadius:
-                                    BorderRadius.circular(
-                                        10.0),
-                                    child: Image(
-                                      fit: BoxFit.cover,
-                                      image: imageProvider,
-                                    ),
-                                  ),
-                                ),
                               ),
-                            );
-                          },
-                        )
-                            : Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                            BorderRadius.circular(10.0),
-                          ),
-                          padding: EdgeInsets.all(10.0),
-                          constraints: BoxConstraints(
-                            maxHeight: 200.0,
-                            maxWidth: 300.0,
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              _showMediaPickerDialog(_smartphoneScreen);
-                            },
-                            child: Chewie(
-                              controller: _chewieController,
-                            ),
-                          ),
-                        )
-                            : InkWell(
-                          onTap: () {
-                            _showMediaPickerDialog(_smartphoneScreen);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                              BorderRadius.circular(10.0),
-                              border: Border.all(
-                                color: Colors.grey[700],
+                              SizedBox(
+                                width: widget.question.allowImage ||
+                                        widget.question.allowVideo
+                                    ? 20.0
+                                    : 0.0,
                               ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.add_circle_outline,
-                                  color: Colors.grey[900],
-                                  size: 16.0,
-                                ),
-                                SizedBox(
-                                  width: 20.0,
-                                ),
-                                Text(
-                                  'Image/Video',
-                                  style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                            : SizedBox(),
-                      ],
-                    ) : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            minLines: 3,
-                            maxLines: 20,
-                            controller: widget.responseController,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              hintText: 'Write your response here',
-                            ),
-                            onChanged: (responseStatement) {
-                              setState(() {
-                                widget.response.responseStatement = responseStatement;
-                              });
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          width: widget.question.allowImage || widget.question.allowVideo ? 20.0 : 0.0,
-                        ),
-                        widget.response.questionHasMedia
-                            ? _mediaPicked
-                                ? widget.response.mediaType == 'image'
-                                    ? CachedNetworkImage(
-                                        imageUrl: widget.response.mediaURL,
-                                        imageBuilder: (context, imageProvider) {
-                                          return Align(
-                                            child: InkWell(
-                                              onTap: () {
-                                                _showMediaPickerDialog(_smartphoneScreen);
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                    color: Colors.white),
-                                                constraints: BoxConstraints(
-                                                  maxHeight: 200.0,
-                                                  maxWidth: 300.0,
-                                                ),
-                                                padding: EdgeInsets.all(10.0),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                  child: Image(
-                                                    fit: BoxFit.cover,
-                                                    image: imageProvider,
+                              widget.response.questionHasMedia
+                                  ? _mediaPicked
+                                      ? widget.response.mediaType == 'image'
+                                          ? CachedNetworkImage(
+                                              imageUrl:
+                                                  widget.response.mediaURL,
+                                              imageBuilder:
+                                                  (context, imageProvider) {
+                                                return Align(
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      _showMediaPickerDialog(
+                                                          _smartphoneScreen);
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          color: Colors.white),
+                                                      constraints:
+                                                          BoxConstraints(
+                                                        maxHeight: 200.0,
+                                                        maxWidth: 300.0,
+                                                      ),
+                                                      padding:
+                                                          EdgeInsets.all(10.0),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                        child: Image(
+                                                          fit: BoxFit.cover,
+                                                          image: imageProvider,
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
+                                                );
+                                              },
+                                            )
+                                          : Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                              ),
+                                              padding: EdgeInsets.all(10.0),
+                                              constraints: BoxConstraints(
+                                                maxHeight: 200.0,
+                                                maxWidth: 300.0,
+                                              ),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  _showMediaPickerDialog(
+                                                      _smartphoneScreen);
+                                                },
+                                                child: Chewie(
+                                                  controller: _chewieController,
                                                 ),
                                               ),
-                                            ),
-                                          );
-                                        },
-                                      )
-                                    : Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                        ),
-                                        padding: EdgeInsets.all(10.0),
-                                        constraints: BoxConstraints(
-                                          maxHeight: 200.0,
-                                          maxWidth: 300.0,
-                                        ),
-                                        child: InkWell(
+                                            )
+                                      : InkWell(
                                           onTap: () {
-                                            _showMediaPickerDialog(_smartphoneScreen);
+                                            _showMediaPickerDialog(
+                                                _smartphoneScreen);
                                           },
-                                          child: Chewie(
-                                            controller: _chewieController,
-                                          ),
-                                        ),
-                                      )
-                                : InkWell(
-                                    onTap: () {
-                                      _showMediaPickerDialog(_smartphoneScreen);
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.all(10.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        border: Border.all(
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.add_circle_outline,
-                                            color: Colors.grey[900],
-                                            size: 16.0,
-                                          ),
-                                          SizedBox(
-                                            height: 20.0,
-                                          ),
-                                          Text(
-                                            'Image/Video',
-                                            style: TextStyle(
-                                              color: Colors.grey[900],
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.bold,
+                                          child: Container(
+                                            padding: EdgeInsets.all(10.0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              border: Border.all(
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.add_circle_outline,
+                                                  color: Colors.grey[900],
+                                                  size: 16.0,
+                                                ),
+                                                SizedBox(
+                                                  width: 20.0,
+                                                ),
+                                                Text(
+                                                  'Image/Video',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[900],
+                                                    fontSize: 12.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                            : SizedBox(),
-                      ],
-                    ) ,
+                                        )
+                                  : SizedBox(),
+                            ],
+                          )
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  minLines: 3,
+                                  maxLines: 20,
+                                  controller: widget.responseController,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    disabledBorder: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    errorBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    hintText: 'Write your response here',
+                                  ),
+                                  onChanged: (responseStatement) {
+                                    setState(() {
+                                      widget.response.responseStatement =
+                                          responseStatement;
+                                    });
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                width: widget.question.allowImage ||
+                                        widget.question.allowVideo
+                                    ? 20.0
+                                    : 0.0,
+                              ),
+                              widget.response.questionHasMedia
+                                  ? _mediaPicked
+                                      ? widget.response.mediaType == 'image'
+                                          ? CachedNetworkImage(
+                                              imageUrl:
+                                                  widget.response.mediaURL,
+                                              imageBuilder:
+                                                  (context, imageProvider) {
+                                                return Align(
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      _showMediaPickerDialog(
+                                                          _smartphoneScreen);
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          color: Colors.white),
+                                                      constraints:
+                                                          BoxConstraints(
+                                                        maxHeight: 200.0,
+                                                        maxWidth: 300.0,
+                                                      ),
+                                                      padding:
+                                                          EdgeInsets.all(10.0),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                        child: Image(
+                                                          fit: BoxFit.cover,
+                                                          image: imageProvider,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                              ),
+                                              padding: EdgeInsets.all(10.0),
+                                              constraints: BoxConstraints(
+                                                maxHeight: 200.0,
+                                                maxWidth: 300.0,
+                                              ),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  _showMediaPickerDialog(
+                                                      _smartphoneScreen);
+                                                },
+                                                child: Chewie(
+                                                  controller: _chewieController,
+                                                ),
+                                              ),
+                                            )
+                                      : InkWell(
+                                          onTap: () {
+                                            _showMediaPickerDialog(
+                                                _smartphoneScreen);
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(10.0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              border: Border.all(
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.add_circle_outline,
+                                                  color: Colors.grey[900],
+                                                  size: 16.0,
+                                                ),
+                                                SizedBox(
+                                                  height: 20.0,
+                                                ),
+                                                Text(
+                                                  'Image/Video',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[900],
+                                                    fontSize: 12.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                  : SizedBox(),
+                            ],
+                          ),
                   ),
                   SizedBox(
                     height: 20.0,
@@ -615,9 +642,11 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
               ),
             ),
             InkWell(
-              onTap: widget.response.responseStatement == null ?
-                   widget.onTap
-                  : widget.response.responseStatement.isEmpty ? null : widget.onTap,
+              onTap: widget.response.responseStatement == null
+                  ? widget.onTap
+                  : widget.response.responseStatement.isEmpty
+                      ? null
+                      : widget.onTap,
               child: Container(
                 decoration: BoxDecoration(
                   color: widget.response.responseStatement == null
