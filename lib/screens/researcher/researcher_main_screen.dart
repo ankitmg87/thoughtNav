@@ -103,7 +103,7 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
           );
         }));
 
-    var study = await _firebaseFirestoreService.createStudy();
+    var study = await _researcherAndModeratorFirestoreService.createStudy();
 
     final getStorage = GetStorage();
     await getStorage.write('studyUID', study.studyUID);
@@ -114,6 +114,8 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
       await Navigator.of(context).pushNamed(DRAFT_STUDY_SCREEN);
     }
   }
+
+
 
   void _makeSearchedStudiesList(String searchQuery) {
     _searchedStudiesList = [];

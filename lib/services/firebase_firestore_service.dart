@@ -1,11 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/models/avatar_and_display_name.dart';
 import 'package:thoughtnav/models/user.dart';
-import 'package:thoughtnav/screens/researcher/models/all_avatars_and_display_names.dart';
-import 'package:thoughtnav/screens/researcher/models/categories.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
-import 'package:thoughtnav/screens/researcher/models/comment.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
@@ -55,18 +51,6 @@ class FirebaseFirestoreService {
     return user;
   }
 
-  // Future<List<Study>> getAllStudies(List<Study> allStudiesList) async {
-  //   var studiesSnapshot =
-  //       await _studiesReference.orderBy('created', descending: true).get();
-  //
-  //   for (var snapshot in studiesSnapshot.docs) {
-  //     var study = Study.basicDetailsFromMap(snapshot.data());
-  //     allStudiesList.add(study);
-  //   }
-  //
-  //   return allStudiesList;
-  // }
-
   Future<Study> getStudy(String studyUID) async {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
 
@@ -86,8 +70,6 @@ class FirebaseFirestoreService {
         .orderBy('notificationTimestamp', descending: true)
         .snapshots();
   }
-
-
 
   Future<List<Group>> getGroups(String studyUID) async {
     var groups = <Group>[];
@@ -366,62 +348,6 @@ class FirebaseFirestoreService {
   }
 
   /// Create section
-
-
-
-  Future<Study> createStudy() async {
-    final created = Timestamp.now();
-
-    final study = Study(
-      activeParticipants: 0,
-      totalResponses: 0,
-      totalComments: 0,
-      totalParticipants: 0,
-      totalInsights: 0,
-      studyName: 'Draft Study',
-      internalStudyLabel: 'Internal Label',
-      studyStatus: 'Draft',
-      masterPassword: 'Password not set',
-      startDate: 'Study begin date not set',
-      endDate: 'Study end date not set',
-      created: created,
-      lastSaveTime: created,
-      introPageMessage: INTRO_PAGE_MESSAGE,
-      studyClosedMessage: 'This is study closed message',
-      commonInviteMessage: 'This is a common invite message',
-      archived: false,
-    );
-
-    var studyMap = Study().basicDetailsToMap(study);
-
-    await _studiesReference.add(studyMap).then((studyReference) async {
-      var studyUID = studyReference.id;
-      study.studyUID = studyUID;
-      await _studiesReference.doc(studyUID).set(
-        {
-          'studyUID': studyUID,
-        },
-        SetOptions(merge: true),
-      );
-    });
-
-    await createAvatarAndDisplayNameList(study.studyUID);
-
-    return study;
-  }
-
-  Future<void> createAvatarAndDisplayNameList(String studyUID) async {
-    var avatarAndDisplayNameList =
-        AllAvatarsAndDisplayNames().getAvatarAndDisplayNameList();
-
-    for (var avatarAndDisplayName in avatarAndDisplayNameList) {
-      await _studiesReference
-          .doc(studyUID)
-          .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
-          .doc(avatarAndDisplayName.id)
-          .set(avatarAndDisplayName.toMap());
-    }
-  }
 
   Future<User> createUser(User user) async {
     var userUID = await _firebaseAuthService.signUpUser(
