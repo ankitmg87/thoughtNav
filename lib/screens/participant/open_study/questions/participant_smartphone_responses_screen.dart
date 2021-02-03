@@ -64,12 +64,26 @@ class _ParticipantSmartphoneResponsesScreenState
     _studyNavigatorTopics = await _participantFirestoreService
         .getParticipantTopics(studyUID, participantGroupUID);
 
+    _setNextQuestionUIDAndNextTopicUID();
+
     return _studyNavigatorTopics;
   }
 
   Future<Question> _getQuestion(String topicUID, String questionUID) async {
     _question = await _participantFirestoreService.getQuestion(
         widget.studyUID, topicUID, questionUID);
+
+    await _getTopics(widget.studyUID, widget.participant.groupUID);
+
+    if (_question.respondedBy != null) {
+      if (_question.respondedBy.contains(widget.participant.participantUID)) {
+        _participantResponded = true;
+      } else {
+        _participantResponded = false;
+      }
+    } else {
+      _participantResponded = false;
+    }
     return _question;
   }
 
@@ -91,11 +105,8 @@ class _ParticipantSmartphoneResponsesScreenState
     var topicIndex = _studyNavigatorTopics.indexWhere((topic) {
       if (topic.topicUID == _topicUID) {
         var questionIndex = topic.questions.indexWhere((question) {
-          if (question.questionUID == _questionUID) {
-            return true;
-          } else {
-            return false;
-          }
+
+          return question.questionUID == _questionUID;
         });
         if (questionIndex != -1) {
           if (topic.questions.length - 1 >= questionIndex + 1) {
@@ -137,6 +148,7 @@ class _ParticipantSmartphoneResponsesScreenState
 
       _futureTopics = _getTopics(widget.studyUID, widget.participant.groupUID);
       _futureQuestion = _getQuestion(nextTopicUID, nextQuestionUID);
+      _questionStream = _getQuestionStream(widget.studyUID, nextTopicUID, nextQuestionUID, widget.participant.participantUID);
       _responsesStream =
           _getResponsesStream(widget.studyUID, nextTopicUID, nextQuestionUID);
     });
@@ -396,6 +408,7 @@ class _ParticipantSmartphoneResponsesScreenState
                                               _question.questionUID,
                                               response);
 
+
                                       setState(() {
                                         _responseController = null;
                                         _futureTopics = _getTopics(
@@ -584,7 +597,7 @@ class _ParticipantSmartphoneResponsesScreenState
                                                 width: 10.0,
                                               ),
                                               Text(
-                                                'Response',
+                                                'Your Response',
                                                 style: TextStyle(
                                                   color: PROJECT_NAVY_BLUE,
                                                   fontSize: 12.0,
@@ -896,7 +909,6 @@ class _ParticipantSmartphoneResponsesScreenState
                   case ConnectionState.done:
                     if (topicsSnapshot.hasData) {
                       if (topicsSnapshot.data.isNotEmpty) {
-                        _setNextQuestionUIDAndNextTopicUID();
 
                         var topics = <Topic>[];
 

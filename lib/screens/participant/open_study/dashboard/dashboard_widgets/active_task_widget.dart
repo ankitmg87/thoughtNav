@@ -175,47 +175,61 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                           itemCount: widget.topic.questions.length,
                           itemBuilder: (BuildContext context, int index) {
                             var timestamp = Timestamp.now();
-                            if (index == 0 &&
-                                timestamp.millisecondsSinceEpoch >=
-                                    widget
-                                        .topic
-                                        .questions[index]
-                                        .questionTimestamp
-                                        .millisecondsSinceEpoch) {
+                            if(widget.topic.questions[index].isProbe){
                               return ActiveQuestionWidget(
                                 question: widget.topic.questions[index],
                                 participantUID: widget.participantUID,
                                 topicUID: widget.topic.topicUID,
                               );
-                            } else if (index == 0 &&
-                                timestamp.millisecondsSinceEpoch <
-                                    widget
-                                        .topic
-                                        .questions[index]
-                                        .questionTimestamp
-                                        .millisecondsSinceEpoch) {
-                              return LockedQuestionWidget(
-                                questionTimestamp: widget
-                                    .topic.questions[index].questionTimestamp,
-                              );
-                            } else {
-                              if (widget
-                                      .topic.questions[index - 1].respondedBy !=
-                                  null) {
-                                if (widget
-                                    .topic.questions[index - 1].respondedBy
-                                    .contains(widget.participantUID)) {
-                                  if (timestamp.millisecondsSinceEpoch >=
+                            }
+                            else {
+                              if (index == 0 &&
+                                  timestamp.millisecondsSinceEpoch >=
                                       widget
                                           .topic
                                           .questions[index]
                                           .questionTimestamp
                                           .millisecondsSinceEpoch) {
-                                    return ActiveQuestionWidget(
-                                      question: widget.topic.questions[index],
-                                      participantUID: widget.participantUID,
-                                      topicUID: widget.topic.topicUID,
-                                    );
+                                return ActiveQuestionWidget(
+                                  question: widget.topic.questions[index],
+                                  participantUID: widget.participantUID,
+                                  topicUID: widget.topic.topicUID,
+                                );
+                              } else if (index == 0 &&
+                                  timestamp.millisecondsSinceEpoch <
+                                      widget
+                                          .topic
+                                          .questions[index]
+                                          .questionTimestamp
+                                          .millisecondsSinceEpoch) {
+                                return LockedQuestionWidget(
+                                  questionTimestamp: widget
+                                      .topic.questions[index].questionTimestamp,
+                                );
+                              } else {
+                                if (widget
+                                    .topic.questions[index - 1].respondedBy !=
+                                    null) {
+                                  if (widget
+                                      .topic.questions[index - 1].respondedBy
+                                      .contains(widget.participantUID)) {
+                                    if (timestamp.millisecondsSinceEpoch >=
+                                        widget
+                                            .topic
+                                            .questions[index]
+                                            .questionTimestamp
+                                            .millisecondsSinceEpoch) {
+                                      return ActiveQuestionWidget(
+                                        question: widget.topic.questions[index],
+                                        participantUID: widget.participantUID,
+                                        topicUID: widget.topic.topicUID,
+                                      );
+                                    } else {
+                                      return LockedQuestionWidget(
+                                        questionTimestamp: widget.topic
+                                            .questions[index].questionTimestamp,
+                                      );
+                                    }
                                   } else {
                                     return LockedQuestionWidget(
                                       questionTimestamp: widget.topic
@@ -224,18 +238,13 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                                   }
                                 } else {
                                   return LockedQuestionWidget(
-                                    questionTimestamp: widget.topic
-                                        .questions[index].questionTimestamp,
+                                    questionTimestamp: widget
+                                        .topic.questions[index].questionTimestamp,
                                   );
                                 }
-                              } else {
-                                return LockedQuestionWidget(
-                                  questionTimestamp: widget
-                                      .topic.questions[index].questionTimestamp,
-                                );
                               }
-                            }
 
+                            }
                             // return
                           },
                           separatorBuilder: (BuildContext context, int index) {
@@ -376,3 +385,20 @@ class LockedQuestionWidget extends StatelessWidget {
     );
   }
 }
+
+
+class KTermsOfUsePage extends StatefulWidget {
+  @override
+  _KTermsOfUsePageState createState() => _KTermsOfUsePageState();
+}
+
+class _KTermsOfUsePageState extends State<KTermsOfUsePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+
+
+

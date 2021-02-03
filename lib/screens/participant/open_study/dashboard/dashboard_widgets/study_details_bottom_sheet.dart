@@ -153,26 +153,28 @@ class StudyDetailsBottomSheet extends StatelessWidget {
                         SizedBox(
                           width: 40.0,
                         ),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text:
-                                    'After you complete this study,\nyou\'ll be awarded a ',
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Color(0xFF333333),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      'After you complete this study,\nyou\'ll be awarded a ',
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Color(0xFF333333),
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: '\$$rewardAmount giftcard.',
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Color(0xFF333333),
-                                  fontWeight: FontWeight.bold,
+                                TextSpan(
+                                  text: '\$$rewardAmount giftcard.',
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Color(0xFF333333),
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],

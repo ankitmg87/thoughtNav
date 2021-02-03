@@ -81,7 +81,9 @@ class ParticipantFirestoreService {
 
     var participantResponses = await getParticipantDetail(studyUID, participantUID, 'responses');
 
-    await saveParticipantDetail(studyUID, participantUID, 'responses', participantResponses++);
+    participantResponses = participantResponses++;
+
+    await saveParticipantDetail(studyUID, participantUID, 'responses', participantResponses);
 
     var totalStudyResponses = await getStudyDetail(studyUID, 'totalResponses');
 
@@ -93,11 +95,12 @@ class ParticipantFirestoreService {
 
   Future<int> getParticipantDetail(String studyUID, String participantUID,
       String detail) async {
+
     var participantSnapshot = await _studiesReference.doc(studyUID).collection(
         _PARTICIPANTS_COLLECTION).doc(participantUID).get();
 
     var intDetail = participantSnapshot.data()[detail];
-
+    print(int.parse('$intDetail'));
     return int.parse('$intDetail');
 
   }
@@ -566,7 +569,7 @@ class ParticipantFirestoreService {
   Future<int> getStudyDetail(String studyUID, String key) async {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
     var detail = studySnapshot.data()[key];
-    return int.parse(detail);
+    return int.parse('$detail');
   }
 
   Future<void> updateStudyDetail(String studyUID, String key, int value) async {

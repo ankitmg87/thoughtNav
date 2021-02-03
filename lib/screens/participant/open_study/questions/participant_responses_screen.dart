@@ -671,15 +671,21 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                               .data()['respondedBy']
                                               .contains(_participantUID)) {
                                             _participantResponded = true;
-                                            return Text(
-                                              'Your response has been posted.\n'
-                                              'Please read and comment on other posts.\n'
-                                              'Scroll to the bottom to continue',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            );
+
+                                            if (_question.questionType !=
+                                                'Private') {
+                                              return Text(
+                                                'Your response has been posted.\n'
+                                                'Please read and comment on other posts.\n'
+                                                'Scroll to the bottom to continue',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              );
+                                            } else {
+                                              return SizedBox();
+                                            }
                                           } else {
                                             _responseController =
                                                 TextEditingController();
@@ -759,9 +765,9 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                       AsyncSnapshot<QuerySnapshot> snapshot) {
                                     switch (snapshot.connectionState) {
                                       case ConnectionState.none:
+                                      case ConnectionState.waiting:
                                         return SizedBox();
                                         break;
-                                      case ConnectionState.waiting:
                                       case ConnectionState.active:
                                         if (snapshot.hasData) {
                                           if (_question.questionType ==
@@ -890,9 +896,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                     itemBuilder:
                                                         (BuildContext context,
                                                             int index) {
-                                                      var commentController =
-                                                          TextEditingController();
-
                                                       var response =
                                                           Response.fromMap(
                                                               responses[index]

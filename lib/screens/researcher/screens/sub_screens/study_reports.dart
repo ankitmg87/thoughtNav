@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:csv/csv.dart';
 import 'package:dio/adapter.dart';
-import 'package:dio/dio.dart' as dio;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
@@ -280,7 +279,7 @@ class _StudyReportsState extends State<StudyReports> {
                           elevation: 2.0,
                           color: PROJECT_LIGHT_GREEN,
                           onPressed: () {
-                            _createPDF();
+                            // _createPDF();
                           },
                           child: Padding(
                             padding: EdgeInsets.all(10.0),
@@ -296,131 +295,128 @@ class _StudyReportsState extends State<StudyReports> {
                       ],
                     ),
                   ),
-                  RepaintBoundary(
-                    key: _printKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Card(
-                            elevation: 2.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(20.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    _study.studyName,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Card(
+                          elevation: 2.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _study.studyName,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 24.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10.0,
+                                ),
+                                Container(
+                                  height: 1.0,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(10.0),
+                                      color: Colors.grey),
+                                ),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _detailRow('Internal Study Label',
+                                              '${_study.internalStudyLabel ?? 'No Internal Study Label'}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _detailRow('Study Status',
+                                              '${_study.studyStatus}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _detailRow('Begin Date',
+                                              '${_study.startDate}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _detailRow('End Date',
+                                              '${_study.endDate}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  Container(
-                                    height: 1.0,
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        color: Colors.grey),
-                                  ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            _detailRow('Internal Study Label',
-                                                '${_study.internalStudyLabel ?? 'No Internal Study Label'}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _detailRow('Study Status',
-                                                '${_study.studyStatus}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _detailRow('Begin Date',
-                                                '${_study.startDate}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _detailRow('End Date',
-                                                '${_study.endDate}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                          ],
-                                        ),
+                                    SizedBox(
+                                      width: 300.0,
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _detailRow('Active Participants',
+                                              '${_study.activeParticipants}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _detailRow('Total Participants',
+                                              '${_study.totalParticipants}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _detailRow('Total Responses',
+                                              '${_study.totalResponses}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                          _detailRow('Total Comments',
+                                              '${_study.totalComments}'),
+                                          SizedBox(
+                                            height: 10.0,
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(
-                                        width: 300.0,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            _detailRow('Active Participants',
-                                                '${_study.activeParticipants}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _detailRow('Total Participants',
-                                                '${_study.totalParticipants}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _detailRow('Total Responses',
-                                                '${_study.totalResponses}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _detailRow('Total Comments',
-                                                '${_study.totalComments}'),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: topics.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return TopicReportWidget(
-                              topic: topics[index],
-                              groups: _groups,
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return SizedBox(
-                              height: 10.0,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: topics.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return TopicReportWidget(
+                            topic: topics[index],
+                            groups: _groups,
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 10.0,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               );
@@ -455,8 +451,6 @@ class _StudyReportsState extends State<StudyReports> {
       ],
     );
   }
-
-
 
   void _getCSV(List<Topic> topics) async {
 
