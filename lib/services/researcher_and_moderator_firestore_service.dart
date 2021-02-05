@@ -32,14 +32,12 @@ const String _PARTICIPANT_NOTIFICATIONS_COLLECTION = 'participantNotifications';
 const String _GROUP_NOTIFICATIONS_COLLECTION = 'groupNotifications';
 const String _AVATAR_AND_DISPLAY_NAMES_COLLECTION = 'avatarsAndDisplayNames';
 
-
 class ResearcherAndModeratorFirestoreService {
   final _studiesReference =
       FirebaseFirestore.instance.collection(_STUDIES_COLLECTION);
 
   final _moderatorsReference =
       FirebaseFirestore.instance.collection(_MODERATORS_COLLECTION);
-
 
   Future<Study> createStudy() async {
     final created = Timestamp.now();
@@ -84,7 +82,7 @@ class ResearcherAndModeratorFirestoreService {
 
   Future<void> createAvatarAndDisplayNameList(String studyUID) async {
     var avatarAndDisplayNameList =
-    AllAvatarsAndDisplayNames().getAvatarAndDisplayNameList();
+        AllAvatarsAndDisplayNames().getAvatarAndDisplayNameList();
 
     for (var avatarAndDisplayName in avatarAndDisplayNameList) {
       await _studiesReference
@@ -241,7 +239,7 @@ class ResearcherAndModeratorFirestoreService {
   }
 
   Future<void> updateQuestionGroup(String studyUID, Topic topic,
-      String questionUID, List groups, bool isProbe) async {
+      String questionUID, List groups, List groupIndexes, bool isProbe) async {
     var lastSaveTime = Timestamp.now();
 
     await _studiesReference
@@ -252,6 +250,7 @@ class ResearcherAndModeratorFirestoreService {
         .doc(questionUID)
         .update({
       'groups': groups,
+      'groupIndexes': groupIndexes,
     });
 
     await _studiesReference.doc(studyUID).set(
@@ -381,8 +380,10 @@ class ResearcherAndModeratorFirestoreService {
     }
   }
 
-  Future<http.Response> sendEmail(String email, String message, String name, String subject) async {
-    var url = 'http://bluechipdigitech.com/Thoughtnav_C/thoughtnav/flutter/send-email';
+  Future<http.Response> sendEmail(
+      String email, String message, String name, String subject) async {
+    var url =
+        'http://bluechipdigitech.com/Thoughtnav_C/thoughtnav/flutter/send-email';
 
     var response = await http.post(url, body: {
       'email': email,
@@ -429,8 +430,8 @@ class ResearcherAndModeratorFirestoreService {
 
     print(totalParticipants);
 
-    await updateStudyDetail(studyUID, 'totalParticipants', totalParticipants + 1);
-
+    await updateStudyDetail(
+        studyUID, 'totalParticipants', totalParticipants + 1);
   }
 
   Future<void> createClient(String studyUID, Client client) async {
@@ -490,6 +491,18 @@ class ResearcherAndModeratorFirestoreService {
         .collection(_PARTICIPANTS_COLLECTION)
         .doc(participant.participantUID)
         .update(participant.toMap());
+  }
+
+  Future<void> updateClientDetails(String studyUID, Client client) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_CLIENTS_COLLECTION)
+        .doc(client.clientUID)
+        .update(client.toMap());
+  }
+
+  Future<void> updateModeratorDetails(Moderator moderator) async {
+    await _moderatorsReference.doc(moderator.moderatorUID).update(moderator.toMap());
   }
 
   Future<List<Group>> getGroups(String studyUID) async {
@@ -589,6 +602,20 @@ class ResearcherAndModeratorFirestoreService {
     });
   }
 
+  Future<void> saveStudyClosedMessage(
+      String studyUID, String studyClosedMessage) async {
+    await _studiesReference.doc(studyUID).update({
+      'studyClosedMessage': studyClosedMessage,
+    });
+  }
+
+  Future<void> saveCommonInviteMessage(
+      String studyUID, String commonInviteMessage) async {
+    await _studiesReference.doc(studyUID).update({
+      'commonInviteMessage': commonInviteMessage,
+    });
+  }
+
   Future<Categories> getCategories(String studyUID) async {
     var categories;
 
@@ -671,7 +698,6 @@ class ResearcherAndModeratorFirestoreService {
     var totalComments = await getStudyDetail(studyUID, 'totalComments');
 
     await updateStudyDetail(studyUID, 'totalComments', totalComments + 1);
-
   }
 
   Future<void> postModeratorCommentNotification(
@@ -790,12 +816,6 @@ class ResearcherAndModeratorFirestoreService {
     return studies;
   }
 
-  Future<void> updateModerator(Moderator moderator) async {
-    await _moderatorsReference
-        .doc(moderator.moderatorUID)
-        .update(moderator.toMap());
-  }
-
   Future<void> updateStudyStatus(String studyUID, String studyStatus) async {
     await _studiesReference.doc(studyUID).update({
       'studyStatus': studyStatus,
@@ -853,7 +873,7 @@ class ResearcherAndModeratorFirestoreService {
               .orderBy('commentTimestamp')
               .get();
 
-          for(var commentSnapshot in commentsSnapshot.docs){
+          for (var commentSnapshot in commentsSnapshot.docs) {
             var comment = Comment.fromMap(commentSnapshot.data());
             comments.add(comment);
           }
@@ -879,4 +899,9 @@ class ResearcherAndModeratorFirestoreService {
     return masterPassword;
   }
 
+  Future<String> getCommonInviteMessage(String studyUID) async {
+    var studySnapshot = await _studiesReference.doc(studyUID).get();
+    var commonInviteMessage = studySnapshot.data()['commonInviteMessage'];
+    return commonInviteMessage;
+  }
 }

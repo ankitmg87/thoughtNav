@@ -278,7 +278,7 @@ class _StudySetupScreenTopicWidgetState
                     onTap: () async {
                       final time = await showTimePicker(
                         context: context,
-                        initialTime: TimeOfDay.now(),
+                        initialTime: TimeOfDay(hour: 06, minute: 30),
                       );
                       if (time != null) {
                         _topicTimeOfDay = time;
@@ -390,7 +390,7 @@ class _StudySetupScreenTopicWidgetState
                       groups: widget.groups,
                       studyUID: widget.studyUID,
                       topic: widget.topic,
-                      question: _questions[index],
+                      question: widget.topic.questions[index],
                       topicIsActive: widget.topic.isActive,
                       deleteQuestion: () async {
                         await _researcherAndModeratorFirestoreService
@@ -428,6 +428,7 @@ class _StudySetupScreenTopicWidgetState
                     );
                     setState(() {
                       _questions.add(question);
+                      widget.topic.questions = _questions;
                     });
                   },
                   child: Text(

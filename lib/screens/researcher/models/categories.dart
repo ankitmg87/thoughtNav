@@ -6,6 +6,7 @@ class Categories {
   bool advertising;
   bool product;
   bool futures;
+  bool others;
   List<dynamic> customCategories;
 
   Categories({
@@ -16,6 +17,7 @@ class Categories {
     this.advertising,
     this.product,
     this.futures,
+    this.others,
     this.customCategories,
   });
 
@@ -41,6 +43,9 @@ class Categories {
         break;
       case 'Futures':
         futures = status;
+        break;
+      case 'Others':
+        others = status;
         break;
     }
   }
@@ -69,6 +74,9 @@ class Categories {
       case 'Futures':
         categoryStatus = futures;
         break;
+      case 'Others':
+        categoryStatus = others;
+        break;
     }
 
     return categoryStatus;
@@ -84,6 +92,7 @@ class Categories {
     categoriesMap['advertising'] = categories.advertising ?? false;
     categoriesMap['product'] = categories.product ?? false;
     categoriesMap['futures'] = categories.futures ?? false;
+    categoriesMap['others'] = categories.others ?? false;
     categoriesMap['customCategories'] = categories.customCategories ?? [];
 
     return categoriesMap;
@@ -97,7 +106,30 @@ class Categories {
     advertising = categories['advertising'];
     product = categories['product'];
     futures = categories['futures'];
+    others = categories['others'];
     customCategories = categories['customCategories'];
+  }
+
+}
+
+class CustomCategory{
+  String category;
+  bool selected;
+
+  CustomCategory({this.category, this.selected,});
+
+  Map<String, bool> toMap() {
+    var customCategory = <String, dynamic>{};
+
+    customCategory['category'] = category;
+    customCategory['selected'] = selected ?? false;
+
+    return customCategory;
+  }
+
+  CustomCategory.fromMap(Map<String, dynamic> customCategory){
+    category = customCategory['category'];
+    selected = customCategory['selected'];
   }
 
 }

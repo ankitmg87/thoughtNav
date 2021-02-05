@@ -33,6 +33,8 @@ class _StudyUsersState extends State<StudyUsers> {
 
   final _searchFocusNode = FocusNode();
 
+  bool _searching = false;
+
   bool _participantsVisible = true;
   bool _clientsVisible = false;
   bool _moderatorsVisible = false;
@@ -47,6 +49,7 @@ class _StudyUsersState extends State<StudyUsers> {
   String _filterBy = 'none';
 
   String _masterPassword;
+  String _commonInviteMessage;
 
   Stream<QuerySnapshot> _participantStream;
   Stream<QuerySnapshot> _clientsStream;
@@ -60,6 +63,8 @@ class _StudyUsersState extends State<StudyUsers> {
   Future<void> _getGroups() async {
     _masterPassword = await _researcherAndModeratorFirestoreService
         .getMasterPassword(widget.studyUID);
+    _commonInviteMessage = await _researcherAndModeratorFirestoreService
+        .getCommonInviteMessage(widget.studyUID);
 
     _groupsList = await _researcherAndModeratorFirestoreService
         .getGroups(widget.studyUID);
@@ -103,7 +108,6 @@ class _StudyUsersState extends State<StudyUsers> {
           _bulkSelectedParticipants = [];
           _filterBy = 'none';
           _sortBy = 'none';
-
         });
         break;
       case 'Clients':
@@ -132,12 +136,13 @@ class _StudyUsersState extends State<StudyUsers> {
 
     if (searchQuery != null) {
       if (searchQuery.isNotEmpty) {
+        print('here');
         for (var participant in _allParticipants) {
-          var participantEmail = participant.email.toLowerCase();
+          print(participant.email);
+          var participantEmail = participant.email;
           var participantName =
-              ('${participant.userFirstName} ${participant.userLastName}')
-                  .toLowerCase();
-          var participantAlias = participant.displayName.toLowerCase();
+              ('${participant.userFirstName} ${participant.userLastName}');
+          var participantAlias = participant.displayName;
 
           if (participantEmail.contains(searchQuery) ||
               participantName.contains(searchQuery) ||
@@ -151,6 +156,36 @@ class _StudyUsersState extends State<StudyUsers> {
     setState(() {});
   }
 
+  Widget _buildSearchedParticipantsList(
+      List<Participant> searchedParticipantsList) {
+    if (searchedParticipantsList.isEmpty) {
+      return Center(
+        child: Text(
+          'Search participants',
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    } else {
+      return ListView.separated(
+        itemCount: searchedParticipantsList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ParticipantDetailsWidget(
+            participant: searchedParticipantsList[index],
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) {
+          return SizedBox(
+            height: 10.0,
+          );
+        },
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -161,6 +196,16 @@ class _StudyUsersState extends State<StudyUsers> {
     _moderatorsStream = _getModeratorsStream();
 
     _visibleListView = _participantsStreamBuilder(_participantStream);
+
+    _searchFocusNode.addListener(() {
+      if (_searchFocusNode.hasFocus) {
+        setState(() {
+          _searching = true;
+        });
+      } else {
+        _searching = false;
+      }
+    });
   }
 
   @override
@@ -283,6 +328,10 @@ class _StudyUsersState extends State<StudyUsers> {
                                                 fontSize: 14.0,
                                               ),
                                             ),
+                                            onChanged: (searchQuery) {
+                                              _makeSearchedParticipantsList(
+                                                  searchQuery);
+                                            },
                                           ),
                                         ),
                                         SizedBox(
@@ -297,17 +346,20 @@ class _StudyUsersState extends State<StudyUsers> {
                                                     Animation<double> animation,
                                                     Animation<double>
                                                         secondaryAnimation) {
-
-                                                  js.context.callMethod('setInitialValue', ['']);
+                                                  js.context.callMethod(
+                                                      'setInitialValue', ['']);
 
                                                   return EmailWidget(
-                                                    bulkSelectedParticipants: _bulkSelectedParticipants,
+                                                    bulkSelectedParticipants:
+                                                        _bulkSelectedParticipants,
                                                     groupsList: _groupsList,
                                                     participantsList:
                                                         _allParticipants,
+                                                    masterPassword:
+                                                        _masterPassword,
+                                                    commonInviteMessage: _commonInviteMessage,
                                                   );
                                                 });
-
                                           },
                                           child: Icon(
                                             Icons.email,
@@ -353,7 +405,10 @@ class _StudyUsersState extends State<StudyUsers> {
                               height: 20.0,
                             ),
                             Expanded(
-                              child: _visibleListView,
+                              child: _searching
+                                  ? _buildSearchedParticipantsList(
+                                      _searchedParticipants)
+                                  : _visibleListView,
                             ),
                           ],
                         ),
@@ -554,15 +609,16 @@ class _StudyUsersState extends State<StudyUsers> {
                                           _filterBy = 'mostAnswered';
                                           _sortBy = 'none';
 
-                                          _filteredParticipants = _allParticipants;
+                                          _filteredParticipants =
+                                              _allParticipants;
 
-                                          _filteredParticipants.sort((a, b) => a.responses.compareTo(b.responses));
+                                          _filteredParticipants.sort((a, b) => a
+                                              .responses
+                                              .compareTo(b.responses));
 
                                           _visibleListView =
                                               _bulkSelectListView(
                                                   _filteredParticipants);
-
-
                                         });
                                       },
                                     ),
@@ -585,14 +641,16 @@ class _StudyUsersState extends State<StudyUsers> {
                                           _filterBy = 'leastAnswered';
                                           _sortBy = 'none';
 
-                                          _filteredParticipants = _allParticipants;
+                                          _filteredParticipants =
+                                              _allParticipants;
 
-                                          _filteredParticipants.sort((a, b) => b.responses.compareTo(a.responses));
+                                          _filteredParticipants.sort((a, b) => b
+                                              .responses
+                                              .compareTo(a.responses));
 
                                           _visibleListView =
                                               _bulkSelectListView(
                                                   _filteredParticipants);
-
                                         });
                                       },
                                     ),
@@ -640,7 +698,7 @@ class _StudyUsersState extends State<StudyUsers> {
                   child: Checkbox(
                     checkColor: Colors.white,
                     onChanged: (bool selected) {
-                      participantBulkEditSetState((){
+                      participantBulkEditSetState(() {
                         if (selected) {
                           selectedParticipants.add(participants[index]);
                           _bulkSelectedParticipants = selectedParticipants;
@@ -665,7 +723,6 @@ class _StudyUsersState extends State<StudyUsers> {
                 )
               ],
             );
-
           },
         );
       },

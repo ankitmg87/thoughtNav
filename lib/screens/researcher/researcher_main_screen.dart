@@ -74,7 +74,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
         context: context,
         pageBuilder: (BuildContext dialogContext, Animation<double> animation,
             Animation<double> secondaryAnimation) {
-
           loadingDialogContext = dialogContext;
 
           return Center(
@@ -114,8 +113,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
       await Navigator.of(context).pushNamed(DRAFT_STUDY_SCREEN);
     }
   }
-
-
 
   void _makeSearchedStudiesList(String searchQuery) {
     _searchedStudiesList = [];

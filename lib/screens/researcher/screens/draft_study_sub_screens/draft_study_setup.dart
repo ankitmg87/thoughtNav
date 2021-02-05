@@ -5,7 +5,6 @@ import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:intl/intl.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -15,7 +14,6 @@ import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/custom_categories_widget.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_widgets/draft_screen_custom_text_field.dart';
-import 'package:thoughtnav/screens/researcher/widgets/custom_text_editing_box.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_category_check_box.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_custom_input_field.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_topic_widget.dart';
@@ -77,6 +75,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
     advertising: false,
     product: false,
     futures: false,
+    others: false,
   );
 
   List<Group> _groups = [];
@@ -649,6 +648,18 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               'Enter Introduction Message',
                                               initialValueSetMessage:
                                               'Introduction Message Set',
+                                              saveFunction: () async {
+                                                String text =
+                                                js.context.callMethod('readLocalStorage');
+                                                if (text.isNotEmpty) {
+                                                  await _researcherAndModeratorFirestoreService
+                                                      .saveIntroductionMessage(
+                                                      widget.studyUID, text);
+
+                                                  mStudy.introPageMessage = text;
+                                                  setState(() {});
+                                                }
+                                              }
                                             ),
                                           ],
                                         ),
@@ -687,6 +698,18 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               'Enter Study Closed Message',
                                               initialValueSetMessage:
                                               'Study Closed Message Set',
+                                              saveFunction: () async {
+                                                String text =
+                                                js.context.callMethod('readLocalStorage');
+                                                if (text.isNotEmpty) {
+                                                  await _researcherAndModeratorFirestoreService
+                                                      .saveStudyClosedMessage(
+                                                      widget.studyUID, text);
+
+                                                  mStudy.studyClosedMessage = text;
+                                                  setState(() {});
+                                                }
+                                              }
                                             ),
                                           ],
                                         ),
@@ -725,6 +748,17 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               'Enter Common Invite Message',
                                               initialValueSetMessage:
                                               'Common Invite Message Set',
+                                              saveFunction: () async {
+                                                String text =
+                                                js.context.callMethod('readLocalStorage');
+                                                if (text.isNotEmpty) {
+                                                  await _researcherAndModeratorFirestoreService
+                                                      .saveCommonInviteMessage(
+                                                      widget.studyUID, text);
+                                                  mStudy.commonInviteMessage = text;
+                                                  setState(() {});
+                                                }
+                                              }
                                             ),
                                           ],
                                         ),
@@ -799,28 +833,56 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                   SizedBox(
                                     height: 40.0,
                                   ),
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                              color: Colors.grey, width: 1.0),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.only(bottom: 5.0),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.grey, width: 1.0),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'SELECT CATEGORY',
+                                          key: selectCategoryKey,
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20.0,
+                                          ),
                                         ),
                                       ),
-                                      child: Text(
-                                        'SELECT CATEGORY',
-                                        key: selectCategoryKey,
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20.0,
-                                        ),
+                                      CustomCategoriesButton(
+                                        studyUID: widget.studyUID,
+                                        categories: _categories,
                                       ),
-                                    ),
+                                    ],
                                   ),
+                                  // Align(
+                                  //   alignment: Alignment.centerLeft,
+                                  //   child: Container(
+                                  //     padding: EdgeInsets.only(bottom: 5.0),
+                                  //     decoration: BoxDecoration(
+                                  //       border: Border(
+                                  //         bottom: BorderSide(
+                                  //             color: Colors.grey, width: 1.0),
+                                  //       ),
+                                  //     ),
+                                  //     child: Text(
+                                  //       'SELECT CATEGORY',
+                                  //       key: selectCategoryKey,
+                                  //       textAlign: TextAlign.start,
+                                  //       style: TextStyle(
+                                  //         color: Colors.black,
+                                  //         fontWeight: FontWeight.bold,
+                                  //         fontSize: 20.0,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   SizedBox(
                                     height: 20.0,
                                   ),
@@ -886,8 +948,9 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                       SizedBox(
                                         width: 40.0,
                                       ),
-                                      CustomCategoriesWidget(
+                                      StudySetupScreenCategoryCheckBox(
                                         studyUID: widget.studyUID,
+                                        categoryName: 'Others',
                                         categories: _categories,
                                       ),
                                     ],
@@ -1079,32 +1142,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               ),
                                           ],
                                         );
-
-                                        // if (mStudy.studyStatus == 'Draft') {
-                                        //
-                                        // } else {
-                                        //   // return ListView.separated(
-                                        //   //   shrinkWrap: true,
-                                        //   //   physics:
-                                        //   //   NeverScrollableScrollPhysics(),
-                                        //   //   itemCount: _topics.length,
-                                        //   //   itemBuilder: (BuildContext context,
-                                        //   //       int index) {
-                                        //   //     return StudySetupScreenTopicWidget(
-                                        //   //       topic: _topics[index],
-                                        //   //       studyUID: widget.studyUID,
-                                        //   //       groups: _groups,
-                                        //   //     );
-                                        //   //   },
-                                        //   //   separatorBuilder:
-                                        //   //       (BuildContext context,
-                                        //   //       int index) {
-                                        //   //     return SizedBox(
-                                        //   //       height: 10.0,
-                                        //   //     );
-                                        //   //   },
-                                        //   // );
-                                        // }
                                       } else {
                                         return SizedBox();
                                       }
@@ -1235,7 +1272,9 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   Widget _buildTextEditor(
       {String initialValue,
       String titleMessage,
-      String initialValueSetMessage}) {
+      String initialValueSetMessage,
+        Function saveFunction,
+      }) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(2.0),
@@ -1266,7 +1305,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Introduction Message',
+                                titleMessage,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 14.0,
@@ -1308,18 +1347,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                 borderRadius: BorderRadius.circular(4.0),
                               ),
                               onPressed: () async {
-                                String text =
-                                    js.context.callMethod('readLocalStorage');
-                                if (text.isNotEmpty) {
-                                  await _researcherAndModeratorFirestoreService
-                                      .saveIntroductionMessage(
-                                          widget.studyUID, text);
-
-                                  mStudy.introPageMessage = text;
-                                  setState(() {});
-
-                                  Navigator.of(textEditorContext).pop();
-                                }
+                                await saveFunction();
+                                Navigator.of(textEditorContext).pop();
                               },
                               child: Text(
                                 'SAVE',

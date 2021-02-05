@@ -57,7 +57,7 @@ class _ModeratorPreferencesScreenState
 
       _moderator.moderatorAvatar = '$imageURI';
 
-      await _researcherAndModeratorFirestoreService.updateModerator(_moderator);
+      await _researcherAndModeratorFirestoreService.updateModeratorDetails(_moderator);
 
       setState(() {});
     }
@@ -345,19 +345,19 @@ class _ModeratorPreferencesScreenState
                       onPressed: () async {
                         if(_oldPhone != _newPhone){
                           _moderator.phone = _newPhone;
-                          await _researcherAndModeratorFirestoreService.updateModerator(_moderator);
+                          await _researcherAndModeratorFirestoreService.updateModeratorDetails(_moderator);
                         }
                         if(_newPassword != _oldPassword){
                           _moderator.password = _newPassword;
                           try{
                             await _firebaseAuthService.changeUserPassword(_newPassword).then((value) async {
-                              await _researcherAndModeratorFirestoreService.updateModerator(_moderator);
+                              await _researcherAndModeratorFirestoreService.updateModeratorDetails(_moderator);
                             });
                           } catch (e) {
                             if(e.code == 'requires-recent-login'){
                               await _firebaseAuthService.signInUser(_moderator.email, _oldPassword);
                               await _firebaseAuthService.changeUserPassword(_newPassword);
-                              await _researcherAndModeratorFirestoreService.updateModerator(_moderator);
+                              await _researcherAndModeratorFirestoreService.updateModeratorDetails(_moderator);
                             }
                           }
                         }

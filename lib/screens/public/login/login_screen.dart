@@ -153,6 +153,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   user.studyUID, userID);
               var study = await _firebaseFirestoreService.getStudy(user.studyUID);
               if(study.studyStatus == 'Active' || study.studyStatus == 'Completed'){
+                if(participant.isDeleted){
+                  var getStorage = GetStorage();
+                  await getStorage.write('studyUID', user.studyUID);
+                  await Navigator.of(context).pushNamedAndRemoveUntil(STUDY_ENDED_SCREEN, (route) => false);
+                }
                 if (participant.isOnboarded) {
                   var getStorage = GetStorage();
                   await getStorage.write('studyUID', user.studyUID);

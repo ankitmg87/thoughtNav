@@ -51,6 +51,13 @@ class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
         }
       }
     });
+    _groupRewardAmountFocusNode.addListener(() {
+      if(!_groupRewardAmountFocusNode.hasFocus){
+        if(widget.group.groupRewardAmount != null){
+          _updateGroupDetails();
+        }
+      }
+    });
   }
 
   void _updateGroupDetails() async {
