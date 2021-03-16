@@ -26,10 +26,10 @@ class DraftStudyUsers extends StatefulWidget {
 
 class _DraftStudyUsersState extends State<DraftStudyUsers> {
   final FirebaseFirestoreService _firebaseFirestoreService =
-      FirebaseFirestoreService();
+  FirebaseFirestoreService();
 
   final _researcherAndModeratorFirestoreService =
-      ResearcherAndModeratorFirestoreService();
+  ResearcherAndModeratorFirestoreService();
 
   final _phoneFormatter = MaskTextInputFormatter(
       mask: '(###) ###-####', filter: {'#': RegExp(r'[0-9]')});
@@ -93,16 +93,18 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
     var createdUser = await _firebaseFirestoreService.createUser(user);
 
-    participant.participantUID = createdUser.userUID;
-    participant.isActive = false;
-    participant.isOnboarded = false;
-    participant.isDeleted = false;
-    participant.password = _masterPassword;
-    participant.responses = 0;
-    participant.comments = 0;
+    if(createdUser != null){
+      participant.participantUID = createdUser.userUID;
+      participant.isActive = false;
+      participant.isOnboarded = false;
+      participant.isDeleted = false;
+      participant.password = _masterPassword;
+      participant.responses = 0;
+      participant.comments = 0;
 
-    await _researcherAndModeratorFirestoreService.createParticipant(
-        studyUID, participant);
+      await _researcherAndModeratorFirestoreService.createParticipant(
+          studyUID, participant);
+    }
   }
 
   Future<void> _addClientToFirebase(String studyUID, Client client) async {
@@ -115,12 +117,14 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
     var createdUser = await _firebaseFirestoreService.createUser(user);
 
-    client.clientUID = createdUser.userUID;
-    client.isOnboarded = false;
-    client.password = _masterPassword;
+    if(createdUser != null){
+      client.clientUID = createdUser.userUID;
+      client.isOnboarded = false;
+      client.password = _masterPassword;
 
-    await _researcherAndModeratorFirestoreService.createClient(
-        studyUID, client);
+      await _researcherAndModeratorFirestoreService.createClient(
+          studyUID, client);
+    }
   }
 
   Future<void> _addModeratorToFirebase(
@@ -133,36 +137,18 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
     var createdUser = await _firebaseFirestoreService.createUser(user);
 
-    moderator.moderatorUID = createdUser.userUID;
-    moderator.assignedStudies = [];
-    moderator.assignedStudies.add(studyUID);
+    if(createdUser != null){
+      moderator.moderatorUID = createdUser.userUID;
+      moderator.assignedStudies = [];
+      moderator.assignedStudies.add(studyUID);
 
-    await _researcherAndModeratorFirestoreService.createModerator(moderator);
+      await _researcherAndModeratorFirestoreService.createModerator(moderator);
+    }
   }
 
   void _downloadFile(String url) {
     var anchorElement = AnchorElement(href: url);
     anchorElement.download = url;
-  }
-
-  @override
-  void initState() {
-    _getGroups();
-
-    _participantsListSelected = true;
-    _clientsListSelected = false;
-    _moderatorsListSelected = false;
-
-    _addUserButton = _addParticipantsButton();
-
-    super.initState();
-    _getMasterPassword();
-
-    _participantsStreamBuilder = _buildParticipantsList(_participantStream);
-    _clientsStreamBuilder = _buildClientsList(_clientsStream);
-    _moderatorsStreamBuilder = _buildModeratorsList(_moderatorsStream);
-
-    _list = _participantsStreamBuilder;
   }
 
   void _setList(String label) {
@@ -202,58 +188,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   void _getMasterPassword() async {
     _masterPassword = await _researcherAndModeratorFirestoreService
         .getMasterPassword(widget.studyUID);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.grey[300],
-              ),
-            ),
-          ),
-          padding: EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              _DraftStudySecondaryAppBarWidget(
-                label: 'Participants',
-                selected: _participantsListSelected,
-                onTap: () => _setList('Participants'),
-              ),
-              SizedBox(
-                width: 16.0,
-              ),
-              _DraftStudySecondaryAppBarWidget(
-                label: 'Clients',
-                selected: _clientsListSelected,
-                onTap: () => _setList('Clients'),
-              ),
-              SizedBox(
-                width: 16.0,
-              ),
-              _DraftStudySecondaryAppBarWidget(
-                label: 'Moderators',
-                selected: _moderatorsListSelected,
-                onTap: () => _setList('Moderators'),
-              ),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _addUserButton,
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(child: _list),
-      ],
-    );
   }
 
   StreamBuilder<QuerySnapshot> _buildParticipantsList(
@@ -352,7 +286,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                 Expanded(
                                   child: Text(
                                     '${groupParticipants[groupParticipantsIndex].userFirstName}'
-                                    ' ${groupParticipants[groupParticipantsIndex].userLastName}',
+                                        ' ${groupParticipants[groupParticipantsIndex].userLastName}',
                                     style: TextStyle(
                                       color: Colors.grey[700],
                                       fontWeight: FontWeight.bold,
@@ -380,7 +314,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                 Expanded(
                                   child: Text(
                                     groupParticipants[groupParticipantsIndex]
-                                            .phone ??
+                                        .phone ??
                                         '',
                                     style: TextStyle(
                                       color: Colors.grey[700],
@@ -396,7 +330,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                   onTap: () async {
                                     await _buildEditParticipantDialog(
                                         groupParticipants[
-                                            groupParticipantsIndex],
+                                        groupParticipantsIndex],
                                         _groups);
                                   },
                                   child: Container(
@@ -667,254 +601,254 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     moderatorAssignedToThisStudy.isEmpty
                         ? SizedBox()
                         : Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Assigned to this study:',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: moderatorAssignedToThisStudy.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                              .email,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                              .firstName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                              .lastName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                                  .phone ??
-                                              '',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      InkWell(
-                                        onTap: () async {
-                                          await _buildEditModeratorDialog(moderatorAssignedToThisStudy[index]);
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(8.0),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: PROJECT_LIGHT_GREEN,
-                                          ),
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.grey[700],
-                                            size: 16.0,
-                                          ),
-                                        ),
-                                        splashColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        focusColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                      ),
-                                    ],
-                                  );
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(
-                                    height: 10.0,
-                                  );
-                                },
-                              ),
-                            ],
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Assigned to this study:',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
                           ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: moderatorAssignedToThisStudy.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .email,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .firstName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .lastName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .phone ??
+                                        '',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                InkWell(
+                                  onTap: () async {
+                                    await _buildEditModeratorDialog(moderatorAssignedToThisStudy[index]);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: PROJECT_LIGHT_GREEN,
+                                    ),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Colors.grey[700],
+                                      size: 16.0,
+                                    ),
+                                  ),
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                ),
+                              ],
+                            );
+                          },
+                          separatorBuilder:
+                              (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                     SizedBox(
                       height: 20.0,
                     ),
                     moderatorsNotAssignedToThisStudy.isEmpty
                         ? SizedBox()
                         : Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Not assigned to this study:',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount:
-                                    moderatorsNotAssignedToThisStudy.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                  index]
-                                              .email,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                  index]
-                                              .firstName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                  index]
-                                              .lastName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                      index]
-                                                  .phone ??
-                                              '',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      InkWell(
-                                        onTap: () async {
-                                          await _buildEditModeratorDialog(moderatorsNotAssignedToThisStudy[
-                                          index]);
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(8.0),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: PROJECT_LIGHT_GREEN,
-                                          ),
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.grey[700],
-                                            size: 16.0,
-                                          ),
-                                        ),
-                                        splashColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        focusColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                      ),
-                                    ],
-                                  );
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(
-                                    height: 10.0,
-                                  );
-                                },
-                              ),
-                            ],
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Not assigned to this study:',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
                           ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount:
+                          moderatorsNotAssignedToThisStudy.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .email,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .firstName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .lastName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .phone ??
+                                        '',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                InkWell(
+                                  onTap: () async {
+                                    await _buildEditModeratorDialog(moderatorsNotAssignedToThisStudy[
+                                    index]);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: PROJECT_LIGHT_GREEN,
+                                    ),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Colors.grey[700],
+                                      size: 16.0,
+                                    ),
+                                  ),
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                ),
+                              ],
+                            );
+                          },
+                          separatorBuilder:
+                              (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );
@@ -1143,37 +1077,37 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                           child: Wrap(
                             spacing: 10.0,
                             children: List<Widget>.generate(_groups.length,
-                                (int index) {
-                              return ChoiceChip(
-                                elevation: 2.0,
-                                padding: EdgeInsets.all(10.0),
-                                selectedColor: PROJECT_GREEN,
-                                backgroundColor: Colors.grey[100],
-                                label: Text(
-                                  '${_groups[index].groupName}',
-                                  style: TextStyle(
-                                    color: value == index
-                                        ? Colors.white
-                                        : Colors.grey[700],
-                                    fontWeight: value == index
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                                selected: value == index,
-                                onSelected: (bool selected) {
-                                  stateFulBuilderSetState(() {
-                                    value = selected ? index : null;
-                                    participant.groupUID =
-                                        _groups[index].groupUID;
-                                    participant.userGroupName =
-                                        _groups[index].groupName;
-                                    participant.rewardAmount =
-                                        _groups[index].groupRewardAmount;
-                                  });
-                                },
-                              );
-                            }).toList(),
+                                    (int index) {
+                                  return ChoiceChip(
+                                    elevation: 2.0,
+                                    padding: EdgeInsets.all(10.0),
+                                    selectedColor: PROJECT_GREEN,
+                                    backgroundColor: Colors.grey[100],
+                                    label: Text(
+                                      '${_groups[index].groupName}',
+                                      style: TextStyle(
+                                        color: value == index
+                                            ? Colors.white
+                                            : Colors.grey[700],
+                                        fontWeight: value == index
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                    selected: value == index,
+                                    onSelected: (bool selected) {
+                                      stateFulBuilderSetState(() {
+                                        value = selected ? index : null;
+                                        participant.groupUID =
+                                            _groups[index].groupUID;
+                                        participant.userGroupName =
+                                            _groups[index].groupName;
+                                        participant.rewardAmount =
+                                            _groups[index].groupRewardAmount;
+                                      });
+                                    },
+                                  );
+                                }).toList(),
                           ),
                         ),
                         SizedBox(
@@ -1197,15 +1131,15 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                             FlatButton(
                               disabledColor: Colors.grey[700],
                               onPressed: participant.email != '' &&
-                                      participant.userFirstName != '' &&
-                                      participant.userLastName != '' &&
-                                      participant.groupUID != ''
+                                  participant.userFirstName != '' &&
+                                  participant.userLastName != '' &&
+                                  participant.groupUID != ''
                                   ? () async {
-                                      await _researcherAndModeratorFirestoreService
-                                          .updateParticipantDetails(
-                                              widget.studyUID, participant);
-                                      Navigator.of(generalDialogContext).pop();
-                                    }
+                                await _researcherAndModeratorFirestoreService
+                                    .updateParticipantDetails(
+                                    widget.studyUID, participant);
+                                Navigator.of(generalDialogContext).pop();
+                              }
                                   : null,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(2.0),
@@ -1431,14 +1365,14 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                             FlatButton(
                               disabledColor: Colors.grey[700],
                               onPressed: client.email != '' &&
-                                      client.firstName != '' &&
-                                      client.lastName != ''
+                                  client.firstName != '' &&
+                                  client.lastName != ''
                                   ? () async {
-                                      await _researcherAndModeratorFirestoreService
-                                          .updateClientDetails(
-                                              widget.studyUID, client);
-                                      Navigator.of(generalDialogContext).pop();
-                                    }
+                                await _researcherAndModeratorFirestoreService
+                                    .updateClientDetails(
+                                    widget.studyUID, client);
+                                Navigator.of(generalDialogContext).pop();
+                              }
                                   : null,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(2.0),
@@ -1650,34 +1584,34 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                         ),
                         moderator.assignedStudies.contains(widget.studyUID)
                             ? Theme(
-                                data: ThemeData(
-                                  unselectedWidgetColor: Colors.grey[700],
-                                  accentColor: PROJECT_NAVY_BLUE,
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.grey[700],
+                            accentColor: PROJECT_NAVY_BLUE,
+                          ),
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                onChanged: (bool value) {
+                                  value ? assignedStudies.add(widget.studyUID) : assignedStudies.remove(widget.studyUID);
+                                  editModeratorSetState((){});
+                                },
+                                value:
+                                assignedStudies.contains(widget.studyUID),
+                              ),
+                              SizedBox(
+                                width: 10.0,
+                              ),
+                              Text(
+                                'Un-assign this study',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.0,
                                 ),
-                                child: Row(
-                                  children: [
-                                    Checkbox(
-                                      onChanged: (bool value) {
-                                        value ? assignedStudies.add(widget.studyUID) : assignedStudies.remove(widget.studyUID);
-                                        editModeratorSetState((){});
-                                      },
-                                      value:
-                                          assignedStudies.contains(widget.studyUID),
-                                    ),
-                                    SizedBox(
-                                      width: 10.0,
-                                    ),
-                                    Text(
-                                      'Un-assign this study',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                              ),
+                            ],
+                          ),
+                        )
                             : Theme(
                           data: ThemeData(
                             unselectedWidgetColor: Colors.grey[700],
@@ -1729,14 +1663,14 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                             FlatButton(
                               disabledColor: Colors.grey[700],
                               onPressed: moderator.email != '' &&
-                                      moderator.firstName != '' &&
-                                      moderator.lastName != ''
+                                  moderator.firstName != '' &&
+                                  moderator.lastName != ''
                                   ? () async {
                                 moderator.assignedStudies = assignedStudies;
-                                      await _researcherAndModeratorFirestoreService
-                                          .updateModeratorDetails(moderator);
-                                      Navigator.of(generalDialogContext).pop();
-                                    }
+                                await _researcherAndModeratorFirestoreService
+                                    .updateModeratorDetails(moderator);
+                                Navigator.of(generalDialogContext).pop();
+                              }
                                   : null,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(2.0),
@@ -1833,397 +1767,397 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     maxHeight: MediaQuery.of(context).size.height * 0.6),
                 child: addingParticipant
                     ? Material(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                      'Please Wait...',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                )
+                    : Material(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
                           child: Text(
-                            'Please Wait...',
+                            'Add Participants',
                             style: TextStyle(
-                              color: Colors.grey[700],
+                              color: Colors.black,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
                             ),
                           ),
                         ),
-                      )
-                    : Material(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                        SizedBox(
+                          height: 20.0,
                         ),
-                        color: Colors.white,
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Add Participants',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold,
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  stateFulBuilderSetState(() {
+                                    email = value.trim();
+                                    participant.email = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Participant Email',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                height: 20.0,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  stateFulBuilderSetState(() {
+                                    firstName = value.trim();
+                                    participant.userFirstName =
+                                        value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'First Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  stateFulBuilderSetState(() {
+                                    lastName = value.trim();
+                                    participant.userLastName =
+                                        value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Last Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        stateFulBuilderSetState(() {
-                                          email = value.trim();
-                                          participant.email = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'Participant Email',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        stateFulBuilderSetState(() {
-                                          firstName = value.trim();
-                                          participant.userFirstName =
-                                              value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'First Name',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        stateFulBuilderSetState(() {
-                                          lastName = value.trim();
-                                          participant.userLastName =
-                                              value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'Last Name',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        stateFulBuilderSetState(() {
-                                          phone = value.trim();
-                                          participant.phone = value.trim();
-                                        });
-                                      },
-                                      inputFormatters: [
-                                        _phoneFormatter,
-                                      ],
-                                      decoration: InputDecoration(
-                                        hintText: 'Phone',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  stateFulBuilderSetState(() {
+                                    phone = value.trim();
+                                    participant.phone = value.trim();
+                                  });
+                                },
+                                inputFormatters: [
+                                  _phoneFormatter,
                                 ],
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Select Participant Group',
-                                  style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Wrap(
-                                  spacing: 10.0,
-                                  children: List<Widget>.generate(
-                                      _groups.length, (int index) {
-                                    return ChoiceChip(
-                                      elevation: 2.0,
-                                      padding: EdgeInsets.all(10.0),
-                                      selectedColor: PROJECT_GREEN,
-                                      backgroundColor: Colors.grey[100],
-                                      label: Text(
-                                        '${_groups[index].groupName}',
-                                        style: TextStyle(
-                                          color: value == index
-                                              ? Colors.white
-                                              : Colors.grey[700],
-                                          fontWeight: value == index
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                        ),
-                                      ),
-                                      selected: value == index,
-                                      onSelected: (bool selected) {
-                                        stateFulBuilderSetState(() {
-                                          value = selected ? index : null;
-                                          groupUID = _groups[index].groupUID;
-                                          participant.groupUID =
-                                              _groups[index].groupUID;
-                                          participant.userGroupName =
-                                              _groups[index].groupName;
-                                          participant.rewardAmount =
-                                              _groups[index].groupRewardAmount;
-                                        });
-                                      },
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 10.0,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    InkWell(
-                                      onTap: () async {
-                                        var participants = await _pickFile();
-
-                                        if (participants.isNotEmpty) {
-                                          stateFulBuilderSetState(() {
-                                            addingParticipant = true;
-                                          });
-
-                                          for (var participant
-                                              in participants) {
-                                            try {
-                                              await _addParticipantToFirebase(
-                                                  widget.studyUID, participant);
-                                            } catch (e) {
-                                              print(e);
-                                            }
-                                          }
-
-                                          Navigator.of(generalDialogContext)
-                                              .pop();
-                                        }
-                                      },
-                                      hoverColor: Colors.transparent,
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      focusColor: Colors.transparent,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            CupertinoIcons.tray_arrow_down_fill,
-                                            color: PROJECT_GREEN,
-                                            size: 14.0,
-                                          ),
-                                          SizedBox(
-                                            width: 10.0,
-                                          ),
-                                          Text(
-                                            'Import .csv file',
-                                            style: TextStyle(
-                                              color: Colors.grey[500],
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
                                     ),
-                                    InkWell(
-                                      onTap: () async {
-                                        _downloadFile('');
-                                      },
-                                      hoverColor: Colors.transparent,
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      focusColor: Colors.transparent,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            CupertinoIcons.arrow_down_doc,
-                                            color: PROJECT_GREEN,
-                                            size: 14.0,
-                                          ),
-                                          SizedBox(
-                                            width: 10.0,
-                                          ),
-                                          Text(
-                                            'Download sample .csv file',
-                                            style: TextStyle(
-                                              color: Colors.grey[500],
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Select Participant Group',
+                            style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Wrap(
+                            spacing: 10.0,
+                            children: List<Widget>.generate(
+                                _groups.length, (int index) {
+                              return ChoiceChip(
+                                elevation: 2.0,
+                                padding: EdgeInsets.all(10.0),
+                                selectedColor: PROJECT_GREEN,
+                                backgroundColor: Colors.grey[100],
+                                label: Text(
+                                  '${_groups[index].groupName}',
+                                  style: TextStyle(
+                                    color: value == index
+                                        ? Colors.white
+                                        : Colors.grey[700],
+                                    fontWeight: value == index
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                selected: value == index,
+                                onSelected: (bool selected) {
+                                  stateFulBuilderSetState(() {
+                                    value = selected ? index : null;
+                                    groupUID = _groups[index].groupUID;
+                                    participant.groupUID =
+                                        _groups[index].groupUID;
+                                    participant.userGroupName =
+                                        _groups[index].groupName;
+                                    participant.rewardAmount =
+                                        _groups[index].groupRewardAmount;
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              InkWell(
+                                onTap: () async {
+                                  var participants = await _pickFile();
+
+                                  if (participants.isNotEmpty) {
+                                    stateFulBuilderSetState(() {
+                                      addingParticipant = true;
+                                    });
+
+                                    for (var participant
+                                    in participants) {
+                                      try {
+                                        await _addParticipantToFirebase(
+                                            widget.studyUID, participant);
+                                      } catch (e) {
+                                        print(e);
+                                      }
+                                    }
+
+                                    Navigator.of(generalDialogContext)
+                                        .pop();
+                                  }
+                                },
+                                hoverColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                focusColor: Colors.transparent,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.tray_arrow_down_fill,
+                                      color: PROJECT_GREEN,
+                                      size: 14.0,
+                                    ),
+                                    SizedBox(
+                                      width: 10.0,
+                                    ),
+                                    Text(
+                                      'Import .csv file',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              ButtonBar(
-                                children: [
-                                  FlatButton(
-                                    onPressed: () =>
-                                        Navigator.of(generalDialogContext)
-                                            .pop(),
-                                    color: Colors.grey[200],
-                                    child: Text(
-                                      'Cancel',
+                              InkWell(
+                                onTap: () async {
+                                  _downloadFile('');
+                                },
+                                hoverColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                focusColor: Colors.transparent,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.arrow_down_doc,
+                                      color: PROJECT_GREEN,
+                                      size: 14.0,
+                                    ),
+                                    SizedBox(
+                                      width: 10.0,
+                                    ),
+                                    Text(
+                                      'Download sample .csv file',
                                       style: TextStyle(
-                                        fontSize: 12.0,
+                                        color: Colors.grey[500],
+                                        fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.grey[700],
                                       ),
                                     ),
-                                  ),
-                                  FlatButton(
-                                    disabledColor: Colors.grey[700],
-                                    onPressed: email != '' &&
-                                            firstName != '' &&
-                                            lastName != '' &&
-                                            groupUID != ''
-                                        ? () async {
-                                            stateFulBuilderSetState(() {
-                                              addingParticipant = true;
-                                            });
-                                            await _addParticipantToFirebase(
-                                                widget.studyUID, participant);
-                                            Navigator.of(generalDialogContext)
-                                                .pop();
-                                          }
-                                        : null,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(2.0),
-                                    ),
-                                    color: PROJECT_GREEN,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Text(
-                                        'Add',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
+                        ButtonBar(
+                          children: [
+                            FlatButton(
+                              onPressed: () =>
+                                  Navigator.of(generalDialogContext)
+                                      .pop(),
+                              color: Colors.grey[200],
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              disabledColor: Colors.grey[700],
+                              onPressed: email != '' &&
+                                  firstName != '' &&
+                                  lastName != '' &&
+                                  groupUID != ''
+                                  ? () async {
+                                stateFulBuilderSetState(() {
+                                  addingParticipant = true;
+                                });
+                                await _addParticipantToFirebase(
+                                    widget.studyUID, participant);
+                                Navigator.of(generalDialogContext)
+                                    .pop();
+                              }
+                                  : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                              color: PROJECT_GREEN,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  'Add',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             );
           },
@@ -2256,284 +2190,284 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     maxHeight: MediaQuery.of(context).size.height * 0.6),
                 child: addingClient
                     ? Material(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                      'Please Wait...',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                )
+                    : Material(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
                           child: Text(
-                            'Please Wait...',
+                            'Add Clients',
                             style: TextStyle(
-                              color: Colors.grey[700],
+                              color: Colors.black,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
                             ),
                           ),
                         ),
-                      )
-                    : Material(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Add Clients',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold,
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    email = value.trim();
+                                    client.email = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Client Email',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                height: 20.0,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    firstName = value.trim();
+                                    client.firstName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'First Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    lastName = value.trim();
+                                    client.lastName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Last Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              SizedBox(
-                                height: 20.0,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    phone = value.trim();
+                                    client.phone = value.trim();
+                                  });
+                                },
+                                inputFormatters: [_phoneFormatter],
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          email = value.trim();
-                                          client.email = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'Client Email',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          firstName = value.trim();
-                                          client.firstName = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'First Name',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          lastName = value.trim();
-                                          client.lastName = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'Last Name',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          phone = value.trim();
-                                          client.phone = value.trim();
-                                        });
-                                      },
-                                      inputFormatters: [_phoneFormatter],
-                                      decoration: InputDecoration(
-                                        hintText: 'Phone',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              // Padding(
-                              //   padding: EdgeInsets.symmetric(
-                              //     horizontal: 10.0,
-                              //   ),
-                              //   child: InkWell(
-                              //     onTap: () async {},
-                              //     hoverColor: Colors.transparent,
-                              //     splashColor: Colors.transparent,
-                              //     highlightColor: Colors.transparent,
-                              //     focusColor: Colors.transparent,
-                              //     child: Row(
-                              //       mainAxisAlignment:
-                              //           MainAxisAlignment.spaceBetween,
-                              //       children: [
-                              //         Row(
-                              //           mainAxisSize: MainAxisSize.min,
-                              //           children: [
-                              //             Icon(
-                              //               CupertinoIcons.tray_arrow_down_fill,
-                              //               color: PROJECT_GREEN,
-                              //               size: 14.0,
-                              //             ),
-                              //             SizedBox(
-                              //               width: 10.0,
-                              //             ),
-                              //             Text(
-                              //               'Import .csv file',
-                              //               style: TextStyle(
-                              //                 color: Colors.grey[500],
-                              //                 fontSize: 14.0,
-                              //                 fontWeight: FontWeight.bold,
-                              //               ),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //       ],
-                              //     ),
-                              //   ),
-                              // ),
-                              ButtonBar(
-                                children: [
-                                  FlatButton(
-                                    onPressed: () =>
-                                        Navigator.of(clientGeneralDialogContext)
-                                            .pop(),
-                                    color: Colors.grey[200],
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        fontSize: 12.0,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ),
-                                  FlatButton(
-                                    disabledColor: Colors.grey[700],
-                                    onPressed: email != '' &&
-                                            firstName != '' &&
-                                            lastName != ''
-                                        ? () async {
-                                            statefulBuilderSetState(() {
-                                              addingClient = true;
-                                            });
-                                            await _addClientToFirebase(
-                                                widget.studyUID, client);
-                                            Navigator.of(
-                                                    clientGeneralDialogContext)
-                                                .pop();
-                                          }
-                                        : null,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(2.0),
-                                    ),
-                                    color: PROJECT_GREEN,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Text(
-                                        'Add',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.symmetric(
+                        //     horizontal: 10.0,
+                        //   ),
+                        //   child: InkWell(
+                        //     onTap: () async {},
+                        //     hoverColor: Colors.transparent,
+                        //     splashColor: Colors.transparent,
+                        //     highlightColor: Colors.transparent,
+                        //     focusColor: Colors.transparent,
+                        //     child: Row(
+                        //       mainAxisAlignment:
+                        //           MainAxisAlignment.spaceBetween,
+                        //       children: [
+                        //         Row(
+                        //           mainAxisSize: MainAxisSize.min,
+                        //           children: [
+                        //             Icon(
+                        //               CupertinoIcons.tray_arrow_down_fill,
+                        //               color: PROJECT_GREEN,
+                        //               size: 14.0,
+                        //             ),
+                        //             SizedBox(
+                        //               width: 10.0,
+                        //             ),
+                        //             Text(
+                        //               'Import .csv file',
+                        //               style: TextStyle(
+                        //                 color: Colors.grey[500],
+                        //                 fontSize: 14.0,
+                        //                 fontWeight: FontWeight.bold,
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
+                        ButtonBar(
+                          children: [
+                            FlatButton(
+                              onPressed: () =>
+                                  Navigator.of(clientGeneralDialogContext)
+                                      .pop(),
+                              color: Colors.grey[200],
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              disabledColor: Colors.grey[700],
+                              onPressed: email != '' &&
+                                  firstName != '' &&
+                                  lastName != ''
+                                  ? () async {
+                                statefulBuilderSetState(() {
+                                  addingClient = true;
+                                });
+                                await _addClientToFirebase(
+                                    widget.studyUID, client);
+                                Navigator.of(
+                                    clientGeneralDialogContext)
+                                    .pop();
+                              }
+                                  : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                              color: PROJECT_GREEN,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  'Add',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             );
           },
@@ -2567,281 +2501,281 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                     maxHeight: MediaQuery.of(context).size.height * 0.6),
                 child: addingModerator
                     ? Material(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                      'Please Wait...',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                )
+                    : Material(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
                           child: Text(
-                            'Please Wait...',
+                            'Add Moderators',
                             style: TextStyle(
-                              color: Colors.grey[700],
+                              color: Colors.black,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
                             ),
                           ),
                         ),
-                      )
-                    : Material(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Add Clients',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold,
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    email = value.trim();
+                                    moderator.email = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Email',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                height: 20.0,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    firstName = value.trim();
+                                    moderator.firstName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'First Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    lastName = value.trim();
+                                    moderator.lastName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Last Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              SizedBox(
-                                height: 20.0,
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    password = value.trim();
+                                    moderator.password = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Password',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                  ),
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          email = value.trim();
-                                          moderator.email = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'Email',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  statefulBuilderSetState(() {
+                                    phone = value.trim();
+                                    moderator.phone = value.trim();
+                                  });
+                                },
+                                inputFormatters: [_phoneFormatter],
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
                                     ),
                                   ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          firstName = value.trim();
-                                          moderator.firstName = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'First Name',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
                                     ),
                                   ),
-                                  SizedBox(
-                                    width: 20.0,
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(2.0),
                                   ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          lastName = value.trim();
-                                          moderator.lastName = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'Last Name',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          password = value.trim();
-                                          moderator.password = value.trim();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'Password',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onChanged: (value) {
-                                        statefulBuilderSetState(() {
-                                          phone = value.trim();
-                                          moderator.phone = value.trim();
-                                        });
-                                      },
-                                      inputFormatters: [_phoneFormatter],
-                                      decoration: InputDecoration(
-                                        hintText: 'Phone',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400],
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(2.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              ButtonBar(
-                                children: [
-                                  FlatButton(
-                                    onPressed: () => Navigator.of(
-                                            moderatorGeneralDialogContext)
-                                        .pop(),
-                                    color: Colors.grey[200],
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        fontSize: 12.0,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ),
-                                  FlatButton(
-                                    disabledColor: Colors.grey[700],
-                                    onPressed: email != '' &&
-                                            firstName != '' &&
-                                            lastName != '' &&
-                                            password != ''
-                                        ? () async {
-                                            statefulBuilderSetState(() {
-                                              addingModerator = true;
-                                            });
-                                            await _addModeratorToFirebase(
-                                                widget.studyUID, moderator);
-                                            Navigator.of(
-                                                    moderatorGeneralDialogContext)
-                                                .pop();
-                                          }
-                                        : null,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(2.0),
-                                    ),
-                                    color: PROJECT_GREEN,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Text(
-                                        'Add',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ButtonBar(
+                          children: [
+                            FlatButton(
+                              onPressed: () => Navigator.of(
+                                  moderatorGeneralDialogContext)
+                                  .pop(),
+                              color: Colors.grey[200],
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              disabledColor: Colors.grey[700],
+                              onPressed: email != '' &&
+                                  firstName != '' &&
+                                  lastName != '' &&
+                                  password != ''
+                                  ? () async {
+                                statefulBuilderSetState(() {
+                                  addingModerator = true;
+                                });
+                                await _addModeratorToFirebase(
+                                    widget.studyUID, moderator);
+                                Navigator.of(
+                                    moderatorGeneralDialogContext)
+                                    .pop();
+                              }
+                                  : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                              color: PROJECT_GREEN,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  'Add',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             );
           },
@@ -2948,6 +2882,79 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
       ),
     );
   }
+
+  @override
+  void initState() {
+    _getGroups();
+
+    _participantsListSelected = true;
+    _clientsListSelected = false;
+    _moderatorsListSelected = false;
+
+    _addUserButton = _addParticipantsButton();
+
+    super.initState();
+    _getMasterPassword();
+
+    _participantsStreamBuilder = _buildParticipantsList(_participantStream);
+    _clientsStreamBuilder = _buildClientsList(_clientsStream);
+    _moderatorsStreamBuilder = _buildModeratorsList(_moderatorsStream);
+
+    _list = _participantsStreamBuilder;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey[300],
+              ),
+            ),
+          ),
+          padding: EdgeInsets.all(20.0),
+          child: Row(
+            children: [
+              _DraftStudySecondaryAppBarWidget(
+                label: 'Participants',
+                selected: _participantsListSelected,
+                onTap: () => _setList('Participants'),
+              ),
+              SizedBox(
+                width: 16.0,
+              ),
+              _DraftStudySecondaryAppBarWidget(
+                label: 'Clients',
+                selected: _clientsListSelected,
+                onTap: () => _setList('Clients'),
+              ),
+              SizedBox(
+                width: 16.0,
+              ),
+              _DraftStudySecondaryAppBarWidget(
+                label: 'Moderators',
+                selected: _moderatorsListSelected,
+                onTap: () => _setList('Moderators'),
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _addUserButton,
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(child: _list),
+      ],
+    );
+  }
+
 }
 
 class _DraftStudySecondaryAppBarWidget extends StatefulWidget {

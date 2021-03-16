@@ -10,14 +10,12 @@ import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/participant_smartphone_responses_screen.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/questions_widgets/question_and_description_container.dart';
 import 'package:thoughtnav/screens/participant/open_study/questions/quick_intro_tutorial/quick_intro_tutorial_widgets/participant_response_field.dart';
-import 'package:thoughtnav/screens/researcher/models/comment.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/participant_firestore_service.dart';
-import 'package:thoughtnav/services/participant_storage_service.dart';
 
 import 'quick_intro_tutorial/quick_intro_tutorial_widgets/user_response_widget.dart';
 
@@ -28,14 +26,10 @@ class ParticipantResponseScreen extends StatefulWidget {
 }
 
 class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
-  final GlobalKey<ScaffoldState> _participantResponseScreenScaffoldKey =
-      GlobalKey<ScaffoldState>();
 
   final _firebaseFirestoreService = FirebaseFirestoreService();
 
   final _participantFirestoreService = ParticipantFirestoreService();
-
-  final _participantStorageService = ParticipantStorageService();
 
   TextEditingController _responseController;
 
@@ -55,18 +49,11 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   Participant _participant;
   Question _question;
 
-  // Response _response = Response();
-  Comment _comment = Comment();
-
   List<Topic> _studyNavigatorTopics;
 
   Future<void> _futureParticipant;
   Future<void> _futureStudyNavigatorTopics;
   Future<void> _futureQuestion;
-
-  FutureBuilder _phoneFutureBuilder;
-
-  Future<void> _openEndDrawer() async {}
 
   Stream<DocumentSnapshot> _questionStream;
 
@@ -102,7 +89,6 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
         return false;
       }
     });
-
     if (_nextQuestionUID == 'lastQuestionInThisTopic') {
       if (topicIndex != -1) {
         if (_studyNavigatorTopics.length - 1 >= topicIndex + 1) {
@@ -311,19 +297,19 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   child: Container(
                                     constraints: BoxConstraints(
                                         maxWidth:
-                                            MediaQuery.of(context).size.width *
-                                                0.3),
+                                        MediaQuery.of(context).size.width *
+                                            0.3),
                                     child: Material(
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(20.0),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Confirm Exit',
@@ -343,10 +329,10 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 color: Colors.grey,
                                                 constraints: BoxConstraints(
                                                   maxWidth:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.3,
+                                                  MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                      0.3,
                                                 ),
                                               ),
                                             ),
@@ -371,20 +357,20 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                   RaisedButton(
                                                     onPressed: () {
                                                       Navigator.of(
-                                                              exitDialogContext)
+                                                          exitDialogContext)
                                                           .pop();
                                                     },
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsets.all(10.0),
+                                                      EdgeInsets.all(10.0),
                                                       child: Text(
                                                         'CANCEL',
                                                         style: TextStyle(
                                                           color:
-                                                              Colors.grey[700],
+                                                          Colors.grey[700],
                                                           fontSize: 12.0,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -396,21 +382,21 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                     color: Colors.red[700],
                                                     onPressed: () {
                                                       Navigator.of(
-                                                              exitDialogContext)
+                                                          exitDialogContext)
                                                           .pushNamedAndRemoveUntil(
-                                                              PARTICIPANT_DASHBOARD_SCREEN,
+                                                          PARTICIPANT_DASHBOARD_SCREEN,
                                                               (route) => false);
                                                     },
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsets.all(10.0),
+                                                      EdgeInsets.all(10.0),
                                                       child: Text(
                                                         'EXIT',
                                                         style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 12.0,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -466,19 +452,19 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   child: Container(
                                     constraints: BoxConstraints(
                                         maxWidth:
-                                            MediaQuery.of(context).size.width *
-                                                0.3),
+                                        MediaQuery.of(context).size.width *
+                                            0.3),
                                     child: Material(
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(20.0),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Confirm Exit',
@@ -498,10 +484,10 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 color: Colors.grey,
                                                 constraints: BoxConstraints(
                                                   maxWidth:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.3,
+                                                  MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                      0.3,
                                                 ),
                                               ),
                                             ),
@@ -526,20 +512,20 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                   RaisedButton(
                                                     onPressed: () {
                                                       Navigator.of(
-                                                              exitDialogContext)
+                                                          exitDialogContext)
                                                           .pop();
                                                     },
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsets.all(10.0),
+                                                      EdgeInsets.all(10.0),
                                                       child: Text(
                                                         'CANCEL',
                                                         style: TextStyle(
                                                           color:
-                                                              Colors.grey[700],
+                                                          Colors.grey[700],
                                                           fontSize: 12.0,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -551,21 +537,21 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                     color: Colors.red[700],
                                                     onPressed: () {
                                                       Navigator.of(
-                                                              exitDialogContext)
+                                                          exitDialogContext)
                                                           .pushNamedAndRemoveUntil(
-                                                              PARTICIPANT_DASHBOARD_SCREEN,
+                                                          PARTICIPANT_DASHBOARD_SCREEN,
                                                               (route) => false);
                                                     },
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsets.all(10.0),
+                                                      EdgeInsets.all(10.0),
                                                       child: Text(
                                                         'EXIT',
                                                         style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 12.0,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -657,7 +643,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   stream: _questionStream,
                                   builder: (BuildContext context,
                                       AsyncSnapshot<DocumentSnapshot>
-                                          snapshot) {
+                                      snapshot) {
                                     switch (snapshot.connectionState) {
                                       case ConnectionState.none:
                                         return SizedBox();
@@ -676,8 +662,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 'Private') {
                                               return Text(
                                                 'Your response has been posted.\n'
-                                                'Please read and comment on other posts.\n'
-                                                'Scroll to the bottom to continue',
+                                                    'Please read and comment on other posts.\n'
+                                                    'Scroll to the bottom to continue',
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
@@ -692,8 +678,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
 
                                             var response = Response(
                                               questionHasMedia:
-                                                  _question.allowImage ||
-                                                      _question.allowVideo,
+                                              _question.allowImage ||
+                                                  _question.allowVideo,
                                             );
 
                                             return ParticipantResponseField(
@@ -702,7 +688,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                               question: _question,
                                               topicUID: _topicUID,
                                               responseController:
-                                                  _responseController,
+                                              _responseController,
                                               response: response,
                                               onTap: () async {
                                                 response.responseUID = '';
@@ -723,17 +709,18 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 response.comments = 0;
                                                 response.hasMedia ??= false;
                                                 response.userName =
-                                                    '${_participant.userFirstName} ${_participant.userLastName}';
+                                                '${_participant.userFirstName} ${_participant.userLastName}';
                                                 response.responseTimestamp =
                                                     Timestamp.now();
+                                                response.participantDeleted = false;
 
                                                 await _participantFirestoreService
                                                     .postResponse(
-                                                        _studyUID,
-                                                        _participantUID,
-                                                        _topicUID,
-                                                        _question.questionUID,
-                                                        response);
+                                                    _studyUID,
+                                                    _participantUID,
+                                                    _topicUID,
+                                                    _question.questionUID,
+                                                    response);
 
                                                 setState(() {
                                                   _responseController = null;
@@ -745,7 +732,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                             );
                                           }
                                         } else {
-                                          return Text('1');
+                                          return SizedBox();
                                         }
                                         break;
                                       case ConnectionState.done:
@@ -779,7 +766,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                               children: [
                                                 Padding(
                                                   padding: const EdgeInsets
-                                                          .symmetric(
+                                                      .symmetric(
                                                       horizontal: 40.0),
                                                   child: Row(
                                                     children: [
@@ -787,7 +774,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                         child: Container(
                                                           height: 1.0,
                                                           color:
-                                                              Colors.grey[300],
+                                                          Colors.grey[300],
                                                         ),
                                                       ),
                                                       SizedBox(
@@ -797,10 +784,10 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                         'All Responses',
                                                         style: TextStyle(
                                                           color:
-                                                              PROJECT_NAVY_BLUE,
+                                                          PROJECT_NAVY_BLUE,
                                                           fontSize: 12.0,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
                                                     ],
@@ -811,27 +798,27 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 ),
                                                 ListView.builder(
                                                   physics:
-                                                      NeverScrollableScrollPhysics(),
+                                                  NeverScrollableScrollPhysics(),
                                                   shrinkWrap: true,
                                                   itemCount: responses.length,
                                                   itemBuilder:
                                                       (BuildContext context,
-                                                          int index) {
+                                                      int index) {
                                                     var commentController =
-                                                        TextEditingController();
+                                                    TextEditingController();
 
                                                     var response =
-                                                        Response.fromMap(
-                                                            responses[index]
-                                                                .data());
+                                                    Response.fromMap(
+                                                        responses[index]
+                                                            .data());
 
                                                     if (responses[index]
-                                                            ['responseUID'] !=
-                                                        null) {
+                                                    ['responseUID'] !=
+                                                        null && !responses[index]['participantDeleted']) {
                                                       try {
                                                         return UserResponseWidget(
                                                           participant:
-                                                              _participant,
+                                                          _participant,
                                                           topicUID: _topicUID,
                                                           question: _question,
                                                           response: response,
@@ -858,7 +845,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 children: [
                                                   Padding(
                                                     padding: const EdgeInsets
-                                                            .symmetric(
+                                                        .symmetric(
                                                         horizontal: 40.0),
                                                     child: Row(
                                                       children: [
@@ -876,10 +863,10 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                           'All Responses',
                                                           style: TextStyle(
                                                             color:
-                                                                PROJECT_NAVY_BLUE,
+                                                            PROJECT_NAVY_BLUE,
                                                             fontSize: 12.0,
                                                             fontWeight:
-                                                                FontWeight.bold,
+                                                            FontWeight.bold,
                                                           ),
                                                         ),
                                                       ],
@@ -890,24 +877,24 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                   ),
                                                   ListView.builder(
                                                     physics:
-                                                        NeverScrollableScrollPhysics(),
+                                                    NeverScrollableScrollPhysics(),
                                                     shrinkWrap: true,
                                                     itemCount: responses.length,
                                                     itemBuilder:
                                                         (BuildContext context,
-                                                            int index) {
+                                                        int index) {
                                                       var response =
-                                                          Response.fromMap(
-                                                              responses[index]
-                                                                  .data());
+                                                      Response.fromMap(
+                                                          responses[index]
+                                                              .data());
 
                                                       if (responses[index]
-                                                              ['responseUID'] !=
-                                                          null) {
+                                                      ['responseUID'] !=
+                                                          null && !responses[index]['participantDeleted']) {
                                                         try {
                                                           return UserResponseWidget(
                                                             participant:
-                                                                _participant,
+                                                            _participant,
                                                             topicUID: _topicUID,
                                                             question: _question,
                                                             response: response,
@@ -959,44 +946,44 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                 ),
                                 _participantResponded
                                     ? Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 40.0),
-                                          child: FlatButton(
-                                            onPressed: () {
-                                              if (_nextTopicUID ==
-                                                      'lastTopicInThisStudy'
-                                                  // _nextQuestionUID ==
-                                                  //     'lastQuestionInThisStudy'
-                                                  ) {
-                                                Navigator.of(context)
-                                                    .popAndPushNamed(
-                                                        PARTICIPANT_DASHBOARD_SCREEN);
-                                              } else {
-                                                _continueToNextQuestion(
-                                                    _nextTopicUID,
-                                                    _nextQuestionUID);
-                                              }
-                                            },
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: 10.0,
-                                                horizontal: 12.0,
-                                              ),
-                                              child: Text(
-                                                'CONTINUE',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12.0,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                            color: PROJECT_GREEN,
+                                  alignment: Alignment.centerRight,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        right: 40.0),
+                                    child: FlatButton(
+                                      onPressed: () {
+                                        if (_nextTopicUID ==
+                                            'lastTopicInThisStudy'
+                                        // _nextQuestionUID ==
+                                        //     'lastQuestionInThisStudy'
+                                        ) {
+                                          Navigator.of(context)
+                                              .popAndPushNamed(
+                                              PARTICIPANT_DASHBOARD_SCREEN);
+                                        } else {
+                                          _continueToNextQuestion(
+                                              _nextTopicUID,
+                                              _nextQuestionUID);
+                                        }
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 10.0,
+                                          horizontal: 12.0,
+                                        ),
+                                        child: Text(
+                                          'CONTINUE',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12.0,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      )
+                                      ),
+                                      color: PROJECT_GREEN,
+                                    ),
+                                  ),
+                                )
                                     : SizedBox(),
                                 SizedBox(
                                   height: 20.0,
@@ -1063,8 +1050,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                               child: Container(
                                 constraints: BoxConstraints(
                                     maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.3),
+                                    MediaQuery.of(context).size.width *
+                                        0.3),
                                 child: Material(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
@@ -1074,7 +1061,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Confirm Exit',
@@ -1094,8 +1081,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                             color: Colors.grey,
                                             constraints: BoxConstraints(
                                               maxWidth: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
+                                                  .size
+                                                  .width *
                                                   0.3,
                                             ),
                                           ),
@@ -1121,7 +1108,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                               RaisedButton(
                                                 onPressed: () {
                                                   Navigator.of(
-                                                          exitDialogContext)
+                                                      exitDialogContext)
                                                       .pop();
                                                 },
                                                 child: Padding(
@@ -1132,7 +1119,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                       color: Colors.grey[700],
                                                       fontSize: 12.0,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
@@ -1144,9 +1131,9 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                 color: Colors.red[700],
                                                 onPressed: () {
                                                   Navigator.of(
-                                                          exitDialogContext)
+                                                      exitDialogContext)
                                                       .pushNamedAndRemoveUntil(
-                                                          PARTICIPANT_DASHBOARD_SCREEN,
+                                                      PARTICIPANT_DASHBOARD_SCREEN,
                                                           (route) => false);
                                                 },
                                                 child: Padding(
@@ -1157,7 +1144,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                                       color: Colors.white,
                                                       fontSize: 12.0,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
@@ -1224,31 +1211,86 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                     if (_studyNavigatorTopics.isNotEmpty) {
                       _setNextQuestionUIDAndNextTopicUID();
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _studyNavigatorTopics.length,
-                        itemBuilder: (BuildContext context, int topicIndex) {
-                          if (topicIndex == 0) {
-                            return _buildDesktopStudyNavigatorExpansionTile(
-                              topicIndex,
-                              _studyNavigatorTopics[topicIndex],
-                              _participantUID,
-                            );
-                          } else {
-                            if (_studyNavigatorTopics[topicIndex - 1]
-                                    .questions
-                                    .last
-                                    .respondedBy !=
-                                null) {
+                      return Scrollbar(
+                        isAlwaysShown: true,
+                        thickness: 10.0,
+                        child: ListView.builder(
+                          padding: EdgeInsets.only(right: 20.0),
+                          shrinkWrap: true,
+                          itemCount: _studyNavigatorTopics.length,
+                          itemBuilder: (BuildContext context, int topicIndex) {
+                            if (topicIndex == 0) {
+                              return _buildDesktopStudyNavigatorExpansionTile(
+                                topicIndex,
+                                _studyNavigatorTopics[topicIndex],
+                                _participantUID,
+                              );
+                            } else {
                               if (_studyNavigatorTopics[topicIndex - 1]
                                   .questions
                                   .last
-                                  .respondedBy
-                                  .contains(_participantUID)) {
+                                  .isProbe) {
                                 return _buildDesktopStudyNavigatorExpansionTile(
                                     topicIndex,
                                     _studyNavigatorTopics[topicIndex],
                                     _participantUID);
+                              } else if (_studyNavigatorTopics[topicIndex - 1]
+                                  .questions
+                                  .last
+                                  .respondedBy !=
+                                  null) {
+                                if (_studyNavigatorTopics[topicIndex - 1]
+                                    .questions
+                                    .last
+                                    .respondedBy
+                                    .contains(_participantUID) &&
+                                    _studyNavigatorTopics[topicIndex]
+                                        .topicDate
+                                        .millisecondsSinceEpoch <=
+                                        Timestamp.now()
+                                            .millisecondsSinceEpoch) {
+                                  return _buildDesktopStudyNavigatorExpansionTile(
+                                      topicIndex,
+                                      _studyNavigatorTopics[topicIndex],
+                                      _participantUID);
+                                } else {
+                                  return ListTile(
+                                    onTap: () {
+                                      showGeneralDialog(
+                                        context: context,
+                                        barrierLabel: 'Locked Topic Dialog',
+                                        barrierDismissible: true,
+                                        pageBuilder: (BuildContext context,
+                                            Animation<double> animation,
+                                            Animation<double>
+                                            secondaryAnimation) {
+                                          return Center(
+                                            child: Material(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(10.0),
+                                              ),
+                                              child: Padding(
+                                                padding: EdgeInsets.all(20.0),
+                                                child: Text(
+                                                  'All Previous questions must be answered',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20.0,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    title: Text(
+                                      'Topic Locked',
+                                    ),
+                                  );
+                                }
                               } else {
                                 return ListTile(
                                   onTap: () {
@@ -1259,12 +1301,12 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                       pageBuilder: (BuildContext context,
                                           Animation<double> animation,
                                           Animation<double>
-                                              secondaryAnimation) {
+                                          secondaryAnimation) {
                                         return Center(
                                           child: Material(
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(10.0),
+                                              BorderRadius.circular(10.0),
                                             ),
                                             child: Padding(
                                               padding: EdgeInsets.all(20.0),
@@ -1287,45 +1329,9 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   ),
                                 );
                               }
-                            } else {
-                              return ListTile(
-                                onTap: () {
-                                  showGeneralDialog(
-                                    context: context,
-                                    barrierLabel: 'Locked Topic Dialog',
-                                    barrierDismissible: true,
-                                    pageBuilder: (BuildContext context,
-                                        Animation<double> animation,
-                                        Animation<double> secondaryAnimation) {
-                                      return Center(
-                                        child: Material(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(20.0),
-                                            child: Text(
-                                              'All Previous questions must be answered',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20.0,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                title: Text(
-                                  'Topic Locked',
-                                ),
-                              );
                             }
-                          }
-                        },
+                          },
+                        ),
                       );
                     } else {
                       return SizedBox();
@@ -1412,15 +1418,148 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
   Widget _buildDesktopStudyNavigatorActiveQuestion(
       Question question, String topicUID) {
     return InkWell(
-      onTap: () {
-        setState(() {
-          _topicUID = topicUID;
-          _questionUID = question.questionUID;
-
-          _futureQuestion = _getQuestion(topicUID, question.questionUID);
-          _responsesStream =
-              _getResponsesStream(_studyUID, topicUID, question.questionUID);
-        });
+      onTap: () async {
+        if (_responseController == null) {
+          setState(() {
+            _topicUID = topicUID;
+            _questionUID = question.questionUID;
+            _futureQuestion = _getQuestion(topicUID, question.questionUID);
+            _responsesStream =
+                _getResponsesStream(_studyUID, topicUID, question.questionUID);
+          });
+        }
+        if (_responseController != null) {
+          if (_responseController.text.isNotEmpty) {
+            await showGeneralDialog(
+                barrierDismissible: false,
+                barrierLabel: 'Are you sure',
+                context: context,
+                pageBuilder: (BuildContext exitDialogContext,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation) {
+                  return Center(
+                    child: Container(
+                      constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.3),
+                      child: Material(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Confirm',
+                                style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Align(
+                                child: Container(
+                                  height: 1.0,
+                                  width: double.maxFinite,
+                                  color: Colors.grey,
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                    MediaQuery.of(context).size.width * 0.3,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Text(
+                                'The response which has\'nt been posted will be lost.',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 30.0,
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    RaisedButton(
+                                      onPressed: () {
+                                        Navigator.of(exitDialogContext).pop();
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10.0),
+                                        child: Text(
+                                          'CANCEL',
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 12.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 10.0,
+                                    ),
+                                    RaisedButton(
+                                      color: Colors.red[700],
+                                      onPressed: () {
+                                        Navigator.of(exitDialogContext).pop();
+                                        setState(() {
+                                          _topicUID = topicUID;
+                                          _questionUID = question.questionUID;
+                                          _futureQuestion = _getQuestion(
+                                              topicUID, question.questionUID);
+                                          _responsesStream =
+                                              _getResponsesStream(
+                                                  _studyUID,
+                                                  topicUID,
+                                                  question.questionUID);
+                                        });
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10.0),
+                                        child: Text(
+                                          'EXIT',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                });
+          }
+        }
+        // else {
+        //   setState(() {
+        //     _topicUID = topicUID;
+        //     _questionUID = question.questionUID;
+        //
+        //     _futureQuestion = _getQuestion(topicUID, question.questionUID);
+        //     _responsesStream =
+        //         _getResponsesStream(_studyUID, topicUID, question.questionUID);
+        //   });
+        // }
       },
       splashColor: Colors.transparent,
       hoverColor: Colors.transparent,
@@ -1443,8 +1582,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
               question.respondedBy == null
                   ? Icons.arrow_forward
                   : question.respondedBy.contains(_participantUID)
-                      ? Icons.check_circle_outline_rounded
-                      : Icons.arrow_forward,
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.arrow_forward,
               color: PROJECT_GREEN,
               size: 14.0,
             ),

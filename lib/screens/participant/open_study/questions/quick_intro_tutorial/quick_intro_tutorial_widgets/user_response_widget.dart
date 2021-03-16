@@ -505,27 +505,33 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  minLines: 3,
-                  maxLines: 20,
-                  enabled: _editResponse,
-                  initialValue: widget.response.responseStatement,
-                  onChanged: (responseStatement) {
-                    if (responseStatement.trim().isNotEmpty) {
-                      setState(() {
-                        widget.response.responseStatement = responseStatement;
-                      });
-                    }
-                  },
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    errorBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    fillColor: Colors.grey[100],
-                    filled: _editResponse,
-                  ),
-                ),
+                widget.response.participantUID == _participantUID
+                    ? TextFormField(
+                        minLines: 3,
+                        maxLines: 20,
+                        enabled: _editResponse,
+                        initialValue: widget.response.responseStatement,
+                        onChanged: (responseStatement) {
+                          if (responseStatement.trim().isNotEmpty) {
+                            setState(() {
+                              widget.response.responseStatement =
+                                  responseStatement;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          fillColor: Colors.grey[100],
+                          filled: _editResponse,
+                        ),
+                      )
+                    : SelectableText(
+                        widget.response.responseStatement,
+                        showCursor: true,
+                      ),
                 SizedBox(
                   height: 20.0,
                 ),
@@ -856,11 +862,12 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                   disabledColor: Colors.grey[400],
                   color: PROJECT_GREEN,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)
-                  ),
+                      borderRadius: BorderRadius.circular(10.0)),
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0,),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 5.0,
+                    ),
                     child: Icon(
                       Icons.send,
                       size: 16.0,
@@ -903,36 +910,38 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     snapshot.data.docs.last
-                                        .data()['avatarURL'] != null ?
-                                    CachedNetworkImage(
-                                      imageUrl: snapshot.data.docs.last
-                                          .data()['avatarURL'],
-                                      imageBuilder: (context, imageProvider) {
-                                        return Container(
-                                          padding: EdgeInsets.all(4.0),
-                                          decoration: BoxDecoration(
-                                            color: Colors.indigo[100],
-                                            shape: BoxShape.circle,
+                                                .data()['avatarURL'] !=
+                                            null
+                                        ? CachedNetworkImage(
+                                            imageUrl: snapshot.data.docs.last
+                                                .data()['avatarURL'],
+                                            imageBuilder:
+                                                (context, imageProvider) {
+                                              return Container(
+                                                padding: EdgeInsets.all(4.0),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.indigo[100],
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Image(
+                                                  width: 20.0,
+                                                  image: imageProvider,
+                                                ),
+                                              );
+                                            },
+                                          )
+                                        : Container(
+                                            padding: EdgeInsets.all(4.0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.indigo[100],
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Image(
+                                              width: 20.0,
+                                              image: AssetImage(
+                                                  'images/researcher_images/researcher_dashboard/participant_icon.png'),
+                                            ),
                                           ),
-                                          child: Image(
-                                            width: 20.0,
-                                            image: imageProvider,
-                                          ),
-                                        );
-                                      },
-                                    ) : Container(
-                                      padding: EdgeInsets.all(4.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.indigo[100],
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Image(
-                                        width: 20.0,
-                                        image: AssetImage(
-                                          'images/researcher_images/researcher_dashboard/participant_icon.png'
-                                        ),
-                                      ),
-                                    ),
                                     SizedBox(
                                       width: 10.0,
                                     ),
@@ -1128,27 +1137,33 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: TextFormField(
-                    minLines: 3,
-                    maxLines: 20,
-                    enabled: _editResponse,
-                    initialValue: widget.response.responseStatement,
-                    onChanged: (responseStatement) {
-                      if (responseStatement.trim().isNotEmpty) {
-                        setState(() {
-                          widget.response.responseStatement = responseStatement;
-                        });
-                      }
-                    },
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      fillColor: Colors.grey[100],
-                      filled: _editResponse,
-                    ),
-                  ),
+                  child: widget.response.participantUID == _participantUID
+                      ? TextFormField(
+                          minLines: 3,
+                          maxLines: 20,
+                          enabled: _editResponse,
+                          initialValue: widget.response.responseStatement,
+                          onChanged: (responseStatement) {
+                            if (responseStatement.trim().isNotEmpty) {
+                              setState(() {
+                                widget.response.responseStatement =
+                                    responseStatement;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            fillColor: Colors.grey[100],
+                            filled: _editResponse,
+                          ),
+                        )
+                      : SelectableText(
+                          widget.response.responseStatement,
+                          showCursor: true,
+                        ),
                 ),
                 SizedBox(
                   width: 20.0,

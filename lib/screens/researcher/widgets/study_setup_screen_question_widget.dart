@@ -311,6 +311,7 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
+                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                       await _updateQuestionDetails();
                       await showGeneralDialog(
                         context: context,
@@ -541,6 +542,7 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
+                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                       await _updateQuestionDetails();
                       final date = await showDatePicker(
                         context: context,
@@ -605,6 +607,7 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
+                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                       await _updateQuestionDetails();
                       final time = await showTimePicker(
                         context: context,
@@ -688,6 +691,7 @@ class _StudySetupScreenQuestionWidgetState
                       value: 1,
                       groupValue: _selectedRadio,
                       onChanged: (int value) {
+                        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                         _setSelectedRadio(value);
                       },
                     ),
@@ -715,6 +719,7 @@ class _StudySetupScreenQuestionWidgetState
                       value: 2,
                       groupValue: _selectedRadio,
                       onChanged: (int value) {
+                        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                         _setSelectedRadio(value);
                       },
                     ),
@@ -742,6 +747,7 @@ class _StudySetupScreenQuestionWidgetState
                       value: 3,
                       groupValue: _selectedRadio,
                       onChanged: (int value) {
+                        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                         _setSelectedRadio(value);
                       },
                     ),
@@ -773,6 +779,7 @@ class _StudySetupScreenQuestionWidgetState
                         child: Checkbox(
                           value: widget.question.allowImage,
                           onChanged: (bool value) {
+                            WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                             setState(() {
                               widget.question.allowImage = value;
                               _updateQuestionDetails();
@@ -807,6 +814,7 @@ class _StudySetupScreenQuestionWidgetState
                         child: Checkbox(
                           value: widget.question.allowVideo,
                           onChanged: (bool value) {
+                            WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                             setState(() {
                               widget.question.allowVideo = value;
                               _updateQuestionDetails();
@@ -849,6 +857,7 @@ class _StudySetupScreenQuestionWidgetState
       ),
       child: InkWell(
         onTap: () {
+          WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
           _updateQuestionDetails();
           if (initialValue != null) {
             js.context.callMethod('setInitialValue', [initialValue]);

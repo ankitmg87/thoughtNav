@@ -58,10 +58,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   Widget _listView;
 
   Widget _allStudies;
-  Widget _activeStudies;
-  Widget _completedStudies;
-  Widget _closedStudies;
-  Widget _draftStudies;
 
   Future<List<Study>> _futureAllStudies;
 
@@ -554,11 +550,6 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
   void initializeViews() {
     _allStudies = allStudiesFutureBuilder();
     _listView = _allStudies;
-
-    _activeStudies = SizedBox();
-    _completedStudies = SizedBox();
-    _closedStudies = SizedBox();
-    _draftStudies = SizedBox();
   }
 
   FutureBuilder<List<Study>> allStudiesFutureBuilder() {

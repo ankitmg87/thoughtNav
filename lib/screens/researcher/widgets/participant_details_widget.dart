@@ -5,7 +5,6 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 
-// TODO -> Create disabled widget state
 class ParticipantDetailsWidget extends StatefulWidget {
   const ParticipantDetailsWidget({
     Key key,
@@ -34,6 +33,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2.0,
+      color: widget.participant.isDeleted ? Colors.grey[400] : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -61,6 +61,20 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                               ),
                             );
                           },
+                    errorWidget: (context, string, dynamic) {
+                      return Container(
+                        height: 40.0,
+                        width: 40.0,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image(
+                          image: AssetImage(
+                            'images/researcher_images/researcher_dashboard/participant_icon.png',
+                          ),
+                        ),
+                      );
+                    },
                         )
                       : Container(
                           height: 40.0,
@@ -149,25 +163,6 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                       ],
                     ),
                   ),
-                  // SizedBox(
-                  //   width: 20.0,
-                  // ),
-                  // Expanded(
-                  //   child: Column(
-                  //     mainAxisSize: MainAxisSize.min,
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       Text(
-                  //         'Remove this field',
-                  //         style: TextStyle(
-                  //           color: Colors.grey[700],
-                  //           fontSize: 14.0,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   SizedBox(
                     width: 20.0,
                   ),
@@ -239,32 +234,14 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                         ],
                       ),
                       SizedBox(height: 10.0),
-                      // Row(
-                      //   mainAxisSize: MainAxisSize.min,
-                      //   children: [
-                      //     Text(
-                      //       'Edit',
-                      //       style: TextStyle(
-                      //         color: Colors.black,
-                      //         fontSize: 12.0,
-                      //       ),
-                      //     ),
-                      //     SizedBox(
-                      //       width: 30.0,
-                      //     ),
-                      //     Icon(
-                      //       Icons.edit,
-                      //       color: PROJECT_GREEN,
-                      //     ),
-                      //   ],
-                      // ),
-                      // SizedBox(height: 10.0),
                       InkWell(
                         highlightColor: Colors.transparent,
                         focusColor: Colors.transparent,
                         hoverColor: Colors.transparent,
                         splashColor: Colors.transparent,
-                        onTap: () async {
+                        onTap: widget.participant.isDeleted
+                            ? null
+                            : () async {
                           await showGeneralDialog(
                             barrierDismissible: true,
                             barrierLabel: 'Delete Participant',
@@ -275,31 +252,38 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                               return Center(
                                 child: Material(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4.0),
+                                  borderRadius:
+                                  BorderRadius.circular(4.0),
                                   child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.4,
+                                    width: MediaQuery.of(context)
+                                        .size
+                                        .width *
+                                        0.4,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4.0),
+                                      borderRadius:
+                                      BorderRadius.circular(4.0),
                                     ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Container(
                                           width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
+                                              .size
+                                              .width *
                                               0.4,
                                           height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
+                                              .size
+                                              .height *
                                               0.15,
                                           alignment: Alignment.bottomLeft,
                                           padding: EdgeInsets.all(30.0),
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(4.0),
-                                              topRight: Radius.circular(4.0),
+                                            borderRadius:
+                                            BorderRadius.only(
+                                              topLeft:
+                                              Radius.circular(4.0),
+                                              topRight:
+                                              Radius.circular(4.0),
                                             ),
                                             color: Colors.red[700],
                                           ),
@@ -316,9 +300,9 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                           padding: EdgeInsets.all(30.0),
                                           child: Text(
                                             'If you choose to delete this participant: '
-                                            '\n1. They will be removed from their assigned group. '
-                                            '\n2. They won\'t be able to login.'
-                                            '\n3. Their responses and comments will be visible to clients and moderators but not to other participants.',
+                                                '\n1. They will be removed from their assigned group. '
+                                                '\n2. They won\'t be able to login.'
+                                                '\n3. Their responses and comments will be visible to clients and moderators but not to other participants.',
                                             style: TextStyle(
                                               color: Colors.black,
                                               fontWeight: FontWeight.bold,
@@ -327,69 +311,83 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                           ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(15.0),
+                                          padding:
+                                          const EdgeInsets.all(15.0),
                                           child: ButtonBar(
                                             children: [
                                               FlatButton(
-                                                shape: RoundedRectangleBorder(
+                                                shape:
+                                                RoundedRectangleBorder(
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                          4.0),
+                                                  BorderRadius
+                                                      .circular(4.0),
                                                 ),
                                                 onPressed: () =>
-                                                    Navigator.of(context).pop(),
+                                                    Navigator.of(context)
+                                                        .pop(),
+                                                color: Colors.grey[200],
                                                 child: Padding(
                                                   padding:
-                                                      const EdgeInsets.all(8.0),
+                                                  const EdgeInsets
+                                                      .all(8.0),
                                                   child: Text(
                                                     'Cancel',
                                                     style: TextStyle(
-                                                        color: Colors.grey[700],
+                                                        color: Colors
+                                                            .grey[700],
                                                         fontWeight:
-                                                            FontWeight.bold,
+                                                        FontWeight
+                                                            .bold,
                                                         fontSize: 14.0),
                                                   ),
                                                 ),
-                                                color: Colors.grey[200],
                                               ),
                                               SizedBox(
                                                 width: 4.0,
                                               ),
                                               FlatButton(
-                                                shape: RoundedRectangleBorder(
+                                                shape:
+                                                RoundedRectangleBorder(
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                          4.0),
+                                                  BorderRadius
+                                                      .circular(4.0),
                                                 ),
                                                 onPressed: widget
-                                                        .participant.isDeleted
+                                                    .participant
+                                                    .isDeleted
                                                     ? null
                                                     : () async {
-                                                        widget.participant
-                                                            .isDeleted = true;
-                                                        widget.participant
-                                                            .isActive = false;
-                                                        await _updateParticipantDetails(
-                                                            'isDeleted', true);
-                                                        await _updateParticipantDetails(
-                                                            'isActive', false);
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
+                                                  widget.participant
+                                                      .isDeleted =
+                                                  true;
+                                                  widget.participant
+                                                      .isActive =
+                                                  false;
+                                                  await _updateParticipantDetails(
+                                                      'isDeleted',
+                                                      true);
+                                                  await _updateParticipantDetails(
+                                                      'isActive',
+                                                      false);
+                                                  Navigator.of(
+                                                      context)
+                                                      .pop();
+                                                },
+                                                color: Colors.red[700],
                                                 child: Padding(
                                                   padding:
-                                                      const EdgeInsets.all(8.0),
+                                                  const EdgeInsets
+                                                      .all(8.0),
                                                   child: Text(
                                                     'Delete',
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                       fontSize: 14.0,
                                                     ),
                                                   ),
                                                 ),
-                                                color: Colors.red[700],
                                               ),
                                             ],
                                           ),
@@ -408,7 +406,9 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Delete',
+                              widget.participant.isDeleted
+                                  ? 'Deleted'
+                                  : 'Delete',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 12.0,
@@ -419,7 +419,9 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                             ),
                             Icon(
                               Icons.delete_forever,
-                              color: PROJECT_GREEN,
+                              color: widget.participant.isDeleted
+                                  ? Colors.red[700]
+                                  : PROJECT_GREEN,
                             ),
                           ],
                         ),

@@ -27,10 +27,10 @@ const String _NOTIFICATION_TYPE_MODERATOR_COMMENT = 'moderatorComment';
 
 class ParticipantFirestoreService {
   final _studiesReference =
-  FirebaseFirestore.instance.collection(_STUDIES_COLLECTION);
+      FirebaseFirestore.instance.collection(_STUDIES_COLLECTION);
 
-  Future<Participant> getParticipant(String studyUID,
-      String participantUID) async {
+  Future<Participant> getParticipant(
+      String studyUID, String participantUID) async {
     var participantDocumentReference = await _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
@@ -42,8 +42,8 @@ class ParticipantFirestoreService {
     return participant;
   }
 
-  Future<Response> postResponse(String studyUID, String participantUID, String topicUID,
-      String questionUID, Response response,) async {
+  Future<Response> postResponse(String studyUID, String participantUID,
+      String topicUID, String questionUID, Response response) async {
     await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -61,11 +61,14 @@ class ParticipantFirestoreService {
         SetOptions(merge: true),
       );
     });
-
-    var responses = await _studiesReference.doc(studyUID).collection(
-        _TOPICS_COLLECTION).doc(topicUID).collection(_QUESTIONS_COLLECTION).doc(
-        questionUID).collection(_RESPONSES_COLLECTION).get();
-
+    var responses = await _studiesReference
+        .doc(studyUID)
+        .collection(_TOPICS_COLLECTION)
+        .doc(topicUID)
+        .collection(_QUESTIONS_COLLECTION)
+        .doc(questionUID)
+        .collection(_RESPONSES_COLLECTION)
+        .get();
     await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -78,35 +81,35 @@ class ParticipantFirestoreService {
         'totalResponses': responses.docs.length,
       },
     );
-
-    var participantResponses = await getParticipantDetail(studyUID, participantUID, 'responses');
-
-    participantResponses = participantResponses++;
-
-    await saveParticipantDetail(studyUID, participantUID, 'responses', participantResponses);
-
+    var participantResponses =
+        await getParticipantDetail(studyUID, participantUID, 'responses');
+    await saveParticipantDetail(
+        studyUID, participantUID, 'responses', participantResponses + 1);
     var totalStudyResponses = await getStudyDetail(studyUID, 'totalResponses');
-
     await updateStudyDetail(
         studyUID, 'totalResponses', totalStudyResponses + 1);
-
     return response;
   }
 
-  Future<int> getParticipantDetail(String studyUID, String participantUID,
-      String detail) async {
+  Future<int> getParticipantDetail(
+      String studyUID, String participantUID, String key) async {
+    var participantSnapshot = await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participantUID)
+        .get();
 
-    var participantSnapshot = await _studiesReference.doc(studyUID).collection(
-        _PARTICIPANTS_COLLECTION).doc(participantUID).get();
-
-    var intDetail = participantSnapshot.data()[detail];
-    print(int.parse('$intDetail'));
+    var intDetail = participantSnapshot.data()[key];
     return int.parse('$intDetail');
-
   }
 
-  Future<void> saveParticipantDetail(String studyUID, String participantUID, String key, int value) async {
-    await _studiesReference.doc(studyUID).collection(_PARTICIPANTS_COLLECTION).doc(participantUID).update({
+  Future<void> saveParticipantDetail(
+      String studyUID, String participantUID, String key, int value) async {
+    await _studiesReference
+        .doc(studyUID)
+        .collection(_PARTICIPANTS_COLLECTION)
+        .doc(participantUID)
+        .update({
       key: value,
     });
   }
@@ -137,8 +140,8 @@ class ParticipantFirestoreService {
     }
   }
 
-  Stream<QuerySnapshot> getResponses(String studyUID, String topicUID,
-      String questionUID) {
+  Stream<QuerySnapshot> getResponses(
+      String studyUID, String topicUID, String questionUID) {
     return _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -149,20 +152,6 @@ class ParticipantFirestoreService {
         .orderBy('responseTimestamp', descending: false)
         .snapshots();
   }
-
-  // Stream<QuerySnapshot> getResponsesAsStream(
-  //     String studyUID, String topicUID, String questionUID) {
-  //   return _studiesReference
-  //       .doc(studyUID)
-  //       .collection(_TOPICS_COLLECTION)
-  //       .doc(topicUID)
-  //       .collection(_QUESTIONS_COLLECTION)
-  //       .doc(questionUID)
-  //       .collection(_RESPONSES_COLLECTION)
-  //       .orderBy('responseTimestamp', descending: false)
-  //       .where('responseUID', isNotEqualTo: null)
-  //       .snapshots();
-  // }
 
   Stream<QuerySnapshot> getComments(String studyUID, String topicUID,
       String questionUID, String responseUID) {
@@ -192,8 +181,8 @@ class ParticipantFirestoreService {
         .update(response.toMap());
   }
 
-  Future<Question> getQuestion(String studyUID, String topicUID,
-      String questionUID) async {
+  Future<Question> getQuestion(
+      String studyUID, String topicUID, String questionUID) async {
     var questionDocumentReference = await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -206,7 +195,8 @@ class ParticipantFirestoreService {
     return question;
   }
 
-  Future<Comment> postComment(String studyUID,
+  Future<Comment> postComment(
+      String studyUID,
       String respondedParticipantUID,
       String participantUID,
       String topicUID,
@@ -234,7 +224,6 @@ class ParticipantFirestoreService {
         SetOptions(merge: true),
       );
     });
-
     var commentSnapshots = await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -245,9 +234,7 @@ class ParticipantFirestoreService {
         .doc(responseUID)
         .collection(_COMMENTS_COLLECTION)
         .get();
-
     var totalComments = commentSnapshots.docs.length;
-
     await _studiesReference
         .doc(studyUID)
         .collection(_TOPICS_COLLECTION)
@@ -262,7 +249,6 @@ class ParticipantFirestoreService {
       },
       SetOptions(merge: true),
     );
-
     var commentNotification = CommentNotification(
       avatarURL: comment.avatarURL,
       displayName: comment.displayName,
@@ -276,19 +262,14 @@ class ParticipantFirestoreService {
       commentUID: comment.commentUID,
       notificationTimestamp: comment.commentTimestamp,
     );
-
     await addCommentNotification(
         studyUID, respondedParticipantUID, commentNotification);
-
     var studyTotalComments = await getStudyDetail(studyUID, 'totalComments');
-
     await updateStudyDetail(studyUID, 'totalComments', studyTotalComments + 1);
-
-
-    var participantComments = await getParticipantDetail(studyUID, participantUID, 'comments');
-
-    await saveParticipantDetail(studyUID, participantUID, 'comments', participantComments++);
-
+    var participantComments =
+        await getParticipantDetail(studyUID, participantUID, 'comments');
+    await saveParticipantDetail(
+        studyUID, participantUID, 'comments', participantComments + 1);
     return comment;
   }
 
@@ -309,7 +290,8 @@ class ParticipantFirestoreService {
     });
   }
 
-  Future<void> addCommentNotification(String studyUID,
+  Future<void> addCommentNotification(
+      String studyUID,
       String respondedParticipantUID,
       CommentNotification commentNotification) async {
     await _studiesReference
@@ -333,8 +315,8 @@ class ParticipantFirestoreService {
     return study;
   }
 
-  Stream<QuerySnapshot> getParticipantNotifications(String studyUID,
-      String participantUID) {
+  Stream<QuerySnapshot> getParticipantNotifications(
+      String studyUID, String participantUID) {
     var notificationsSnapshot = _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
@@ -374,8 +356,8 @@ class ParticipantFirestoreService {
     return questionData.containsValue(participantUID);
   }
 
-  Future<List<Topic>> getParticipantTopics(String studyUID,
-      String participantGroupUID) async {
+  Future<List<Topic>> getParticipantTopics(
+      String studyUID, String participantGroupUID) async {
     var topics = <Topic>[];
 
     var topicsReference = await _studiesReference
@@ -396,8 +378,8 @@ class ParticipantFirestoreService {
     return topics;
   }
 
-  Future<List<Question>> getParticipantQuestions(String studyUID,
-      String topicUID, String participantGroupUID) async {
+  Future<List<Question>> getParticipantQuestions(
+      String studyUID, String topicUID, String participantGroupUID) async {
     var questions = <Question>[];
 
     var questionsReference = await _studiesReference
@@ -438,8 +420,8 @@ class ParticipantFirestoreService {
     });
   }
 
-  Future<void> updateAvatarAndDisplayNameStatus(String studyUID,
-      String avatarAndDisplayNameID, bool selected) async {
+  Future<void> updateAvatarAndDisplayNameStatus(
+      String studyUID, String avatarAndDisplayNameID, bool selected) async {
     await _studiesReference
         .doc(studyUID)
         .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
@@ -515,8 +497,8 @@ class ParticipantFirestoreService {
     await removeClapNotification(studyUID, response.participantUID, response);
   }
 
-  Future<void> removeClapNotification(String studyUID, String participantUID,
-      Response response) async {
+  Future<void> removeClapNotification(
+      String studyUID, String participantUID, Response response) async {
     var clapQuerySnapshot = await _studiesReference
         .doc(studyUID)
         .collection(_PARTICIPANTS_COLLECTION)
@@ -578,21 +560,23 @@ class ParticipantFirestoreService {
     });
   }
 
-  Future<http.Response> sendEmail(String email, String message, String name,
-      String subject) async {
-    var url = 'http://koodo.m-staging.in/Koodo/flutter/send-email';
-
+  Future<http.Response> sendEmail(
+      String email, String message, String name, String subject) async {
+    var url =
+        'http://bluechipdigitech.com/Thoughtnav_C/thoughtnav/flutter/receive-email';
     var response = await http.post(url, body: {
       'email': email,
       'message': message,
       'name': name,
       'subject': subject,
     });
-
-    print(response.body.toString());
-    print(response.statusCode);
-
     return response;
   }
 
+  Future<void> updateActiveParticipantsNumber(String studyUID) async {
+    var activeParticipants =
+        await getStudyDetail(studyUID, 'activeParticipants');
+    await updateStudyDetail(
+        studyUID, 'activeParticipants', activeParticipants + 1);
+  }
 }

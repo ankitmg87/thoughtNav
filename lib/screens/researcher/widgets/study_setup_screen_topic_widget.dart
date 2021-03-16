@@ -220,6 +220,7 @@ class _StudySetupScreenTopicWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
+                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                       final beginDate = await showDatePicker(
                         firstDate: DateTime(2020),
                         initialDate: DateTime.now(),
@@ -276,6 +277,7 @@ class _StudySetupScreenTopicWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
+                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                       final time = await showTimePicker(
                         context: context,
                         initialTime: TimeOfDay(hour: 06, minute: 30),
@@ -419,6 +421,7 @@ class _StudySetupScreenTopicWidgetState
               children: [
                 InkWell(
                   onTap: () async {
+                    WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
                     var question = await _researcherAndModeratorFirestoreService
                         .createQuestion(
                       widget.studyUID,

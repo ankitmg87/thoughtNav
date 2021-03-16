@@ -156,6 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 if(participant.isDeleted){
                   var getStorage = GetStorage();
                   await getStorage.write('studyUID', user.studyUID);
+                  await getStorage.write('participantUID', user.userUID);
                   await Navigator.of(context).pushNamedAndRemoveUntil(STUDY_ENDED_SCREEN, (route) => false);
                 }
                 if (participant.isOnboarded) {

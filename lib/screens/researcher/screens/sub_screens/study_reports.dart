@@ -1,13 +1,19 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
+import 'package:thoughtnav/screens/researcher/models/report_question.dart';
+import 'package:thoughtnav/screens/researcher/models/report_response.dart';
+import 'package:thoughtnav/screens/researcher/models/report_study.dart';
+import 'package:thoughtnav/screens/researcher/models/report_topic.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/screens/researcher/widgets/topic_report_widget.dart';
@@ -29,201 +35,86 @@ class StudyReports extends StatefulWidget {
 }
 
 class _StudyReportsState extends State<StudyReports> {
-  final GlobalKey<State<StatefulWidget>> _printKey = GlobalKey();
-
   final _researcherAndModeratorService =
-      ResearcherAndModeratorFirestoreService();
-
-  final pdf = pw.Document();
-
+  ResearcherAndModeratorFirestoreService();
   Future<List<Topic>> _futureGenerateReport;
-
   Study _study;
   List<Group> _groups;
   List<Topic> _topics;
-
-  List<List<dynamic>> _listForCSV;
-
+  String _response;
   Future<Study> _getFutureStudy(String studyUID) async {
     var study = await _researcherAndModeratorService.getStudy(studyUID);
     return study;
   }
-
   Future<List<Topic>> _generateReport(String studyUID) async {
     _study = await _getFutureStudy(studyUID);
     _groups = await _researcherAndModeratorService.getGroups(studyUID);
     _topics = await _researcherAndModeratorService.generateReport(studyUID);
-
     return _topics;
   }
-
-  Future<pw.ImageProvider> _getImage(String url, {bool cache = true, PdfImageOrientation orientation, double dpi}) async {
-    //final img = await _download(url, cache: cache);
-
-
-
-    final img = NetworkImage(url);
-    final image = await flutterImageProvider(img);
-    return image;
-
-    // return pw.MemoryImage(img, orientation: orientation, dpi: dpi);
-  }
-
-  Future<Uint8List> _download(
-      String url, {
-        bool cache = true,
-      }) async {
-
-
-    print('Downloading $url');
-
-    var dio = Dio();
-
-    var request;
-    var response;
-    var builder;
-    List<int> data;
-
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) async {
-      request = await client.getUrl(Uri.parse(url));
-      response = await request.close();
-      builder = await response.fold(
-          BytesBuilder(), (BytesBuilder b, List<int> d) => b..add(d));
-      data = builder.takeBytes();
-    };
-
-    return Uint8List.fromList(data);
-
-  }
-
-  void _createPDF() {
-    Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async =>
-            await _generatePdf(format, 'New Title'));
-  }
-
-  Future<Uint8List> _generatePdf(PdfPageFormat format, String title) async {
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: format,
-        build: (context) {
-          return [
-            pw.Wrap(
-              children: List.generate(_topics.length, (topicIndex) {
-                return pw.Column(
-                  mainAxisSize: pw.MainAxisSize.min,
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      _topics[topicIndex].topicName,
-                      style: pw.TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                    ),
-                    pw.SizedBox(
-                      height: 20.0,
-                    ),
-                    pw.ListView(
-                      padding: pw.EdgeInsets.only(left: 20.0),
-                      children: List.generate(
-                        _topics[topicIndex].questions.length,
-                            (questionIndex) {
-                          return pw.Column(
-                            mainAxisSize: pw.MainAxisSize.min,
-                            crossAxisAlignment: pw.CrossAxisAlignment.start,
-                            children: [
-                              pw.Row(children: [
-                                pw.Text(
-                                  '${_topics[topicIndex].questions[questionIndex].questionNumber}.',
-                                  style: pw.TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: pw.FontWeight.bold,
-                                  ),
-                                ),
-                                pw.SizedBox(width: 10.0),
-                                pw.Text(
-                                  _topics[topicIndex]
-                                      .questions[questionIndex]
-                                      .questionTitle,
-                                  style: pw.TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: pw.FontWeight.bold,
-                                  ),
-                                ),
-                              ]),
-                              pw.SizedBox(
-                                height: 20.0,
-                              ),
-                              pw.Text(_topics[topicIndex]
-                                  .questions[questionIndex]
-                                  .questionStatement),
-                              pw.SizedBox(
-                                height: 20.0,
-                              ),
-                              pw.ListView.builder(
-                                padding: pw.EdgeInsets.only(left: 20.0),
-                                itemCount: _topics[topicIndex]
-                                    .questions[questionIndex]
-                                    .responses
-                                    .length,
-                                itemBuilder: (context, responseIndex) {
-
-                                  pw.ImageProvider image;
-
-                                  _getImage(_topics[topicIndex]
-                                        .questions[questionIndex]
-                                        .responses[responseIndex].avatarURL).then((value) {
-                                          image = value;
-                                          print(image);
-                                  });
-
-                                  return pw.Column(
-                                    crossAxisAlignment:
-                                    pw.CrossAxisAlignment.start,
-                                    mainAxisSize: pw.MainAxisSize.min,
-                                    children: [
-                                      pw.Image(
-                                        image
-                                      ),
-                                      pw.Text(
-                                        _topics[topicIndex]
-                                            .questions[questionIndex]
-                                            .responses[responseIndex]
-                                            .participantDisplayName,
-                                      ),
-                                      pw.SizedBox(
-                                        height: 10.0,
-                                      ),
-                                      pw.Text(
-                                        _topics[topicIndex]
-                                            .questions[questionIndex]
-                                            .responses[responseIndex]
-                                            .responseStatement,
-                                      )
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              }).toList(),
-            ),
-          ];
-        },
-      ),
+  Future<String> _createPDF() async {
+    var reportStudy = ReportStudy(
+      studyName: _study.studyName,
+      internalStudyLabel: _study.internalStudyLabel,
+      studyStatus: _study.studyStatus,
+      beginDate: _study.startDate,
+      endDate: _study.endDate,
+      activeParticipants: '${_study.activeParticipants}',
+      totalParticipants: '${_study.totalParticipants}',
+      totalResponses: '${_study.totalResponses}',
+      totalComments: '${_study.totalComments}',
+      reportTopics: [],
     );
-
-    return pdf.save();
+    for (var topic in _topics) {
+      var reportTopic = ReportTopic(
+        topicName: topic.topicName,
+        topicNumber: topic.topicNumber,
+        reportQuestions: [],
+      );
+      for (var question in topic.questions) {
+        var reportQuestion = ReportQuestion(
+          questionNumber: question.questionNumber,
+          questionTitle: question.questionTitle,
+          questionStatement: question.questionStatement,
+          reportResponses: [],
+        );
+        for (var response in question.responses) {
+          var reportResponse = ReportResponse(
+              participantDisplayName: response.participantDisplayName,
+              participantAvatarURL: response.avatarURL,
+              dateAndTime: _calculateDateAndTime(response.responseTimestamp),
+              responseStatement: response.responseStatement ?? '',
+              mediaURL: response.mediaURL ?? '',
+              mediaType: response.mediaType ?? '',
+              claps: '${response.claps.length}',
+              comments: '${response.comments}');
+          reportQuestion.reportResponses
+              .add(reportResponse.toMap(reportResponse));
+        }
+        reportTopic.reportQuestions.add(reportQuestion.toMap(reportQuestion));
+      }
+      reportStudy.reportTopics.add(reportTopic.toMap(reportTopic));
+    }
+    var response =
+    await _researcherAndModeratorService.sendDataForPdfGeneration(
+        'http://bluechipdigitech.com/Thoughtnav/api/',
+        reportStudy.toMap(reportStudy));
+    var decodedResponse = jsonDecode(response.body);
+    _response = decodedResponse['message'];
+    return _response;
   }
-
+  void _downloadPDF(String url) {
+    var anchorElement = html.AnchorElement(href: url);
+    anchorElement.download = url;
+    anchorElement.click();
+  }
+  String _calculateDateAndTime(Timestamp responseTimestamp) {
+    var dateFormat = DateFormat(DateFormat.ABBR_MONTH_DAY);
+    var timeFormat = DateFormat.jm();
+    var date = dateFormat.format(responseTimestamp.toDate());
+    var time = timeFormat.format(responseTimestamp.toDate());
+    return '$date at $time';
+  }
   @override
   void initState() {
     _futureGenerateReport = _generateReport(widget.studyUID);
@@ -246,179 +137,183 @@ class _StudyReportsState extends State<StudyReports> {
               break;
             case ConnectionState.done:
               var topics = snapshot.data;
-
-              return ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+              return Scrollbar(
+                thickness: 10.0,
+                isAlwaysShown: true,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          RaisedButton(
+                            elevation: 2.0,
+                            color: PROJECT_LIGHT_GREEN,
+                            onPressed: () {
+                              _getCSV(topics);
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(10.0),
+                              child: Text(
+                                'Export as .csv',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20.0,
+                          ),
+                          RaisedButton(
+                            elevation: 2.0,
+                            color: PROJECT_LIGHT_GREEN,
+                            onPressed: () async {
+                              var downloadLink = await _createPDF();
+                              _downloadPDF(downloadLink);
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(10.0),
+                              child: Text(
+                                'Export as .pdf',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        RaisedButton(
-                          elevation: 2.0,
-                          color: PROJECT_LIGHT_GREEN,
-                          onPressed: () {
-                            _getCSV(topics);
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child: Text(
-                              'Export as .csv',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Card(
+                            elevation: 2.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _study.studyName,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 24.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Container(
+                                    height: 1.0,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(10.0),
+                                        color: Colors.grey),
+                                  ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            _detailRow('Internal Study Label',
+                                                '${_study.internalStudyLabel ?? 'No Internal Study Label'}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            _detailRow('Study Status',
+                                                '${_study.studyStatus}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            _detailRow('Begin Date',
+                                                '${_study.startDate}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            _detailRow('End Date',
+                                                '${_study.endDate}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 300.0,
+                                      ),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            _detailRow('Active Participants',
+                                                '${_study.activeParticipants}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            _detailRow('Total Participants',
+                                                '${_study.totalParticipants}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            _detailRow('Total Responses',
+                                                '${_study.totalResponses}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            _detailRow('Total Comments',
+                                                '${_study.totalComments}'),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                         SizedBox(
-                          width: 20.0,
+                          height: 20.0,
                         ),
-                        RaisedButton(
-                          elevation: 2.0,
-                          color: PROJECT_LIGHT_GREEN,
-                          onPressed: () {
-                            // _createPDF();
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: topics.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return TopicReportWidget(
+                              topic: topics[index],
+                              groups: _groups,
+                            );
                           },
-                          child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child: Text(
-                              'Export as .pdf',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          separatorBuilder: (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Card(
-                          elevation: 2.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _study.studyName,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Container(
-                                  height: 1.0,
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(10.0),
-                                      color: Colors.grey),
-                                ),
-                                SizedBox(
-                                  height: 20.0,
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          _detailRow('Internal Study Label',
-                                              '${_study.internalStudyLabel ?? 'No Internal Study Label'}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          _detailRow('Study Status',
-                                              '${_study.studyStatus}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          _detailRow('Begin Date',
-                                              '${_study.startDate}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          _detailRow('End Date',
-                                              '${_study.endDate}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 300.0,
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          _detailRow('Active Participants',
-                                              '${_study.activeParticipants}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          _detailRow('Total Participants',
-                                              '${_study.totalParticipants}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          _detailRow('Total Responses',
-                                              '${_study.totalResponses}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          _detailRow('Total Comments',
-                                              '${_study.totalComments}'),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: topics.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return TopicReportWidget(
-                            topic: topics[index],
-                            groups: _groups,
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return SizedBox(
-                            height: 10.0,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               );
               break;
             default:

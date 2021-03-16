@@ -67,14 +67,42 @@ class AvatarRadioItem extends StatelessWidget {
                 padding: EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _avatarRadioModel.isSelected ? PROJECT_LIGHT_GREEN : Colors.white,
+                  color: _avatarRadioModel.isSelected
+                      ? PROJECT_LIGHT_GREEN
+                      : Colors.white,
                   border: Border.all(
                     width: 2.0,
-                    color: _avatarRadioModel.isSelected ? PROJECT_GREEN : Colors.white,
+                    color: _avatarRadioModel.isSelected
+                        ? PROJECT_GREEN
+                        : Colors.white,
                   ),
                 ),
                 child: Image(
                   image: imageProvider,
+                ),
+              );
+            },
+            errorWidget: (_c, _s, _d) {
+              return Container(
+                width: 50.0,
+                height: 50.0,
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _avatarRadioModel.isSelected
+                      ? PROJECT_LIGHT_GREEN
+                      : Colors.white,
+                  border: Border.all(
+                    width: 2.0,
+                    color: _avatarRadioModel.isSelected
+                        ? PROJECT_GREEN
+                        : Colors.white,
+                  ),
+                ),
+                child: Image(
+                  image: AssetImage(
+                    'images/researcher_images/researcher_dashboard/participant_icon.png',
+                  ),
                 ),
               );
             },

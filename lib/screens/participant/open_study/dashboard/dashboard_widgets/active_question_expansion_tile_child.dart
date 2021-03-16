@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 
-class ActiveQuestionExpansionTileChild extends StatelessWidget {
+class ActiveQuestionExpansionTileChild extends StatefulWidget {
   final Function onTap;
   final Question question;
   final String participantUID;
@@ -17,20 +17,25 @@ class ActiveQuestionExpansionTileChild extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _ActiveQuestionExpansionTileChildState createState() => _ActiveQuestionExpansionTileChildState();
+}
+
+class _ActiveQuestionExpansionTileChildState extends State<ActiveQuestionExpansionTileChild> {
+  @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: onTap,
+      onTap: widget.onTap,
       title: Text(
-        '${question.questionNumber} ${question.questionTitle}',
+        '${widget.question.questionNumber} ${widget.question.questionTitle}',
         style: TextStyle(
           color: Color(0xFF333333),
           fontSize: 12.0,
         ),
       ),
       trailing: Icon(
-        question.respondedBy == null
+        widget.question.respondedBy == null
             ? Icons.arrow_forward
-            : question.respondedBy.contains(participantUID)
+            : widget.question.respondedBy.contains(widget.participantUID)
                 ? Icons.check_circle_outline_rounded
                 : Icons.arrow_forward,
         color: PROJECT_GREEN,

@@ -269,13 +269,30 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                                 alignment:
                                                     Alignment.centerRight,
                                                 child: FlatButton(
+                                                  onPressed: () async {
+                                                    try {
+                                                      await _participantFirestoreService
+                                                          .sendEmail(
+                                                          _participant
+                                                              .email,
+                                                          _message,
+                                                          '${_participant.userFirstName} ${_participant.userLastName}',
+                                                          'Contact Us');
+                                                    } catch (e) {
+                                                      print(e);
+                                                    }
+                                                    await Navigator.of(context)
+                                                        .popAndPushNamed(
+                                                        PARTICIPANT_DASHBOARD_SCREEN);
+                                                  },
+                                                  color: PROJECT_GREEN,
                                                   child: Padding(
                                                     padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
+                                                    const EdgeInsets.all(
+                                                        8.0),
                                                     child: Row(
                                                       mainAxisSize:
-                                                          MainAxisSize.min,
+                                                      MainAxisSize.min,
                                                       children: [
                                                         Image(
                                                           width: 10.0,
@@ -291,25 +308,13 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                                           style: TextStyle(
                                                             color: Colors.white,
                                                             fontWeight:
-                                                                FontWeight.bold,
+                                                            FontWeight.bold,
                                                             fontSize: 13.0,
                                                           ),
                                                         ),
                                                       ],
                                                     ),
                                                   ),
-                                                  onPressed: ()async {
-
-                                                    await _participantFirestoreService.sendEmail(
-                                                        _participant.email,
-                                                        _message,
-                                                        '${_participant.userFirstName} ${_participant.userLastName}',
-                                                        'Contact Us');
-
-                                                    await Navigator.of(context).popAndPushNamed(
-                                                        PARTICIPANT_DASHBOARD_SCREEN);
-                                                  },
-                                                  color: PROJECT_GREEN,
                                                 ),
                                               ),
                                             ],
@@ -606,12 +611,17 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                           Center(
                             child: InkWell(
                               onTap: () async {
-                                await _participantFirestoreService.sendEmail(
-                                    _participant.email,
-                                    _message,
-                                    '${_participant.userFirstName} ${_participant.userLastName}',
-                                    'Contact Us');
-
+                                try {
+                                  await _participantFirestoreService
+                                      .sendEmail(
+                                      _participant
+                                          .email,
+                                      _message,
+                                      '${_participant.userFirstName} ${_participant.userLastName}',
+                                      'Contact Us');
+                                } catch (e) {
+                                  print(e);
+                                }
                                 await Navigator.of(context).popAndPushNamed(
                                     PARTICIPANT_DASHBOARD_SCREEN);
                               },

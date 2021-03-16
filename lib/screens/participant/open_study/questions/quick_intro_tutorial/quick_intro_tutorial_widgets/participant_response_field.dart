@@ -389,6 +389,13 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
                                         responseStatement;
                                   });
                                 },
+                                onFieldSubmitted: (responseStatement){
+                                  if(widget.response.responseStatement != null){
+                                    if(widget.response.responseStatement.isNotEmpty){
+                                      widget.onTap;
+                                    }
+                                  }
+                                },
                               ),
                               SizedBox(
                                 width: widget.question.allowImage ||
@@ -643,7 +650,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
             ),
             InkWell(
               onTap: widget.response.responseStatement == null
-                  ? widget.onTap
+                  ? null
                   : widget.response.responseStatement.isEmpty
                       ? null
                       : widget.onTap,

@@ -1,10 +1,13 @@
 
+import 'package:thoughtnav/screens/researcher/models/participant.dart';
+
 class Group {
   String groupUID;
   int groupIndex;
   String groupName;
   String internalGroupLabel;
   String groupRewardAmount;
+  List<Participant> participants;
 
   Group({
     this.groupUID,
@@ -12,6 +15,7 @@ class Group {
     this.groupName,
     this.internalGroupLabel,
     this.groupRewardAmount,
+    this.participants,
   });
 
   Map<String, dynamic> toMap () {

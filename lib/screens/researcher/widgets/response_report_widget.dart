@@ -188,8 +188,9 @@ class _ResponseReportWidgetState extends State<ResponseReportWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(
-                    widget.response.responseStatement,
+                  child: SelectableText(
+                    widget.response.responseStatement ?? '',
+                    showCursor: true,
                   ),
                 ),
                 widget.response.hasMedia

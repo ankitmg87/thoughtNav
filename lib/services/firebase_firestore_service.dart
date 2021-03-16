@@ -352,12 +352,13 @@ class FirebaseFirestoreService {
   Future<User> createUser(User user) async {
     var userUID = await _firebaseAuthService.signUpUser(
         user.userEmail, user.userPassword);
-
-    user.userUID = userUID;
-
-    await _usersReference.doc(userUID).set(user.toMap());
-
-    return user;
+    if(userUID == 'email-already-in-use'){
+      return null;
+    }else {
+      user.userUID = userUID;
+      await _usersReference.doc(userUID).set(user.toMap());
+      return user;
+    }
   }
 
   Future<Client> createClient(String studyUID, Client client) async {
@@ -406,8 +407,6 @@ class FirebaseFirestoreService {
       SetOptions(merge: true),
     );
   }
-
-
 
   Future<void> updateTopic(String studyUID, Topic topic) async {
     var lastSaveTime = Timestamp.now();

@@ -137,6 +137,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _participant.isActive = true;
       _participant.isDeleted = false;
 
+      await _participantFirestoreService.updateActiveParticipantsNumber(_studyUID);
+
       await _firebaseFirestoreService.updateParticipant(
           _studyUID, _participant);
     }

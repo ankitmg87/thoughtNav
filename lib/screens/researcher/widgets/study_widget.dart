@@ -133,7 +133,7 @@ class _StudyWidgetState extends State<StudyWidget> {
                                     borderRadius: BorderRadius.circular(20.0),
                                     child: LinearPercentIndicator(
                                       lineHeight: 30.0,
-                                      percent: _activeParticipants / _allParticipants,
+                                      percent: 0,
                                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                                       backgroundColor: Colors.black12,
                                       progressColor: Color(0xFF437FEF),
@@ -159,7 +159,7 @@ class _StudyWidgetState extends State<StudyWidget> {
                                     borderRadius: BorderRadius.circular(20.0),
                                     child: LinearPercentIndicator(
                                       lineHeight: 30.0,
-                                      percent: _activeParticipants / _allParticipants,
+                                      percent: 0,
                                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                                       backgroundColor: Colors.black12,
                                       progressColor: Color(0xFF437FEF),
@@ -232,7 +232,7 @@ class _StudyWidgetState extends State<StudyWidget> {
                                                     borderRadius: BorderRadius.circular(20.0),
                                                     child: LinearPercentIndicator(
                                                       lineHeight: 30.0,
-                                                      percent: _activeParticipants / _allParticipants,
+                                                      percent: 0,
                                                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                                                       backgroundColor: Colors.black12,
                                                       progressColor: Color(0xFF437FEF),
@@ -248,7 +248,7 @@ class _StudyWidgetState extends State<StudyWidget> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  'No % active participants',
+                                                  'No active participants',
                                                   style: TextStyle(
                                                     color: Colors.black,
                                                     fontStyle: FontStyle.italic,
@@ -259,7 +259,7 @@ class _StudyWidgetState extends State<StudyWidget> {
                                                   borderRadius: BorderRadius.circular(20.0),
                                                   child: LinearPercentIndicator(
                                                     lineHeight: 30.0,
-                                                    percent: _activeParticipants / _allParticipants,
+                                                    percent: 0,
                                                     padding: EdgeInsets.symmetric(horizontal: 0.0),
                                                     backgroundColor: Colors.black12,
                                                     progressColor: Color(0xFF437FEF),
@@ -395,27 +395,6 @@ class _StudyWidgetState extends State<StudyWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Row(
-                      //   mainAxisSize: MainAxisSize.max,
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     Text(
-                      //       'Current Active',
-                      //       style: TextStyle(
-                      //           color: Color(0xFF437FEF),
-                      //           fontWeight: FontWeight.bold),
-                      //     ),
-                      //     Text(
-                      //       '${widget.study.activeParticipants ?? 0}',
-                      //       style: TextStyle(
-                      //           color: Color(0xFF437FEF),
-                      //           fontWeight: FontWeight.bold),
-                      //     )
-                      //   ],
-                      // ),
-                      // SizedBox(
-                      //   height: 16.0,
-                      // ),
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

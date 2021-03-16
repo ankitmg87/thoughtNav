@@ -118,6 +118,21 @@ class _SetupCompleteScreenState extends State<SetupCompleteScreen> {
                             ),
                           );
                         },
+                        errorWidget: (_c, _s, _d){
+                          return Container(
+                            width: 100.0,
+                            height: 100.0,
+                            padding: EdgeInsets.all(20.0),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image(
+                              image: AssetImage(
+                                  'images/researcher_images/researcher_dashboard/participant_icon.png'
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       Text(
                         _participantDisplayName,

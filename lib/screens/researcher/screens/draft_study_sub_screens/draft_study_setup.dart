@@ -137,6 +137,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
     return _timeZone;
   }
 
+  void _saveCategories() async {
+    await _researcherAndModeratorFirestoreService.saveCategories(
+        widget.studyUID, _categories);
+  }
+
   @override
   void initState() {
     _getCategories();
@@ -223,620 +228,126 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-          width: 300.0,
-          decoration: BoxDecoration(
-            //color: PROJECT_GREEN
-            gradient: LinearGradient(
-              colors: [
-                PROJECT_GREEN,
-                Color(0xFF008F47),
-                //Color(0xFF005229),
+    return GestureDetector(
+      onTap: () {
+        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+      },
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
+            width: 300.0,
+            decoration: BoxDecoration(
+              //color: PROJECT_GREEN
+              gradient: LinearGradient(
+                colors: [
+                  PROJECT_GREEN,
+                  Color(0xFF008F47),
+                  //Color(0xFF005229),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Scrollable.ensureVisible(studyInfoKey.currentContext);
+                  },
+                  child: Text(
+                    'STUDY INFO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                InkWell(
+                  onTap: () {
+                    Scrollable.ensureVisible(selectCategoryKey.currentContext);
+                  },
+                  child: Text(
+                    'SELECT CATEGORY',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                InkWell(
+                  onTap: () {
+                    Scrollable.ensureVisible(createGroupsKey.currentContext);
+                  },
+                  child: Text(
+                    'CREATE GROUPS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                InkWell(
+                  onTap: () {
+                    Scrollable.ensureVisible(_addQuestionsKey.currentContext);
+                  },
+                  child: Text(
+                    'ADD QUESTIONS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              InkWell(
-                onTap: () {
-                  Scrollable.ensureVisible(studyInfoKey.currentContext);
-                },
-                child: Text(
-                  'STUDY INFO',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              InkWell(
-                onTap: () {
-                  Scrollable.ensureVisible(selectCategoryKey.currentContext);
-                },
-                child: Text(
-                  'SELECT CATEGORY',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              InkWell(
-                onTap: () {
-                  Scrollable.ensureVisible(createGroupsKey.currentContext);
-                },
-                child: Text(
-                  'CREATE GROUPS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              InkWell(
-                onTap: () {
-                  Scrollable.ensureVisible(_addQuestionsKey.currentContext);
-                },
-                child: Text(
-                  'ADD QUESTIONS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: FutureBuilder(
-            future: _futureDraftStudy,
-            builder:
-                (BuildContext context, AsyncSnapshot<dynamic> studySnapshot) {
-              switch (studySnapshot.connectionState) {
-                case ConnectionState.none:
-                case ConnectionState.waiting:
-                case ConnectionState.active:
-                  return Center(
-                    child: Text('Loading...'),
-                  );
-                  break;
-                case ConnectionState.done:
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 40.0),
-                          child: Form(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                              color: Colors.grey, width: 1.0),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'STUDY INFO',
-                                        key: studyInfoKey,
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      DraftScreenCustomTextField(
-                                        child: RichText(
-                                          text: TextSpan(
-                                            text: 'STUDY NAME',
-                                            style: headingTextStyle,
-                                            children: [
-                                              TextSpan(
-                                                text: ' *',
-                                                style:
-                                                compulsoryFieldIndicatorTextStyle,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        textFormField: TextFormField(
-                                          focusNode: _studyNameFocusNode,
-                                          initialValue: mStudy.studyName,
-                                          onChanged: (studyName) {
-                                            mStudy.studyName = studyName;
-                                          },
-                                          onFieldSubmitted: (studyName) {
-                                            if (mStudy.studyName.isNotEmpty ||
-                                                mStudy.studyName != null) {
-                                              _updateStudyName();
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey[400],
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      DraftScreenCustomTextField(
-                                        child: RichText(
-                                          text: TextSpan(
-                                            text: 'INTERNAL STUDY LABEL',
-                                            style: headingTextStyle,
-                                            children: [
-                                              TextSpan(
-                                                text: ' *',
-                                                style:
-                                                compulsoryFieldIndicatorTextStyle,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        textFormField: TextFormField(
-                                          focusNode: _internalStudyLabelFocusNode,
-                                          initialValue: mStudy.internalStudyLabel,
-                                          onChanged: (internalStudyLabel) {
-                                            mStudy.internalStudyLabel =
-                                                internalStudyLabel;
-                                          },
-                                          onFieldSubmitted: (internalStudyLabel) {
-                                            if (mStudy.internalStudyLabel
-                                                .isNotEmpty ||
-                                                mStudy.internalStudyLabel !=
-                                                    null) {
-                                              _updateInternalStudyLabel();
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey[400],
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 40.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      DraftScreenCustomTextField(
-                                        child: RichText(
-                                          text: TextSpan(
-                                            text: 'MASTER PASSWORD',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            children: [
-                                              TextSpan(
-                                                text: ' *',
-                                                style:
-                                                compulsoryFieldIndicatorTextStyle,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        textFormField: TextFormField(
-                                          focusNode: _masterPasswordFocusNode,
-                                          initialValue: mStudy.masterPassword,
-                                          onChanged: (masterPassword) {
-                                            mStudy.masterPassword =
-                                                masterPassword;
-                                          },
-                                          onFieldSubmitted: (masterPassword) {
-                                            if (mStudy
-                                                .masterPassword.isNotEmpty ||
-                                                mStudy.masterPassword != null) {
-                                              _updateMasterPassword();
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey[400],
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(2.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCustomInputField(
-                                        onTap: () async {
-                                          final beginDate = await showDatePicker(
-                                            firstDate: DateTime(2020),
-                                            initialDate: DateTime.now(),
-                                            lastDate: DateTime(2025),
-                                            context: context,
-                                          );
-                                          if (beginDate != null) {
-                                            var formatter = DateFormat(
-                                                DateFormat.YEAR_ABBR_MONTH_DAY);
-                                            mStudy.startDate =
-                                                formatter.format(beginDate);
-                                            setState(() {});
-                                            await _firebaseFirestoreService
-                                                .updateStudyBasicDetail(
-                                              widget.studyUID,
-                                              'startDate',
-                                              mStudy.startDate,
-                                            );
-                                          }
-                                        },
-                                        heading: 'START DATE',
-                                        subtitle: Text(
-                                          mStudy.startDate ?? 'Select a date',
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            color: mStudy.startDate == null
-                                                ? Colors.grey[400]
-                                                : Colors.grey[700],
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        headingTextStyle: headingTextStyle,
-                                        compulsoryFieldIndicatorTextStyle:
-                                        compulsoryFieldIndicatorTextStyle,
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCustomInputField(
-                                        onTap: () async {
-                                          final endDate = await showDatePicker(
-                                            firstDate: DateTime(2020),
-                                            initialDate: DateTime.now(),
-                                            lastDate: DateTime(2025),
-                                            context: context,
-                                          );
-                                          if (endDate != null) {
-                                            var formatter = DateFormat(
-                                                DateFormat.YEAR_ABBR_MONTH_DAY);
-                                            mStudy.endDate =
-                                                formatter.format(endDate);
-                                            setState(() {});
-                                            await _firebaseFirestoreService
-                                                .updateStudyBasicDetail(
-                                                widget.studyUID,
-                                                'endDate',
-                                                mStudy.endDate);
-                                          }
-                                        },
-                                        heading: 'END DATE',
-                                        subtitle: Text(
-                                          mStudy.endDate ?? 'Select a date',
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            color: mStudy.endDate == null
-                                                ? Colors.grey[400]
-                                                : Colors.grey[700],
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        headingTextStyle: headingTextStyle,
-                                        compulsoryFieldIndicatorTextStyle:
-                                        compulsoryFieldIndicatorTextStyle,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 40.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text: 'INTRODUCTION MESSAGE',
-                                                    style: headingTextStyle,
-                                                  ),
-                                                  TextSpan(
-                                                    text: ' *',
-                                                    style:
-                                                    compulsoryFieldIndicatorTextStyle,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _buildTextEditor(
-                                              initialValue:
-                                              mStudy.introPageMessage,
-                                              titleMessage:
-                                              'Enter Introduction Message',
-                                              initialValueSetMessage:
-                                              'Introduction Message Set',
-                                              saveFunction: () async {
-                                                String text =
-                                                js.context.callMethod('readLocalStorage');
-                                                if (text.isNotEmpty) {
-                                                  await _researcherAndModeratorFirestoreService
-                                                      .saveIntroductionMessage(
-                                                      widget.studyUID, text);
-
-                                                  mStudy.introPageMessage = text;
-                                                  setState(() {});
-                                                }
-                                              }
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text: 'STUDY CLOSED MESSAGE',
-                                                    style: headingTextStyle,
-                                                  ),
-                                                  TextSpan(
-                                                    text: ' *',
-                                                    style:
-                                                    compulsoryFieldIndicatorTextStyle,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _buildTextEditor(
-                                              initialValue:
-                                              mStudy.studyClosedMessage,
-                                              titleMessage:
-                                              'Enter Study Closed Message',
-                                              initialValueSetMessage:
-                                              'Study Closed Message Set',
-                                              saveFunction: () async {
-                                                String text =
-                                                js.context.callMethod('readLocalStorage');
-                                                if (text.isNotEmpty) {
-                                                  await _researcherAndModeratorFirestoreService
-                                                      .saveStudyClosedMessage(
-                                                      widget.studyUID, text);
-
-                                                  mStudy.studyClosedMessage = text;
-                                                  setState(() {});
-                                                }
-                                              }
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text: 'COMMON INVITE MESSAGE',
-                                                    style: headingTextStyle,
-                                                  ),
-                                                  TextSpan(
-                                                    text: ' *',
-                                                    style:
-                                                    compulsoryFieldIndicatorTextStyle,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 10.0,
-                                            ),
-                                            _buildTextEditor(
-                                              initialValue:
-                                              mStudy.commonInviteMessage,
-                                              titleMessage:
-                                              'Enter Common Invite Message',
-                                              initialValueSetMessage:
-                                              'Common Invite Message Set',
-                                              saveFunction: () async {
-                                                String text =
-                                                js.context.callMethod('readLocalStorage');
-                                                if (text.isNotEmpty) {
-                                                  await _researcherAndModeratorFirestoreService
-                                                      .saveCommonInviteMessage(
-                                                      widget.studyUID, text);
-                                                  mStudy.commonInviteMessage = text;
-                                                  setState(() {});
-                                                }
-                                              }
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 40.0,
-                                  ),
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'SELECT TIME ZONE',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16.0,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      _buildTimeZoneRadio(
-                                          title: 'Pacific Standard Time',
-                                          value: 1,
-                                          groupValue: _selectedTimeZone,
-                                          onChanged: (int value) async {
-                                            _setSelectedRadio(value);
-                                            mStudy.studyTimeZone = 'PST';
-                                            await _researcherAndModeratorFirestoreService
-                                                .updateTimeZone(
-                                                widget.studyUID, mStudy);
-                                          }),
-                                      _buildTimeZoneRadio(
-                                          title: 'Mountain Standard Time',
-                                          value: 2,
-                                          groupValue: _selectedTimeZone,
-                                          onChanged: (int value) async {
-                                            _setSelectedRadio(value);
-                                            mStudy.studyTimeZone = 'MST';
-                                            await _researcherAndModeratorFirestoreService
-                                                .updateTimeZone(
-                                                widget.studyUID, mStudy);
-                                          }),
-                                      _buildTimeZoneRadio(
-                                          title: 'Central Standard Time',
-                                          value: 3,
-                                          groupValue: _selectedTimeZone,
-                                          onChanged: (int value) async {
-                                            _setSelectedRadio(value);
-                                            mStudy.studyTimeZone = 'CST';
-                                            await _researcherAndModeratorFirestoreService
-                                                .updateTimeZone(
-                                                widget.studyUID, mStudy);
-                                          }),
-                                      _buildTimeZoneRadio(
-                                          title: 'Eastern Standard Time',
-                                          value: 4,
-                                          groupValue: _selectedTimeZone,
-                                          onChanged: (int value) async {
-                                            _setSelectedRadio(value);
-                                            mStudy.studyTimeZone = 'EST';
-                                            await _researcherAndModeratorFirestoreService
-                                                .updateTimeZone(
-                                                widget.studyUID, mStudy);
-                                          }),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 40.0,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
+          Expanded(
+            child: FutureBuilder(
+              future: _futureDraftStudy,
+              builder:
+                  (BuildContext context, AsyncSnapshot<dynamic> studySnapshot) {
+                switch (studySnapshot.connectionState) {
+                  case ConnectionState.none:
+                  case ConnectionState.waiting:
+                  case ConnectionState.active:
+                    return Center(
+                      child: Text('Loading...'),
+                    );
+                    break;
+                  case ConnectionState.done:
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 40.0),
+                            child: Form(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
                                         padding: EdgeInsets.only(bottom: 5.0),
                                         decoration: BoxDecoration(
                                           border: Border(
@@ -845,8 +356,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           ),
                                         ),
                                         child: Text(
-                                          'SELECT CATEGORY',
-                                          key: selectCategoryKey,
+                                          'STUDY INFO',
+                                          key: studyInfoKey,
                                           textAlign: TextAlign.start,
                                           style: TextStyle(
                                             color: Colors.black,
@@ -855,126 +366,515 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           ),
                                         ),
                                       ),
-                                      CustomCategoriesButton(
-                                        studyUID: widget.studyUID,
-                                        categories: _categories,
+                                    ),
+                                    SizedBox(
+                                      height: 20.0,
+                                    ),
+                                    Row(
+                                      children: [
+                                        DraftScreenCustomTextField(
+                                          child: RichText(
+                                            text: TextSpan(
+                                              text: 'STUDY NAME',
+                                              style: headingTextStyle,
+                                              children: [
+                                                TextSpan(
+                                                  text: ' *',
+                                                  style:
+                                                      compulsoryFieldIndicatorTextStyle,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          textFormField: TextFormField(
+                                            focusNode: _studyNameFocusNode,
+                                            initialValue: mStudy.studyName,
+                                            onChanged: (studyName) {
+                                              mStudy.studyName = studyName;
+                                            },
+                                            onFieldSubmitted: (studyName) {
+                                              if (mStudy.studyName.isNotEmpty ||
+                                                  mStudy.studyName != null) {
+                                                _updateStudyName();
+                                              }
+                                            },
+                                            decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey[400],
+                                                  width: 0.5,
+                                                ),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        DraftScreenCustomTextField(
+                                          child: RichText(
+                                            text: TextSpan(
+                                              text: 'INTERNAL STUDY LABEL',
+                                              style: headingTextStyle,
+                                              children: [
+                                                TextSpan(
+                                                  text: ' *',
+                                                  style:
+                                                      compulsoryFieldIndicatorTextStyle,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          textFormField: TextFormField(
+                                            focusNode:
+                                                _internalStudyLabelFocusNode,
+                                            initialValue:
+                                                mStudy.internalStudyLabel,
+                                            onChanged: (internalStudyLabel) {
+                                              mStudy.internalStudyLabel =
+                                                  internalStudyLabel;
+                                            },
+                                            onFieldSubmitted:
+                                                (internalStudyLabel) {
+                                              if (mStudy.internalStudyLabel
+                                                      .isNotEmpty ||
+                                                  mStudy.internalStudyLabel !=
+                                                      null) {
+                                                _updateInternalStudyLabel();
+                                              }
+                                            },
+                                            decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey[400],
+                                                  width: 0.5,
+                                                ),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                    Row(
+                                      children: [
+                                        DraftScreenCustomTextField(
+                                          child: RichText(
+                                            text: TextSpan(
+                                              text: 'MASTER PASSWORD',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                  text: ' *',
+                                                  style:
+                                                      compulsoryFieldIndicatorTextStyle,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          textFormField: TextFormField(
+                                            focusNode: _masterPasswordFocusNode,
+                                            initialValue: mStudy.masterPassword,
+                                            onChanged: (masterPassword) {
+                                              mStudy.masterPassword =
+                                                  masterPassword;
+                                            },
+                                            onFieldSubmitted: (masterPassword) {
+                                              if (mStudy.masterPassword
+                                                      .isNotEmpty ||
+                                                  mStudy.masterPassword !=
+                                                      null) {
+                                                _updateMasterPassword();
+                                              }
+                                            },
+                                            decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey[400],
+                                                  width: 0.5,
+                                                ),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(2.0),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCustomInputField(
+                                          onTap: () async {
+                                            final beginDate =
+                                                await showDatePicker(
+                                              firstDate: DateTime(2020),
+                                              initialDate: DateTime.now(),
+                                              lastDate: DateTime(2025),
+                                              context: context,
+                                            );
+                                            if (beginDate != null) {
+                                              var formatter = DateFormat(
+                                                  DateFormat
+                                                      .YEAR_ABBR_MONTH_DAY);
+                                              mStudy.startDate =
+                                                  formatter.format(beginDate);
+                                              setState(() {});
+                                              await _firebaseFirestoreService
+                                                  .updateStudyBasicDetail(
+                                                widget.studyUID,
+                                                'startDate',
+                                                mStudy.startDate,
+                                              );
+                                            }
+                                          },
+                                          heading: 'START DATE',
+                                          subtitle: Text(
+                                            mStudy.startDate ?? 'Select a date',
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                              color: mStudy.startDate == null
+                                                  ? Colors.grey[400]
+                                                  : Colors.grey[700],
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          headingTextStyle: headingTextStyle,
+                                          compulsoryFieldIndicatorTextStyle:
+                                              compulsoryFieldIndicatorTextStyle,
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCustomInputField(
+                                          onTap: () async {
+                                            final endDate =
+                                                await showDatePicker(
+                                              firstDate: DateTime(2020),
+                                              initialDate: DateTime.now(),
+                                              lastDate: DateTime(2025),
+                                              context: context,
+                                            );
+                                            if (endDate != null) {
+                                              var formatter = DateFormat(
+                                                  DateFormat
+                                                      .YEAR_ABBR_MONTH_DAY);
+                                              mStudy.endDate =
+                                                  formatter.format(endDate);
+                                              setState(() {});
+                                              await _firebaseFirestoreService
+                                                  .updateStudyBasicDetail(
+                                                      widget.studyUID,
+                                                      'endDate',
+                                                      mStudy.endDate);
+                                            }
+                                          },
+                                          heading: 'END DATE',
+                                          subtitle: Text(
+                                            mStudy.endDate ?? 'Select a date',
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                              color: mStudy.endDate == null
+                                                  ? Colors.grey[400]
+                                                  : Colors.grey[700],
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          headingTextStyle: headingTextStyle,
+                                          compulsoryFieldIndicatorTextStyle:
+                                              compulsoryFieldIndicatorTextStyle,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text:
+                                                          'INTRODUCTION MESSAGE',
+                                                      style: headingTextStyle,
+                                                    ),
+                                                    TextSpan(
+                                                      text: ' *',
+                                                      style:
+                                                          compulsoryFieldIndicatorTextStyle,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 10.0,
+                                              ),
+                                              _buildTextEditor(
+                                                  initialValue:
+                                                      mStudy.introPageMessage,
+                                                  titleMessage:
+                                                      'Enter Introduction Message',
+                                                  initialValueSetMessage:
+                                                      'Introduction Message Set',
+                                                  saveFunction: () async {
+                                                    String text = js.context
+                                                        .callMethod(
+                                                            'readLocalStorage');
+                                                    if (text.isNotEmpty) {
+                                                      await _researcherAndModeratorFirestoreService
+                                                          .saveIntroductionMessage(
+                                                              widget.studyUID,
+                                                              text);
+
+                                                      mStudy.introPageMessage =
+                                                          text;
+                                                      setState(() {});
+                                                    }
+                                                  }),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text:
+                                                          'STUDY CLOSED MESSAGE',
+                                                      style: headingTextStyle,
+                                                    ),
+                                                    TextSpan(
+                                                      text: ' *',
+                                                      style:
+                                                          compulsoryFieldIndicatorTextStyle,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 10.0,
+                                              ),
+                                              _buildTextEditor(
+                                                  initialValue:
+                                                      mStudy.studyClosedMessage,
+                                                  titleMessage:
+                                                      'Enter Study Closed Message',
+                                                  initialValueSetMessage:
+                                                      'Study Closed Message Set',
+                                                  saveFunction: () async {
+                                                    String text = js.context
+                                                        .callMethod(
+                                                            'readLocalStorage');
+                                                    if (text.isNotEmpty) {
+                                                      await _researcherAndModeratorFirestoreService
+                                                          .saveStudyClosedMessage(
+                                                              widget.studyUID,
+                                                              text);
+
+                                                      mStudy.studyClosedMessage =
+                                                          text;
+                                                      setState(() {});
+                                                    }
+                                                  }),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text:
+                                                          'COMMON INVITE MESSAGE',
+                                                      style: headingTextStyle,
+                                                    ),
+                                                    TextSpan(
+                                                      text: ' *',
+                                                      style:
+                                                          compulsoryFieldIndicatorTextStyle,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 10.0,
+                                              ),
+                                              _buildTextEditor(
+                                                  initialValue: mStudy
+                                                      .commonInviteMessage,
+                                                  titleMessage:
+                                                      'Enter Common Invite Message',
+                                                  initialValueSetMessage:
+                                                      'Common Invite Message Set',
+                                                  saveFunction: () async {
+                                                    String text = js.context
+                                                        .callMethod(
+                                                            'readLocalStorage');
+                                                    if (text.isNotEmpty) {
+                                                      await _researcherAndModeratorFirestoreService
+                                                          .saveCommonInviteMessage(
+                                                              widget.studyUID,
+                                                              text);
+                                                      mStudy.commonInviteMessage =
+                                                          text;
+                                                      setState(() {});
+                                                    }
+                                                  }),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'SELECT TIME ZONE',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                  // Align(
-                                  //   alignment: Alignment.centerLeft,
-                                  //   child: Container(
-                                  //     padding: EdgeInsets.only(bottom: 5.0),
-                                  //     decoration: BoxDecoration(
-                                  //       border: Border(
-                                  //         bottom: BorderSide(
-                                  //             color: Colors.grey, width: 1.0),
-                                  //       ),
-                                  //     ),
-                                  //     child: Text(
-                                  //       'SELECT CATEGORY',
-                                  //       key: selectCategoryKey,
-                                  //       textAlign: TextAlign.start,
-                                  //       style: TextStyle(
-                                  //         color: Colors.black,
-                                  //         fontWeight: FontWeight.bold,
-                                  //         fontSize: 20.0,
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Lifestyle',
-                                        categories: _categories,
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Health',
-                                        categories: _categories,
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Auto',
-                                        categories: _categories,
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Fashion',
-                                        categories: _categories,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 30.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Advertising',
-                                        categories: _categories,
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Product',
-                                        categories: _categories,
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Futures',
-                                        categories: _categories,
-                                      ),
-                                      SizedBox(
-                                        width: 40.0,
-                                      ),
-                                      StudySetupScreenCategoryCheckBox(
-                                        studyUID: widget.studyUID,
-                                        categoryName: 'Others',
-                                        categories: _categories,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 40.0,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Container(
+                                    ),
+                                    SizedBox(
+                                      height: 10.0,
+                                    ),
+                                    Row(
+                                      children: [
+                                        _buildTimeZoneRadio(
+                                            title: 'Pacific Standard Time',
+                                            value: 1,
+                                            groupValue: _selectedTimeZone,
+                                            onChanged: (int value) async {
+                                              _setSelectedRadio(value);
+                                              mStudy.studyTimeZone = 'PST';
+                                              await _researcherAndModeratorFirestoreService
+                                                  .updateTimeZone(
+                                                      widget.studyUID, mStudy);
+                                            }),
+                                        _buildTimeZoneRadio(
+                                            title: 'Mountain Standard Time',
+                                            value: 2,
+                                            groupValue: _selectedTimeZone,
+                                            onChanged: (int value) async {
+                                              _setSelectedRadio(value);
+                                              mStudy.studyTimeZone = 'MST';
+                                              await _researcherAndModeratorFirestoreService
+                                                  .updateTimeZone(
+                                                      widget.studyUID, mStudy);
+                                            }),
+                                        _buildTimeZoneRadio(
+                                            title: 'Central Standard Time',
+                                            value: 3,
+                                            groupValue: _selectedTimeZone,
+                                            onChanged: (int value) async {
+                                              _setSelectedRadio(value);
+                                              mStudy.studyTimeZone = 'CST';
+                                              await _researcherAndModeratorFirestoreService
+                                                  .updateTimeZone(
+                                                      widget.studyUID, mStudy);
+                                            }),
+                                        _buildTimeZoneRadio(
+                                            title: 'Eastern Standard Time',
+                                            value: 4,
+                                            groupValue: _selectedTimeZone,
+                                            onChanged: (int value) async {
+                                              _setSelectedRadio(value);
+                                              mStudy.studyTimeZone = 'EST';
+                                              await _researcherAndModeratorFirestoreService
+                                                  .updateTimeZone(
+                                                      widget.studyUID, mStudy);
+                                            }),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
                                           padding: EdgeInsets.only(bottom: 5.0),
                                           decoration: BoxDecoration(
                                             border: Border(
                                               bottom: BorderSide(
-                                                  color: Colors.grey, width: 1.0),
+                                                  color: Colors.grey,
+                                                  width: 1.0),
                                             ),
                                           ),
                                           child: Text(
-                                            'CREATE GROUPS',
-                                            key: createGroupsKey,
+                                            'SELECT CATEGORY',
+                                            key: selectCategoryKey,
                                             textAlign: TextAlign.start,
                                             style: TextStyle(
                                               color: Colors.black,
@@ -983,254 +883,488 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                             ),
                                           ),
                                         ),
+
+                                        InkWell(
+                                          child: Text(
+                                            'Custom Category',
+                                            style: TextStyle(
+                                              color: PROJECT_GREEN,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13.0,
+                                            ),
+                                          ),
+                                          onTap: () async {
+                                            await showGeneralDialog(
+                                              context: context,
+                                              pageBuilder: (BuildContext
+                                                      generalDialogContext,
+                                                  Animation<double> animation,
+                                                  Animation<double>
+                                                      secondaryAnimation) {
+
+                                                return CustomCategoriesWidget(
+                                                  studyUID: widget.studyUID,
+                                                  categories: _categories,
+                                                );
+
+                                              },
+                                            );
+
+                                            setState(() {});
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 20.0,
+                                    ),
+                                    Row(
+                                      children: [
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Lifestyle',
+                                          categories: _categories,
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Health',
+                                          categories: _categories,
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Auto',
+                                          categories: _categories,
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Fashion',
+                                          categories: _categories,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 30.0,
+                                    ),
+                                    Row(
+                                      children: [
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Advertising',
+                                          categories: _categories,
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Product',
+                                          categories: _categories,
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Futures',
+                                          categories: _categories,
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        StudySetupScreenCategoryCheckBox(
+                                          studyUID: widget.studyUID,
+                                          categoryName: 'Others',
+                                          categories: _categories,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 30.0,
+                                    ),
+                                    GridView.builder(
+                                      itemCount:
+                                          _categories.customCategories.length,
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisSpacing: 40.0,
+                                        mainAxisSpacing: 30.0,
+                                        crossAxisCount: 4,
+                                        childAspectRatio: 8 / 1.35,
                                       ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          _groups.length > 1
-                                              ? InkWell(
-                                            onTap: () async {
-                                              var groupUID =
-                                                  _groups.last.groupUID;
-                                              setState(() {
-                                                _groups.removeLast();
-                                              });
-                                              await _firebaseFirestoreService
-                                                  .deleteGroup(
-                                                  widget.studyUID,
-                                                  groupUID);
-                                            },
-                                            child: Text(
-                                              'Remove Group',
-                                              style: TextStyle(
-                                                color: Colors.red[700],
-                                                fontSize: 12.0,
-                                                fontWeight: FontWeight.bold,
+                                      itemBuilder: (context, index) {
+                                        var customCategory =
+                                            CustomCategory.fromMap(_categories
+                                                .customCategories[index]);
+
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(2.0),
+                                            border: Border.all(
+                                              width: 0.75,
+                                              color: Colors.grey[300],
+                                            ),
+                                          ),
+                                          child: InkWell(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 4.0,
+                                                right: 10.0,
+                                                top: 8.0,
+                                                bottom: 8.0,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Theme(
+                                                    data: ThemeData(
+                                                      accentColor:
+                                                          PROJECT_NAVY_BLUE,
+                                                      unselectedWidgetColor:
+                                                          Colors.grey[300],
+                                                    ),
+                                                    child: Checkbox(
+                                                      value: customCategory
+                                                          .selected,
+                                                      onChanged: (bool value) {
+                                                        setState(() {
+                                                          _categories.customCategories[
+                                                                      index]
+                                                                  ['selected'] =
+                                                              value;
+                                                        });
+                                                        _saveCategories();
+                                                      },
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    _categories
+                                                            .customCategories[
+                                                        index]['category'],
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14.0,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          )
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Container(
+                                            padding:
+                                                EdgeInsets.only(bottom: 5.0),
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                    color: Colors.grey,
+                                                    width: 1.0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'CREATE GROUPS',
+                                              key: createGroupsKey,
+                                              textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            _groups.length > 1
+                                                ? InkWell(
+                                                    onTap: () async {
+                                                      var groupUID =
+                                                          _groups.last.groupUID;
+                                                      setState(() {
+                                                        _groups.removeLast();
+                                                      });
+                                                      await _firebaseFirestoreService
+                                                          .deleteGroup(
+                                                              widget.studyUID,
+                                                              groupUID);
+                                                    },
+                                                    child: Text(
+                                                      'Remove Group',
+                                                      style: TextStyle(
+                                                        color: Colors.red[700],
+                                                        fontSize: 12.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : SizedBox(),
+                                            SizedBox(
+                                              width: 20.0,
+                                            ),
+                                            InkWell(
+                                              onTap: () async {
+                                                var group =
+                                                    await _researcherAndModeratorFirestoreService
+                                                        .createGroup(
+                                                            widget.studyUID,
+                                                            _groups.length + 1);
+                                                setState(() {
+                                                  _groups.add(group);
+                                                });
+                                              },
+                                              child: Text(
+                                                'Add Group',
+                                                style: TextStyle(
+                                                  color: PROJECT_GREEN,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 20.0,
+                                    ),
+                                    FutureBuilder(
+                                      future: _futureGroups,
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<dynamic> snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.done) {
+                                          return ListView.separated(
+                                            physics:
+                                                NeverScrollableScrollPhysics(),
+                                            shrinkWrap: true,
+                                            itemCount: _groups.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              var groupNameController =
+                                                  TextEditingController();
+                                              var groupRewardController =
+                                                  TextEditingController();
+
+                                              groupNameController.text =
+                                                  _groups[index].groupName;
+                                              groupRewardController.text =
+                                                  _groups[index]
+                                                      .groupRewardAmount;
+
+                                              return DraftScreenGroupWidget(
+                                                studyUID: widget.studyUID,
+                                                group: _groups[index],
+                                                groupNameController:
+                                                    groupNameController,
+                                                groupRewardController:
+                                                    groupRewardController,
+                                              );
+                                            },
+                                            separatorBuilder:
+                                                (BuildContext context,
+                                                    int index) {
+                                              return SizedBox(
+                                                height: 30.0,
+                                              );
+                                            },
+                                          );
+                                        } else {
+                                          return SizedBox();
+                                        }
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        padding: EdgeInsets.only(bottom: 5.0),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.grey, width: 1.0),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'ADD QUESTIONS',
+                                          key: _addQuestionsKey,
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 20.0,
+                                    ),
+                                    FutureBuilder(
+                                      future: _futureTopics,
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<dynamic> snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.done) {
+                                          return ReorderableWrap(
+                                            needsLongPressDraggable: false,
+                                            runSpacing: 10.0,
+                                            spacing: 10.0,
+                                            onReorder: _onReorder,
+                                            children: [
+                                              for (var topic in _topics)
+                                                StudySetupScreenTopicWidget(
+                                                  key: UniqueKey(),
+                                                  topic: topic,
+                                                  studyUID: widget.studyUID,
+                                                  groups: _groups,
+                                                  deleteTopic: () async {
+                                                    await _researcherAndModeratorFirestoreService
+                                                        .deleteTopic(
+                                                            widget.studyUID,
+                                                            topic.topicUID);
+
+                                                    setState(() {
+                                                      _topics.removeWhere(
+                                                          (mTopic) {
+                                                        return topic.topicUID ==
+                                                            mTopic.topicUID;
+                                                      });
+                                                    });
+                                                  },
+                                                ),
+                                            ],
+                                          );
+                                        } else {
+                                          return SizedBox();
+                                        }
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: 10.0,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _topics.length > 1
+                                              ? InkWell(
+                                                  onTap: () async {
+                                                    WidgetsBinding
+                                                        .instance
+                                                        .focusManager
+                                                        .primaryFocus
+                                                        .unfocus();
+                                                    await _firebaseFirestoreService
+                                                        .deleteTopic(
+                                                            widget.studyUID,
+                                                            _topics
+                                                                .last.topicUID);
+                                                    setState(() {
+                                                      _topics.removeLast();
+                                                    });
+                                                  },
+                                                  child: Text(
+                                                    'Delete Topic',
+                                                    style: TextStyle(
+                                                      color: Colors.red[700],
+                                                      fontSize: 12.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                )
                                               : SizedBox(),
                                           SizedBox(
                                             width: 20.0,
                                           ),
                                           InkWell(
                                             onTap: () async {
-                                              var group =
+                                              WidgetsBinding.instance
+                                                  .focusManager.primaryFocus
+                                                  .unfocus();
                                               await _researcherAndModeratorFirestoreService
-                                                  .createGroup(
-                                                  widget.studyUID,
-                                                  _groups.length + 1);
-                                              setState(() {
-                                                _groups.add(group);
+                                                  .createTopic(widget.studyUID,
+                                                      _topics.length + 1)
+                                                  .then((topic) {
+                                                setState(() {
+                                                  _topics.add(topic);
+                                                });
                                               });
                                             },
                                             child: Text(
-                                              'Add Group',
+                                              'Add Topic',
                                               style: TextStyle(
                                                 color: PROJECT_GREEN,
-                                                fontWeight: FontWeight.bold,
                                                 fontSize: 12.0,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
+                                          ),
+                                          SizedBox(
+                                            width: 10.0,
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  FutureBuilder(
-                                    future: _futureGroups,
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<dynamic> snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.done) {
-                                        return ListView.separated(
-                                          physics: NeverScrollableScrollPhysics(),
-                                          shrinkWrap: true,
-                                          itemCount: _groups.length,
-                                          itemBuilder:
-                                              (BuildContext context, int index) {
-                                            var groupNameController =
-                                            TextEditingController();
-                                            var groupRewardController =
-                                            TextEditingController();
-
-                                            groupNameController.text =
-                                                _groups[index].groupName;
-                                            groupRewardController.text =
-                                                _groups[index].groupRewardAmount;
-
-                                            return DraftScreenGroupWidget(
-                                              studyUID: widget.studyUID,
-                                              group: _groups[index],
-                                              groupNameController:
-                                              groupNameController,
-                                              groupRewardController:
-                                              groupRewardController,
-                                            );
-                                          },
-                                          separatorBuilder:
-                                              (BuildContext context, int index) {
-                                            return SizedBox(
-                                              height: 30.0,
-                                            );
-                                          },
-                                        );
-                                      } else {
-                                        return SizedBox();
-                                      }
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: 40.0,
-                                  ),
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                              color: Colors.grey, width: 1.0),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'ADD QUESTIONS',
-                                        key: _addQuestionsKey,
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20.0,
-                                        ),
-                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  FutureBuilder(
-                                    future: _futureTopics,
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<dynamic> snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.done) {
-
-                                        return ReorderableWrap(
-                                          needsLongPressDraggable: false,
-                                          runSpacing: 10.0,
-                                          spacing: 10.0,
-                                          onReorder: _onReorder,
-                                          children: [
-                                            for (var topic in _topics)
-                                              StudySetupScreenTopicWidget(
-                                                key: UniqueKey(),
-                                                topic: topic,
-                                                studyUID: widget.studyUID,
-                                                groups: _groups,
-                                                deleteTopic: () async {
-                                                  await _researcherAndModeratorFirestoreService.deleteTopic(widget.studyUID, topic.topicUID);
-
-                                                  setState(() {
-                                                    _topics.removeWhere((mTopic){
-                                                      return topic.topicUID == mTopic.topicUID;
-                                                    });
-                                                  });
-                                                },
-                                              ),
-                                          ],
-                                        );
-                                      } else {
-                                        return SizedBox();
-                                      }
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        _topics.length > 1
-                                            ? InkWell(
-                                          onTap: () async {
-                                            await _firebaseFirestoreService
-                                                .deleteTopic(
-                                                widget.studyUID,
-                                                _topics.last.topicUID);
-                                            setState(() {
-                                              _topics.removeLast();
-                                            });
-                                          },
-                                          child: Text(
-                                            'Delete Topic',
-                                            style: TextStyle(
-                                              color: Colors.red[700],
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        )
-                                            : SizedBox(),
-                                        SizedBox(
-                                          width: 20.0,
-                                        ),
-                                        InkWell(
-                                          onTap: () async {
-                                            await _researcherAndModeratorFirestoreService
-                                                .createTopic(widget.studyUID,
-                                                _topics.length + 1)
-                                                .then((topic) {
-                                              setState(() {
-                                                _topics.add(topic);
-                                              });
-                                            });
-                                          },
-                                          child: Text(
-                                            'Add Topic',
-                                            style: TextStyle(
-                                              color: PROJECT_GREEN,
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 10.0,
-                                        ),
-                                      ],
+                                    SizedBox(
+                                      height: 30.0,
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: 30.0,
-                                  ),
-                                  Container(
-                                    height: 0.75,
-                                    color: Colors.grey[400],
-                                  ),
-                                  SizedBox(
-                                    height: 50.0,
-                                  ),
-                                ],
+                                    Container(
+                                      height: 0.75,
+                                      color: Colors.grey[400],
+                                    ),
+                                    SizedBox(
+                                      height: 50.0,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                  break;
-                default:
-                  return SizedBox();
-              }
-            },
+                      ],
+                    );
+                    break;
+                  default:
+                    return SizedBox();
+                }
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1269,12 +1403,12 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
     );
   }
 
-  Widget _buildTextEditor(
-      {String initialValue,
-      String titleMessage,
-      String initialValueSetMessage,
-        Function saveFunction,
-      }) {
+  Widget _buildTextEditor({
+    String initialValue,
+    String titleMessage,
+    String initialValueSetMessage,
+    Function saveFunction,
+  }) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(2.0),

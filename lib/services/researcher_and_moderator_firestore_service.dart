@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/all_avatars_and_display_names.dart';
@@ -903,5 +905,16 @@ class ResearcherAndModeratorFirestoreService {
     var studySnapshot = await _studiesReference.doc(studyUID).get();
     var commonInviteMessage = studySnapshot.data()['commonInviteMessage'];
     return commonInviteMessage;
+  }
+
+  Future<http.Response> sendDataForPdfGeneration(String link, Map<String, dynamic> completeStudyForReport) async {
+    var url = link;
+    var object = jsonEncode(completeStudyForReport);
+    print(object);
+    var response = await http.post(url, body: {
+      'pdf_data': object,
+    });
+    print(response.toString());
+    return response;
   }
 }

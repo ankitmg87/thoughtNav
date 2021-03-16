@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'dart:js' as js;
+
 class FirebaseAuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -33,13 +35,17 @@ class FirebaseAuthService {
 
   Future<String> signUpUser(String email, String password) async {
     String userUID;
-
-    await _firebaseAuth
-        .createUserWithEmailAndPassword(email: email, password: password)
-        .then((userCredential) {
-      userUID = userCredential.user.uid;
-    });
-
+    try{
+      await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((userCredential) {
+        userUID = userCredential.user.uid;
+      });
+    }
+    catch (e){
+      userUID = e.code;
+      js.context.callMethod('alertMessage', ['The user with the email-id $email was not created.']);
+    }
     return userUID;
   }
 

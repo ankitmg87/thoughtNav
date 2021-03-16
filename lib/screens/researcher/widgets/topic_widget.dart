@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,17 +36,18 @@ class _TopicWidgetState extends State<TopicWidget> {
   }
 
   void _setTopicAsActive() async {
-    if (!widget.topic.isActive) {
+    if (widget.topic.topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
       setState(() {
-        widget.topic.isActive = true;
+        widget.topic.topicDate = Timestamp.now();
       });
       await widget.firebaseFirestoreService
-          .setTopicAsActive(widget.studyUID, widget.topic.topicUID);
+          .updateTopic(widget.studyUID, widget.topic);
     }
   }
 
   void _viewResponses() {
-    if (widget.topic.isActive) {
+    if (widget.topic.topicDate.millisecondsSinceEpoch <=
+        Timestamp.now().millisecondsSinceEpoch) {
       Navigator.of(context)
           .pushNamed(CLIENT_MODERATOR_RESPONSES_SCREEN, arguments: {
         'questionUID': widget.topic.questions.first.questionUID,
@@ -101,7 +103,10 @@ class _TopicWidgetState extends State<TopicWidget> {
                     }
                   },
                   child: Text(
-                    widget.topic.isActive ? 'View Responses' : 'Set Active',
+                    widget.topic.topicDate.millisecondsSinceEpoch <=
+                        Timestamp.now().millisecondsSinceEpoch
+                        ? 'View Responses'
+                        : 'Set Active',
                     style: TextStyle(
                       color: Colors.white,
                     ),

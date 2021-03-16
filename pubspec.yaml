@@ -56,16 +56,12 @@ flutter:
 
   - images/
   - images/svg_icons/
-  - images/avatars/
   - images/dashboard_icons/
   - images/set_account_icons/
   - images/questions_icons/
-  - images/reward_icons/
   - images/homescreen_images/
   - images/login_section_images/
   - images/researcher_images/researcher_dashboard/
-  - images/researcher_images/study_setup_images/
-  - images/study_categories/
 
 
   fonts:

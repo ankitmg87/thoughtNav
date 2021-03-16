@@ -52,16 +52,18 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
 
     var createdUser = await _firebaseFirestoreService.createUser(user);
 
-    participant.participantUID = createdUser.userUID;
-    participant.isActive = false;
-    participant.isOnboarded = false;
-    participant.isDeleted = false;
-    participant.password = widget.masterPassword;
-    participant.responses = 0;
-    participant.comments = 0;
+    if(createdUser != null){
+      participant.participantUID = createdUser.userUID;
+      participant.isActive = false;
+      participant.isOnboarded = false;
+      participant.isDeleted = false;
+      participant.password = widget.masterPassword;
+      participant.responses = 0;
+      participant.comments = 0;
 
-    await _researcherAndModeratorFirestoreService.createParticipant(
-        studyUID, participant);
+      await _researcherAndModeratorFirestoreService.createParticipant(
+          studyUID, participant);
+    }
   }
 
   Future<void> _addClientToFirebase(String studyUID, Client client) async {
@@ -74,12 +76,14 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
 
     var createdUser = await _firebaseFirestoreService.createUser(user);
 
-    client.clientUID = createdUser.userUID;
-    client.isOnboarded = false;
-    client.password = widget.masterPassword;
+    if(createdUser != null){
+      client.clientUID = createdUser.userUID;
+      client.isOnboarded = false;
+      client.password = widget.masterPassword;
 
-    await _researcherAndModeratorFirestoreService.createClient(
-        studyUID, client);
+      await _researcherAndModeratorFirestoreService.createClient(
+          studyUID, client);
+    }
   }
 
   Future<void> _addModeratorToFirebase(
@@ -92,11 +96,13 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
 
     var createdUser = await _firebaseFirestoreService.createUser(user);
 
-    moderator.moderatorUID = createdUser.userUID;
-    moderator.assignedStudies = [];
-    moderator.assignedStudies.add(studyUID);
+    if(createdUser != null){
+      moderator.moderatorUID = createdUser.userUID;
+      moderator.assignedStudies = [];
+      moderator.assignedStudies.add(studyUID);
 
-    await _researcherAndModeratorFirestoreService.createModerator(moderator);
+      await _researcherAndModeratorFirestoreService.createModerator(moderator);
+    }
   }
 
   Widget _addParticipantPanel(BuildContext generalDialogContext) {

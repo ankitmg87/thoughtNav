@@ -359,18 +359,6 @@ class TNHomeScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // SizedBox(
-                          //   height: screenHeight * 0.2,
-                          // ),
-                          // Text(
-                          //   'Try it now',
-                          //   textAlign: TextAlign.center,
-                          //   style: TextStyle(
-                          //     color: Colors.black,
-                          //     fontWeight: FontWeight.bold,
-                          //     fontSize: 20.0,
-                          //   ),
-                          // ),
                           SizedBox(
                             height: screenHeight * 0.2,
                           ),
@@ -466,10 +454,6 @@ class TNHomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-
-              // SizedBox(
-              //   height: 100.0,
-              // ),
             ],
           ),
         ),

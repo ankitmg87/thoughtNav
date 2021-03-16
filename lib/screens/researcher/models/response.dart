@@ -21,6 +21,7 @@ class Response {
   String mediaType;
   String mediaURL;
   dynamic media;
+  bool participantDeleted;
 
   Response({
     this.responseUID,
@@ -42,6 +43,7 @@ class Response {
     this.mediaType,
     this.mediaURL,
     this.media,
+    this.participantDeleted,
   });
 
   Map<String, dynamic> toMap() {
@@ -64,6 +66,7 @@ class Response {
     response['questionHasMedia'] = questionHasMedia;
     response['mediaType'] = mediaType;
     response['mediaURL'] = mediaURL;
+    response['participantDeleted'] = participantDeleted;
 
     return response;
   }
@@ -86,5 +89,6 @@ class Response {
     questionHasMedia = response['questionHasMedia'];
     mediaType = response['mediaType'];
     mediaURL = response['mediaURL'];
+    participantDeleted = response['participantDeleted'];
   }
 }

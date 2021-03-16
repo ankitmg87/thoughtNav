@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
@@ -29,9 +30,12 @@ class _StudyUsersState extends State<StudyUsers> {
   final _listKey = GlobalKey();
 
   final _researcherAndModeratorFirestoreService =
-      ResearcherAndModeratorFirestoreService();
+  ResearcherAndModeratorFirestoreService();
 
   final _searchFocusNode = FocusNode();
+
+  final _phoneFormatter = MaskTextInputFormatter(
+      mask: '(###) ###-####', filter: {'#': RegExp(r'[0-9]')});
 
   bool _searching = false;
 
@@ -89,12 +93,6 @@ class _StudyUsersState extends State<StudyUsers> {
   List<Participant> _sortedParticipants = [];
   List<Participant> _filteredParticipants = [];
 
-  void _setMultiSelectMode() {
-    setState(() {
-      _multiSelect = !_multiSelect;
-    });
-  }
-
   void _setVisibleListView(String label) {
     switch (label) {
       case 'Participants':
@@ -141,7 +139,7 @@ class _StudyUsersState extends State<StudyUsers> {
           print(participant.email);
           var participantEmail = participant.email;
           var participantName =
-              ('${participant.userFirstName} ${participant.userLastName}');
+          ('${participant.userFirstName} ${participant.userLastName}');
           var participantAlias = participant.displayName;
 
           if (participantEmail.contains(searchQuery) ||
@@ -240,7 +238,7 @@ class _StudyUsersState extends State<StudyUsers> {
                                 padding: EdgeInsets.all(8.0),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -301,7 +299,7 @@ class _StudyUsersState extends State<StudyUsers> {
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      CrossAxisAlignment.center,
                                       children: [
                                         Container(
                                           width: 200.0,
@@ -311,7 +309,7 @@ class _StudyUsersState extends State<StudyUsers> {
                                           ),
                                           decoration: BoxDecoration(
                                             borderRadius:
-                                                BorderRadius.circular(10.0),
+                                            BorderRadius.circular(10.0),
                                             border: Border.all(
                                               color: Colors.grey,
                                             ),
@@ -338,25 +336,29 @@ class _StudyUsersState extends State<StudyUsers> {
                                           width: 10.0,
                                         ),
                                         InkWell(
+                                          focusColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          splashColor: Colors.transparent,
                                           onTap: () {
                                             showGeneralDialog(
                                                 context: context,
                                                 pageBuilder: (BuildContext
-                                                        context,
+                                                context,
                                                     Animation<double> animation,
                                                     Animation<double>
-                                                        secondaryAnimation) {
+                                                    secondaryAnimation) {
                                                   js.context.callMethod(
                                                       'setInitialValue', ['']);
 
                                                   return EmailWidget(
                                                     bulkSelectedParticipants:
-                                                        _bulkSelectedParticipants,
+                                                    _bulkSelectedParticipants,
                                                     groupsList: _groupsList,
                                                     participantsList:
-                                                        _allParticipants,
+                                                    _allParticipants,
                                                     masterPassword:
-                                                        _masterPassword,
+                                                    _masterPassword,
                                                     commonInviteMessage: _commonInviteMessage,
                                                   );
                                                 });
@@ -371,20 +373,24 @@ class _StudyUsersState extends State<StudyUsers> {
                                           width: 10.0,
                                         ),
                                         InkWell(
+                                          focusColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          splashColor: Colors.transparent,
                                           onTap: () {
                                             showGeneralDialog(
                                                 context: context,
                                                 pageBuilder: (BuildContext
-                                                        generalDialogContext,
+                                                generalDialogContext,
                                                     Animation<double> animation,
                                                     Animation<double>
-                                                        secondaryAnimation) {
+                                                    secondaryAnimation) {
                                                   return AddUsersWidget(
                                                     groups: _groupsList,
                                                     masterPassword:
-                                                        _masterPassword,
+                                                    _masterPassword,
                                                     generalDialogContext:
-                                                        generalDialogContext,
+                                                    generalDialogContext,
                                                     studyUID: widget.studyUID,
                                                   );
                                                 });
@@ -407,7 +413,7 @@ class _StudyUsersState extends State<StudyUsers> {
                             Expanded(
                               child: _searching
                                   ? _buildSearchedParticipantsList(
-                                      _searchedParticipants)
+                                  _searchedParticipants)
                                   : _visibleListView,
                             ),
                           ],
@@ -736,8 +742,6 @@ class _StudyUsersState extends State<StudyUsers> {
 
   StreamBuilder<QuerySnapshot> _participantsStreamBuilder(
       Stream<QuerySnapshot> participantsStream) {
-    _allParticipants = <Participant>[];
-
     return StreamBuilder<QuerySnapshot>(
       stream: participantsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -756,6 +760,11 @@ class _StudyUsersState extends State<StudyUsers> {
             );
             break;
           case ConnectionState.active:
+            _allParticipants = <Participant>[];
+            for(var participantDoc in snapshot.data.docs){
+              var participant = Participant.fromMap(participantDoc.data());
+              _allParticipants.add(participant);
+            }
             return ListView.separated(
               shrinkWrap: true,
               itemCount: _groupsList.length,
@@ -763,15 +772,11 @@ class _StudyUsersState extends State<StudyUsers> {
                 var groupParticipants = <Participant>[];
                 for (var participantDoc in snapshot.data.docs) {
                   var participant = Participant.fromMap(participantDoc.data());
-
                   _participantsList = <Participant>[];
-
                   _participantsList.add(participant);
-
                   if (participant.groupUID ==
                       _groupsList[groupIndex].groupUID) {
                     groupParticipants.add(participant);
-                    _allParticipants.add(participant);
                   }
                 }
                 if (groupParticipants.isNotEmpty) {
@@ -780,7 +785,7 @@ class _StudyUsersState extends State<StudyUsers> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${_groupsList[groupIndex].groupName}',
+                        '${_groupsList[groupIndex].internalGroupLabel ?? 'Internal Group Label Missing'}',
                         style: TextStyle(
                           color: Colors.grey[700],
                           fontSize: 16.0,
@@ -805,7 +810,7 @@ class _StudyUsersState extends State<StudyUsers> {
                           return ParticipantDetailsWidget(
                             participant: groupParticipants[index],
                             firebaseFirestoreService:
-                                widget.firebaseFirestoreService,
+                            widget.firebaseFirestoreService,
                             studyUID: widget.studyUID,
                           );
                         },
@@ -947,6 +952,27 @@ class _StudyUsersState extends State<StudyUsers> {
                             SizedBox(
                               width: 10.0,
                             ),
+                            InkWell(
+                              onTap: () async {
+                                await _buildEditClientDialog(clients[index]);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: PROJECT_LIGHT_GREEN,
+                                ),
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.grey[700],
+                                  size: 16.0,
+                                ),
+                              ),
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                            ),
                           ],
                         );
                       },
@@ -1016,229 +1042,253 @@ class _StudyUsersState extends State<StudyUsers> {
                     moderatorAssignedToThisStudy.isEmpty
                         ? SizedBox()
                         : Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Assigned to this study:',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: moderatorAssignedToThisStudy.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                              .email,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                              .firstName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                              .lastName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorAssignedToThisStudy[index]
-                                                  .phone ??
-                                              '',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                    ],
-                                  );
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(
-                                    height: 10.0,
-                                  );
-                                },
-                              ),
-                            ],
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Assigned to this study:',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
                           ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: moderatorAssignedToThisStudy.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .email,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .firstName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .lastName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorAssignedToThisStudy[index]
+                                        .phone ??
+                                        '',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                InkWell(
+                                  onTap: () async {
+                                    await _buildEditModeratorDialog(moderatorAssignedToThisStudy[index]);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: PROJECT_LIGHT_GREEN,
+                                    ),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Colors.grey[700],
+                                      size: 16.0,
+                                    ),
+                                  ),
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                ),
+                              ],
+                            );
+                          },
+                          separatorBuilder:
+                              (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                     SizedBox(
                       height: 20.0,
                     ),
                     moderatorsNotAssignedToThisStudy.isEmpty
                         ? SizedBox()
                         : Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Not assigned to this study:',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Container(
-                                height: 1.0,
-                                color: Colors.grey[300],
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount:
-                                    moderatorsNotAssignedToThisStudy.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                  index]
-                                              .email,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                  index]
-                                              .firstName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                  index]
-                                              .lastName,
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          moderatorsNotAssignedToThisStudy[
-                                                      index]
-                                                  .phone ??
-                                              '',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      InkWell(
-                                        child: Container(
-                                          padding: EdgeInsets.all(8.0),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: PROJECT_LIGHT_GREEN,
-                                          ),
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.grey[700],
-                                            size: 16.0,
-                                          ),
-                                        ),
-                                        splashColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        focusColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                      ),
-                                    ],
-                                  );
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(
-                                    height: 10.0,
-                                  );
-                                },
-                              ),
-                            ],
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Not assigned to this study:',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
                           ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount:
+                          moderatorsNotAssignedToThisStudy.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .email,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .firstName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .lastName,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    moderatorsNotAssignedToThisStudy[
+                                    index]
+                                        .phone ??
+                                        '',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
+                                InkWell(
+                                  onTap: () async {
+                                    await _buildEditModeratorDialog(moderatorsNotAssignedToThisStudy[index]);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: PROJECT_LIGHT_GREEN,
+                                    ),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Colors.grey[700],
+                                      size: 16.0,
+                                    ),
+                                  ),
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                ),
+                              ],
+                            );
+                          },
+                          separatorBuilder:
+                              (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 10.0,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );
@@ -1256,237 +1306,534 @@ class _StudyUsersState extends State<StudyUsers> {
     );
   }
 
-// FutureBuilder<void> _participantsFutureBuilder(Future<void> future) {
-//   return FutureBuilder<void>(
-//     future: future,
-//     builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-//       switch (snapshot.connectionState) {
-//         case ConnectionState.none:
-//           return Center(
-//             child: Text('Some error occurred'),
-//           );
-//           break;
-//         case ConnectionState.waiting:
-//         case ConnectionState.active:
-//           return Center(
-//             child: Text('Loading...'),
-//           );
-//           break;
-//         case ConnectionState.done:
-//           return ListView.separated(
-//             shrinkWrap: true,
-//             itemCount: _groupsList.length,
-//             itemBuilder: (BuildContext context, int groupIndex) {
-//               var groupParticipants = <Participant>[];
-//
-//               for (var participant in _participantsList) {
-//                 if (_groupsList[groupIndex].groupName ==
-//                     participant.userGroupName) {
-//                   groupParticipants.add(participant);
-//                 }
-//               }
-//
-//               if (groupParticipants.isNotEmpty) {
-//                 return Column(
-//                   mainAxisSize: MainAxisSize.min,
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       '${_groupsList[groupIndex].groupName}',
-//                       style: TextStyle(
-//                         color: Colors.grey[700],
-//                         fontSize: 16.0,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                     SizedBox(
-//                       height: 20.0,
-//                     ),
-//                     Container(
-//                       height: 1.0,
-//                       color: Colors.grey[300],
-//                     ),
-//                     SizedBox(
-//                       height: 20.0,
-//                     ),
-//                     ListView.separated(
-//                       shrinkWrap: true,
-//                       physics: NeverScrollableScrollPhysics(),
-//                       itemCount: groupParticipants.length,
-//                       itemBuilder: (BuildContext context, int index) {
-//                         return ParticipantDetailsWidget(
-//                           participant: groupParticipants[index],
-//                           firebaseFirestoreService:
-//                           widget.firebaseFirestoreService,
-//                           studyUID: widget.studyUID,
-//                         );
-//                       },
-//                       separatorBuilder: (BuildContext context, int index) {
-//                         return SizedBox(
-//                           height: 10.0,
-//                         );
-//                       },
-//                     ),
-//                   ],
-//                 );
-//               } else {
-//                 return SizedBox();
-//               }
-//             },
-//             separatorBuilder: (BuildContext context, int index) {
-//               return SizedBox(
-//                 height: 20.0,
-//               );
-//             },
-//           );
-//           break;
-//         default:
-//           return Center(
-//             child: Text(
-//               'Some error occurred',
-//             ),
-//           );
-//       }
-//     },
-//   );
-// }
-//
-// FutureBuilder _clientsFutureBuilder() {
-//   return FutureBuilder(
-//     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-//       switch (snapshot.connectionState) {
-//         case ConnectionState.none:
-//           return Center(
-//             child: Text('Some error occurred'),
-//           );
-//           break;
-//         case ConnectionState.waiting:
-//         case ConnectionState.active:
-//           return Center(
-//             child: Text('Loading...'),
-//           );
-//           break;
-//         case ConnectionState.done:
-//           return ListView.separated(
-//             itemCount: snapshot.data.length,
-//             itemBuilder: (BuildContext context, int index) {
-//               return SizedBox();
-//             },
-//             separatorBuilder: (BuildContext context, int index) {
-//               return SizedBox(
-//                 height: 20.0,
-//               );
-//             },
-//           );
-//           break;
-//         default:
-//           return Center(
-//             child: Text(
-//               'Some error occurred',
-//             ),
-//           );
-//       }
-//     },
-//   );
-// }
-//
-// FutureBuilder _moderatorsFutureBuilder() {
-//   return FutureBuilder(
-//     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-//       switch (snapshot.connectionState) {
-//         case ConnectionState.none:
-//           return Center(
-//             child: Text('Some error occurred'),
-//           );
-//           break;
-//         case ConnectionState.waiting:
-//         case ConnectionState.active:
-//           return Center(
-//             child: Text('Loading...'),
-//           );
-//           break;
-//         case ConnectionState.done:
-//           return ListView.separated(
-//             itemCount: snapshot.data.length,
-//             itemBuilder: (BuildContext context, int index) {
-//               return SizedBox();
-//             },
-//             separatorBuilder: (BuildContext context, int index) {
-//               return SizedBox(
-//                 height: 20.0,
-//               );
-//             },
-//           );
-//           break;
-//         default:
-//           return Center(
-//             child: Text(
-//               'Some error occurred',
-//             ),
-//           );
-//       }
-//     },
-//   );
-// }
+  Future<void> _buildEditModeratorDialog(Moderator moderator) async {
+    var assignedStudies = moderator.assignedStudies;
 
-// Future<void> _addParticipantToFirebase(
-//     String studyUID, Participant participant) async {
-//   var user = User(
-//     userEmail: participant.email,
-//     userPassword: 'participant123',
-//     userType: 'participant',
-//     studyUID: studyUID,
-//   );
-//
-//   var createdUser = await _firebaseFirestoreService.createUser(user);
-//
-//   participant.participantUID = createdUser.userUID;
-//   participant.isActive = false;
-//   participant.isOnboarded = false;
-//   participant.isDeleted = false;
-//   participant.password = 'participant123';
-//
-//   await _researcherAndModeratorFirestoreService.createParticipant(
-//       studyUID, participant);
-// }
-//
-// Future<void> _addClientToFirebase(String studyUID, Client client) async {
-//   var user = User(
-//     userEmail: client.email,
-//     userPassword: 'participant123',
-//     userType: 'client',
-//     studyUID: studyUID,
-//   );
-//
-//   var createdUser = await _firebaseFirestoreService.createUser(user);
-//
-//   client.clientUID = createdUser.userUID;
-//   client.isOnboarded = false;
-//   client.password = 'participant123';
-//
-//   await _researcherAndModeratorFirestoreService.createClient(
-//       studyUID, client);
-// }
-//
-// Future<void> _addModeratorToFirebase(
-//     String studyUID, Moderator moderator) async {
-//   var user = User(
-//     userEmail: moderator.email,
-//     userPassword: 'participant123',
-//     userType: 'moderator',
-//   );
-//
-//   var createdUser = await _firebaseFirestoreService.createUser(user);
-//
-//   moderator.moderatorUID = createdUser.userUID;
-//   moderator.password = 'participant123';
-//   moderator.assignedStudies = [];
-//   moderator.assignedStudies.add(studyUID);
-//
-//   await _researcherAndModeratorFirestoreService.createModerator(moderator);
-// }
-//
-// Future<void> _assignStudyToExistingModerator(
-//     String studyUID, Moderator moderator) async {}
+    await showGeneralDialog(
+      context: context,
+      pageBuilder: (BuildContext generalDialogContext,
+          Animation<double> animation, Animation<double> secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (BuildContext context,
+              void Function(void Function()) editModeratorSetState) {
+            return Center(
+              child: Container(
+                constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    maxHeight: MediaQuery.of(context).size.height * 0.6),
+                child: Material(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Edit Moderator',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: moderator.email,
+                                onChanged: (value) {
+                                  editModeratorSetState(() {
+                                    moderator.email = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Moderator Email',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: moderator.firstName,
+                                onChanged: (value) {
+                                  editModeratorSetState(() {
+                                    moderator.firstName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'First Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: moderator.lastName,
+                                onChanged: (value) {
+                                  editModeratorSetState(() {
+                                    moderator.lastName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Last Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: moderator.phone,
+                                inputFormatters: [_phoneFormatter],
+                                onChanged: (value) {
+                                  editModeratorSetState(() {
+                                    moderator.phone = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        moderator.assignedStudies.contains(widget.studyUID)
+                            ? Theme(
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.grey[700],
+                            accentColor: PROJECT_NAVY_BLUE,
+                          ),
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                onChanged: (bool value) {
+                                  value ? assignedStudies.add(widget.studyUID) : assignedStudies.remove(widget.studyUID);
+                                  editModeratorSetState((){});
+                                },
+                                value:
+                                assignedStudies.contains(widget.studyUID),
+                              ),
+                              SizedBox(
+                                width: 10.0,
+                              ),
+                              Text(
+                                'Un-assign this study',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                            : Theme(
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.grey[700],
+                            accentColor: PROJECT_NAVY_BLUE,
+                          ),
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                onChanged: (bool value) {
+                                  value ? assignedStudies.add(widget.studyUID) : assignedStudies.remove(widget.studyUID);
+                                  editModeratorSetState((){});
+                                },
+                                value:
+                                assignedStudies.contains(widget.studyUID),
+                              ),
+                              SizedBox(
+                                width: 10.0,
+                              ),
+                              Text(
+                                'Assign this study',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
 
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ButtonBar(
+                          children: [
+                            FlatButton(
+                              onPressed: () =>
+                                  Navigator.of(generalDialogContext).pop(),
+                              color: Colors.grey[200],
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              disabledColor: Colors.grey[700],
+                              onPressed: moderator.email != '' &&
+                                  moderator.firstName != '' &&
+                                  moderator.lastName != ''
+                                  ? () async {
+                                moderator.assignedStudies = assignedStudies;
+                                await _researcherAndModeratorFirestoreService
+                                    .updateModeratorDetails(moderator);
+                                Navigator.of(generalDialogContext).pop();
+                              }
+                                  : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                              color: PROJECT_GREEN,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  'Update',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _buildEditClientDialog(Client client) async {
+    await showGeneralDialog(
+      context: context,
+      pageBuilder: (BuildContext generalDialogContext,
+          Animation<double> animation, Animation<double> secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (BuildContext context,
+              void Function(void Function()) editClientSetState) {
+            return Center(
+              child: Container(
+                constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    maxHeight: MediaQuery.of(context).size.height * 0.6),
+                child: Material(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Edit Client',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Container(
+                          height: 1.0,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: client.email,
+                                onChanged: (value) {
+                                  editClientSetState(() {
+                                    client.email = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Client Email',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: client.firstName,
+                                onChanged: (value) {
+                                  editClientSetState(() {
+                                    client.firstName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'First Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: client.lastName,
+                                onChanged: (value) {
+                                  editClientSetState(() {
+                                    client.lastName = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Last Name',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: client.phone,
+                                inputFormatters: [_phoneFormatter],
+                                onChanged: (value) {
+                                  editClientSetState(() {
+                                    client.phone = value.trim();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[400],
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        ButtonBar(
+                          children: [
+                            FlatButton(
+                              onPressed: () =>
+                                  Navigator.of(generalDialogContext).pop(),
+                              color: Colors.grey[200],
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              disabledColor: Colors.grey[700],
+                              onPressed: client.email != '' &&
+                                  client.firstName != '' &&
+                                  client.lastName != ''
+                                  ? () async {
+                                await _researcherAndModeratorFirestoreService
+                                    .updateClientDetails(
+                                    widget.studyUID, client);
+                                Navigator.of(generalDialogContext).pop();
+                              }
+                                  : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                              color: PROJECT_GREEN,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  'Update',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }

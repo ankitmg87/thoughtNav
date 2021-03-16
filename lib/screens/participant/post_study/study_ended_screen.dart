@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/services/participant_firestore_service.dart';
 
@@ -16,12 +17,15 @@ class _StudyEndedScreenState extends State<StudyEndedScreen> {
   final _participantFirestoreService = ParticipantFirestoreService();
 
   Study _study;
+  Participant _participant;
 
   String _studyUID;
+  String _participantUID;
 
   Future<void> _futureStudy;
 
-  Future<void> _getStudy(String studyUID) async {
+  Future<void> _getStudy(String studyUID, String participantUID) async {
+    _participant = await _participantFirestoreService.getParticipant(studyUID, participantUID);
     _study = await _participantFirestoreService.getParticipantStudy(studyUID);
   }
 
@@ -30,8 +34,9 @@ class _StudyEndedScreenState extends State<StudyEndedScreen> {
     var getStorage = GetStorage();
 
     _studyUID = getStorage.read('studyUID');
+    _participantUID = getStorage.read('participantUID');
 
-    _futureStudy = _getStudy(_studyUID);
+    _futureStudy = _getStudy(_studyUID, _participantUID);
 
     super.initState();
   }
@@ -125,107 +130,6 @@ class _StudyEndedScreenState extends State<StudyEndedScreen> {
                     SizedBox(
                       height: 50.0,
                     ),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     Column(
-                    //       mainAxisSize: MainAxisSize.min,
-                    //       children: [
-                    //         Text(
-                    //           'Monday',
-                    //           textAlign: TextAlign.center,
-                    //           style: TextStyle(
-                    //             color: TEXT_COLOR.withOpacity(0.6),
-                    //             fontSize: 10.0,
-                    //             fontWeight: FontWeight.bold,
-                    //           ),
-                    //         ),
-                    //         Card(
-                    //           child: Container(
-                    //             width: 50.0,
-                    //             padding: EdgeInsets.all(4.0),
-                    //             child: Column(
-                    //               mainAxisSize: MainAxisSize.min,
-                    //               crossAxisAlignment: CrossAxisAlignment.center,
-                    //               children: [
-                    //                 Text(
-                    //                   'May',
-                    //                   style: TextStyle(
-                    //                     color: TEXT_COLOR.withOpacity(0.8),
-                    //                     fontSize: 10.0,
-                    //                     fontWeight: FontWeight.bold,
-                    //                   ),
-                    //                 ),
-                    //                 Text(
-                    //                   '5',
-                    //                   style: TextStyle(
-                    //                     color: TEXT_COLOR.withOpacity(0.7),
-                    //                     fontSize: 20.0,
-                    //                     fontWeight: FontWeight.bold,
-                    //                   ),
-                    //                 ),
-                    //               ],
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //     SizedBox(
-                    //       width: 20.0,
-                    //     ),
-                    //     Column(
-                    //       mainAxisSize: MainAxisSize.min,
-                    //       children: [
-                    //         Text(
-                    //           'Friday',
-                    //           textAlign: TextAlign.center,
-                    //           style: TextStyle(
-                    //             color: TEXT_COLOR.withOpacity(0.6),
-                    //             fontSize: 10.0,
-                    //             fontWeight: FontWeight.bold,
-                    //           ),
-                    //         ),
-                    //         Card(
-                    //           child: Container(
-                    //             width: 50.0,
-                    //             padding: EdgeInsets.all(4.0),
-                    //             child: Column(
-                    //               mainAxisSize: MainAxisSize.min,
-                    //               crossAxisAlignment: CrossAxisAlignment.center,
-                    //               children: [
-                    //                 Text(
-                    //                   'May',
-                    //                   style: TextStyle(
-                    //                     color: TEXT_COLOR.withOpacity(0.8),
-                    //                     fontSize: 10.0,
-                    //                     fontWeight: FontWeight.bold,
-                    //                   ),
-                    //                 ),
-                    //                 Text(
-                    //                   '10',
-                    //                   style: TextStyle(
-                    //                     color: TEXT_COLOR.withOpacity(0.7),
-                    //                     fontSize: 20.0,
-                    //                     fontWeight: FontWeight.bold,
-                    //                   ),
-                    //                 ),
-                    //               ],
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ],
-                    // ),
-                    // Container(
-                    //   margin: EdgeInsets.symmetric(
-                    //       horizontal: screenSize.width * 0.4, vertical: 20.0),
-                    //   height: 1.0,
-                    //   color: TEXT_COLOR.withOpacity(0.6),
-                    // ),
-                    // SizedBox(
-                    //   height: 30.0,
-                    // ),
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: screenSize.width * 0.15),
                       child: Text(
@@ -242,8 +146,8 @@ class _StudyEndedScreenState extends State<StudyEndedScreen> {
                     ),
                     screenSize.width < screenSize.height
                         ? Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenSize.width * 0.15),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.width * 0.15),
                       child: Row(
                         children: [
                           Expanded(
@@ -252,18 +156,22 @@ class _StudyEndedScreenState extends State<StudyEndedScreen> {
                                 borderRadius: BorderRadius.circular(4.0),
                               ),
                               color: PROJECT_GREEN,
-                              child: Container(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Contact Administrator',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                              onPressed: _participant.isDeleted ||
+                                  !_participant.isActive
+                                  ? null
+                                  : () {
+                                Navigator.of(context).popAndPushNamed(
+                                    PARTICIPANT_DASHBOARD_SCREEN);
+                              },
+                              child: Text(
+                                _participant.isDeleted ||
+                                    !_participant.isActive
+                                    ? 'Contact Administrator'
+                                    : 'Go Back To Dashboard',
+                                style: TextStyle(
+                                  color: Colors.white,
                                 ),
                               ),
-                              onPressed: () {},
                             ),
                           ),
                         ],
@@ -273,12 +181,19 @@ class _StudyEndedScreenState extends State<StudyEndedScreen> {
                       child: Container(
                         width: 200.0,
                         child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
                           color: PROJECT_GREEN,
                           onPressed: () {
-                            Navigator.of(context).popAndPushNamed(PARTICIPANT_DASHBOARD_SCREEN);
+                            Navigator.of(context).popAndPushNamed(
+                                PARTICIPANT_DASHBOARD_SCREEN);
                           },
                           child: Text(
-                            'Go Back To Dashboard',
+                            _participant.isDeleted ||
+                                !_participant.isActive
+                                ? 'Contact Administrator'
+                                : 'Go Back To Dashboard',
                             style: TextStyle(
                               color: Colors.white,
                             ),

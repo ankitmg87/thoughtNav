@@ -21,8 +21,8 @@ class Categories {
     this.customCategories,
   });
 
-  void setCategoryStatus(String categoryName, bool status){
-    switch(categoryName){
+  void setCategoryStatus(String categoryName, bool status) {
+    switch (categoryName) {
       case 'Lifestyle':
         lifestyle = status;
         break;
@@ -50,9 +50,9 @@ class Categories {
     }
   }
 
-  bool checkCategoryStatus(String categoryName){
+  bool checkCategoryStatus(String categoryName) {
     var categoryStatus;
-    switch(categoryName){
+    switch (categoryName) {
       case 'Lifestyle':
         categoryStatus = lifestyle;
         break;
@@ -78,13 +78,11 @@ class Categories {
         categoryStatus = others;
         break;
     }
-
     return categoryStatus;
   }
 
-  Map toMap(Categories categories){
+  Map toMap(Categories categories) {
     var categoriesMap = <String, dynamic>{};
-
     categoriesMap['lifestyle'] = categories.lifestyle ?? false;
     categoriesMap['health'] = categories.health ?? false;
     categoriesMap['auto'] = categories.auto ?? false;
@@ -94,11 +92,10 @@ class Categories {
     categoriesMap['futures'] = categories.futures ?? false;
     categoriesMap['others'] = categories.others ?? false;
     categoriesMap['customCategories'] = categories.customCategories ?? [];
-
     return categoriesMap;
   }
 
-  Categories.fromMap(Map<String, dynamic> categories){
+  Categories.fromMap(Map<String, dynamic> categories) {
     lifestyle = categories['lifestyle'];
     health = categories['health'];
     auto = categories['auto'];
@@ -109,27 +106,26 @@ class Categories {
     others = categories['others'];
     customCategories = categories['customCategories'];
   }
-
 }
 
-class CustomCategory{
+class CustomCategory {
   String category;
   bool selected;
 
-  CustomCategory({this.category, this.selected,});
+  CustomCategory({
+    this.category,
+    this.selected,
+  });
 
-  Map<String, bool> toMap() {
-    var customCategory = <String, dynamic>{};
-
-    customCategory['category'] = category;
-    customCategory['selected'] = selected ?? false;
-
-    return customCategory;
+  Map toMap(CustomCategory customCategory) {
+    var customCategoryMap = <String, dynamic>{};
+    customCategoryMap['category'] = customCategory.category;
+    customCategoryMap['selected'] = customCategory.selected ?? false;
+    return customCategoryMap;
   }
 
-  CustomCategory.fromMap(Map<String, dynamic> customCategory){
+  CustomCategory.fromMap(Map<String, dynamic> customCategory) {
     category = customCategory['category'];
     selected = customCategory['selected'];
   }
-
 }

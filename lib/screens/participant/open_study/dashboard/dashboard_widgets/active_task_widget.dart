@@ -348,7 +348,7 @@ class LockedQuestionWidget extends StatelessWidget {
                   padding: EdgeInsets.all(20.0),
                   child: Text(questionTimestamp.millisecondsSinceEpoch >
                           Timestamp.now().millisecondsSinceEpoch
-                      ? 'This question will unlock on $date at $time'
+                      ? 'This question will unlock on $date at $time ${DateTime.now().timeZoneName}'
                       : 'Please answer all previous questions',
                     style: TextStyle(
                       color: Colors.grey[700],
@@ -385,20 +385,3 @@ class LockedQuestionWidget extends StatelessWidget {
     );
   }
 }
-
-
-class KTermsOfUsePage extends StatefulWidget {
-  @override
-  _KTermsOfUsePageState createState() => _KTermsOfUsePageState();
-}
-
-class _KTermsOfUsePageState extends State<KTermsOfUsePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-
-
-

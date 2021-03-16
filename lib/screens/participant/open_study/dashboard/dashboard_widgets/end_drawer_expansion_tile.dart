@@ -56,12 +56,25 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                 _isExpanded = value;
               });
             },
-            children: [
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: widget.questions.length,
-                itemBuilder: (BuildContext context, int index) {
-                  if (index == 0) {
+            children: List.generate(widget.questions.length, (index) {
+              if (index == 0) {
+                return ActiveQuestionExpansionTileChild(
+                  question: widget.questions[index],
+                  participantUID: widget.participantUID,
+                  onTap: () {
+                    Navigator.of(context).popAndPushNamed(
+                        PARTICIPANT_RESPONSES_SCREEN,
+                        arguments: {
+                          'topicUID': widget.topicUID,
+                          'questionUID': widget.questions[index].questionUID,
+                        });
+                  },
+                );
+              } else {
+                if (widget.questions[index - 1].respondedBy != null) {
+                  if (widget.questions[index - 1].respondedBy
+                      .contains(widget.participantUID) ||
+                      widget.questions[index].isProbe) {
                     return ActiveQuestionExpansionTileChild(
                       question: widget.questions[index],
                       participantUID: widget.participantUID,
@@ -71,42 +84,73 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
                             arguments: {
                               'topicUID': widget.topicUID,
                               'questionUID':
-                                  widget.questions[index].questionUID,
+                              widget.questions[index].questionUID,
                             });
                       },
                     );
                   } else {
-                    if (widget.questions[index - 1].respondedBy != null) {
-                      if (widget.questions[index - 1].respondedBy
-                              .contains(widget.participantUID) ||
-                          widget.questions[index].isProbe) {
-                        return ActiveQuestionExpansionTileChild(
-                          question: widget.questions[index],
-                          participantUID: widget.participantUID,
-                          onTap: () {
-                            Navigator.of(context).popAndPushNamed(
-                                PARTICIPANT_RESPONSES_SCREEN,
-                                arguments: {
-                                  'topicUID': widget.topicUID,
-                                  'questionUID':
-                                      widget.questions[index].questionUID,
-                                });
-                          },
-                        );
-                      } else {
-                        return LockedQuestionExpansionTileChild(
-                          question: widget.questions[index],
-                        );
-                      }
-                    } else {
-                      return LockedQuestionExpansionTileChild(
-                        question: widget.questions[index],
-                      );
-                    }
+                    return LockedQuestionExpansionTileChild(
+                      question: widget.questions[index],
+                    );
                   }
-                },
-              ),
-            ],
+                } else {
+                  return LockedQuestionExpansionTileChild(
+                    question: widget.questions[index],
+                  );
+                }
+              }
+            }).toList(),
+            // [
+            //   ListView.builder(
+            //     shrinkWrap: true,
+            //     itemCount: widget.questions.length,
+            //     itemBuilder: (BuildContext context, int index) {
+            //       if (index == 0) {
+            //         return ActiveQuestionExpansionTileChild(
+            //           question: widget.questions[index],
+            //           participantUID: widget.participantUID,
+            //           onTap: () {
+            //             Navigator.of(context).popAndPushNamed(
+            //                 PARTICIPANT_RESPONSES_SCREEN,
+            //                 arguments: {
+            //                   'topicUID': widget.topicUID,
+            //                   'questionUID':
+            //                       widget.questions[index].questionUID,
+            //                 });
+            //           },
+            //         );
+            //       } else {
+            //         if (widget.questions[index - 1].respondedBy != null) {
+            //           if (widget.questions[index - 1].respondedBy
+            //                   .contains(widget.participantUID) ||
+            //               widget.questions[index].isProbe) {
+            //             return ActiveQuestionExpansionTileChild(
+            //               question: widget.questions[index],
+            //               participantUID: widget.participantUID,
+            //               onTap: () {
+            //                 Navigator.of(context).popAndPushNamed(
+            //                     PARTICIPANT_RESPONSES_SCREEN,
+            //                     arguments: {
+            //                       'topicUID': widget.topicUID,
+            //                       'questionUID':
+            //                           widget.questions[index].questionUID,
+            //                     });
+            //               },
+            //             );
+            //           } else {
+            //             return LockedQuestionExpansionTileChild(
+            //               question: widget.questions[index],
+            //             );
+            //           }
+            //         } else {
+            //           return LockedQuestionExpansionTileChild(
+            //             question: widget.questions[index],
+            //           );
+            //         }
+            //       }
+            //     },
+            //   ),
+            // ],
           ),
           Container(
             height: 0.5,

@@ -99,35 +99,18 @@ class _ParticipantDashboardScreenState
   Future<void> _getFutureTopics(String participantGroupUID) async {
     _topics = await _participantFirestoreService.getParticipantTopics(
         _studyUID, participantGroupUID);
-
     var totalQuestions = 0;
     var answeredQuestions = 0;
-
     for (var topic in _topics) {
       totalQuestions += topic.questions.length;
-
       for (var question in topic.questions) {
         if (question.respondedBy != null) {
           if (question.respondedBy.contains(_participantUID)) {
             answeredQuestions += 1;
           }
         }
-        if (_nextTopic == null && _nextQuestion == null) {
-          if (question.respondedBy == null ||
-              !question.respondedBy.contains(_participantUID)) {
-            _nextQuestion = question;
-            _nextTopic = topic;
-            if (question.questionTimestamp.millisecondsSinceEpoch >=
-                Timestamp.now().millisecondsSinceEpoch) {
-              _questionStatus = 'questionLocked';
-            } else {
-              _questionStatus = 'questionUnlocked';
-            }
-          }
-        }
       }
     }
-
     setState(() {
       _studyNavigatorTopics = _topics;
       _answeredQuestions = answeredQuestions;
@@ -194,7 +177,56 @@ class _ParticipantDashboardScreenState
                     answeredQuestions: _answeredQuestions,
                     totalQuestions: _totalQuestions,
                     nextQuestionWidget: InkWell(
-                      onTap: () {
+                      onTap: _answeredQuestions == _totalQuestions
+                          ? null
+                          : () {
+                        for (var topic in _topics) {
+                          var topicIndex = _topics
+                              .indexWhere((element) => element == topic);
+                          if (_nextQuestion == null ||
+                              _nextTopic == null) {
+                            if (topicIndex + 1 <= _topics.length - 1) {
+                              if (_topics[topicIndex + 1]
+                                  .topicDate
+                                  .millisecondsSinceEpoch >
+                                  Timestamp.now()
+                                      .millisecondsSinceEpoch) {
+                                _questionStatus = 'questionLocked';
+                              } else {
+                                for (var question
+                                in _topics[topicIndex + 1]
+                                    .questions) {
+                                  if (_nextQuestion == null ||
+                                      _nextTopic == null) {
+                                    if (question.questionTimestamp
+                                        .millisecondsSinceEpoch >
+                                        Timestamp.now()
+                                            .millisecondsSinceEpoch) {
+                                      _questionStatus = 'questionLocked';
+                                    } else {
+                                      if (question.respondedBy == null) {
+                                        _questionStatus =
+                                        'questionUnlocked';
+                                        _nextTopic =
+                                        _topics[topicIndex + 1];
+                                        _nextQuestion = question;
+                                      } else {
+                                        if (!question.respondedBy
+                                            .contains(_participantUID)) {
+                                          _questionStatus =
+                                          'questionUnlocked';
+                                          _nextTopic =
+                                          _topics[topicIndex + 1];
+                                          _nextQuestion = question;
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                         if (_questionStatus == 'questionLocked') {
                           showGeneralDialog(
                             pageBuilder: (BuildContext context,
@@ -204,9 +236,10 @@ class _ParticipantDashboardScreenState
                                 child: Material(
                                   child: Container(
                                     constraints: BoxConstraints(
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              0.5,
+                                      maxWidth: MediaQuery.of(context)
+                                          .size
+                                          .width *
+                                          0.5,
                                     ),
                                     child: Padding(
                                       padding: EdgeInsets.all(20.0),
@@ -222,13 +255,16 @@ class _ParticipantDashboardScreenState
                                             ),
                                           ),
                                           Align(
-                                            alignment: Alignment.centerRight,
+                                            alignment:
+                                            Alignment.centerRight,
                                             child: FlatButton(
                                               color: PROJECT_NAVY_BLUE,
                                               onPressed: () =>
-                                                  Navigator.of(context).pop(),
+                                                  Navigator.of(context)
+                                                      .pop(),
                                               child: Padding(
-                                                padding: EdgeInsets.symmetric(
+                                                padding:
+                                                EdgeInsets.symmetric(
                                                   horizontal: 20.0,
                                                   vertical: 10.0,
                                                 ),
@@ -237,7 +273,8 @@ class _ParticipantDashboardScreenState
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 14.0,
-                                                    fontWeight: FontWeight.bold,
+                                                    fontWeight:
+                                                    FontWeight.bold,
                                                   ),
                                                 ),
                                               ),
@@ -273,7 +310,7 @@ class _ParticipantDashboardScreenState
                                   : 'Next Question',
                               textAlign: TextAlign.end,
                               style: TextStyle(
-                                color: PROJECT_GREEN,
+                                color: _answeredQuestions == _totalQuestions ? PROJECT_NAVY_BLUE : PROJECT_GREEN,
                                 fontSize: 14.0,
                               ),
                             ),
@@ -307,87 +344,95 @@ class _ParticipantDashboardScreenState
                             );
                             break;
                           case ConnectionState.done:
-                            return ListView(
-                              children: [
-                                _answeredQuestions == _totalQuestions &&
-                                        _study.studyStatus == 'Completed'
-                                    ? Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16.0),
-                                        child: Card(
-                                          elevation: 4.0,
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              color: PROJECT_LIGHT_GREEN,
-                                            ),
-                                            child: Padding(
-                                              padding: EdgeInsets.all(20.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      'Hurray!!'
+                            return Scrollbar(
+                              child: ListView(
+                                padding: EdgeInsets.only(right: 20.0),
+                                children: [
+                                  _answeredQuestions == _totalQuestions &&
+                                      _study.studyStatus == 'Completed'
+                                      ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: Card(
+                                      elevation: 4.0,
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(10.0),
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10.0),
+                                          color: PROJECT_LIGHT_GREEN,
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(20.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  'Hurray!!'
                                                       '\n'
                                                       ' You have answered $_answeredQuestions/$_totalQuestions questions!'
                                                       '\n'
                                                       'Payments will be sent within 5 working days after study is closed.',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        color: Colors.grey[700],
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 12.0,
-                                                      ),
-                                                    ),
+                                                  textAlign:
+                                                  TextAlign.center,
+                                                  style: TextStyle(
+                                                    color:
+                                                    Colors.grey[700],
+                                                    fontWeight:
+                                                    FontWeight.bold,
+                                                    fontSize: 12.0,
                                                   ),
-                                                ],
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
                                         ),
-                                      )
-                                    : SizedBox(),
-                                SizedBox(
-                                  height:
-                                      _answeredQuestions == _totalQuestions &&
-                                              _study.studyStatus == 'Completed'
-                                          ? 10.0
-                                          : 0,
-                                ),
-                                ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: _topics.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    if (_topics[index].isActive) {
-                                      return ActiveTaskWidget(
-                                        topic: _topics[index],
-                                        participantUID: _participantUID,
+                                      ),
+                                    ),
+                                  )
+                                      : SizedBox(),
+                                  SizedBox(
+                                    height: _answeredQuestions ==
+                                        _totalQuestions &&
+                                        _study.studyStatus == 'Completed'
+                                        ? 10.0
+                                        : 0,
+                                  ),
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: _topics.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      if (_topics[index]
+                                          .topicDate
+                                          .millisecondsSinceEpoch <=
+                                          Timestamp.now()
+                                              .millisecondsSinceEpoch) {
+                                        return ActiveTaskWidget(
+                                          topic: _topics[index],
+                                          participantUID: _participantUID,
+                                        );
+                                      } else {
+                                        return LockedTaskWidget(
+                                            topic: _topics[index]);
+                                      }
+                                    },
+                                    separatorBuilder:
+                                        (BuildContext context, int index) {
+                                      return SizedBox(
+                                        height: 10.0,
                                       );
-                                    } else {
-                                      return LockedTaskWidget(
-                                          topic: _topics[index]);
-                                    }
-                                  },
-                                  separatorBuilder:
-                                      (BuildContext context, int index) {
-                                    return SizedBox(
-                                      height: 10.0,
-                                    );
-                                  },
-                                ),
-                              ],
+                                    },
+                                  ),
+                                ],
+                              ),
                             );
                             break;
                           default:
@@ -450,60 +495,67 @@ class _ParticipantDashboardScreenState
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _studyNavigatorTopics.length,
-              itemBuilder: (BuildContext context, int index) {
-                if (_studyNavigatorTopics[index].isActive) {
-                  return EndDrawerExpansionTile(
-                    title: _studyNavigatorTopics[index].topicName,
-                    questions: _studyNavigatorTopics[index].questions,
-                    participantUID: _participantUID,
-                    topicUID: _studyNavigatorTopics[index].topicUID,
-                  );
-                } else {
-                  return ListTile(
-                    onTap: () {
-                      showGeneralDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        barrierLabel: 'Topic Locked',
-                        pageBuilder:
-                            (BuildContext studyNavigatorLockedTopicContext,
-                                Animation<double> animation,
-                                Animation<double> secondaryAnimation) {
-                          return Center(
-                            child: Material(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Text(
-                                  'This topic is still locked',
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
+            child: Scrollbar(
+              isAlwaysShown: true,
+              thickness: 10.0,
+              child: ListView.builder(
+                padding: EdgeInsets.only(right: 20.0),
+                itemCount: _studyNavigatorTopics.length,
+                itemBuilder: (BuildContext context, int index) {
+                  if (_studyNavigatorTopics[index]
+                      .topicDate
+                      .millisecondsSinceEpoch <=
+                      Timestamp.now().millisecondsSinceEpoch) {
+                    return EndDrawerExpansionTile(
+                      title: _studyNavigatorTopics[index].topicName,
+                      questions: _studyNavigatorTopics[index].questions,
+                      participantUID: _participantUID,
+                      topicUID: _studyNavigatorTopics[index].topicUID,
+                    );
+                  } else {
+                    return ListTile(
+                      onTap: () {
+                        showGeneralDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          barrierLabel: 'Topic Locked',
+                          pageBuilder:
+                              (BuildContext studyNavigatorLockedTopicContext,
+                              Animation<double> animation,
+                              Animation<double> secondaryAnimation) {
+                            return Center(
+                              child: Material(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Text(
+                                    'This topic is still locked',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    title: Text(
-                      'Topic Locked',
-                      style: TextStyle(
-                        color: Colors.black,
-
+                            );
+                          },
+                        );
+                      },
+                      title: Text(
+                        'Topic Locked',
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                  );
-                }
-              },
-            ),
+                    );
+                  }
+                },
+              ),
+            )
           ),
         ],
       ),
@@ -799,6 +851,9 @@ class _ParticipantDashboardScreenState
                                 height: 8.0,
                               ),
                               InkWell(
+                                onTap: () {
+                                  _buildViewDetailsGeneralDialog();
+                                },
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisSize: MainAxisSize.min,
@@ -820,9 +875,6 @@ class _ParticipantDashboardScreenState
                                     ),
                                   ],
                                 ),
-                                onTap: () {
-                                  _buildViewDetailsGeneralDialog();
-                                },
                               ),
                               SizedBox(
                                 height: 20.0,
@@ -857,71 +909,151 @@ class _ParticipantDashboardScreenState
                                       ),
                                     ),
                                     InkWell(
-                                      onTap: () {
+                                      onTap: _answeredQuestions ==
+                                          _totalQuestions
+                                          ? null
+                                          : () {
+                                        print('Tapped');
+                                        for (var topic in _topics) {
+                                          var topicIndex = _topics
+                                              .indexWhere((element) =>
+                                          element == topic);
+                                          if (_nextQuestion == null ||
+                                              _nextTopic == null) {
+                                            if (topicIndex + 1 <=
+                                                _topics.length - 1) {
+                                              if (_topics[topicIndex + 1]
+                                                  .topicDate
+                                                  .millisecondsSinceEpoch >
+                                                  Timestamp.now()
+                                                      .millisecondsSinceEpoch) {
+                                                _questionStatus =
+                                                'questionLocked';
+                                              } else {
+                                                for (var question
+                                                in _topics[
+                                                topicIndex +
+                                                    1]
+                                                    .questions) {
+                                                  if (_nextQuestion ==
+                                                      null ||
+                                                      _nextTopic ==
+                                                          null) {
+                                                    if (question
+                                                        .questionTimestamp
+                                                        .millisecondsSinceEpoch >
+                                                        Timestamp.now()
+                                                            .millisecondsSinceEpoch) {
+                                                      _questionStatus =
+                                                      'questionLocked';
+                                                    } else {
+                                                      if (question
+                                                          .respondedBy ==
+                                                          null) {
+                                                        _questionStatus =
+                                                        'questionUnlocked';
+                                                        _nextTopic =
+                                                        _topics[
+                                                        topicIndex +
+                                                            1];
+                                                        _nextQuestion =
+                                                            question;
+                                                      } else {
+                                                        if (!question
+                                                            .respondedBy
+                                                            .contains(
+                                                            _participantUID)) {
+                                                          _questionStatus =
+                                                          'questionUnlocked';
+                                                          _nextTopic =
+                                                          _topics[
+                                                          topicIndex +
+                                                              1];
+                                                          _nextQuestion =
+                                                              question;
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
                                         if (_questionStatus ==
                                             'questionLocked') {
                                           showGeneralDialog(
-                                            pageBuilder: (BuildContext context,
-                                                Animation<double> animation,
+                                            pageBuilder: (BuildContext
+                                            context,
                                                 Animation<double>
-                                                    secondaryAnimation) {
+                                                animation,
+                                                Animation<double>
+                                                secondaryAnimation) {
                                               return Center(
                                                 child: Material(
                                                   child: Container(
-                                                    constraints: BoxConstraints(
-                                                      maxWidth:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.5,
+                                                    constraints:
+                                                    BoxConstraints(
+                                                      maxWidth: MediaQuery.of(
+                                                          context)
+                                                          .size
+                                                          .width *
+                                                          0.5,
                                                     ),
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsets.all(20.0),
+                                                      EdgeInsets.all(
+                                                          20.0),
                                                       child: Column(
                                                         mainAxisSize:
-                                                            MainAxisSize.min,
+                                                        MainAxisSize
+                                                            .min,
                                                         children: [
                                                           Text(
                                                             'Question is still locked',
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.black,
-                                                              fontSize: 18.0,
+                                                            style:
+                                                            TextStyle(
+                                                              color: Colors
+                                                                  .black,
+                                                              fontSize:
+                                                              18.0,
                                                               fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                              FontWeight
+                                                                  .bold,
                                                             ),
                                                           ),
                                                           Align(
-                                                            alignment: Alignment
+                                                            alignment:
+                                                            Alignment
                                                                 .centerRight,
-                                                            child: FlatButton(
+                                                            child:
+                                                            FlatButton(
                                                               color:
-                                                                  PROJECT_NAVY_BLUE,
+                                                              PROJECT_NAVY_BLUE,
                                                               onPressed: () =>
-                                                                  Navigator.of(
-                                                                          context)
+                                                                  Navigator.of(context)
                                                                       .pop(),
-                                                              child: Padding(
-                                                                padding: EdgeInsets
+                                                              child:
+                                                              Padding(
+                                                                padding:
+                                                                EdgeInsets
                                                                     .symmetric(
                                                                   horizontal:
-                                                                      20.0,
+                                                                  20.0,
                                                                   vertical:
-                                                                      10.0,
+                                                                  10.0,
                                                                 ),
-                                                                child: Text(
+                                                                child:
+                                                                Text(
                                                                   'OKAY',
                                                                   style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .white,
+                                                                  TextStyle(
+                                                                    color:
+                                                                    Colors.white,
                                                                     fontSize:
-                                                                        14.0,
+                                                                    14.0,
                                                                     fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
+                                                                    FontWeight.bold,
                                                                   ),
                                                                 ),
                                                               ),
@@ -939,12 +1071,14 @@ class _ParticipantDashboardScreenState
                                         }
                                         if (_questionStatus ==
                                             'questionUnlocked') {
-                                          Navigator.of(context).popAndPushNamed(
+                                          Navigator.of(context)
+                                              .popAndPushNamed(
                                             PARTICIPANT_RESPONSES_SCREEN,
                                             arguments: {
-                                              'topicUID': _nextTopic.topicUID,
-                                              'questionUID':
-                                                  _nextQuestion.questionUID,
+                                              'topicUID':
+                                              _nextTopic.topicUID,
+                                              'questionUID': _nextQuestion
+                                                  .questionUID,
                                             },
                                           );
                                         }
@@ -952,11 +1086,11 @@ class _ParticipantDashboardScreenState
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                        CrossAxisAlignment.center,
                                         children: [
                                           Text(
                                             _answeredQuestions ==
-                                                    _totalQuestions
+                                                _totalQuestions
                                                 ? 'All Questions Answered'
                                                 : 'Next Question',
                                             style: TextStyle(
@@ -969,7 +1103,10 @@ class _ParticipantDashboardScreenState
                                           ),
                                           Icon(
                                             CupertinoIcons.right_chevron,
-                                            color: PROJECT_GREEN,
+                                            color: _answeredQuestions ==
+                                                _totalQuestions
+                                                ? PROJECT_NAVY_BLUE
+                                                : PROJECT_GREEN,
                                             size: 14.0,
                                           ),
                                         ],
@@ -1319,59 +1456,65 @@ class _ParticipantDashboardScreenState
             ),
             showDrawer
                 ? Expanded(
-                    child: ListView.builder(
-                      itemCount: _studyNavigatorTopics.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        if (_studyNavigatorTopics[index].isActive) {
-                          return EndDrawerExpansionTile(
-                            title: _studyNavigatorTopics[index].topicName,
-                            questions: _studyNavigatorTopics[index].questions,
-                            participantUID: _participantUID,
-                            topicUID: _studyNavigatorTopics[index].topicUID,
-                          );
-                        } else {
-                          return ListTile(
-                            onTap: () {
-                              showGeneralDialog(
-                                context: context,
-                                barrierDismissible: true,
-                                barrierLabel: 'Topic Locked',
-                                pageBuilder:
-                                    (BuildContext studyNavigatorLockedTopicContext,
-                                    Animation<double> animation,
-                                    Animation<double> secondaryAnimation) {
-                                  return Center(
-                                    child: Material(
-                                      color: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: Text(
-                                          'This topic is still locked',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18.0,
+                    child: Scrollbar(
+                      isAlwaysShown: true,
+                      child: ListView(
+                        children: List.generate(_studyNavigatorTopics.length,
+                                (index) {
+                              if (_studyNavigatorTopics[index]
+                                  .topicDate
+                                  .millisecondsSinceEpoch <=
+                                  Timestamp.now().millisecondsSinceEpoch) {
+                                return EndDrawerExpansionTile(
+                                  title: _studyNavigatorTopics[index].topicName,
+                                  questions: _studyNavigatorTopics[index].questions,
+                                  participantUID: _participantUID,
+                                  topicUID: _studyNavigatorTopics[index].topicUID,
+                                );
+                              } else {
+                                return ListTile(
+                                  onTap: () {
+                                    showGeneralDialog(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      barrierLabel: 'Topic Locked',
+                                      pageBuilder: (BuildContext
+                                      studyNavigatorLockedTopicContext,
+                                          Animation<double> animation,
+                                          Animation<double> secondaryAnimation) {
+                                        return Center(
+                                          child: Material(
+                                            color: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(10.0),
+                                            ),
+                                            child: Padding(
+                                              padding: EdgeInsets.all(16.0),
+                                              child: Text(
+                                                'This topic is still locked',
+                                                style: TextStyle(
+                                                  color: Colors.grey[700],
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18.0,
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  title: Text(
+                                    'Topic Locked',
+                                    style: TextStyle(
+                                      color: Colors.black,
                                     ),
-                                  );
-                                },
-                              );
-                            },
-                            title: Text(
-                              'Topic Locked',
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          );
-                        }
-
-                      },
+                                  ),
+                                );
+                              }
+                            }).toList(),
+                      ),
                     ),
                   )
                 : SizedBox(),

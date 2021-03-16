@@ -476,8 +476,10 @@ class _EmailWidgetState extends State<EmailWidget> {
                           color: PROJECT_GREEN,
                           onPressed: () async {
                             var message =
-                                js.context.callMethod('readLocalStorage');
-
+                            js.context.callMethod('readLocalStorage');
+                            var extractedMessage = message.toString();
+                            var sanitisedMessage = extractedMessage.replaceAll('<p><br></p>',' ');
+                            print(sanitisedMessage);
                             if (widget.bulkSelectedParticipants.isNotEmpty) {
                               if (_selectedParticipants.isNotEmpty) {
                                 setState(() {
@@ -487,12 +489,13 @@ class _EmailWidgetState extends State<EmailWidget> {
                                   setState(() {
                                     _sendingEmail = true;
                                   });
-
-                                  print(participant.email);
-
-                                  await _researcherAndModeratorFirestoreService
-                                      .sendEmail(participant.email, message,
-                                          'Mike Courtney', 'From ThoughtNav');
+                                  try{
+                                    await _researcherAndModeratorFirestoreService
+                                        .sendEmail(participant.email, sanitisedMessage,
+                                        'Mike Courtney', 'From ThoughtNav');
+                                  }catch (e){
+                                    print(e);
+                                  }
                                 }
                                 setState(() {
                                   _sendingEmail = false;
@@ -506,23 +509,26 @@ class _EmailWidgetState extends State<EmailWidget> {
                                 _selectedParticipants = [];
                                 for (var selectedGroup in _selectedGroups) {
                                   for (var participant
-                                      in widget.participantsList) {
+                                  in widget.participantsList) {
                                     if (selectedGroup.groupUID ==
                                         participant.groupUID) {
                                       _selectedParticipants.add(participant);
                                     }
                                   }
                                 }
-
                                 if (_selectedParticipants.isNotEmpty) {
                                   setState(() {
                                     _sendingEmail = true;
                                   });
                                   for (var participant
-                                      in _selectedParticipants) {
-                                    await _researcherAndModeratorFirestoreService
-                                        .sendEmail(participant.email, message,
-                                            'Mike Courtney', 'From ThoughtNav');
+                                  in _selectedParticipants) {
+                                    try{
+                                      await _researcherAndModeratorFirestoreService
+                                          .sendEmail(participant.email, sanitisedMessage,
+                                          'Mike Courtney', 'From ThoughtNav');
+                                    }catch (e){
+                                      print(e);
+                                    }
                                   }
                                   setState(() {
                                     _sendingEmail = false;
@@ -537,13 +543,17 @@ class _EmailWidgetState extends State<EmailWidget> {
                                     _sendingEmail = true;
                                   });
                                   for (var participant
-                                      in _selectedParticipants) {
+                                  in _selectedParticipants) {
                                     setState(() {
                                       _sendingEmail = true;
                                     });
-                                    await _researcherAndModeratorFirestoreService
-                                        .sendEmail(participant.email, message,
-                                            'Mike Courtney', 'From ThoughtNav');
+                                    try{
+                                      await _researcherAndModeratorFirestoreService
+                                          .sendEmail(participant.email, sanitisedMessage,
+                                          'Mike Courtney', 'From ThoughtNav');
+                                    }catch (e){
+                                      print(e);
+                                    }
                                   }
                                   setState(() {
                                     _sendingEmail = false;
