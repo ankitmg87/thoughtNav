@@ -113,31 +113,6 @@ class FirebaseFirestoreService {
     return topics;
   }
 
-  Future<List<Topic>> getParticipantStudyNavigatorTopics(
-    String studyUID,
-  ) async {
-    var topics = <Topic>[];
-
-    var topicsReference = await _studiesReference
-        .doc(studyUID)
-        .collection(_TOPICS_COLLECTION)
-        .orderBy('topicNumber', descending: false)
-        .get();
-
-    for (var topicSnapshot in topicsReference.docs) {
-      var topic = Topic.fromMap(topicSnapshot.data());
-
-      if (topic.isActive) {
-        var questions = await getQuestions(studyUID, topic);
-
-        topic.questions = questions;
-
-        topics.add(topic);
-      }
-    }
-    return topics;
-  }
-
   Future<List<Topic>> getParticipantTopics(String studyUID) async {
     var topics = <Topic>[];
 

@@ -147,7 +147,6 @@ class ResearcherAndModeratorFirestoreService {
   Future<Topic> createTopic(String studyUID, int index) async {
     var topic = Topic(
       topicNumber: '$index',
-      isActive: false,
     );
 
     var topicMap = topic.toMap();

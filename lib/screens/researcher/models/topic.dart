@@ -7,7 +7,6 @@ class Topic {
   String topicName;
   Timestamp topicDate;
   List<Question> questions;
-  bool isActive;
 
   Topic({
     this.topicUID,
@@ -15,7 +14,6 @@ class Topic {
     this.topicName,
     this.topicDate,
     this.questions,
-    this.isActive,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,7 +23,6 @@ class Topic {
     topic['topicNumber'] = topicNumber;
     topic['topicName'] = topicName;
     topic['topicDate'] = topicDate;
-    topic['isActive'] = isActive;
 
     return topic;
   }
@@ -35,7 +32,6 @@ class Topic {
     topicNumber = topic['topicNumber'];
     topicName = topic['topicName'];
     topicDate = topic['topicDate'];
-    isActive = topic['isActive'];
   }
 
 }

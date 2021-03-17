@@ -21,7 +21,6 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
   // final Function onTap;
   final List<Group> groups;
   final Function deleteQuestion;
-  final bool topicIsActive;
 
   const StudySetupScreenQuestionWidget({
     Key key,
@@ -29,7 +28,6 @@ class StudySetupScreenQuestionWidget extends StatefulWidget {
     this.studyUID,
     this.groups,
     this.deleteQuestion,
-    this.topicIsActive,
     this.topic,
   }) : super(key: key);
 
@@ -207,9 +205,9 @@ class _StudySetupScreenQuestionWidgetState
                 child: TextFormField(
                   enabled: widget.question.isProbe
                       ? true
-                      : widget.topic.isActive
-                          ? false
-                          : true,
+                      : widget.question.respondedBy.isNotEmpty
+                      ? false
+                      : true,
                   initialValue: _questionNumber,
                   focusNode: _questionNumberFocusNode,
                   onFieldSubmitted: (questionNumber) {

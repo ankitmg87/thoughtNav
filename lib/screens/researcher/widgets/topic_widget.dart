@@ -96,7 +96,7 @@ class _TopicWidgetState extends State<TopicWidget> {
                 FlatButton(
                   color: PROJECT_GREEN,
                   onPressed: () {
-                    if (!widget.topic.isActive) {
+                    if (widget.topic.topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
                       _setTopicAsActive();
                     } else {
                       _viewResponses();

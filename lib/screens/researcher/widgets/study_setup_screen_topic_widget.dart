@@ -220,7 +220,8 @@ class _StudySetupScreenTopicWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
-                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                      WidgetsBinding.instance.focusManager.primaryFocus
+                          .unfocus();
                       final beginDate = await showDatePicker(
                         firstDate: DateTime(2020),
                         initialDate: DateTime.now(),
@@ -277,7 +278,8 @@ class _StudySetupScreenTopicWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
-                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                      WidgetsBinding.instance.focusManager.primaryFocus
+                          .unfocus();
                       final time = await showTimePicker(
                         context: context,
                         initialTime: TimeOfDay(hour: 06, minute: 30),
@@ -324,7 +326,7 @@ class _StudySetupScreenTopicWidgetState
               SizedBox(
                 width: 40.0,
               ),
-              widget.topic.isActive
+              widget.topic.questions.first.respondedBy.isNotEmpty
                   ? SizedBox()
                   : InkWell(
                       highlightColor: Colors.transparent,
@@ -349,7 +351,7 @@ class _StudySetupScreenTopicWidgetState
           SizedBox(
             height: 10.0,
           ),
-          widget.topic.isActive
+          widget.topic.questions.first.respondedBy.isNotEmpty
               ? ListView.separated(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
@@ -361,13 +363,12 @@ class _StudySetupScreenTopicWidgetState
                       topic: widget.topic,
                       question: widget.topic.questions[index],
                       groups: widget.groups,
-                      topicIsActive: widget.topic.isActive,
                       deleteQuestion: () async {
                         await _researcherAndModeratorFirestoreService
                             .deleteQuestion(
-                            widget.studyUID,
-                            widget.topic.topicUID,
-                            _questions[index].questionUID);
+                                widget.studyUID,
+                                widget.topic.topicUID,
+                                _questions[index].questionUID);
 
                         setState(() {
                           _questions.removeWhere((question) {
@@ -393,7 +394,6 @@ class _StudySetupScreenTopicWidgetState
                       studyUID: widget.studyUID,
                       topic: widget.topic,
                       question: widget.topic.questions[index],
-                      topicIsActive: widget.topic.isActive,
                       deleteQuestion: () async {
                         await _researcherAndModeratorFirestoreService
                             .deleteQuestion(
@@ -427,7 +427,9 @@ class _StudySetupScreenTopicWidgetState
                       widget.studyUID,
                       widget.topic.topicUID,
                       widget.topic.topicDate,
-                      widget.topic.isActive ? true : false,
+                      widget.topic.questions.first.respondedBy.isNotEmpty
+                          ? true
+                          : false,
                     );
                     setState(() {
                       _questions.add(question);

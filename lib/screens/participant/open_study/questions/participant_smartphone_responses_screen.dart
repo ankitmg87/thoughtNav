@@ -126,7 +126,7 @@ class _ParticipantSmartphoneResponsesScreenState
     if (_nextQuestionUID == 'lastQuestionInThisTopic') {
       if (topicIndex != -1) {
         if (_studyNavigatorTopics.length - 1 >= topicIndex + 1) {
-          if (_studyNavigatorTopics[topicIndex + 1].isActive) {
+          if (_studyNavigatorTopics[topicIndex + 1].topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
             _nextTopicUID = _studyNavigatorTopics[topicIndex + 1].topicUID;
             _nextQuestionUID = _studyNavigatorTopics[topicIndex + 1]
                 .questions
@@ -925,7 +925,6 @@ class _ParticipantSmartphoneResponsesScreenState
                               topicDate: topicSnapshot.topicDate,
                               topicName: topicSnapshot.topicName,
                               topicNumber: topicSnapshot.topicNumber,
-                              isActive: topicSnapshot.isActive,
                               questions: topicSnapshot.questions,
                             ),
                           );
