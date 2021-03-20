@@ -7,10 +7,14 @@ import 'package:thoughtnav/screens/researcher/models/topic.dart';
 class DesktopStudyNavigator extends StatefulWidget {
   final List<Topic> topics;
   final String participantUID;
-  const DesktopStudyNavigator({Key key, this.topics, this.participantUID}) : super(key: key);
+
+  const DesktopStudyNavigator({Key key, this.topics, this.participantUID})
+      : super(key: key);
+
   @override
   _DesktopStudyNavigatorState createState() => _DesktopStudyNavigatorState();
 }
+
 class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
   final _scrollController = ScrollController();
   double _value = 50.0;
@@ -18,6 +22,7 @@ class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
   double _finalWidth = 300.0;
   bool _isExpanded = false;
   bool _showDrawer = false;
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -46,13 +51,13 @@ class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
                     alignment: Alignment.center,
                     child: _showDrawer
                         ? Text(
-                      'Study Navigator',
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: TEXT_COLOR,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
+                            'Study Navigator',
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: TEXT_COLOR,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
                         : SizedBox(),
                   ),
                 ),
@@ -78,71 +83,102 @@ class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
             ),
             _showDrawer
                 ? Expanded(
-              child: Scrollbar(
-                controller: _scrollController,
-                isAlwaysShown: true,
-                child: ListView(
-                  controller: _scrollController,
-                  children: List.generate(widget.topics.length,
-                          (index) {
-                        if (widget.topics[index]
-                            .topicDate
-                            .millisecondsSinceEpoch <=
-                            Timestamp.now().millisecondsSinceEpoch) {
-                          return EndDrawerExpansionTile(
-                            title: widget.topics[index].topicName,
-                            questions: widget.topics[index].questions,
-                            participantUID: widget.participantUID,
-                            topicUID: widget.topics[index].topicUID,
-                          );
-                        } else {
-                          return ListTile(
-                            onTap: () {
-                              showGeneralDialog(
-                                context: context,
-                                barrierDismissible: true,
-                                barrierLabel: 'Topic Locked',
-                                pageBuilder: (BuildContext
-                                studyNavigatorLockedTopicContext,
-                                    Animation<double> animation,
-                                    Animation<double> secondaryAnimation) {
-                                  return Center(
-                                    child: Material(
-                                      color: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10.0),
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: Text(
-                                          'This topic is still locked',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
+                    child: Scrollbar(
+                      controller: _scrollController,
+                      isAlwaysShown: true,
+                      child: ListView(
+                        controller: _scrollController,
+                        children: List.generate(widget.topics.length, (index) {
+                          if (index == 0 &&
+                              widget.topics[index].topicDate
+                                      .millisecondsSinceEpoch <=
+                                  Timestamp.now().millisecondsSinceEpoch) {
+                            return EndDrawerExpansionTile(
+                              title: widget.topics[index].topicName,
+                              questions: widget.topics[index].questions,
+                              participantUID: widget.participantUID,
+                              topicUID: widget.topics[index].topicUID,
+                            );
+                          } else {
+                            if (widget
+                                    .topics[index - 1].questions.last.isProbe &&
+                                widget.topics[index].topicDate
+                                        .millisecondsSinceEpoch <=
+                                    Timestamp.now().millisecondsSinceEpoch) {
+                              return EndDrawerExpansionTile(
+                                title: widget.topics[index].topicName,
+                                questions: widget.topics[index].questions,
+                                participantUID: widget.participantUID,
+                                topicUID: widget.topics[index].topicUID,
                               );
-                            },
-                            title: Text(
-                              'Topic Locked',
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          );
-                        }
-                      }).toList(),
-                ),
-              ),
-            )
+                            } else {
+                              if (widget.topics[index - 1].questions.last
+                                      .respondedBy
+                                      .contains(widget.participantUID) &&
+                                  widget.topics[index].topicDate
+                                          .millisecondsSinceEpoch <=
+                                      Timestamp.now().millisecondsSinceEpoch) {
+                                return EndDrawerExpansionTile(
+                                  title: widget.topics[index].topicName,
+                                  questions: widget.topics[index].questions,
+                                  participantUID: widget.participantUID,
+                                  topicUID: widget.topics[index].topicUID,
+                                );
+                              } else {
+                                return LockedTopicListTile();
+                              }
+                            }
+                          }
+                        }).toList(),
+                      ),
+                    ),
+                  )
                 : SizedBox(),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class LockedTopicListTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () {
+        showGeneralDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierLabel: 'Topic Locked',
+          pageBuilder: (BuildContext studyNavigatorLockedTopicContext,
+              Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return Center(
+              child: Material(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'This topic is still locked',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      title: Text(
+        'Topic Locked',
+        style: TextStyle(
+          color: Colors.black,
         ),
       ),
     );

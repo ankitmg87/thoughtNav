@@ -104,7 +104,7 @@ class Categories {
     product = categories['product'];
     futures = categories['futures'];
     others = categories['others'];
-    customCategories = categories['customCategories'];
+    customCategories = categories['customCategories'] ?? [];
   }
 }
 

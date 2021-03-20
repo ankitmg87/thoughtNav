@@ -144,7 +144,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
 
   @override
   void initState() {
-    _getCategories();
+
     _initializeFocusNodes();
     _futureDraftStudy = _getStudyDetails();
 
@@ -201,10 +201,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   Future<void> _getStudyDetails() async {
     mStudy =
         await _researcherAndModeratorFirestoreService.getStudy(widget.studyUID);
+    await _getCategories();
     _selectedTimeZone = _getTimeZone();
   }
 
-  void _getCategories() async {
+  Future<void> _getCategories() async {
     _categories = await _researcherAndModeratorFirestoreService
         .getCategories(widget.studyUID);
   }
@@ -987,87 +988,94 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
-                                      height: 30.0,
-                                    ),
-                                    GridView.builder(
-                                      itemCount:
+                                    _categories.customCategories.isNotEmpty ?
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: 30.0,
+                                        ),
+                                        GridView.builder(
+                                          itemCount:
                                           _categories.customCategories.length,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      gridDelegate:
+                                          shrinkWrap: true,
+                                          physics: NeverScrollableScrollPhysics(),
+                                          gridDelegate:
                                           SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisSpacing: 40.0,
-                                        mainAxisSpacing: 30.0,
-                                        crossAxisCount: 4,
-                                        childAspectRatio: 8 / 1.35,
-                                      ),
-                                      itemBuilder: (context, index) {
-                                        var customCategory =
+                                            crossAxisSpacing: 40.0,
+                                            mainAxisSpacing: 30.0,
+                                            crossAxisCount: 4,
+                                            childAspectRatio: 8 / 1.35,
+                                          ),
+                                          itemBuilder: (context, index) {
+                                            var customCategory =
                                             CustomCategory.fromMap(_categories
                                                 .customCategories[index]);
 
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
                                                 BorderRadius.circular(2.0),
-                                            border: Border.all(
-                                              width: 0.75,
-                                              color: Colors.grey[300],
-                                            ),
-                                          ),
-                                          child: InkWell(
-                                            child: Padding(
-                                              padding: EdgeInsets.only(
-                                                left: 4.0,
-                                                right: 10.0,
-                                                top: 8.0,
-                                                bottom: 8.0,
+                                                border: Border.all(
+                                                  width: 0.75,
+                                                  color: Colors.grey[300],
+                                                ),
                                               ),
-                                              child: Row(
-                                                mainAxisAlignment:
+                                              child: InkWell(
+                                                child: Padding(
+                                                  padding: EdgeInsets.only(
+                                                    left: 4.0,
+                                                    right: 10.0,
+                                                    top: 8.0,
+                                                    bottom: 8.0,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
-                                                children: [
-                                                  Theme(
-                                                    data: ThemeData(
-                                                      accentColor:
+                                                    children: [
+                                                      Theme(
+                                                        data: ThemeData(
+                                                          accentColor:
                                                           PROJECT_NAVY_BLUE,
-                                                      unselectedWidgetColor:
+                                                          unselectedWidgetColor:
                                                           Colors.grey[300],
-                                                    ),
-                                                    child: Checkbox(
-                                                      value: customCategory
-                                                          .selected,
-                                                      onChanged: (bool value) {
-                                                        setState(() {
-                                                          _categories.customCategories[
-                                                                      index]
-                                                                  ['selected'] =
-                                                              value;
-                                                        });
-                                                        _saveCategories();
-                                                      },
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    _categories
+                                                        ),
+                                                        child: Checkbox(
+                                                          value: customCategory
+                                                              .selected,
+                                                          onChanged: (bool value) {
+                                                            setState(() {
+                                                              _categories.customCategories[
+                                                              index]
+                                                              ['selected'] =
+                                                                  value;
+                                                            });
+                                                            _saveCategories();
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        _categories
                                                             .customCategories[
                                                         index]['category'],
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight:
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontWeight:
                                                           FontWeight.bold,
-                                                      fontSize: 14.0,
-                                                    ),
+                                                          fontSize: 14.0,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ) : SizedBox(),
                                     SizedBox(
                                       height: 40.0,
                                     ),

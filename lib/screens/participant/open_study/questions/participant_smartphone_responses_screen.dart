@@ -945,7 +945,7 @@ class _ParticipantSmartphoneResponsesScreenState
                                 if (topics[topicIndex - 1]
                                     .questions
                                     .last
-                                    .isProbe) {
+                                    .isProbe && topics[topicIndex].topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
                                   return _buildStudyNavigatorActiveTopicExpansionTile(
                                       topics[topicIndex]);
                                 } else if (topics[topicIndex - 1]
@@ -963,7 +963,7 @@ class _ParticipantSmartphoneResponsesScreenState
                                           .topicDate
                                           .millisecondsSinceEpoch <=
                                           Timestamp.now()
-                                              .millisecondsSinceEpoch) {
+                                              .millisecondsSinceEpoch  && topics[topicIndex].topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
                                     return _buildStudyNavigatorActiveTopicExpansionTile(
                                         topics[topicIndex]);
                                   } else {

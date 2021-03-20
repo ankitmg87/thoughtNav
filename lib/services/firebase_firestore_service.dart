@@ -329,7 +329,10 @@ class FirebaseFirestoreService {
         user.userEmail, user.userPassword);
     if(userUID == 'email-already-in-use'){
       return null;
-    }else {
+    } else if (userUID == 'invalid-email'){
+      return null;
+    }
+    else {
       user.userUID = userUID;
       await _usersReference.doc(userUID).set(user.toMap());
       return user;

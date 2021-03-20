@@ -85,7 +85,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   Future<void> _addParticipantToFirebase(
       String studyUID, Participant participant) async {
     var user = User(
-      userEmail: participant.email,
+      userEmail: participant.email.toLowerCase(),
       userPassword: _masterPassword,
       userType: 'participant',
       studyUID: studyUID,
@@ -109,7 +109,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
   Future<void> _addClientToFirebase(String studyUID, Client client) async {
     var user = User(
-      userEmail: client.email,
+      userEmail: client.email.toLowerCase(),
       userPassword: _masterPassword,
       userType: 'client',
       studyUID: studyUID,
@@ -130,7 +130,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   Future<void> _addModeratorToFirebase(
       String studyUID, Moderator moderator) async {
     var user = User(
-      userEmail: moderator.email,
+      userEmail: moderator.email.toLowerCase(),
       userPassword: moderator.password,
       userType: 'moderator',
     );
@@ -1818,7 +1818,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                 onChanged: (value) {
                                   stateFulBuilderSetState(() {
                                     email = value.trim();
-                                    participant.email = value.trim();
+                                    participant.email = value.trim().toLowerCase();
                                   });
                                 },
                                 decoration: InputDecoration(
@@ -2238,7 +2238,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                 onChanged: (value) {
                                   statefulBuilderSetState(() {
                                     email = value.trim();
-                                    client.email = value.trim();
+                                    client.email = value.trim().toLowerCase();
                                   });
                                 },
                                 decoration: InputDecoration(
@@ -2376,45 +2376,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                         SizedBox(
                           height: 20.0,
                         ),
-                        // Padding(
-                        //   padding: EdgeInsets.symmetric(
-                        //     horizontal: 10.0,
-                        //   ),
-                        //   child: InkWell(
-                        //     onTap: () async {},
-                        //     hoverColor: Colors.transparent,
-                        //     splashColor: Colors.transparent,
-                        //     highlightColor: Colors.transparent,
-                        //     focusColor: Colors.transparent,
-                        //     child: Row(
-                        //       mainAxisAlignment:
-                        //           MainAxisAlignment.spaceBetween,
-                        //       children: [
-                        //         Row(
-                        //           mainAxisSize: MainAxisSize.min,
-                        //           children: [
-                        //             Icon(
-                        //               CupertinoIcons.tray_arrow_down_fill,
-                        //               color: PROJECT_GREEN,
-                        //               size: 14.0,
-                        //             ),
-                        //             SizedBox(
-                        //               width: 10.0,
-                        //             ),
-                        //             Text(
-                        //               'Import .csv file',
-                        //               style: TextStyle(
-                        //                 color: Colors.grey[500],
-                        //                 fontSize: 14.0,
-                        //                 fontWeight: FontWeight.bold,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
                         ButtonBar(
                           children: [
                             FlatButton(
@@ -2549,7 +2510,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                 onChanged: (value) {
                                   statefulBuilderSetState(() {
                                     email = value.trim();
-                                    moderator.email = value.trim();
+                                    moderator.email = value.trim().toLowerCase();
                                   });
                                 },
                                 decoration: InputDecoration(

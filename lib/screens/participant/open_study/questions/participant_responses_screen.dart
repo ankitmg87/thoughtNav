@@ -1232,7 +1232,8 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                               padding: EdgeInsets.only(right: 20.0),
                               shrinkWrap: true,
                               itemCount: _studyNavigatorTopics.length,
-                              itemBuilder: (BuildContext context, int topicIndex) {
+                              itemBuilder:
+                                  (BuildContext context, int topicIndex) {
                                 if (topicIndex == 0) {
                                   return _buildDesktopStudyNavigatorExpansionTile(
                                     topicIndex,
@@ -1241,26 +1242,32 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                   );
                                 } else {
                                   if (_studyNavigatorTopics[topicIndex - 1]
-                                      .questions
-                                      .last
-                                      .isProbe) {
+                                          .questions
+                                          .last
+                                          .isProbe &&
+                                      _studyNavigatorTopics[topicIndex]
+                                              .topicDate
+                                              .millisecondsSinceEpoch <=
+                                          Timestamp.now()
+                                              .millisecondsSinceEpoch) {
                                     return _buildDesktopStudyNavigatorExpansionTile(
                                         topicIndex,
                                         _studyNavigatorTopics[topicIndex],
                                         _participantUID);
-                                  } else if (_studyNavigatorTopics[topicIndex - 1]
-                                      .questions
-                                      .last
-                                      .respondedBy !=
+                                  } else if (_studyNavigatorTopics[
+                                              topicIndex - 1]
+                                          .questions
+                                          .last
+                                          .respondedBy !=
                                       null) {
                                     if (_studyNavigatorTopics[topicIndex - 1]
-                                        .questions
-                                        .last
-                                        .respondedBy
-                                        .contains(_participantUID) &&
+                                            .questions
+                                            .last
+                                            .respondedBy
+                                            .contains(_participantUID) &&
                                         _studyNavigatorTopics[topicIndex]
-                                            .topicDate
-                                            .millisecondsSinceEpoch <=
+                                                .topicDate
+                                                .millisecondsSinceEpoch <=
                                             Timestamp.now()
                                                 .millisecondsSinceEpoch) {
                                       return _buildDesktopStudyNavigatorExpansionTile(
@@ -1277,19 +1284,22 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                             pageBuilder: (BuildContext context,
                                                 Animation<double> animation,
                                                 Animation<double>
-                                                secondaryAnimation) {
+                                                    secondaryAnimation) {
                                               return Center(
                                                 child: Material(
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(10.0),
+                                                        BorderRadius.circular(
+                                                            10.0),
                                                   ),
                                                   child: Padding(
-                                                    padding: EdgeInsets.all(20.0),
+                                                    padding:
+                                                        EdgeInsets.all(20.0),
                                                     child: Text(
                                                       'All Previous questions must be answered',
                                                       style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                         fontSize: 20.0,
                                                         color: Colors.grey[700],
                                                       ),
@@ -1315,19 +1325,21 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                           pageBuilder: (BuildContext context,
                                               Animation<double> animation,
                                               Animation<double>
-                                              secondaryAnimation) {
+                                                  secondaryAnimation) {
                                             return Center(
                                               child: Material(
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
-                                                  BorderRadius.circular(10.0),
+                                                      BorderRadius.circular(
+                                                          10.0),
                                                 ),
                                                 child: Padding(
                                                   padding: EdgeInsets.all(20.0),
                                                   child: Text(
                                                     'All Previous questions must be answered',
                                                     style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 20.0,
                                                       color: Colors.grey[700],
                                                     ),
@@ -1393,7 +1405,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
             itemBuilder: (BuildContext context, int questionIndex) {
               if (questionIndex == 0) {
                 if (topic.questions[questionIndex].questionTimestamp
-                    .millisecondsSinceEpoch <=
+                        .millisecondsSinceEpoch <=
                     Timestamp.now().millisecondsSinceEpoch) {
                   return _buildDesktopStudyNavigatorActiveQuestion(
                     topic.questions[questionIndex],
@@ -1408,7 +1420,7 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                   if (topic.questions[questionIndex - 1].respondedBy
                       .contains(participantUID)) {
                     if (topic.questions[questionIndex].questionTimestamp
-                        .millisecondsSinceEpoch <=
+                            .millisecondsSinceEpoch <=
                         Timestamp.now().millisecondsSinceEpoch) {
                       return _buildDesktopStudyNavigatorActiveQuestion(
                         topic.questions[questionIndex],

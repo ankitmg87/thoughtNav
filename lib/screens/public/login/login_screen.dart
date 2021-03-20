@@ -110,6 +110,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
               var getStorage = GetStorage();
               await getStorage.write('userType', 'root');
+              
+              if(_rememberMe){
+                await getStorage.write('email', _email);
+                await getStorage.write('password', _password);
+              }
 
               await Navigator.of(context).pushNamedAndRemoveUntil(
                   RESEARCHER_MAIN_SCREEN, (route) => false);
@@ -193,6 +198,20 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       _formKey.currentState.validate();
     }
+  }
+  
+  @override
+  void initState() {
+    var getStorage = GetStorage();
+    var email = getStorage.read('email');
+    var password = getStorage.read('password');
+
+    if(email != null && password != null){
+      _email = email;
+      _password = password;
+    }
+
+    super.initState();
   }
 
   @override
@@ -319,6 +338,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             TextFormField(
+                              initialValue: _email,
                               validator: (value) {
                                 if (value.isEmpty) {
                                   return 'Email Id cannot be empty';
@@ -355,6 +375,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             TextFormField(
+                              initialValue: _password,
                               validator: (passwordValue) {
                                 if (passwordValue.isEmpty) {
                                   return 'Password cannot be empty';
@@ -616,6 +637,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       ),
                                       TextFormField(
+                                        initialValue: _email,
                                         validator: (value) {
                                           if (value.isEmpty) {
                                             return 'Email Id cannot be empty';
@@ -655,6 +677,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       ),
                                       TextFormField(
+                                        initialValue: _password,
                                         validator: (passwordValue) {
                                           if (passwordValue.isEmpty) {
                                             return 'Password cannot be empty';

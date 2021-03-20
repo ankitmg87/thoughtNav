@@ -44,7 +44,7 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
   Future<void> _addParticipantToFirebase(
       String studyUID, Participant participant) async {
     var user = User(
-      userEmail: participant.email,
+      userEmail: participant.email.toLowerCase(),
       userPassword: widget.masterPassword,
       userType: 'participant',
       studyUID: studyUID,
@@ -68,7 +68,7 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
 
   Future<void> _addClientToFirebase(String studyUID, Client client) async {
     var user = User(
-      userEmail: client.email,
+      userEmail: client.email.toLowerCase(),
       userPassword: widget.masterPassword,
       userType: 'client',
       studyUID: studyUID,
@@ -89,7 +89,7 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
   Future<void> _addModeratorToFirebase(
       String studyUID, Moderator moderator) async {
     var user = User(
-      userEmail: moderator.email,
+      userEmail: moderator.email.toLowerCase(),
       userPassword: moderator.password,
       userType: 'moderator',
     );
@@ -138,7 +138,7 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
                         onChanged: (value) {
                           stateFulBuilderSetState(() {
                             email = value.trim();
-                            participant.email = value.trim();
+                            participant.email = value.trim().toLowerCase();
                           });
                         },
                         decoration: InputDecoration(
