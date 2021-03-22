@@ -455,6 +455,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           textFormField: TextFormField(
                                             focusNode:
                                                 _internalStudyLabelFocusNode,
+                                            initialValue: mStudy.internalStudyLabel != 'Internal Study Label' ? mStudy.internalStudyLabel : null,
                                             onChanged: (internalStudyLabel) {
                                               mStudy.internalStudyLabel =
                                                   internalStudyLabel;
