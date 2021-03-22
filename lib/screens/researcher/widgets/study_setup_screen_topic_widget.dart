@@ -326,8 +326,40 @@ class _StudySetupScreenTopicWidgetState
               SizedBox(
                 width: 40.0,
               ),
-              widget.topic.questions.first.respondedBy.isNotEmpty
-                  ? SizedBox()
+              widget.topic.questions != null
+                  ? widget.topic.questions.isNotEmpty
+                      ? widget.topic.questions.first.respondedBy.isNotEmpty
+                          ? SizedBox()
+                          : InkWell(
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              onTap: widget.deleteTopic,
+                              child: Text(
+                                'Delete Topic',
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                      : InkWell(
+                          highlightColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          onTap: widget.deleteTopic,
+                          child: Text(
+                            'Delete Topic',
+                            style: TextStyle(
+                              color: Colors.red[700],
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
                   : InkWell(
                       highlightColor: Colors.transparent,
                       focusColor: Colors.transparent,
@@ -351,38 +383,96 @@ class _StudySetupScreenTopicWidgetState
           SizedBox(
             height: 10.0,
           ),
-          widget.topic.questions.first.respondedBy.isNotEmpty
-              ? ListView.separated(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: widget.topic.questions.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return StudySetupScreenQuestionWidget(
-                      key: UniqueKey(),
-                      studyUID: widget.studyUID,
-                      topic: widget.topic,
-                      question: widget.topic.questions[index],
-                      groups: widget.groups,
-                      deleteQuestion: () async {
-                        await _researcherAndModeratorFirestoreService
-                            .deleteQuestion(
-                                widget.studyUID,
-                                widget.topic.topicUID,
-                                _questions[index].questionUID);
+          widget.topic.questions != null
+              ? widget.topic.questions.isNotEmpty
+                  ? widget.topic.questions.first.respondedBy.isNotEmpty
+                      ? ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: widget.topic.questions.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return StudySetupScreenQuestionWidget(
+                              key: UniqueKey(),
+                              studyUID: widget.studyUID,
+                              topic: widget.topic,
+                              question: widget.topic.questions[index],
+                              groups: widget.groups,
+                              deleteQuestion: () async {
+                                await _researcherAndModeratorFirestoreService
+                                    .deleteQuestion(
+                                        widget.studyUID,
+                                        widget.topic.topicUID,
+                                        _questions[index].questionUID);
 
-                        setState(() {
-                          _questions.removeWhere((question) {
-                            return _questions[index].questionUID ==
-                                question.questionUID;
-                          });
-                        });
-                      },
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox();
-                  },
-                )
+                                setState(() {
+                                  _questions.removeWhere((question) {
+                                    return _questions[index].questionUID ==
+                                        question.questionUID;
+                                  });
+                                });
+                              },
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return SizedBox();
+                          },
+                        )
+                      : ReorderableWrap(
+                          needsLongPressDraggable: false,
+                          runSpacing: 10.0,
+                          onReorder: _onReorder,
+                          children: List.generate(_questions.length, (index) {
+                            return StudySetupScreenQuestionWidget(
+                              key: UniqueKey(),
+                              groups: widget.groups,
+                              studyUID: widget.studyUID,
+                              topic: widget.topic,
+                              question: widget.topic.questions[index],
+                              deleteQuestion: () async {
+                                await _researcherAndModeratorFirestoreService
+                                    .deleteQuestion(
+                                        widget.studyUID,
+                                        widget.topic.topicUID,
+                                        _questions[index].questionUID);
+
+                                setState(() {
+                                  _questions.removeWhere((question) {
+                                    return _questions[index].questionUID ==
+                                        question.questionUID;
+                                  });
+                                });
+                              },
+                            );
+                          }).toList(),
+                        )
+                  : ReorderableWrap(
+                      needsLongPressDraggable: false,
+                      runSpacing: 10.0,
+                      onReorder: _onReorder,
+                      children: List.generate(_questions.length, (index) {
+                        return StudySetupScreenQuestionWidget(
+                          key: UniqueKey(),
+                          groups: widget.groups,
+                          studyUID: widget.studyUID,
+                          topic: widget.topic,
+                          question: widget.topic.questions[index],
+                          deleteQuestion: () async {
+                            await _researcherAndModeratorFirestoreService
+                                .deleteQuestion(
+                                    widget.studyUID,
+                                    widget.topic.topicUID,
+                                    _questions[index].questionUID);
+
+                            setState(() {
+                              _questions.removeWhere((question) {
+                                return _questions[index].questionUID ==
+                                    question.questionUID;
+                              });
+                            });
+                          },
+                        );
+                      }).toList(),
+                    )
               : ReorderableWrap(
                   needsLongPressDraggable: false,
                   runSpacing: 10.0,

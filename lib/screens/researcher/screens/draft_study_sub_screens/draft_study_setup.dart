@@ -41,6 +41,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   Future<void> _futureGroups;
   Future<void> _futureTopics;
 
+
+  DateTime _startDate;
+  DateTime _endDate;
+
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
@@ -201,6 +205,15 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   Future<void> _getStudyDetails() async {
     mStudy =
         await _researcherAndModeratorFirestoreService.getStudy(widget.studyUID);
+
+    if(mStudy.startDate != null){
+      _startDate = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY).parse(mStudy.startDate);
+    }
+    if(mStudy.endDate != null){
+      _endDate = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY).parse(mStudy.endDate);
+    }
+
+
     await _getCategories();
     _selectedTimeZone = _getTimeZone();
   }
@@ -442,8 +455,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           textFormField: TextFormField(
                                             focusNode:
                                                 _internalStudyLabelFocusNode,
-                                            initialValue:
-                                                mStudy.internalStudyLabel,
                                             onChanged: (internalStudyLabel) {
                                               mStudy.internalStudyLabel =
                                                   internalStudyLabel;
@@ -458,6 +469,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               }
                                             },
                                             decoration: InputDecoration(
+                                              hintText: 'Internal Study Label',
                                               focusedBorder: OutlineInputBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(2.0),
@@ -550,12 +562,13 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           onTap: () async {
                                             final beginDate =
                                                 await showDatePicker(
-                                              firstDate: DateTime(2020),
+                                              firstDate: DateTime.now(),
                                               initialDate: DateTime.now(),
-                                              lastDate: DateTime(2025),
+                                              lastDate: _endDate ?? DateTime(2025),
                                               context: context,
                                             );
                                             if (beginDate != null) {
+                                              _startDate = beginDate;
                                               var formatter = DateFormat(
                                                   DateFormat
                                                       .YEAR_ABBR_MONTH_DAY);
@@ -593,12 +606,13 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           onTap: () async {
                                             final endDate =
                                                 await showDatePicker(
-                                              firstDate: DateTime(2020),
-                                              initialDate: DateTime.now(),
+                                              firstDate: _startDate ?? DateTime.now(),
+                                              initialDate: _startDate ?? DateTime.now(),
                                               lastDate: DateTime(2025),
                                               context: context,
                                             );
                                             if (endDate != null) {
+                                              _endDate = endDate;
                                               var formatter = DateFormat(
                                                   DateFormat
                                                       .YEAR_ABBR_MONTH_DAY);
