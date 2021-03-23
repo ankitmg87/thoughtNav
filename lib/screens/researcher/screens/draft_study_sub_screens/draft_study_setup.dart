@@ -41,7 +41,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
   Future<void> _futureGroups;
   Future<void> _futureTopics;
 
-
   DateTime _startDate;
   DateTime _endDate;
 
@@ -402,7 +401,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           ),
                                           textFormField: TextFormField(
                                             focusNode: _studyNameFocusNode,
-                                            initialValue: mStudy.studyName,
+                                            initialValue: mStudy.studyName != 'Draft Study' ? mStudy.studyName : null,
                                             onChanged: (studyName) {
                                               mStudy.studyName = studyName;
                                             },
@@ -520,7 +519,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           ),
                                           textFormField: TextFormField(
                                             focusNode: _masterPasswordFocusNode,
-                                            initialValue: mStudy.masterPassword,
+                                            initialValue: mStudy.masterPassword != 'Master Password' ? mStudy.masterPassword : null,
                                             onChanged: (masterPassword) {
                                               mStudy.masterPassword =
                                                   masterPassword;
