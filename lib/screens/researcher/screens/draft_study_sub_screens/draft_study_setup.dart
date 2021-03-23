@@ -412,6 +412,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               }
                                             },
                                             decoration: InputDecoration(
+                                              hintText: 'Draft Study',
                                               focusedBorder: OutlineInputBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(2.0),
@@ -533,6 +534,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               }
                                             },
                                             decoration: InputDecoration(
+                                              hintText: 'Password',
                                               focusedBorder: OutlineInputBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(2.0),
