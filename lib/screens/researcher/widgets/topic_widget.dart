@@ -46,6 +46,8 @@ class _TopicWidgetState extends State<TopicWidget> {
   }
 
   void _viewResponses() {
+    print(widget.topic.topicDate.millisecondsSinceEpoch <=
+        Timestamp.now().millisecondsSinceEpoch);
     if (widget.topic.topicDate.millisecondsSinceEpoch <=
         Timestamp.now().millisecondsSinceEpoch) {
       Navigator.of(context)
@@ -97,9 +99,9 @@ class _TopicWidgetState extends State<TopicWidget> {
                   color: PROJECT_GREEN,
                   onPressed: () {
                     if (widget.topic.topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
-                      _setTopicAsActive();
-                    } else {
                       _viewResponses();
+                    } else {
+                      _setTopicAsActive();
                     }
                   },
                   child: Text(

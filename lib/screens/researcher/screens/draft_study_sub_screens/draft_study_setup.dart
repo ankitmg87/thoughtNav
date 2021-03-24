@@ -1004,6 +1004,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         ),
                                       ],
                                     ),
+                                    _categories.customCategories != null ?
                                     _categories.customCategories.isNotEmpty ?
                                     Column(
                                       mainAxisSize: MainAxisSize.min,
@@ -1091,7 +1092,7 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           },
                                         ),
                                       ],
-                                    ) : SizedBox(),
+                                    ) : SizedBox() : SizedBox(),
                                     SizedBox(
                                       height: 40.0,
                                     ),
