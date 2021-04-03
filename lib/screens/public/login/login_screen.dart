@@ -10,6 +10,8 @@ import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
+import 'dart:js' as js;
+
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -110,10 +112,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
               var getStorage = GetStorage();
               await getStorage.write('userType', 'root');
+              await getStorage.write('moderatorUID', 'root');
               
               if(_rememberMe){
-                await getStorage.write('email', _email);
-                await getStorage.write('password', _password);
+                js.context.callMethod('saveEmailAndPassword', [_email, _password]);
               }
 
               await Navigator.of(context).pushNamedAndRemoveUntil(
@@ -123,23 +125,17 @@ class _LoginScreenState extends State<LoginScreen> {
               var client = await _clientFirestoreService.getClient(
                   user.studyUID, userID);
 
-              if (client.isOnboarded) {
-                var getStorage = GetStorage();
-                await getStorage.write('studyUID', user.studyUID);
-                await getStorage.write('clientUID', client.clientUID);
-                await getStorage.write('userType', 'client');
-
-                await Navigator.of(context).pushNamedAndRemoveUntil(
-                    CLIENT_DASHBOARD_SCREEN, (route) => false);
-              } else {
-                var getStorage = GetStorage();
-                await getStorage.write('studyUID', user.studyUID);
-                await getStorage.write('clientUID', client.clientUID);
-                await getStorage.write('userType', 'client');
-
-                await Navigator.of(context).pushNamedAndRemoveUntil(
-                    CLIENT_DASHBOARD_SCREEN, (route) => false);
+              if(_rememberMe){
+                js.context.callMethod('saveEmailAndPassword', [_email, _password]);
               }
+
+              var getStorage = GetStorage();
+              await getStorage.write('studyUID', user.studyUID);
+              await getStorage.write('clientUID', client.clientUID);
+              await getStorage.write('userType', 'client');
+
+              await Navigator.of(context).pushNamedAndRemoveUntil(
+                  CLIENT_DASHBOARD_SCREEN, (route) => false);
               break;
             case USER_TYPE_MODERATOR:
               var getStorage = GetStorage();
@@ -148,6 +144,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
               await getStorage.write('moderatorUID', moderator.moderatorUID);
               await getStorage.write('userType', 'moderator');
+
+              if(_rememberMe){
+                js.context.callMethod('saveEmailAndPassword', [_email, _password]);
+              }
 
               await Navigator.of(context).pushNamedAndRemoveUntil(
                   MODERATOR_DASHBOARD_SCREEN, (route) => false);
@@ -162,12 +162,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   var getStorage = GetStorage();
                   await getStorage.write('studyUID', user.studyUID);
                   await getStorage.write('participantUID', user.userUID);
+
+                  if(_rememberMe){
+                    js.context.callMethod('saveEmailAndPassword', [_email, _password]);
+                  }
+
                   await Navigator.of(context).pushNamedAndRemoveUntil(STUDY_ENDED_SCREEN, (route) => false);
                 }
                 if (participant.isOnboarded) {
                   var getStorage = GetStorage();
                   await getStorage.write('studyUID', user.studyUID);
                   await getStorage.write('participantUID', user.userUID);
+
+                  if(_rememberMe){
+                    js.context.callMethod('saveEmailAndPassword', [_email, _password]);
+                  }
+
                   await Navigator.of(context).pushNamedAndRemoveUntil(
                       PARTICIPANT_DASHBOARD_SCREEN, (route) => false);
                   break;
@@ -176,6 +186,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   var getStorage = GetStorage();
                   await getStorage.write('studyUID', user.studyUID);
                   await getStorage.write('participantUID', user.userUID);
+
+                  if(_rememberMe){
+                    js.context.callMethod('saveEmailAndPassword', [_email, _password]);
+                  }
+
                   await Navigator.of(context).pushNamedAndRemoveUntil(
                       STUDY_DETAILS_SCREEN, (route) => false);
                   break;
@@ -184,6 +199,11 @@ class _LoginScreenState extends State<LoginScreen> {
               if(study.studyStatus == 'Closed' || study.studyStatus == 'Draft'){
                 var getStorage = GetStorage();
                 await getStorage.write('studyUID', user.studyUID);
+
+                if(_rememberMe){
+                  js.context.callMethod('saveEmailAndPassword', [_email, _password]);
+                }
+
                 await Navigator.of(context).pushNamedAndRemoveUntil(STUDY_ENDED_SCREEN, (route) => false);
               }
               break;
@@ -202,9 +222,11 @@ class _LoginScreenState extends State<LoginScreen> {
   
   @override
   void initState() {
-    var getStorage = GetStorage();
-    var email = getStorage.read('email');
-    var password = getStorage.read('password');
+    var email = js.context.callMethod('getEmail');
+    var password = js.context.callMethod('getPassword');
+
+    print(email);
+    print(password);
 
     if(email != null && password != null){
       _email = email;

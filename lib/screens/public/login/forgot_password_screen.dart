@@ -101,7 +101,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   height: screenHeight * 0.025,
                 ),
                 Text(
-                  'ThoughtNav is an online focus group platform.\nResearchers use ThoughtNav to get quality\ninsights from participants like you!',
+                  'ThoughtNav is an online focus group platform.'
+                      '\nResearchers use ThoughtNav to get quality'
+                      '\ninsights from participants like you!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFF333333),
@@ -163,9 +165,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6.0),
                           ),
-                          onPressed: () {
-                            // Navigator.of(context)
-                            //     .pushNamed(RESET_PASSWORD_SCREEN);
+                          onPressed: () async {
+                            await _firebaseAuthService.resetPassword(_email);
+                            Navigator.pop(context);
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -259,7 +261,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           height: 20.0,
                         ),
                         Text(
-                          'ThoughtNav is an online focus group platform.\nResearchers use ThoughtNav to get quality\ninsights from participants like you!',
+                          'ThoughtNav is an online focus group platform.'
+                              '\nResearchers use ThoughtNav to get quality'
+                              '\ninsights from participants like you!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color(0xFF333333),

@@ -87,6 +87,7 @@ class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
                       controller: _scrollController,
                       isAlwaysShown: true,
                       child: ListView(
+                        padding: EdgeInsets.only(right: 15.0),
                         controller: _scrollController,
                         children: List.generate(widget.topics.length, (index) {
                           if (index == 0 &&

@@ -12,3 +12,19 @@ function readLocalStorage(){
 function setInitialValue(text) {
   localStorage.setItem("content", text);
 }
+
+
+function saveEmailAndPassword(email, password){
+localStorage.setItem("email", email);
+localStorage.setItem("password", password);
+}
+
+function getEmail(){
+var email = localStorage.getItem("email");
+return email;
+}
+
+function getPassword(){
+var password = localStorage.getItem("password");
+return password;
+}

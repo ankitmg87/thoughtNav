@@ -18,6 +18,8 @@ import 'package:thoughtnav/services/participant_firestore_service.dart';
 import 'package:thoughtnav/services/participant_storage_service.dart';
 import 'package:video_player/video_player.dart';
 
+import 'dart:js' as js;
+
 class UserResponseWidget extends StatefulWidget {
   final String topicUID;
   final Question question;
@@ -116,32 +118,37 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
         await ImagePickerWeb.getImage(outputType: ImageType.file);
 
     if (pickedImageFile != null) {
-      _mediaPickerKey.currentState.setState(() {
-        _uploadingImage = true;
-      });
+      if(pickedImageFile.type == 'image/png' || pickedImageFile.type == 'image/jpeg'){
+        _mediaPickerKey.currentState.setState(() {
+          _uploadingImage = true;
+        });
 
-      widget.response.hasMedia = true;
-      widget.response.mediaType = 'image';
-      widget.response.media = pickedImageFile;
+        widget.response.hasMedia = true;
+        widget.response.mediaType = 'image';
+        widget.response.media = pickedImageFile;
 
-      var imageURI = await _participantStorageService.uploadImageToFirebase(
-          _studyName,
-          _participantUID,
-          widget.response.questionNumber,
-          widget.response.questionTitle,
-          pickedImageFile);
+        var imageURI = await _participantStorageService.uploadImageToFirebase(
+            _studyName,
+            _participantUID,
+            widget.response.questionNumber,
+            widget.response.questionTitle,
+            pickedImageFile);
 
-      widget.response.mediaURL = imageURI.toString();
+        widget.response.mediaURL = imageURI.toString();
 
-      _mediaPickerKey.currentState.setState(() {
-        _uploadingImage = false;
-      });
+        _mediaPickerKey.currentState.setState(() {
+          _uploadingImage = false;
+        });
 
-      setState(() {
-        _mediaPicked = true;
-      });
+        setState(() {
+          _mediaPicked = true;
+        });
 
-      Navigator.of(buildContext).pop();
+        Navigator.of(buildContext).pop();
+      }
+      else {
+        js.context.callMethod('alertMessage', ['Please pick a JPEG, JPG or PNG Image File']);
+      }
     }
   }
 
@@ -150,45 +157,50 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
         await ImagePickerWeb.getVideo(outputType: VideoType.file);
 
     if (pickedVideoFile != null) {
-      _mediaPickerKey.currentState.setState(() {
-        _uploadingVideo = true;
-      });
+      if(pickedVideoFile.type == 'video/mp4'){
+        _mediaPickerKey.currentState.setState(() {
+          _uploadingVideo = true;
+        });
 
-      widget.response.hasMedia = true;
-      widget.response.mediaType = 'video';
-      widget.response.media = pickedVideoFile;
+        widget.response.hasMedia = true;
+        widget.response.mediaType = 'video';
+        widget.response.media = pickedVideoFile;
 
-      var videoURI = await _participantStorageService.uploadVideoToFirebase(
-          _studyName,
-          widget.participant.participantUID,
-          widget.response.questionNumber,
-          widget.response.questionTitle,
-          pickedVideoFile);
+        var videoURI = await _participantStorageService.uploadVideoToFirebase(
+            _studyName,
+            widget.participant.participantUID,
+            widget.response.questionNumber,
+            widget.response.questionTitle,
+            pickedVideoFile);
 
-      widget.response.mediaURL = videoURI.toString();
+        widget.response.mediaURL = videoURI.toString();
 
-      _videoPlayerController =
-          VideoPlayerController.network(widget.response.mediaURL);
+        _videoPlayerController =
+            VideoPlayerController.network(widget.response.mediaURL);
 
-      await _videoPlayerController.initialize();
+        await _videoPlayerController.initialize();
 
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        //allowFullScreen: false,
-        autoPlay: false,
-        looping: true,
-        showControls: false,
-      );
+        _chewieController = ChewieController(
+          videoPlayerController: _videoPlayerController,
+          //allowFullScreen: false,
+          autoPlay: false,
+          looping: true,
+          showControls: false,
+        );
 
-      _mediaPickerKey.currentState.setState(() {
-        _uploadingVideo = false;
-      });
+        _mediaPickerKey.currentState.setState(() {
+          _uploadingVideo = false;
+        });
 
-      setState(() {
-        _mediaPicked = true;
-      });
+        setState(() {
+          _mediaPicked = true;
+        });
 
-      Navigator.of(buildContext).pop();
+        Navigator.of(buildContext).pop();
+      }
+    }
+    else {
+      js.context.callMethod('alertMessage', ['Please pick an mpeg-4 or mp4 file']);
     }
   }
 
@@ -472,7 +484,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                           widget.response.participantDisplayName,
                           style: TextStyle(
                             color: TEXT_COLOR.withOpacity(0.6),
-                            fontSize: 12.0,
+                            fontSize: 13.0,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -483,7 +495,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                           '$_date at $_time',
                           style: TextStyle(
                             color: TEXT_COLOR.withOpacity(0.6),
-                            fontSize: 10.0,
+                            fontSize: 11.0,
                           ),
                         ),
                       ],
@@ -494,7 +506,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                   '$_timeElapsed',
                   style: TextStyle(
                     color: PROJECT_GREEN,
-                    fontSize: 10.0,
+                    fontSize: 11.0,
                   ),
                 ),
               ],
@@ -531,6 +543,9 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                     : SelectableText(
                         widget.response.responseStatement,
                         showCursor: true,
+                  style: TextStyle(
+                    fontSize: 15.0
+                  ),
                       ),
                 SizedBox(
                   height: 20.0,
@@ -739,15 +754,6 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                 ),
                 _participantUID == widget.response.participantUID
                     ? InkWell(
-                        child: Text(
-                          _editResponse ? 'POST' : 'EDIT',
-                          style: TextStyle(
-                            color: Colors.lightBlue,
-                            fontWeight: _editResponse
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
                         onTap: () async {
                           setState(() {
                             _editResponse = !_editResponse;
@@ -771,6 +777,15 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                                 widget.response);
                           }
                         },
+                        child: Text(
+                          _editResponse ? 'POST' : 'EDIT',
+                          style: TextStyle(
+                            color: Colors.lightBlue,
+                            fontWeight: _editResponse
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
                       )
                     : SizedBox(),
               ],

@@ -13,6 +13,8 @@ import 'package:thoughtnav/services/participant_firestore_service.dart';
 import 'package:thoughtnav/services/participant_storage_service.dart';
 import 'package:video_player/video_player.dart';
 
+import 'dart:js' as js;
+
 class ParticipantResponseField extends StatefulWidget {
   final String studyName;
   final String topicUID;
@@ -70,36 +72,41 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
   // Response _response;
 
   Future<void> _pickImage(BuildContext buildContext) async {
-    var pickedImageFile =
+    File pickedImageFile =
         await ImagePickerWeb.getImage(outputType: ImageType.file);
 
     if (pickedImageFile != null) {
-      _mediaPickerDialogKey.currentState.setState(() {
-        _uploadingImage = true;
-      });
+      if(pickedImageFile.type == 'image/png' || pickedImageFile.type == 'image/jpeg'){
+        _mediaPickerDialogKey.currentState.setState(() {
+          _uploadingImage = true;
+        });
 
-      widget.response.hasMedia = true;
-      widget.response.mediaType = 'image';
-      widget.response.media = pickedImageFile;
+        widget.response.hasMedia = true;
+        widget.response.mediaType = 'image';
+        widget.response.media = pickedImageFile;
 
-      var imageURI = await _participantStorageService.uploadImageToFirebase(
-          widget.studyName,
-          _participantUID,
-          widget.question.questionNumber,
-          widget.question.questionTitle,
-          pickedImageFile);
+        var imageURI = await _participantStorageService.uploadImageToFirebase(
+            widget.studyName,
+            _participantUID,
+            widget.question.questionNumber,
+            widget.question.questionTitle,
+            pickedImageFile);
 
-      widget.response.mediaURL = imageURI.toString();
+        widget.response.mediaURL = imageURI.toString();
 
-      _mediaPickerDialogKey.currentState.setState(() {
-        _uploadingImage = false;
-      });
+        _mediaPickerDialogKey.currentState.setState(() {
+          _uploadingImage = false;
+        });
 
-      setState(() {
-        _mediaPicked = true;
-      });
+        setState(() {
+          _mediaPicked = true;
+        });
 
-      Navigator.of(buildContext).pop();
+        Navigator.of(buildContext).pop();
+      }
+      else {
+        js.context.callMethod('alertMessage', ['Please pick a JPEG, JPG or PNG Image File']);
+      }
     }
   }
 
@@ -108,44 +115,49 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
         await ImagePickerWeb.getVideo(outputType: VideoType.file);
 
     if (pickedVideoFile != null) {
-      _mediaPickerDialogKey.currentState.setState(() {
-        _uploadingVideo = true;
-      });
+      if(pickedVideoFile.type == 'video/mp4'){
+        _mediaPickerDialogKey.currentState.setState(() {
+          _uploadingVideo = true;
+        });
 
-      widget.response.hasMedia = true;
-      widget.response.mediaType = 'video';
-      widget.response.media = pickedVideoFile;
+        widget.response.hasMedia = true;
+        widget.response.mediaType = 'video';
+        widget.response.media = pickedVideoFile;
 
-      var videoURI = await _participantStorageService.uploadVideoToFirebase(
-          widget.studyName,
-          widget.participant.participantUID,
-          widget.question.questionNumber,
-          widget.question.questionTitle,
-          pickedVideoFile);
+        var videoURI = await _participantStorageService.uploadVideoToFirebase(
+            widget.studyName,
+            widget.participant.participantUID,
+            widget.question.questionNumber,
+            widget.question.questionTitle,
+            pickedVideoFile);
 
-      widget.response.mediaURL = videoURI.toString();
+        widget.response.mediaURL = videoURI.toString();
 
-      _videoPlayerController =
-          VideoPlayerController.network(widget.response.mediaURL);
+        _videoPlayerController =
+            VideoPlayerController.network(widget.response.mediaURL);
 
-      await _videoPlayerController.initialize();
+        await _videoPlayerController.initialize();
 
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        autoPlay: false,
-        looping: true,
-        showControls: false,
-      );
+        _chewieController = ChewieController(
+          videoPlayerController: _videoPlayerController,
+          autoPlay: false,
+          looping: true,
+          showControls: false,
+        );
 
-      _mediaPickerDialogKey.currentState.setState(() {
-        _uploadingVideo = false;
-      });
+        _mediaPickerDialogKey.currentState.setState(() {
+          _uploadingVideo = false;
+        });
 
-      setState(() {
-        _mediaPicked = true;
-      });
+        setState(() {
+          _mediaPicked = true;
+        });
 
-      Navigator.of(buildContext).pop();
+        Navigator.of(buildContext).pop();
+      }
+      else {
+        js.context.callMethod('alertMessage', ['Please pick an MPEG-4 or MP4 Video File']);
+      }
     }
   }
 

@@ -359,7 +359,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                           style: TextStyle(
                             color: TEXT_COLOR.withOpacity(0.8),
                             fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
+                            fontSize: 15.0,
                           ),
                         ),
                         SizedBox(
@@ -369,7 +369,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                           '$date at $time',
                           style: TextStyle(
                             color: TEXT_COLOR.withOpacity(0.8),
-                            fontSize: 12.0,
+                            fontSize: 13.0,
                           ),
                         ),
                       ],
@@ -467,7 +467,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                     _commentStatement,
                     style: TextStyle(
                       color: TEXT_COLOR,
-                      fontSize: 14.0,
+                      fontSize: 15.0,
                     ),
                   ),
                 ),

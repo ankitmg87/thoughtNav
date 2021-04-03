@@ -5,6 +5,7 @@ import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/moderator.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_widget.dart';
+import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 class ModeratorDashboardScreen extends StatefulWidget {
@@ -16,6 +17,8 @@ class ModeratorDashboardScreen extends StatefulWidget {
 class _ModeratorDashboardScreenState extends State<ModeratorDashboardScreen> {
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
+
+  final _firebaseAuthService = FirebaseAuthService();
 
   Moderator _moderator;
 
@@ -111,7 +114,10 @@ class _ModeratorDashboardScreenState extends State<ModeratorDashboardScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: InkWell(
-              onTap: (){},
+              onTap: () async {
+                await _firebaseAuthService.signOutUser();
+                await Navigator.of(context).popAndPushNamed(LOGIN_SCREEN);
+              },
               child: Text(
                 'Logout',
                 style: TextStyle(

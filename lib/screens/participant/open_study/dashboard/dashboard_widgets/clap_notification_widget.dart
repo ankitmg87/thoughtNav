@@ -70,30 +70,35 @@ class ClapNotificationWidget extends StatelessWidget {
                   text: TextSpan(
                     style: TextStyle(
                       color: TEXT_COLOR,
+                      fontSize: 14.0,
                     ),
                     children: [
                       TextSpan(
-                          text: participantDisplayName ==
-                                  clapNotification.displayName
-                              ? 'You'
-                              : clapNotification.displayName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          )),
+                        text: participantDisplayName ==
+                                clapNotification.displayName
+                            ? 'You'
+                            : clapNotification.displayName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       TextSpan(
                         text: ' appreciated your response for the question ',
                       ),
                       TextSpan(
-                          text: clapNotification.questionNumber,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
-                          )),
+                        text: clapNotification.questionNumber,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                        ),
+                      ),
                       TextSpan(
-                          text: ' ${clapNotification.questionTitle}',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[700])),
+                        text: ' ${clapNotification.questionTitle}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -103,7 +108,7 @@ class ClapNotificationWidget extends StatelessWidget {
                 Text(
                   '$date at $time',
                   style: TextStyle(
-                    fontSize: 12.0,
+                    fontSize: 13.0,
                     fontWeight: FontWeight.bold,
                     color: TEXT_COLOR.withOpacity(0.7),
                   ),

@@ -154,6 +154,20 @@ class _ResponseWidgetState extends State<ResponseWidget>
                       ),
                     );
                   },
+                  errorWidget: (context, string, dynamic){
+                    return Container(
+                      height: 40.0,
+                      width: 40.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image(
+                        image: AssetImage(
+                          'images/researcher_images/researcher_dashboard/participant_icon.png',
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 Expanded(
                   child: Column(
@@ -214,7 +228,7 @@ class _ResponseWidgetState extends State<ResponseWidget>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(
+                            child: SelectableText(
                               widget.response.responseStatement,
                             ),
                           ),

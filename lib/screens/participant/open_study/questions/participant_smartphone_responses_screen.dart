@@ -155,6 +155,69 @@ class _ParticipantSmartphoneResponsesScreenState
     });
   }
 
+  Widget _participantResponseWidget(Question question) {
+    if (question.respondedBy.contains(widget.participant.participantUID)) {
+      if (question.questionType != 'Private') {
+        return Text(
+          'Your response has been posted.\n'
+              'Please read and comment on other posts.\n'
+              'Scroll to the bottom to continue',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      } else {
+        return SizedBox();
+      }
+    } else {
+      _responseController = TextEditingController();
+
+      var response = Response(
+        questionHasMedia: question.allowImage || question.allowVideo,
+      );
+
+      return ParticipantResponseField(
+        studyName: widget.studyName,
+        participant: widget.participant,
+        question: question,
+        topicUID: _topicUID,
+        responseController: _responseController,
+        response: response,
+        onTap: () async {
+          response.responseUID = '';
+          response.questionNumber = question.questionNumber;
+          response.questionTitle = question.questionTitle;
+          response.participantUID = widget.participant.participantUID;
+          response.participantGroupUID = widget.participant.groupUID;
+          response.participantDisplayName = widget.participant.displayName;
+          response.avatarURL = widget.participant.profilePhotoURL;
+          response.claps = [];
+          response.comments = 0;
+          response.hasMedia ??= false;
+          response.userName =
+          '${widget.participant.userFirstName} ${widget.participant.userLastName}';
+          response.responseTimestamp = Timestamp.now();
+          response.participantDeleted = false;
+
+          setState(() {
+            _responseController = null;
+            _question.respondedBy.add(widget.participant.participantUID);
+          });
+
+          await _participantFirestoreService.postResponse(widget.studyUID,
+              widget.participant.participantUID, _topicUID, question.questionUID, response);
+
+          setState(() {
+            _futureTopics = _getTopics(
+                widget.studyUID,
+                widget.participant.groupUID);
+          });
+        },
+      );
+    }
+  }
+
   @override
   void initState() {
     _topicUID = widget.topicUID;
@@ -335,106 +398,7 @@ class _ParticipantSmartphoneResponsesScreenState
                         SizedBox(
                           height: 40.0,
                         ),
-                        StreamBuilder<DocumentSnapshot>(
-                          stream: _questionStream,
-                          builder: (BuildContext context,
-                              AsyncSnapshot<DocumentSnapshot> snapshot) {
-                            switch (snapshot.connectionState) {
-                              case ConnectionState.none:
-                                return SizedBox();
-                                break;
-                              case ConnectionState.waiting:
-                                return SizedBox();
-                                break;
-                              case ConnectionState.active:
-                                if (snapshot.hasData) {
-                                  if (snapshot.data
-                                      .data()['respondedBy']
-                                      .contains(
-                                          widget.participant.participantUID)) {
-                                    _participantResponded = true;
-                                    if (_question.questionType == 'Standard' ||
-                                        _question.questionType ==
-                                            'Uninfluenced') {
-                                      return Text(
-                                        'Your response has been posted.\n'
-                                        'Please read and comment on other posts.\n'
-                                        'Scroll to the bottom to continue',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      );
-                                    } else {
-                                      return SizedBox();
-                                    }
-                                  } else {
-                                    _responseController = TextEditingController();
-
-                                    var response = Response(
-                                      questionHasMedia: _question.allowImage ||
-                                          _question.allowVideo,
-                                    );
-                                    return ParticipantResponseField(
-                                      studyName: widget.studyName,
-                                      participant: widget.participant,
-                                      question: _question,
-                                      topicUID: _topicUID,
-                                      responseController: _responseController,
-                                      response: response,
-                                      onTap: () async {
-                                        response.responseUID = '';
-                                        response.questionNumber =
-                                            _question.questionNumber;
-                                        response.questionTitle =
-                                            _question.questionTitle;
-                                        response.participantUID =
-                                            widget.participant.participantUID;
-                                        response.participantGroupUID =
-                                            widget.participant.groupUID;
-                                        response.participantDisplayName =
-                                            widget.participant.displayName;
-                                        response.avatarURL =
-                                            widget.participant.profilePhotoURL;
-                                        response.claps = [];
-                                        response.comments = 0;
-                                        response.hasMedia ??= false;
-                                        response.userName =
-                                            '${widget.participant.userFirstName} ${widget.participant.userLastName}';
-                                        response.responseTimestamp =
-                                            Timestamp.now();
-                                        response.participantDeleted = false;
-
-                                        await _participantFirestoreService
-                                            .postResponse(
-                                                widget.studyUID,
-                                                widget.participant.participantUID,
-                                                _topicUID,
-                                                _question.questionUID,
-                                                response);
-
-
-                                        setState(() {
-                                          _responseController = null;
-                                          _futureTopics = _getTopics(
-                                              widget.studyUID,
-                                              widget.participant.groupUID);
-                                        });
-                                      },
-                                    );
-                                  }
-                                } else {
-                                  return Text('1');
-                                }
-                                break;
-                              case ConnectionState.done:
-                                return SizedBox();
-                                break;
-                              default:
-                                return SizedBox();
-                            }
-                          },
-                        ),
+                        _participantResponseWidget(_question),
                         SizedBox(
                           height: 20.0,
                         ),
@@ -682,6 +646,7 @@ class _ParticipantSmartphoneResponsesScreenState
                                             _nextTopicUID, _nextQuestionUID);
                                       }
                                     },
+                                    color: PROJECT_GREEN,
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
                                         vertical: 10.0,
@@ -696,7 +661,6 @@ class _ParticipantSmartphoneResponsesScreenState
                                         ),
                                       ),
                                     ),
-                                    color: PROJECT_GREEN,
                                   ),
                                 ),
                               )
@@ -1133,6 +1097,15 @@ class _ParticipantSmartphoneResponsesScreenState
                     ),
                   );
                 });
+          }
+          else {
+            setState(() {
+              _topicUID = topicUID;
+              _questionUID = question.questionUID;
+              _futureQuestion = _getQuestion(topicUID, question.questionUID);
+              _responsesStream = _getResponsesStream(
+                  widget.studyUID, topicUID, question.questionUID);
+            });
           }
         }
       },

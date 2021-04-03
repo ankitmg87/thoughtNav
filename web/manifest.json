@@ -1,6 +1,6 @@
 {
-    "name": "thoughtnav",
-    "short_name": "thoughtnav",
+    "name": "Thoughtnav",
+    "short_name": "Thoughtnav",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

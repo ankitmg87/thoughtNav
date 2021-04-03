@@ -11,6 +11,7 @@ import 'package:thoughtnav/screens/researcher/models/insight.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/client_firestore_service.dart';
+import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
@@ -25,7 +26,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
 
-  final _firebaseFirestoreService = FirebaseFirestoreService();
+  final _firebaseAuthService = FirebaseAuthService();
 
   Study _study;
   String _studyUID;
@@ -98,15 +99,52 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
           ),
           automaticallyImplyLeading: false,
           actions: [
-            IconButton(
-              icon: Icon(
-                CupertinoIcons.wrench_fill,
-                color: Colors.black,
-                size: 18.0,
+            Container(
+              height: kToolbarHeight,
+              width: 1.0,
+              color: Colors.grey[300],
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: InkWell(
+                  onTap: (){
+                    Navigator.of(context).popAndPushNamed(CLIENT_PREFERENCES_SCREEN);
+                  },
+                  child: Text(
+                    'Preferences',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-              onPressed: () {
-                Navigator.of(context).pushNamed(CLIENT_PREFERENCES_SCREEN);
-              },
+            ),
+            Container(
+              height: kToolbarHeight,
+              width: 1.0,
+              color: Colors.grey[300],
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: InkWell(
+                  onTap: () async {
+                    await _firebaseAuthService.signOutUser();
+                    await Navigator.of(context).popAndPushNamed(LOGIN_SCREEN);
+                  },
+                  child: Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

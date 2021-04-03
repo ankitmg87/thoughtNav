@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
+import 'package:thoughtnav/models/avatar_and_display_name.dart';
 import 'package:thoughtnav/screens/researcher/models/all_avatars_and_display_names.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
@@ -13,6 +14,7 @@ import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
+import 'package:thoughtnav/screens/researcher/models/root_user.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
 
@@ -83,16 +85,35 @@ class ResearcherAndModeratorFirestoreService {
   }
 
   Future<void> createAvatarAndDisplayNameList(String studyUID) async {
-    var avatarAndDisplayNameList =
-        AllAvatarsAndDisplayNames().getAvatarAndDisplayNameList();
+    // var avatarAndDisplayNameList =
+    //     AllAvatarsAndDisplayNames().getAvatarAndDisplayNameList();
+    //
+    // for (var avatarAndDisplayName in avatarAndDisplayNameList) {
+    //   await _studiesReference
+    //       .doc(studyUID)
+    //       .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
+    //       .doc(avatarAndDisplayName.id)
+    //       .set(avatarAndDisplayName.toMap());
+    // }
 
-    for (var avatarAndDisplayName in avatarAndDisplayNameList) {
+    var avatarAndDisplayNameListSnapshot = await FirebaseFirestore.instance
+        .collection('avatarsAndDisplayNames')
+        .orderBy('id')
+        .get();
+
+    for (var avatarAndDisplayNameDoc in avatarAndDisplayNameListSnapshot.docs) {
       await _studiesReference
           .doc(studyUID)
           .collection(_AVATAR_AND_DISPLAY_NAMES_COLLECTION)
-          .doc(avatarAndDisplayName.id)
-          .set(avatarAndDisplayName.toMap());
+          .doc(avatarAndDisplayNameDoc['id'])
+          .set(avatarAndDisplayNameDoc.data());
     }
+    
+    // for (var avatarAndDisplayName in avatarAndDisplayNameList){
+    //   await FirebaseFirestore.instance.collection('avatarsAndDisplayNames').doc(avatarAndDisplayName.id).set(avatarAndDisplayName.toMap());
+    // }
+
+
   }
 
   Future<Study> getStudy(String studyUID) async {
@@ -503,7 +524,9 @@ class ResearcherAndModeratorFirestoreService {
   }
 
   Future<void> updateModeratorDetails(Moderator moderator) async {
-    await _moderatorsReference.doc(moderator.moderatorUID).update(moderator.toMap());
+    await _moderatorsReference
+        .doc(moderator.moderatorUID)
+        .update(moderator.toMap());
   }
 
   Future<List<Group>> getGroups(String studyUID) async {
@@ -906,14 +929,31 @@ class ResearcherAndModeratorFirestoreService {
     return commonInviteMessage;
   }
 
-  Future<http.Response> sendDataForPdfGeneration(String link, Map<String, dynamic> completeStudyForReport) async {
+  Future<RootUser> getRootUser() async {
+    var rootUserMap = await FirebaseFirestore.instance
+        .collection('rootUser')
+        .doc('rootUser')
+        .get();
+    var rootUser = RootUser.fromMap(rootUserMap.data());
+    return rootUser;
+  }
+
+  Future<void> updateRootUser(String profilePictureUrl) async {
+    await FirebaseFirestore.instance
+        .collection('rootUser')
+        .doc('rootUser')
+        .update({
+      'profilePictureUrl': profilePictureUrl,
+    });
+  }
+
+  Future<http.Response> sendDataForPdfGeneration(
+      String link, Map<String, dynamic> completeStudyForReport) async {
     var url = link;
     var object = jsonEncode(completeStudyForReport);
-    print(object);
     var response = await http.post(url, body: {
       'pdf_data': object,
     });
-    print(response.toString());
     return response;
   }
 }

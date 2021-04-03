@@ -68,7 +68,7 @@ class LockedTaskWidget extends StatelessWidget {
                 Text(
                   topic.topicName,
                   style: TextStyle(
-                    color: Color(0xFF333333).withOpacity(0.3),
+                    color: Color(0xFF333333),
                     fontWeight: FontWeight.bold,
                     fontSize: 16.0,
                   ),
@@ -79,8 +79,8 @@ class LockedTaskWidget extends StatelessWidget {
                 Text(
                   'Begins $date at $time ${DateTime.now().timeZoneName}',
                   style: TextStyle(
-                    color: Color(0xFF333333).withOpacity(0.3),
-                    fontSize: 12.0,
+                    color: Color(0xFF333333),
+                    fontSize: 14.0,
                   ),
                 ),
               ],

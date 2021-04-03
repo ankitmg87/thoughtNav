@@ -344,9 +344,39 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 }
                 break;
               case 3:
-                await _updatePasswordAndSaveParticipantDetails();
-                await Navigator.of(context).pushNamedAndRemoveUntil(
-                    SETUP_COMPLETE_SCREEN, (route) => false);
+                if(_participant.paymentMode == null){
+                  await showGeneralDialog(
+                      barrierDismissible: true,
+                      barrierLabel: 'Enter Payment Mode',
+                      context: context,
+                      pageBuilder: (BuildContext context,
+                          Animation<double> animation,
+                          Animation<double> secondaryAnimation) {
+                        return Center(
+                          child: Material(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Text(
+                                'Please select a payment mode',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                }
+                else {
+                  await _updatePasswordAndSaveParticipantDetails();
+                  await Navigator.of(context).pushNamedAndRemoveUntil(
+                      SETUP_COMPLETE_SCREEN, (route) => false);
+                }
                 break;
             }
           },

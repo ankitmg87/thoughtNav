@@ -386,19 +386,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                     Row(
                                       children: [
                                         DraftScreenCustomTextField(
-                                          child: RichText(
-                                            text: TextSpan(
-                                              text: 'STUDY NAME',
-                                              style: headingTextStyle,
-                                              children: [
-                                                TextSpan(
-                                                  text: ' *',
-                                                  style:
-                                                      compulsoryFieldIndicatorTextStyle,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
                                           textFormField: TextFormField(
                                             focusNode: _studyNameFocusNode,
                                             initialValue: mStudy.studyName != 'Draft Study' ? mStudy.studyName : null,
@@ -434,14 +421,9 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: 40.0,
-                                        ),
-                                        DraftScreenCustomTextField(
                                           child: RichText(
                                             text: TextSpan(
-                                              text: 'INTERNAL STUDY LABEL',
+                                              text: 'STUDY NAME',
                                               style: headingTextStyle,
                                               children: [
                                                 TextSpan(
@@ -452,6 +434,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               ],
                                             ),
                                           ),
+                                        ),
+                                        SizedBox(
+                                          width: 40.0,
+                                        ),
+                                        DraftScreenCustomTextField(
                                           textFormField: TextFormField(
                                             focusNode:
                                                 _internalStudyLabelFocusNode,
@@ -492,23 +479,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 40.0,
-                                    ),
-                                    Row(
-                                      children: [
-                                        DraftScreenCustomTextField(
                                           child: RichText(
                                             text: TextSpan(
-                                              text: 'MASTER PASSWORD',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              text: 'INTERNAL STUDY LABEL',
+                                              style: headingTextStyle,
                                               children: [
                                                 TextSpan(
                                                   text: ' *',
@@ -518,6 +492,15 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                               ],
                                             ),
                                           ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                    Row(
+                                      children: [
+                                        DraftScreenCustomTextField(
                                           textFormField: TextFormField(
                                             focusNode: _masterPasswordFocusNode,
                                             initialValue: mStudy.masterPassword != 'Master Password' ? mStudy.masterPassword : null,
@@ -554,6 +537,23 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                 borderRadius:
                                                     BorderRadius.circular(2.0),
                                               ),
+                                            ),
+                                          ),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              text: 'MASTER PASSWORD',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                  text: ' *',
+                                                  style:
+                                                      compulsoryFieldIndicatorTextStyle,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -902,14 +902,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         ),
 
                                         InkWell(
-                                          child: Text(
-                                            'Custom Category',
-                                            style: TextStyle(
-                                              color: PROJECT_GREEN,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 13.0,
-                                            ),
-                                          ),
                                           onTap: () async {
                                             await showGeneralDialog(
                                               context: context,
@@ -929,6 +921,14 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
 
                                             setState(() {});
                                           },
+                                          child: Text(
+                                            'Custom Category',
+                                            style: TextStyle(
+                                              color: PROJECT_GREEN,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13.0,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),

@@ -83,7 +83,7 @@ class TNHomeScreen extends StatelessWidget {
                     height: 30.0,
                   ),
                   Text(
-                    'Focus groups. Made easy.',
+                    'Online Focus Groups. Made Easy.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xFF666666),
@@ -99,6 +99,9 @@ class TNHomeScreen extends StatelessWidget {
                       onPressed: () =>
                           Navigator.of(context).pushNamed(LOGIN_SCREEN),
                       color: Color(0xFF50D2C3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 30.0, vertical: 10.0),
@@ -110,9 +113,6 @@ class TNHomeScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
                     ),
                   ),
                   SizedBox(
@@ -121,7 +121,7 @@ class TNHomeScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      'Why online focus groups?',
+                      'Welcome to ThoughtNav!',
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -135,7 +135,11 @@ class TNHomeScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      'The business climate has changed. There is an urgent need to keep up with shifts in customer thinking while saving time and money. More companies are turning to online focus groups to stay up-to-date with their customer\'s mindset. ThoughtNav provides a comprehensive tool for creating and managing the entire process.',
+                      'Providing your feedback and opinions is an important part of making products and services better.'
+                          '\nThis is a moderated online discussion (think of it as an online focus group).'
+                          '\nYou can log on whenever it is convenient for you (before work, daytime, evening etc).'
+                          '\nThis process is an easy way for you to share your opinions and learn more'
+                          ' about how others also think about this topic.',
                       textAlign: TextAlign.right,
                       style: TextStyle(
                         color: Color(0xFF747476),
@@ -188,16 +192,18 @@ class TNHomeScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(
-                    height: screenHeight * 0.2,
+                    height: screenHeight * 0.15,
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      'Abc',
+                      'Participation is anonymous'
+                          '\nAccessible from PC, tablet or mobile devices'
+                          '\nLogin and participate 24/7',
                       textAlign: TextAlign.end,
                       style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.0,
+                        color: Color(0xFF747476),
+                        fontSize: 16.0,
                       ),
                     ),
                   ),
@@ -257,7 +263,7 @@ class TNHomeScreen extends StatelessWidget {
                 height: 30.0,
               ),
               Text(
-                'Focus groups. Made Easy',
+                'Online Focus Groups. Made Easy.',
                 style: TextStyle(
                   color: TEXT_COLOR.withOpacity(0.6),
                   fontWeight: FontWeight.bold,
@@ -277,7 +283,7 @@ class TNHomeScreen extends StatelessWidget {
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10.0),
                             child: Text(
-                              'Why online focus groups?',
+                              'Welcome to ThoughtNav!',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -291,7 +297,11 @@ class TNHomeScreen extends StatelessWidget {
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
-                              'The business climate has changed. There is an urgent need to keep up with shifts in customer thinking while saving time and money. More companies are turning to online focus groups to stay up-to-date with their customer\'s mindset. ThoughtNav provides a comprehensive tool for creating and managing the entire process.',
+                              'Providing your feedback and opinions is an important part of making products and services better.'
+                                  '\nThis is a moderated online discussion (think of it as an online focus group).'
+                                  '\nYou can log on whenever it is convenient for you (before work, daytime, evening etc).'
+                                  '\nThis process is an easy way for you to share your opinions and learn more'
+                                  ' about how others also think about this topic.',
                               textAlign: TextAlign.right,
                               style: TextStyle(
                                 color: Color(0xFF747476),
@@ -346,16 +356,18 @@ class TNHomeScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(
-                            height: screenHeight * 0.2,
+                            height: screenHeight * 0.15,
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
-                              'Abc',
+                              'Participation is anonymous'
+                                  '\nAccessible from PC, tablet or mobile devices'
+                                  '\nLogin and participate 24/7',
                               textAlign: TextAlign.end,
                               style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20.0,
+                                color: Color(0xFF747476),
+                                fontSize: 16.0,
                               ),
                             ),
                           ),
@@ -431,6 +443,9 @@ class TNHomeScreen extends StatelessWidget {
                               Navigator.of(context).pushNamed(LOGIN_SCREEN);
                             },
                             color: Color(0xFF50D2C3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 50.0,
@@ -443,9 +458,6 @@ class TNHomeScreen extends StatelessWidget {
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.bold),
                               ),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
                             ),
                           ),
                         ),

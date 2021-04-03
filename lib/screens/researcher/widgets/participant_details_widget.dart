@@ -121,6 +121,16 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                             fontSize: 14.0,
                           ),
                         ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Text(
+                          '${widget.participant.paymentMode ?? 'Payment mode not set'}',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 14.0,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -154,7 +164,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                           height: 16.0,
                         ),
                         Text(
-                          '${widget.participant.gender ?? 'Gender not set'}',
+                          '${widget.participant.gender == null ? 'Gender not set' : widget.participant.gender == 'male' ? 'Male' : 'Female'}',
                           style: TextStyle(
                             color: Colors.grey[700],
                             fontSize: 14.0,
@@ -338,7 +348,7 @@ class _ParticipantDetailsWidgetState extends State<ParticipantDetailsWidget> {
                                                         fontWeight:
                                                         FontWeight
                                                             .bold,
-                                                        fontSize: 14.0),
+                                                        fontSize: 14.0,),
                                                   ),
                                                 ),
                                               ),

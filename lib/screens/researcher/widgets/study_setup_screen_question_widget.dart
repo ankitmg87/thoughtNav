@@ -416,7 +416,7 @@ class _StudySetupScreenQuestionWidgetState
                                                   });
                                                 },
                                                 label: Text(
-                                                  '${widget.groups[index].groupIndex}. ${widget.groups[index].groupName}',
+                                                  '${widget.groups[index].groupIndex}. ${widget.groups[index].internalGroupLabel}',
                                                   style: TextStyle(
                                                       color: _groupIndexes
                                                               .contains(widget
@@ -474,6 +474,8 @@ class _StudySetupScreenQuestionWidgetState
                                                                   .isProbe);
                                                       Navigator.pop(context);
                                                     },
+                                              color: PROJECT_GREEN,
+                                              disabledColor: Colors.grey,
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -488,8 +490,6 @@ class _StudySetupScreenQuestionWidgetState
                                                   ),
                                                 ),
                                               ),
-                                              color: PROJECT_GREEN,
-                                              disabledColor: Colors.grey,
                                             ),
                                           ],
                                         ),

@@ -24,7 +24,7 @@ class EndDrawerExpansionTile extends StatefulWidget {
 }
 
 class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
-  bool _isExpanded = false;
+  bool _isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +34,7 @@ class _EndDrawerExpansionTileState extends State<EndDrawerExpansionTile> {
       child: Column(
         children: [
           ExpansionTile(
+            initiallyExpanded: true,
             tilePadding:
                 EdgeInsets.only(right: 16.0, left: _isExpanded ? 16.0 : 10.0),
             title: Text(

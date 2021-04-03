@@ -31,6 +31,8 @@ class _QuestionAndResponsesSubScreenState
   final _researcherAndModeratorFirestoreService =
       ResearcherAndModeratorFirestoreService();
 
+  final _scrollController = ScrollController();
+
   Future<Topic> _futureTopic;
   Future<Question> _futureQuestion;
 
@@ -75,120 +77,125 @@ class _QuestionAndResponsesSubScreenState
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: ListView(
-        padding: EdgeInsets.all(0),
-        shrinkWrap: true,
-        children: [
-          FutureBuilder<Topic>(
-            future: _futureTopic,
-            builder:
-                (BuildContext context, AsyncSnapshot<Topic> topicSnapshot) {
-              if (topicSnapshot.connectionState == ConnectionState.done) {
-                return FutureBuilder<Question>(
-                  future: _futureQuestion,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<Question> questionSnapshot) {
-                    if (questionSnapshot.connectionState ==
-                        ConnectionState.done) {
-                      return _QuestionDisplayBar(
-                        studyUID: widget.studyUID,
-                        topicName: topicSnapshot.data.topicName,
-                        topicUID: topicSnapshot.data.topicUID,
-                        questionUID: questionSnapshot.data.questionUID,
-                        questionTitle: questionSnapshot.data.questionTitle,
-                        questionStatement:
-                            questionSnapshot.data.questionStatement,
-                      );
-                    } else {
-                      return SizedBox();
-                    }
-                  },
-                );
-              } else {
-                return SizedBox();
-              }
-            },
-          ),
-          SizedBox(
-            height: 20.0,
-          ),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 2,
-                    color: PROJECT_LIGHT_GREEN,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 30.0,
-              vertical: 20.0,
-            ),
-
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _streamResponses,
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                    return SizedBox();
-                    break;
-                  case ConnectionState.waiting:
-                    return SizedBox();
-                    break;
-                  case ConnectionState.active:
-                    if (snapshot.hasData) {
-                      if (snapshot.data.docs.isNotEmpty) {
-                        return ListView.separated(
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: snapshot.data.docs.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return ResponseWidget(
-                              studyUID: widget.studyUID,
-                              topicUID: widget.topicUID,
-                              questionUID: widget.questionUID,
-                              response: Response.fromMap(
-                                snapshot.data.docs[index].data(),
-                              ),
-                            );
-                          },
-                          separatorBuilder:
-                              (BuildContext context, int index) {
-                            return SizedBox(
-                              height: 10.0,
-                            );
-                          },
+      child: Scrollbar(
+        isAlwaysShown: true,
+        controller: _scrollController,
+        child: ListView(
+          controller: _scrollController,
+          padding: EdgeInsets.all(0),
+          shrinkWrap: true,
+          children: [
+            FutureBuilder<Topic>(
+              future: _futureTopic,
+              builder:
+                  (BuildContext context, AsyncSnapshot<Topic> topicSnapshot) {
+                if (topicSnapshot.connectionState == ConnectionState.done) {
+                  return FutureBuilder<Question>(
+                    future: _futureQuestion,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Question> questionSnapshot) {
+                      if (questionSnapshot.connectionState ==
+                          ConnectionState.done) {
+                        return _QuestionDisplayBar(
+                          studyUID: widget.studyUID,
+                          topicName: topicSnapshot.data.topicName,
+                          topicUID: topicSnapshot.data.topicUID,
+                          questionUID: questionSnapshot.data.questionUID,
+                          questionTitle: questionSnapshot.data.questionTitle,
+                          questionStatement:
+                              questionSnapshot.data.questionStatement,
                         );
                       } else {
-                        return Center(
-                          child: Text(
-                            'No responses yet',
-                          ),
-                        );
+                        return SizedBox();
                       }
-                    } else {
-                      return SizedBox();
-                    }
-                    break;
-                  case ConnectionState.done:
-                    return SizedBox();
-                    break;
-                  default:
-                    return SizedBox();
+                    },
+                  );
+                } else {
+                  return SizedBox();
                 }
               },
             ),
-          ),
-        ],
+            SizedBox(
+              height: 20.0,
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 30.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 2,
+                      color: PROJECT_LIGHT_GREEN,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 30.0,
+                vertical: 20.0,
+              ),
+
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _streamResponses,
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                      return SizedBox();
+                      break;
+                    case ConnectionState.waiting:
+                      return SizedBox();
+                      break;
+                    case ConnectionState.active:
+                      if (snapshot.hasData) {
+                        if (snapshot.data.docs.isNotEmpty) {
+                          return ListView.separated(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: snapshot.data.docs.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return ResponseWidget(
+                                studyUID: widget.studyUID,
+                                topicUID: widget.topicUID,
+                                questionUID: widget.questionUID,
+                                response: Response.fromMap(
+                                  snapshot.data.docs[index].data(),
+                                ),
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return SizedBox(
+                                height: 10.0,
+                              );
+                            },
+                          );
+                        } else {
+                          return Center(
+                            child: Text(
+                              'No responses yet',
+                            ),
+                          );
+                        }
+                      } else {
+                        return SizedBox();
+                      }
+                      break;
+                    case ConnectionState.done:
+                      return SizedBox();
+                      break;
+                    default:
+                      return SizedBox();
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

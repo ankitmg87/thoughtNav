@@ -66,6 +66,7 @@ class _ActiveTaskWidgetState extends State<ActiveTaskWidget> {
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
                     ),
                   ),
                   FlatButton(
@@ -298,7 +299,7 @@ class ActiveQuestionWidget extends StatelessWidget {
             '${question.questionNumber} ${question.questionTitle}',
             style: TextStyle(
               color: PROJECT_GREEN,
-              fontSize: 12.0,
+              fontSize: 13.0,
             ),
           ),
           Padding(
@@ -310,7 +311,7 @@ class ActiveQuestionWidget extends StatelessWidget {
                       ? Icons.check_circle_outline_rounded
                       : Icons.arrow_forward,
               color: PROJECT_GREEN,
-              size: 14.0,
+              size: 15.0,
             ),
           ),
         ],

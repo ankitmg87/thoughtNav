@@ -24,12 +24,12 @@ import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_s
 import 'package:thoughtnav/screens/participant/pre_study/first_time_setup/full_screen_new/tips_screens/dashboard_tips_screen.dart';
 import 'package:thoughtnav/screens/public/login/forgot_password_screen.dart';
 import 'package:thoughtnav/screens/public/login/login_screen.dart';
-import 'package:thoughtnav/screens/public/login/reset_password_screen.dart';
 import 'package:thoughtnav/screens/public/tn_home_screen.dart';
 import 'package:thoughtnav/screens/researcher/researcher_main_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/responses_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/moderator_study_screen.dart';
+import 'package:thoughtnav/screens/test_screen.dart';
 
 import 'constants/routes/routes.dart';
 
@@ -58,10 +58,11 @@ class MyApp extends StatelessWidget {
       initialRoute: TN_HOME_SCREEN_ROUTE,
       routes: {
         // Public Section
+        TEST_SCREEN: (context) => TestScreen(),
+
         TN_HOME_SCREEN_ROUTE: (context) => TNHomeScreen(),
         LOGIN_SCREEN: (context) => LoginScreen(),
         FORGOT_PASSWORD_SCREEN: (context) => ForgotPasswordScreen(),
-        RESET_PASSWORD_SCREEN: (context) => ResetPasswordScreen(),
         STUDY_DETAILS_SCREEN: (context) => StudyDetailsScreen(),
         ONBOARDING_SCREEN: (context) => OnboardingScreen(),
         // CONFIRM_DISPLAY_PROFILE_SCREEN: (context) =>

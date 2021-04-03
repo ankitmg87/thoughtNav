@@ -31,7 +31,7 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
   double maxMenuWidth = 300.0;
   double studyNavigatorWidth;
 
-  bool isExpanded = false;
+  // bool isExpanded = false;
 
   Question _currentQuestion;
 
@@ -128,9 +128,8 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AnimatedContainer(
-                  curve: Curves.easeOut,
-                  width: studyNavigatorWidth,
+                Container(
+                  width: 300.0,
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
@@ -144,72 +143,52 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                     ),
                     color: Colors.white,
                   ),
-                  duration: Duration(milliseconds: 200),
-                  onEnd: () {
-                    setState(() {
-                      if (studyNavigatorWidth == maxMenuWidth) {
-                        isExpanded = !isExpanded;
-                      }
-                    });
-                  },
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          isExpanded
-                              ? Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 8.0,
-                                    horizontal: 12.0,
-                                  ),
-                                  child: Text(
-                                    'Study Navigator',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0,
-                                    ),
-                                  ),
-                                )
-                              : SizedBox(),
-                          IconButton(
-                            icon: Icon(
-                              Icons.menu,
-                              color: PROJECT_GREEN,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                if (isExpanded) {
-                                  isExpanded = !isExpanded;
-                                  studyNavigatorWidth = minMenuWidth;
-                                } else {
-                                  studyNavigatorWidth = maxMenuWidth;
-                                }
-                              });
-                            },
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 8.0,
+                          horizontal: 12.0,
+                        ),
+                        child: Text(
+                          'Study Navigator',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
                           ),
-                        ],
+                        ),
                       ),
                       Expanded(
-                        child: isExpanded
-                            ? FutureBuilder(
-                                future: _getTopicsAndQuestions,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<dynamic> snapshot) {
-                                  switch (snapshot.connectionState) {
-                                    case ConnectionState.none:
-                                      return SizedBox();
-                                      break;
-                                    case ConnectionState.waiting:
-                                    case ConnectionState.active:
-                                      return Center(
-                                        child: Text('Loading topics...'),
-                                      );
-                                      break;
-                                    case ConnectionState.done:
-                                      if (snapshot.hasData) {
-                                        return ListView.builder(
+                        child: FutureBuilder(
+                          future: _getTopicsAndQuestions,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<dynamic> snapshot) {
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.none:
+                                return SizedBox();
+                                break;
+                              case ConnectionState.waiting:
+                              case ConnectionState.active:
+                                return Center(
+                                  child: Text('Loading topics...'),
+                                );
+                                break;
+                              case ConnectionState.done:
+                                if (snapshot.hasData) {
+                                  final _scrollController = ScrollController();
+
+                                  return StatefulBuilder(
+                                    builder: (BuildContext context,
+                                        void Function(void Function())
+                                            studyNavigatorSetState) {
+                                      return Scrollbar(
+                                        isAlwaysShown: true,
+                                        thickness: 10.0,
+                                        controller: _scrollController,
+                                        child: ListView.builder(
+                                          controller: _scrollController,
+                                          padding: EdgeInsets.only(right: 15.0),
                                           itemCount: snapshot.data.length,
                                           itemBuilder: (BuildContext context,
                                               int topicIndex) {
@@ -220,9 +199,10 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                                     Colors.black,
                                               ),
                                               child: ExpansionTile(
+                                                initiallyExpanded: true,
                                                 title: Text(
-                                                  snapshot.data[topicIndex]
-                                                      .topicName,
+                                                  snapshot
+                                                      .data[topicIndex].topicName,
                                                   style: TextStyle(
                                                     color: Colors.grey[700],
                                                     fontWeight: FontWeight.bold,
@@ -252,12 +232,10 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                                         onTap: () {
                                                           setState(() {
                                                             _topicUID = snapshot
-                                                                .data[
-                                                                    topicIndex]
+                                                                .data[topicIndex]
                                                                 .topicUID;
                                                             _questionUID = snapshot
-                                                                .data[
-                                                                    topicIndex]
+                                                                .data[topicIndex]
                                                                 .questions[
                                                                     questionIndex]
                                                                 .questionUID;
@@ -318,17 +296,218 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
                                               ),
                                             );
                                           },
-                                        );
-                                      } else {
-                                        return SizedBox();
-                                      }
-                                      break;
-                                    default:
-                                      return SizedBox();
-                                  }
-                                },
-                              )
-                            : SizedBox(),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  return SizedBox();
+                                }
+                                break;
+                              default:
+                                return SizedBox();
+                            }
+                          },
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     isExpanded
+                          //         ? Padding(
+                          //             padding: EdgeInsets.symmetric(
+                          //               vertical: 8.0,
+                          //               horizontal: 12.0,
+                          //             ),
+                          //             child: Text(
+                          //               'Study Navigator',
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontWeight: FontWeight.bold,
+                          //                 fontSize: 16.0,
+                          //               ),
+                          //             ),
+                          //           )
+                          //         : SizedBox(),
+                          //     IconButton(
+                          //       icon: Icon(
+                          //         Icons.menu,
+                          //         color: PROJECT_GREEN,
+                          //       ),
+                          //       onPressed: () {
+                          //         setState(() {
+                          //           if (isExpanded) {
+                          //             isExpanded = !isExpanded;
+                          //             studyNavigatorWidth = minMenuWidth;
+                          //           } else {
+                          //             studyNavigatorWidth = maxMenuWidth;
+                          //           }
+                          //         });
+                          //       },
+                          //     ),
+                          //   ],
+                          // ),
+                          // Expanded(
+                          //   child: isExpanded
+                          //       ? FutureBuilder(
+                          //           future: _getTopicsAndQuestions,
+                          //           builder: (BuildContext context,
+                          //               AsyncSnapshot<dynamic> snapshot) {
+                          //             switch (snapshot.connectionState) {
+                          //               case ConnectionState.none:
+                          //                 return SizedBox();
+                          //                 break;
+                          //               case ConnectionState.waiting:
+                          //               case ConnectionState.active:
+                          //                 return Center(
+                          //                   child: Text('Loading topics...'),
+                          //                 );
+                          //                 break;
+                          //               case ConnectionState.done:
+                          //                 if (snapshot.hasData) {
+                          //                   final _scrollController =
+                          //                       ScrollController();
+                          //
+                          //                   return StatefulBuilder(
+                          //                     builder: (BuildContext context,
+                          //                         void Function(void Function())
+                          //                             studyNavigatorSetState) {
+                          //                       return Scrollbar(
+                          //                         isAlwaysShown: true,
+                          //                         thickness: 10.0,
+                          //                         controller: _scrollController,
+                          //                         child: ListView.builder(
+                          //                           padding: EdgeInsets.only(right: 15.0),
+                          //                           itemCount: snapshot.data.length,
+                          //                           itemBuilder:
+                          //                               (BuildContext context,
+                          //                                   int topicIndex) {
+                          //                             return Theme(
+                          //                               data: ThemeData(
+                          //                                 accentColor:
+                          //                                     PROJECT_GREEN,
+                          //                                 unselectedWidgetColor:
+                          //                                     Colors.black,
+                          //                               ),
+                          //                               child: ExpansionTile(
+                          //                                 title: Text(
+                          //                                   snapshot
+                          //                                       .data[topicIndex]
+                          //                                       .topicName,
+                          //                                   style: TextStyle(
+                          //                                     color:
+                          //                                         Colors.grey[700],
+                          //                                     fontWeight:
+                          //                                         FontWeight.bold,
+                          //                                     fontSize: 14.0,
+                          //                                   ),
+                          //                                 ),
+                          //                                 children: [
+                          //                                   SizedBox(
+                          //                                     height: 10.0,
+                          //                                   ),
+                          //                                   ListView.separated(
+                          //                                     physics:
+                          //                                         NeverScrollableScrollPhysics(),
+                          //                                     padding:
+                          //                                         EdgeInsets.only(
+                          //                                       left: 20.0,
+                          //                                       right: 10.0,
+                          //                                     ),
+                          //                                     shrinkWrap: true,
+                          //                                     itemCount: snapshot
+                          //                                         .data[topicIndex]
+                          //                                         .questions
+                          //                                         .length,
+                          //                                     itemBuilder: (BuildContext
+                          //                                             context,
+                          //                                         int questionIndex) {
+                          //                                       return InkWell(
+                          //                                         onTap: () {
+                          //                                           setState(() {
+                          //                                             _topicUID = snapshot
+                          //                                                 .data[
+                          //                                                     topicIndex]
+                          //                                                 .topicUID;
+                          //                                             _questionUID = snapshot
+                          //                                                 .data[
+                          //                                                     topicIndex]
+                          //                                                 .questions[
+                          //                                                     questionIndex]
+                          //                                                 .questionUID;
+                          //
+                          //                                             _getStudyAndTopicUIDs = _future(
+                          //                                                 _studyUID,
+                          //                                                 _topicUID,
+                          //                                                 _questionUID);
+                          //
+                          //                                             _questionAndResponsesFutureBuilderWidget =
+                          //                                                 _questionsAndResponsesFutureBuilder(
+                          //                                                     _getStudyAndTopicUIDs);
+                          //
+                          //                                             _insightsStream = _getInsightsStream(
+                          //                                                 _studyUID,
+                          //                                                 _topicUID,
+                          //                                                 _questionUID);
+                          //                                           });
+                          //                                         },
+                          //                                         splashColor: Colors
+                          //                                             .transparent,
+                          //                                         hoverColor: Colors
+                          //                                             .transparent,
+                          //                                         focusColor: Colors
+                          //                                             .transparent,
+                          //                                         highlightColor:
+                          //                                             Colors
+                          //                                                 .transparent,
+                          //                                         child: Row(
+                          //                                           children: [
+                          //                                             Text(
+                          //                                               '${snapshot.data[topicIndex].questions[questionIndex].questionNumber}  ${snapshot.data[topicIndex].questions[questionIndex].questionTitle}',
+                          //                                               style:
+                          //                                                   TextStyle(
+                          //                                                 color: Colors
+                          //                                                         .grey[
+                          //                                                     800],
+                          //                                                 fontWeight:
+                          //                                                     FontWeight
+                          //                                                         .bold,
+                          //                                                 fontSize:
+                          //                                                     13.0,
+                          //                                               ),
+                          //                                             )
+                          //                                           ],
+                          //                                         ),
+                          //                                       );
+                          //                                     },
+                          //                                     separatorBuilder:
+                          //                                         (BuildContext
+                          //                                                 context,
+                          //                                             int index) {
+                          //                                       return SizedBox(
+                          //                                           height: 20.0);
+                          //                                     },
+                          //                                   ),
+                          //                                   SizedBox(
+                          //                                     height: 20.0,
+                          //                                   ),
+                          //                                 ],
+                          //                               ),
+                          //                             );
+                          //                           },
+                          //                         ),
+                          //                       );
+                          //                     },
+                          //                   );
+                          //                 } else {
+                          //                   return SizedBox();
+                          //                 }
+                          //                 break;
+                          //               default:
+                          //                 return SizedBox();
+                          //             }
+                          //           },
+                          //         )
+                          //       : SizedBox(),
+                        ),
                       ),
                     ],
                   ),
@@ -410,7 +589,6 @@ class _ResponsesScreenState extends State<ResponsesScreen> {
               onPressed: () async {
                 if (insight.insightStatement != null) {
                   if (insight.insightStatement.trim().isNotEmpty) {
-
                     insight.avatarURL = _moderator.moderatorAvatar;
                     insight.name = _moderator.firstName != null
                         ? '${_moderator.firstName} ${_moderator.lastName}'

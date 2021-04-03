@@ -211,474 +211,479 @@ class _StudyUsersState extends State<StudyUsers> {
     final screenSize = MediaQuery.of(context).size;
 
     return Expanded(
-      child: FutureBuilder<void>(
-        future: _futureGroups,
-        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.waiting:
-            case ConnectionState.active:
-              return Text('Loading');
-              break;
-            case ConnectionState.done:
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 30.0,
-                  vertical: 20.0,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        child: Column(
-                          children: [
-                            Card(
-                              elevation: 4.0,
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        InkWell(
-                                          onTap: () {
-                                            _setVisibleListView('Participants');
-                                          },
-                                          child: Text(
-                                            'Participants',
-                                            style: TextStyle(
-                                              color: _participantsVisible
-                                                  ? PROJECT_GREEN
-                                                  : Colors.grey[700],
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 20.0,
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            _setVisibleListView('Clients');
-                                          },
-                                          child: Text(
-                                            'Clients',
-                                            style: TextStyle(
-                                              color: _clientsVisible
-                                                  ? PROJECT_GREEN
-                                                  : Colors.grey[700],
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 20.0,
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            _setVisibleListView('Moderators');
-                                          },
-                                          child: Text(
-                                            'Moderators',
-                                            style: TextStyle(
-                                              color: _moderatorsVisible
-                                                  ? PROJECT_GREEN
-                                                  : Colors.grey[700],
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          width: 200.0,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 10.0,
-                                            vertical: 4.0,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius.circular(10.0),
-                                            border: Border.all(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          child: TextFormField(
-                                            focusNode: _searchFocusNode,
-                                            cursorColor: PROJECT_NAVY_BLUE,
-                                            decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              isDense: true,
-                                              hintText: 'Search',
-                                              hintStyle: TextStyle(
-                                                color: Colors.grey[400],
-                                                fontSize: 14.0,
+      child: GestureDetector(
+        onTap: (){
+          WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+        },
+        child: FutureBuilder<void>(
+          future: _futureGroups,
+          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+              case ConnectionState.waiting:
+              case ConnectionState.active:
+                return Text('Loading');
+                break;
+              case ConnectionState.done:
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 30.0,
+                    vertical: 20.0,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          child: Column(
+                            children: [
+                              Card(
+                                elevation: 4.0,
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              _setVisibleListView('Participants');
+                                            },
+                                            child: Text(
+                                              'Participants',
+                                              style: TextStyle(
+                                                color: _participantsVisible
+                                                    ? PROJECT_GREEN
+                                                    : Colors.grey[700],
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            onChanged: (searchQuery) {
-                                              _makeSearchedParticipantsList(
-                                                  searchQuery);
+                                          ),
+                                          SizedBox(
+                                            width: 20.0,
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              _setVisibleListView('Clients');
                                             },
+                                            child: Text(
+                                              'Clients',
+                                              style: TextStyle(
+                                                color: _clientsVisible
+                                                    ? PROJECT_GREEN
+                                                    : Colors.grey[700],
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: 10.0,
-                                        ),
-                                        InkWell(
-                                          focusColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          hoverColor: Colors.transparent,
-                                          splashColor: Colors.transparent,
-                                          onTap: () {
-                                            showGeneralDialog(
-                                                context: context,
-                                                pageBuilder: (BuildContext
-                                                context,
-                                                    Animation<double> animation,
-                                                    Animation<double>
-                                                    secondaryAnimation) {
-                                                  js.context.callMethod(
-                                                      'setInitialValue', ['']);
+                                          SizedBox(
+                                            width: 20.0,
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              _setVisibleListView('Moderators');
+                                            },
+                                            child: Text(
+                                              'Moderators',
+                                              style: TextStyle(
+                                                color: _moderatorsVisible
+                                                    ? PROJECT_GREEN
+                                                    : Colors.grey[700],
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 200.0,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10.0,
+                                              vertical: 4.0,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius.circular(10.0),
+                                              border: Border.all(
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            child: TextFormField(
+                                              focusNode: _searchFocusNode,
+                                              cursorColor: PROJECT_NAVY_BLUE,
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                isDense: true,
+                                                hintText: 'Search',
+                                                hintStyle: TextStyle(
+                                                  color: Colors.grey[400],
+                                                  fontSize: 14.0,
+                                                ),
+                                              ),
+                                              onChanged: (searchQuery) {
+                                                _makeSearchedParticipantsList(
+                                                    searchQuery);
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10.0,
+                                          ),
+                                          InkWell(
+                                            focusColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            splashColor: Colors.transparent,
+                                            onTap: () {
+                                              showGeneralDialog(
+                                                  context: context,
+                                                  pageBuilder: (BuildContext
+                                                  context,
+                                                      Animation<double> animation,
+                                                      Animation<double>
+                                                      secondaryAnimation) {
+                                                    js.context.callMethod(
+                                                        'setInitialValue', ['']);
 
-                                                  return EmailWidget(
-                                                    bulkSelectedParticipants:
-                                                    _bulkSelectedParticipants,
-                                                    groupsList: _groupsList,
-                                                    participantsList:
-                                                    _allParticipants,
-                                                    masterPassword:
-                                                    _masterPassword,
-                                                    commonInviteMessage: _commonInviteMessage,
-                                                  );
-                                                });
-                                          },
-                                          child: Icon(
-                                            Icons.email,
-                                            color: PROJECT_GREEN,
-                                            size: 24.0,
+                                                    return EmailWidget(
+                                                      bulkSelectedParticipants:
+                                                      _bulkSelectedParticipants,
+                                                      groupsList: _groupsList,
+                                                      participantsList:
+                                                      _allParticipants,
+                                                      masterPassword:
+                                                      _masterPassword,
+                                                      commonInviteMessage: _commonInviteMessage,
+                                                    );
+                                                  });
+                                            },
+                                            child: Icon(
+                                              Icons.email,
+                                              color: PROJECT_GREEN,
+                                              size: 24.0,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: 10.0,
-                                        ),
-                                        InkWell(
-                                          focusColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          hoverColor: Colors.transparent,
-                                          splashColor: Colors.transparent,
-                                          onTap: () {
-                                            showGeneralDialog(
-                                                context: context,
-                                                pageBuilder: (BuildContext
-                                                generalDialogContext,
-                                                    Animation<double> animation,
-                                                    Animation<double>
-                                                    secondaryAnimation) {
-                                                  return AddUsersWidget(
-                                                    groups: _groupsList,
-                                                    masterPassword:
-                                                    _masterPassword,
-                                                    generalDialogContext:
-                                                    generalDialogContext,
-                                                    studyUID: widget.studyUID,
-                                                  );
-                                                });
-                                          },
-                                          child: Icon(
-                                            Icons.add_circle,
-                                            color: PROJECT_GREEN,
-                                            size: 24.0,
+                                          SizedBox(
+                                            width: 10.0,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                          InkWell(
+                                            focusColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            splashColor: Colors.transparent,
+                                            onTap: () {
+                                              showGeneralDialog(
+                                                  context: context,
+                                                  pageBuilder: (BuildContext
+                                                  generalDialogContext,
+                                                      Animation<double> animation,
+                                                      Animation<double>
+                                                      secondaryAnimation) {
+                                                    return AddUsersWidget(
+                                                      groups: _groupsList,
+                                                      masterPassword:
+                                                      _masterPassword,
+                                                      generalDialogContext:
+                                                      generalDialogContext,
+                                                      studyUID: widget.studyUID,
+                                                    );
+                                                  });
+                                            },
+                                            child: Icon(
+                                              Icons.add_circle,
+                                              color: PROJECT_GREEN,
+                                              size: 24.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Expanded(
-                              child: _searching
-                                  ? _buildSearchedParticipantsList(
-                                  _searchedParticipants)
-                                  : _visibleListView,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    Column(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(20.0),
-                            color: Colors.grey[100],
-                            width: screenSize.width * 0.3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  'Sort/Filter',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Container(
-                                  height: 1.0,
-                                  color: Colors.grey[400],
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Text(
-                                  'Sort By:',
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Wrap(
-                                  runSpacing: 10.0,
-                                  spacing: 10.0,
-                                  children: [
-                                    ChoiceChip(
-                                      elevation: 2.0,
-                                      selectedColor: PROJECT_GREEN,
-                                      selected: _sortBy == 'none',
-                                      label: Text(
-                                        'None',
-                                        style: TextStyle(
-                                          color: _sortBy == 'none'
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14.0,
-                                        ),
-                                      ),
-                                      onSelected: (selected) {
-                                        setState(() {
-                                          _sortBy = 'none';
-                                          _bulkSelectedParticipants = [];
-                                          _visibleListView =
-                                              _participantsStreamBuilder(
-                                                  _participantStream);
-                                        });
-                                      },
-                                    ),
-                                    ChoiceChip(
-                                      elevation: 2.0,
-                                      selectedColor: PROJECT_GREEN,
-                                      selected: _sortBy == 'mostResponses',
-                                      label: Text(
-                                        'Responses: High to Low',
-                                        style: TextStyle(
-                                          color: _sortBy == 'mostResponses'
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14.0,
-                                        ),
-                                      ),
-                                      onSelected: (selected) {
-                                        setState(() {
-                                          _sortedParticipants =
-                                              _allParticipants;
-                                          _sortedParticipants.sort((a, b) => a
-                                              .responses
-                                              .compareTo(b.responses));
-
-                                          _visibleListView =
-                                              _bulkSelectListView(
-                                                  _sortedParticipants);
-
-                                          _sortBy = 'mostResponses';
-                                          _filterBy = 'none';
-                                        });
-                                      },
-                                    ),
-                                    ChoiceChip(
-                                      elevation: 2.0,
-                                      selectedColor: PROJECT_GREEN,
-                                      selected: _sortBy == 'leastResponses',
-                                      label: Text(
-                                        'Responses: Low to High',
-                                        style: TextStyle(
-                                          color: _sortBy == 'leastResponses'
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14.0,
-                                        ),
-                                      ),
-                                      onSelected: (selected) {
-                                        setState(() {
-                                          _sortedParticipants =
-                                              _allParticipants;
-                                          _sortedParticipants.sort((a, b) => b
-                                              .responses
-                                              .compareTo(a.responses));
-
-                                          _visibleListView =
-                                              _bulkSelectListView(
-                                                  _sortedParticipants);
-
-                                          _sortBy = 'leastResponses';
-                                          _filterBy = 'none';
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Text(
-                                  'Filter By:',
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Wrap(
-                                  spacing: 10.0,
-                                  runSpacing: 10.0,
-                                  children: [
-                                    ChoiceChip(
-                                      elevation: 2.0,
-                                      selectedColor: PROJECT_GREEN,
-                                      selected: _filterBy == 'none',
-                                      label: Text(
-                                        'None',
-                                        style: TextStyle(
-                                          color: _filterBy == 'none'
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14.0,
-                                        ),
-                                      ),
-                                      onSelected: (selected) {
-                                        setState(() {
-                                          _filterBy = 'none';
-                                          _bulkSelectedParticipants = [];
-                                          _visibleListView =
-                                              _participantsStreamBuilder(
-                                                  _participantStream);
-                                        });
-                                      },
-                                    ),
-                                    ChoiceChip(
-                                      elevation: 2.0,
-                                      selectedColor: PROJECT_GREEN,
-                                      selected: _filterBy == 'mostAnswered',
-                                      label: Text(
-                                        'Questions Answered: Most',
-                                        style: TextStyle(
-                                          color: _filterBy == 'mostAnswered'
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14.0,
-                                        ),
-                                      ),
-                                      onSelected: (selected) {
-                                        setState(() {
-                                          _filterBy = 'mostAnswered';
-                                          _sortBy = 'none';
-
-                                          _filteredParticipants =
-                                              _allParticipants;
-
-                                          _filteredParticipants.sort((a, b) => a
-                                              .responses
-                                              .compareTo(b.responses));
-
-                                          _visibleListView =
-                                              _bulkSelectListView(
-                                                  _filteredParticipants);
-                                        });
-                                      },
-                                    ),
-                                    ChoiceChip(
-                                      elevation: 2.0,
-                                      selectedColor: PROJECT_GREEN,
-                                      selected: _filterBy == 'leastAnswered',
-                                      label: Text(
-                                        'Questions Answered: Least',
-                                        style: TextStyle(
-                                          color: _filterBy == 'leastAnswered'
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14.0,
-                                        ),
-                                      ),
-                                      onSelected: (selected) {
-                                        setState(() {
-                                          _filterBy = 'leastAnswered';
-                                          _sortBy = 'none';
-
-                                          _filteredParticipants =
-                                              _allParticipants;
-
-                                          _filteredParticipants.sort((a, b) => b
-                                              .responses
-                                              .compareTo(a.responses));
-
-                                          _visibleListView =
-                                              _bulkSelectListView(
-                                                  _filteredParticipants);
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                              ],
-                            ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Expanded(
+                                child: _searching
+                                    ? _buildSearchedParticipantsList(
+                                    _searchedParticipants)
+                                    : _visibleListView,
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-              break;
-            default:
-              return Text('Error');
-          }
-        },
+                      ),
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.all(20.0),
+                              color: Colors.grey[100],
+                              width: screenSize.width * 0.3,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    'Sort/Filter',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Container(
+                                    height: 1.0,
+                                    color: Colors.grey[400],
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Text(
+                                    'Sort By:',
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Wrap(
+                                    runSpacing: 10.0,
+                                    spacing: 10.0,
+                                    children: [
+                                      ChoiceChip(
+                                        elevation: 2.0,
+                                        selectedColor: PROJECT_GREEN,
+                                        selected: _sortBy == 'none',
+                                        label: Text(
+                                          'None',
+                                          style: TextStyle(
+                                            color: _sortBy == 'none'
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            _sortBy = 'none';
+                                            _bulkSelectedParticipants = [];
+                                            _visibleListView =
+                                                _participantsStreamBuilder(
+                                                    _participantStream);
+                                          });
+                                        },
+                                      ),
+                                      ChoiceChip(
+                                        elevation: 2.0,
+                                        selectedColor: PROJECT_GREEN,
+                                        selected: _sortBy == 'mostResponses',
+                                        label: Text(
+                                          'Responses: High to Low',
+                                          style: TextStyle(
+                                            color: _sortBy == 'mostResponses'
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            _sortedParticipants =
+                                                _allParticipants;
+                                            _sortedParticipants.sort((a, b) => a
+                                                .responses
+                                                .compareTo(b.responses));
+
+                                            _visibleListView =
+                                                _bulkSelectListView(
+                                                    _sortedParticipants);
+
+                                            _sortBy = 'mostResponses';
+                                            _filterBy = 'none';
+                                          });
+                                        },
+                                      ),
+                                      ChoiceChip(
+                                        elevation: 2.0,
+                                        selectedColor: PROJECT_GREEN,
+                                        selected: _sortBy == 'leastResponses',
+                                        label: Text(
+                                          'Responses: Low to High',
+                                          style: TextStyle(
+                                            color: _sortBy == 'leastResponses'
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            _sortedParticipants =
+                                                _allParticipants;
+                                            _sortedParticipants.sort((a, b) => b
+                                                .responses
+                                                .compareTo(a.responses));
+
+                                            _visibleListView =
+                                                _bulkSelectListView(
+                                                    _sortedParticipants);
+
+                                            _sortBy = 'leastResponses';
+                                            _filterBy = 'none';
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Text(
+                                    'Filter By:',
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Wrap(
+                                    spacing: 10.0,
+                                    runSpacing: 10.0,
+                                    children: [
+                                      ChoiceChip(
+                                        elevation: 2.0,
+                                        selectedColor: PROJECT_GREEN,
+                                        selected: _filterBy == 'none',
+                                        label: Text(
+                                          'None',
+                                          style: TextStyle(
+                                            color: _filterBy == 'none'
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            _filterBy = 'none';
+                                            _bulkSelectedParticipants = [];
+                                            _visibleListView =
+                                                _participantsStreamBuilder(
+                                                    _participantStream);
+                                          });
+                                        },
+                                      ),
+                                      ChoiceChip(
+                                        elevation: 2.0,
+                                        selectedColor: PROJECT_GREEN,
+                                        selected: _filterBy == 'mostAnswered',
+                                        label: Text(
+                                          'Questions Answered: Most',
+                                          style: TextStyle(
+                                            color: _filterBy == 'mostAnswered'
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            _filterBy = 'mostAnswered';
+                                            _sortBy = 'none';
+
+                                            _filteredParticipants =
+                                                _allParticipants;
+
+                                            _filteredParticipants.sort((a, b) => a
+                                                .responses
+                                                .compareTo(b.responses));
+
+                                            _visibleListView =
+                                                _bulkSelectListView(
+                                                    _filteredParticipants);
+                                          });
+                                        },
+                                      ),
+                                      ChoiceChip(
+                                        elevation: 2.0,
+                                        selectedColor: PROJECT_GREEN,
+                                        selected: _filterBy == 'leastAnswered',
+                                        label: Text(
+                                          'Questions Answered: Least',
+                                          style: TextStyle(
+                                            color: _filterBy == 'leastAnswered'
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            _filterBy = 'leastAnswered';
+                                            _sortBy = 'none';
+
+                                            _filteredParticipants =
+                                                _allParticipants;
+
+                                            _filteredParticipants.sort((a, b) => b
+                                                .responses
+                                                .compareTo(a.responses));
+
+                                            _visibleListView =
+                                                _bulkSelectListView(
+                                                    _filteredParticipants);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+                break;
+              default:
+                return Text('Error');
+            }
+          },
+        ),
       ),
     );
   }
@@ -956,6 +961,10 @@ class _StudyUsersState extends State<StudyUsers> {
                               onTap: () async {
                                 await _buildEditClientDialog(clients[index]);
                               },
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
                               child: Container(
                                 padding: EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
@@ -968,10 +977,6 @@ class _StudyUsersState extends State<StudyUsers> {
                                   size: 16.0,
                                 ),
                               ),
-                              splashColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
                             ),
                           ],
                         );
@@ -1131,6 +1136,10 @@ class _StudyUsersState extends State<StudyUsers> {
                                   onTap: () async {
                                     await _buildEditModeratorDialog(moderatorAssignedToThisStudy[index]);
                                   },
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
                                   child: Container(
                                     padding: EdgeInsets.all(8.0),
                                     decoration: BoxDecoration(
@@ -1143,10 +1152,6 @@ class _StudyUsersState extends State<StudyUsers> {
                                       size: 16.0,
                                     ),
                                   ),
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
                                 ),
                               ],
                             );
@@ -1260,6 +1265,10 @@ class _StudyUsersState extends State<StudyUsers> {
                                   onTap: () async {
                                     await _buildEditModeratorDialog(moderatorsNotAssignedToThisStudy[index]);
                                   },
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
                                   child: Container(
                                     padding: EdgeInsets.all(8.0),
                                     decoration: BoxDecoration(
@@ -1272,10 +1281,6 @@ class _StudyUsersState extends State<StudyUsers> {
                                       size: 16.0,
                                     ),
                                   ),
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
                                 ),
                               ],
                             );

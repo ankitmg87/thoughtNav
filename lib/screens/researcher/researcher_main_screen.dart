@@ -5,6 +5,7 @@ import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/widgets/study_widget.dart';
+import 'package:thoughtnav/services/firebase_auth_service.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
@@ -26,6 +27,9 @@ class ResearcherMainScreen extends StatefulWidget {
 }
 
 class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
+
+  final _firebaseAuthService = FirebaseAuthService();
+
   final FirebaseFirestoreService _firebaseFirestoreService =
       FirebaseFirestoreService();
 
@@ -233,51 +237,54 @@ class _ResearcherMainScreenState extends State<ResearcherMainScreen> {
       ),
       centerTitle: true,
       actions: [
-        // Padding(
-        //   padding: const EdgeInsets.all(8.0),
-        //   child: Center(
-        //     child: InkWell(
-        //       highlightColor: Colors.transparent,
-        //       focusColor: Colors.transparent,
-        //       hoverColor: Colors.transparent,
-        //       splashColor: Colors.transparent,
-        //       onTap: () {},
-        //       child: Stack(
-        //         children: [
-        //           Container(
-        //             child: Image(
-        //               image: AssetImage(
-        //                 'images/researcher_images/researcher_dashboard/researcher_avatar.png',
-        //               ),
-        //             ),
-        //             decoration: BoxDecoration(
-        //               shape: BoxShape.circle,
-        //             ),
-        //           ),
-        //           Positioned(
-        //             bottom: 0,
-        //             right: 0,
-        //             child: Container(
-        //               padding: EdgeInsets.all(2.0),
-        //               decoration: BoxDecoration(
-        //                 color: Colors.black,
-        //                 shape: BoxShape.circle,
-        //                 border: Border.all(
-        //                   color: Colors.white,
-        //                 ),
-        //               ),
-        //               child: Icon(
-        //                 Icons.menu,
-        //                 color: Colors.white,
-        //                 size: 12.0,
-        //               ),
-        //             ),
-        //           ),
-        //         ],
-        //       ),
-        //     ),
-        //   ),
-        // ),
+        Container(
+          height: kToolbarHeight,
+          width: 1.0,
+          color: Colors.grey[300],
+        ),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context)
+                    .popAndPushNamed(MODERATOR_PREFERENCES_SCREEN);
+              },
+              child: Text(
+                'Preferences',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          height: kToolbarHeight,
+          width: 1.0,
+          color: Colors.grey[300],
+        ),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: InkWell(
+              onTap: () async {
+                await _firebaseAuthService.signOutUser();
+                await Navigator.of(context).popAndPushNamed(LOGIN_SCREEN);
+              },
+              child: Text(
+                'Logout',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
