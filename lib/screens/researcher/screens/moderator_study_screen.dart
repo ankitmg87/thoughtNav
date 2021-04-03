@@ -123,112 +123,117 @@ class _ModeratorStudyScreenState extends State<ModeratorStudyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    StudyScreenSecondaryAppBarWidget(
-                      label: 'Studies',
-                      onTap: () => setSubScreen('Studies'),
-                      selected: false,
-                    ),
-                    SizedBox(
-                      width: 16.0,
-                    ),
-                    StudyScreenSecondaryAppBarWidget(
-                      label: 'Dashboard',
-                      selected: dashboardSelected,
-                      onTap: () => setSubScreen('Dashboard'),
-                    ),
-                    SizedBox(
-                      width: 16.0,
-                    ),
-                    StudyScreenSecondaryAppBarWidget(
-                      label: 'Users',
-                      selected: usersSelected,
-                      onTap: () => setSubScreen('Users'),
-                    ),
-                    SizedBox(
-                      width: 16.0,
-                    ),
-                    StudyScreenSecondaryAppBarWidget(
-                      label: 'Setup',
-                      selected: setupSelected,
-                      onTap: () => setSubScreen('Setup'),
-                    ),
-                    SizedBox(
-                      width: 16.0,
-                    ),
-                    StudyScreenSecondaryAppBarWidget(
-                      label: 'Reports',
-                      selected: reportsSelected,
-                      onTap: () => setSubScreen('Reports'),
-                    ),
-                  ],
-                ),
-                RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6.0),
+    return GestureDetector(
+      onTap: (){
+        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: _buildAppBar(),
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      StudyScreenSecondaryAppBarWidget(
+                        label: 'Studies',
+                        onTap: () => setSubScreen('Studies'),
+                        selected: false,
+                      ),
+                      SizedBox(
+                        width: 16.0,
+                      ),
+                      StudyScreenSecondaryAppBarWidget(
+                        label: 'Dashboard',
+                        selected: dashboardSelected,
+                        onTap: () => setSubScreen('Dashboard'),
+                      ),
+                      SizedBox(
+                        width: 16.0,
+                      ),
+                      StudyScreenSecondaryAppBarWidget(
+                        label: 'Users',
+                        selected: usersSelected,
+                        onTap: () => setSubScreen('Users'),
+                      ),
+                      SizedBox(
+                        width: 16.0,
+                      ),
+                      StudyScreenSecondaryAppBarWidget(
+                        label: 'Setup',
+                        selected: setupSelected,
+                        onTap: () => setSubScreen('Setup'),
+                      ),
+                      SizedBox(
+                        width: 16.0,
+                      ),
+                      StudyScreenSecondaryAppBarWidget(
+                        label: 'Reports',
+                        selected: reportsSelected,
+                        onTap: () => setSubScreen('Reports'),
+                      ),
+                    ],
                   ),
-                  color: PROJECT_GREEN,
-                  onPressed: () async {
-                    if(_studyStatus == 'Active'){
-                      setState(() {
-                        _studyStatus = 'Completed';
-                      });
-                      await _researcherAndModeratorFirestoreService.updateStudyStatus(_studyUID, _studyStatus);
-                      return;
-                    }
-                    if(_studyStatus == 'Completed'){
-                      setState(() {
-                        _studyStatus = 'Closed';
-                      });
-                      await _researcherAndModeratorFirestoreService.updateStudyStatus(_studyUID, _studyStatus);
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.done,
-                          color: Colors.white,
-                          size: 16.0,
-                        ),
-                        SizedBox(
-                          width: 10.0,
-                        ),
-                        Text(
-                          _studyStatus == 'Active' ?
-                          'Mark As Completed' : _studyStatus == 'Completed' ? 'Mark As Closed' : 'Study Closed',
-                          style: TextStyle(
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
+                    color: PROJECT_GREEN,
+                    onPressed: () async {
+                      if(_studyStatus == 'Active'){
+                        setState(() {
+                          _studyStatus = 'Completed';
+                        });
+                        await _researcherAndModeratorFirestoreService.updateStudyStatus(_studyUID, _studyStatus);
+                        return;
+                      }
+                      if(_studyStatus == 'Completed'){
+                        setState(() {
+                          _studyStatus = 'Closed';
+                        });
+                        await _researcherAndModeratorFirestoreService.updateStudyStatus(_studyUID, _studyStatus);
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.done,
                             color: Colors.white,
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.bold,
+                            size: 16.0,
                           ),
-                        ),
-                      ],
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                          Text(
+                            _studyStatus == 'Active' ?
+                            'Mark As Completed' : _studyStatus == 'Completed' ? 'Mark As Closed' : 'Study Closed',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Container(
-            height: 1.0,
-            color: Colors.grey[300],
-          ),
-          subScreen,
-        ],
+            Container(
+              height: 1.0,
+              color: Colors.grey[300],
+            ),
+            subScreen,
+          ],
+        ),
       ),
     );
   }
@@ -319,6 +324,10 @@ class _StudyScreenSecondaryAppBarWidgetState
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
+      hoverColor: Colors.white,
+      splashColor: Colors.white,
+      highlightColor: Colors.white,
       child: Text(
         widget.label,
         style: TextStyle(
@@ -327,10 +336,6 @@ class _StudyScreenSecondaryAppBarWidgetState
           fontSize: 16.0,
         ),
       ),
-      onTap: widget.onTap,
-      hoverColor: Colors.white,
-      splashColor: Colors.white,
-      highlightColor: Colors.white,
     );
   }
 }
