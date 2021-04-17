@@ -405,7 +405,7 @@ class ResearcherAndModeratorFirestoreService {
   Future<http.Response> sendEmail(
       String email, String message, String name, String subject) async {
     var url =
-        'http://bluechipdigitech.com/Thoughtnav_C/thoughtnav/flutter/send-email';
+        'api/emailSending.php';
 
     var response = await http.post(url, body: {
       'email': email,

@@ -111,18 +111,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: screenHeight * 0.01,
-                ),
-                GestureDetector(
-                  child: Text(
-                    'Learn More',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xFF00CC66),
-                    ),
-                  ),
-                ),
-                SizedBox(
                   height: screenHeight * 0.1,
                 ),
                 Padding(
@@ -172,7 +160,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
-                              'CONTINUE',
+                              'CONFIRM',
                               style: TextStyle(
                                 color: Color(0xFF50D2C3),
                                 fontSize: 20.0,
@@ -270,18 +258,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             fontSize: 14.0,
                           ),
                         ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        GestureDetector(
-                          child: Text(
-                            'Learn More',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF00CC66),
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -330,6 +306,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               await _firebaseAuthService.resetPassword(_email);
                               Navigator.pop(context);
                             },
+                            borderSide: BorderSide(
+                                color: Color(0xFF50D2C3),
+                                width: 2.0
+                            ),
+                            color: Color(0xFF50D2C3),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
@@ -339,11 +320,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 ),
                               ),
                             ),
-                            borderSide: BorderSide(
-                                color: Color(0xFF50D2C3),
-                                width: 2.0
-                            ),
-                            color: Color(0xFF50D2C3),
                           ),
                         ],
                       ),

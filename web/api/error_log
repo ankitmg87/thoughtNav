@@ -1,0 +1,429 @@
+[03-Mar-2021 12:32:32 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 5
+[03-Mar-2021 12:32:32 UTC] PHP Notice:  Undefined variable: message_id in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 8
+[03-Mar-2021 12:34:34 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 5
+[03-Mar-2021 12:34:34 UTC] PHP Notice:  Undefined variable: message_id in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 12
+[03-Mar-2021 12:35:06 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 5
+[03-Mar-2021 12:35:06 UTC] PHP Notice:  Undefined variable: message_id in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 12
+[03-Mar-2021 12:36:12 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 9
+[03-Mar-2021 12:36:12 UTC] PHP Notice:  Undefined variable: message_id in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 16
+[03-Mar-2021 12:36:31 UTC] PHP Recoverable fatal error:  Object of class mysqli could not be converted to string in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 4
+[03-Mar-2021 12:47:48 UTC] PHP Recoverable fatal error:  Object of class mysqli could not be converted to string in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 4
+[03-Mar-2021 12:54:42 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 6
+[04-Mar-2021 05:30:44 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 6
+[04-Mar-2021 05:31:12 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 6
+[04-Mar-2021 05:31:30 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 6
+[04-Mar-2021 05:31:33 UTC] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 6
+[04-Mar-2021 11:03:23 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 13
+[04-Mar-2021 11:04:51 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 13
+[04-Mar-2021 11:09:55 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 13
+[04-Mar-2021 11:09:56 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 13
+[04-Mar-2021 11:19:34 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 13
+[04-Mar-2021 11:24:08 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 13
+[04-Mar-2021 06:08:25 UTC] PHP Warning:  require(vendor/autoload.php): failed to open stream: No such file or directory in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 2
+[04-Mar-2021 06:08:25 UTC] PHP Fatal error:  require(): Failed opening required 'vendor/autoload.php' (include_path='.:/opt/alt/php73/usr/share/pear') in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 2
+[04-Mar-2021 11:41:17 Asia/Kolkata] PHP Recoverable fatal error:  Object of class Mpdf\Mpdf could not be converted to string in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 33
+[04-Mar-2021 11:48:15 Asia/Kolkata] PHP Warning:  fopen(uploads/pdf/60407ba6e3e62): failed to open stream: No such file or directory in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:48:15 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file uploads/pdf/60407ba6e3e62 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('uploads/pdf/604...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 11:48:27 Asia/Kolkata] PHP Warning:  fopen(uploads/pdf/60407bb32e993): failed to open stream: No such file or directory in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:48:27 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file uploads/pdf/60407bb32e993 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('uploads/pdf/604...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 11:50:28 Asia/Kolkata] PHP Warning:  fopen(/uploads/pdf/60407c2cbbfd4): failed to open stream: No such file or directory in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:50:28 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file /uploads/pdf/60407c2cbbfd4 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('/uploads/pdf/60...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 11:51:05 Asia/Kolkata] PHP Warning:  fopen(http://bluechipdigitech.com/pdftesting/api/uploads/pdf/60407c5198e66): failed to open stream: HTTP wrapper does not support writeable connections in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:51:05 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file http://bluechipdigitech.com/pdftesting/api/uploads/pdf/60407c5198e66 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('http://bluechip...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 11:51:54 Asia/Kolkata] PHP Warning:  fopen(http://bluechipdigitech.com/pdftesting/api/uploads/pdf/60407c8289008): failed to open stream: HTTP wrapper does not support writeable connections in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:51:54 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file http://bluechipdigitech.com/pdftesting/api/uploads/pdf/60407c8289008 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('http://bluechip...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 11:54:34 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 14
+[04-Mar-2021 11:57:46 Asia/Kolkata] PHP Warning:  fopen(http://bluechipdigitech.com/pdftesting/api/uploads/pdf/1614839266.pdf): failed to open stream: HTTP wrapper does not support writeable connections in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:57:46 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file http://bluechipdigitech.com/pdftesting/api/uploads/pdf/1614839266.pdf in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('http://bluechip...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 11:58:09 Asia/Kolkata] PHP Warning:  fopen(uploads/pdf/1614839289.pdf): failed to open stream: No such file or directory in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:58:09 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file uploads/pdf/1614839289.pdf in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('uploads/pdf/161...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 11:59:01 Asia/Kolkata] PHP Warning:  fopen(uploads/pdf1614839341.pdf): failed to open stream: No such file or directory in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 11:59:01 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file uploads/pdf1614839341.pdf in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('uploads/pdf1614...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 12:16:44 Asia/Kolkata] PHP Warning:  fopen(http://bluechipdigitech.com/pdftesting/api/upload/pdf1614840404.pdf): failed to open stream: HTTP wrapper does not support writeable connections in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 12:16:44 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file http://bluechipdigitech.com/pdftesting/api/upload/pdf1614840404.pdf in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(34): Mpdf\Mpdf->Output('http://bluechip...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 12:18:43 Asia/Kolkata] PHP Warning:  Use of undefined constant base_url - assumed 'base_url' (this will throw an Error in a future version of PHP) in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 12:18:43 Asia/Kolkata] PHP Warning:  fopen(base_urlupload/pdf1614840523.pdf): failed to open stream: No such file or directory in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 12:18:43 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file base_urlupload/pdf1614840523.pdf in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(35): Mpdf\Mpdf->Output('base_urlupload/...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 12:20:02 Asia/Kolkata] PHP Warning:  fopen(http://bluechipdigitech.com/pdftesting/api/upload/pdf1614840602.pdf): failed to open stream: HTTP wrapper does not support writeable connections in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9467
+[04-Mar-2021 12:20:02 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Unable to create output file http://bluechipdigitech.com/pdftesting/api/upload/pdf1614840602.pdf in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9470
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(35): Mpdf\Mpdf->Output('http://bluechip...', 'F')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9470
+[04-Mar-2021 12:36:50 Asia/Kolkata] PHP Notice:  Undefined variable: json in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 29
+[04-Mar-2021 12:36:50 Asia/Kolkata] PHP Notice:  Undefined variable: path in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 41
+[04-Mar-2021 12:37:13 Asia/Kolkata] PHP Notice:  Undefined variable: path in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 41
+[04-Mar-2021 12:42:38 Asia/Kolkata] PHP Warning:  Invalid argument supplied for foreach() in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 30
+[04-Mar-2021 12:43:47 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 28
+[04-Mar-2021 12:43:47 Asia/Kolkata] PHP Warning:  Invalid argument supplied for foreach() in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 32
+[04-Mar-2021 12:45:31 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 29
+[04-Mar-2021 12:45:31 Asia/Kolkata] PHP Warning:  Invalid argument supplied for foreach() in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 33
+[04-Mar-2021 12:45:51 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 29
+[04-Mar-2021 12:46:03 Asia/Kolkata] PHP Notice:  Undefined variable: studyname in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 52
+[04-Mar-2021 12:50:28 Asia/Kolkata] PHP Warning:  array_values() expects parameter 1 to be array, string given in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 24
+[04-Mar-2021 12:51:13 Asia/Kolkata] PHP Warning:  array_values() expects parameter 1 to be array, string given in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 24
+[04-Mar-2021 12:51:13 Asia/Kolkata] PHP Warning:  array_values() expects parameter 1 to be array, string given in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 25
+[04-Mar-2021 12:56:44 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 30
+[04-Mar-2021 12:57:15 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 30
+[04-Mar-2021 12:58:20 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 30
+[04-Mar-2021 12:58:47 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 30
+[04-Mar-2021 12:59:07 Asia/Kolkata] PHP Warning:  array_values() expects parameter 1 to be array, string given in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 25
+[04-Mar-2021 12:59:07 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 30
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:00:11 Asia/Kolkata] PHP Notice:  Undefined index: studyName in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 34
+[04-Mar-2021 13:01:47 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Cannot use object of type stdClass as array in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php:30
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 30
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Warning:  Illegal string offset 'studyName' in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:06:23 Asia/Kolkata] PHP Notice:  Undefined index: studyName in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 35
+[04-Mar-2021 13:13:34 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 40
+[04-Mar-2021 13:29:04 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 62
+[04-Mar-2021 13:31:58 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 63
+[04-Mar-2021 13:36:04 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 13:38:15 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 13:40:22 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:00:16 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:00:46 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:02:16 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:03:21 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:03:55 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:05:21 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:07:44 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 68
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 75
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 76
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 75
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 76
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 75
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 76
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:22:16 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 96
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 75
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 76
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 75
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 76
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 75
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 76
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionNumber in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 81
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Undefined index: questionTitle in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 82
+[04-Mar-2021 15:26:00 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 96
+[04-Mar-2021 15:34:44 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:34:44 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:34:44 Asia/Kolkata] PHP Notice:  Undefined index: questionStatement in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 78
+[04-Mar-2021 15:34:44 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 15:41:10 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 15:48:50 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 15:52:26 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 15:54:55 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:00:25 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:02:55 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:03:58 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:04:49 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:06:55 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:12:09 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:22:29 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:26:22 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[04-Mar-2021 16:28:47 Asia/Kolkata] PHP Notice:  Array to string conversion in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 112
+[05-Mar-2021 07:23:21 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 143
+[05-Mar-2021 07:24:23 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 146
+[05-Mar-2021 07:24:38 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 146
+[05-Mar-2021 07:25:36 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 146
+[05-Mar-2021 07:26:17 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 146
+[05-Mar-2021 07:27:00 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 138
+[05-Mar-2021 07:31:56 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 148
+[05-Mar-2021 07:32:22 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 148
+[05-Mar-2021 07:33:08 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 148
+[05-Mar-2021 07:34:31 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 151
+[05-Mar-2021 07:35:01 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 138
+[05-Mar-2021 07:41:47 UTC] PHP Parse error:  syntax error, unexpected 'm' (T_STRING) in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 41
+[05-Mar-2021 13:16:38 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php:22
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 22
+[05-Mar-2021 13:17:01 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 21
+[05-Mar-2021 13:17:30 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 21
+[05-Mar-2021 13:17:55 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 21
+[05-Mar-2021 13:19:06 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 21
+[05-Mar-2021 13:20:45 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Call to undefined method mysqli_result::fetch_all() in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 19
+[05-Mar-2021 13:21:17 Asia/Kolkata] PHP Notice:  Undefined property: mysqli_result::$fetch_asscoc in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 19
+[05-Mar-2021 13:21:53 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 22
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Tr.php on line 16
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Tr.php on line 16
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index:  in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Tr.php on line 16
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: nr in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Tr.php on line 16
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Tr.php on line 20
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 28
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: nc in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 28
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 29
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 32
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: va in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 89
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: txta in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 92
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/CssManager.php on line 1723
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: direction in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 229
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: cellLineHeight in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 245
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingStrategy in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 250
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingShift in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 255
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 327
+[05-Mar-2021 15:26:16 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 399
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 28
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 29
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 32
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: va in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 89
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: txta in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 92
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/CssManager.php on line 1723
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: direction in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 229
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineHeight in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 245
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingStrategy in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 250
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingShift in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 255
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 327
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 399
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Tr.php on line 16
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Tr.php on line 20
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 28
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 32
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: va in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 89
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: txta in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 92
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/CssManager.php on line 1723
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: direction in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 229
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineHeight in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 245
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingStrategy in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 250
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingShift in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 255
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 327
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 399
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 28
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 32
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: va in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 89
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: txta in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 92
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/CssManager.php on line 1723
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: direction in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 229
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineHeight in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 245
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingStrategy in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 250
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: cellLineStackingShift in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 255
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 327
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php on line 399
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 524
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 525
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 525
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 525
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 524
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 525
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 525
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 525
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 524
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 561
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 562
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 564
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 567
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 569
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 574
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 644
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: direction in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 644
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined offset: 0 in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 649
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21124
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: border_details in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21124
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21127
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: border_details in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21127
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21130
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: border_details in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21130
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21133
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: border_details in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21133
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21256
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21437
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21256
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21437
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21256
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21437
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21256
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21437
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: nc in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19346
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: nr in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19347
+[05-Mar-2021 15:26:17 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19350
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19353
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19353
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19353
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19353
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: cellLineHeight in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 792
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: nc in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19815
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19818
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19821
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19821
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19821
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19821
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: level in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 19824
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined variable: fullpage in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 886
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined variable: maxrowheight in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 886
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: nr in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 907
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined variable: remainingpage in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 1108
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined variable: maxfirstrowheight in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 1108
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: level in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21680
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: levelid in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21681
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: nc in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21684
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: nr in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21685
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21693
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21701
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21708
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21771
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21774
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 21774
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 22959
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 22962
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 22965
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 22973
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: borders_separate in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 22990
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 22991
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 23023
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: max_cell_border_width in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 23023
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 23023
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 23023
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 23088
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Notice:  Undefined index: margin in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Table.php on line 1147
+[05-Mar-2021 15:26:18 Asia/Kolkata] PHP Fatal error:  Uncaught Mpdf\MpdfException: Data has already been sent to output (/home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Tag/Td.php at line 245), unable to output PDF file in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php:9410
+Stack trace:
+#0 /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php(163): Mpdf\Mpdf->Output('upload/16149381...', 'I')
+#1 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/pdftesting/api/vendor/mpdf/mpdf/src/Mpdf.php on line 9410
+[05-Mar-2021 17:53:22 Asia/Kolkata] PHP Notice:  Undefined variable: row in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 22
+[05-Mar-2021 18:07:12 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 16
+[05-Mar-2021 18:07:28 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 16
+[05-Mar-2021 18:08:51 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/pdftesting/api/index.php on line 16
+[06-Mar-2021 15:22:04 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/index.php on line 17
+[06-Mar-2021 15:25:18 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/index.php on line 17
+[06-Mar-2021 15:25:18 Asia/Kolkata] PHP Notice:  Undefined index: pdf_data in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/index.php on line 17
+[14-Apr-2021 10:05:39 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function sendEmail() in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 9
+[14-Apr-2021 11:14:41 UTC] PHP Fatal error:  Uncaught Error: Using $this when not in object context in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 5
+[14-Apr-2021 11:15:46 UTC] PHP Fatal error:  Uncaught Error: Using $this when not in object context in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 7
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: email in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 3
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: name in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 5
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: subject in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 6
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: message in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 7
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: email in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 3
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: name in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 5
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: subject in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 6
+[14-Apr-2021 12:25:42 UTC] PHP Notice:  Undefined index: message in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailSending.php on line 7
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: email in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 3
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: name in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 5
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: subject in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 6
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: message in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 7
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: email in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 3
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: name in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 5
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: subject in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 6
+[14-Apr-2021 12:25:43 UTC] PHP Notice:  Undefined index: message in /home/ql7iokvcx7v4/public_html/Thoughtnav/api/emailReceiving.php on line 7

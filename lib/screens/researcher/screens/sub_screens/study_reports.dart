@@ -97,7 +97,7 @@ class _StudyReportsState extends State<StudyReports> {
     }
     var response =
     await _researcherAndModeratorService.sendDataForPdfGeneration(
-        'http://bluechipdigitech.com/Thoughtnav/api/',
+        'api/',
         reportStudy.toMap(reportStudy));
     var decodedResponse = jsonDecode(response.body);
     _response = decodedResponse['message'];

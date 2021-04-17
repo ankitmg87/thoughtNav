@@ -45,7 +45,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     var getStorage = GetStorage();
     _studyUID = getStorage.read('studyUID');
     _participantUID = getStorage.read('participantUID');
-    _participant = await _firebaseFirestoreService.getParticipant(
+    _participant = await _participantFirestoreService.getParticipant(
         _studyUID, _participantUID);
 
     _previousPassword = _participant.password;

@@ -89,13 +89,11 @@ class _LoginScreenState extends State<LoginScreen> {
             _email.trim(), _password.trim());
 
         if (userID == 'user-not-found') {
-          print('User not Found');
           _invalidEmail = true;
           _invalidPassword = true;
           _formKey.currentState.validate();
           Navigator.of(dialogContext).pop();
         } else if (userID == 'wrong-password') {
-          print('Invalid Password');
           if (_invalidEmail) {
             _invalidEmail = false;
           }
@@ -225,9 +223,6 @@ class _LoginScreenState extends State<LoginScreen> {
     var email = js.context.callMethod('getEmail');
     var password = js.context.callMethod('getPassword');
 
-    print(email);
-    print(password);
-
     if(email != null && password != null){
       _email = email;
       _password = password;
@@ -321,18 +316,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     color: Color(0xFF333333),
                     fontSize: 12.0,
-                  ),
-                ),
-                SizedBox(
-                  height: screenHeight * 0.01,
-                ),
-                GestureDetector(
-                  child: Text(
-                    'Learn More',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xFF00CC66),
-                    ),
                   ),
                 ),
                 Padding(
@@ -609,18 +592,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontSize: 14.0,
                           ),
                         ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        GestureDetector(
-                          child: Text(
-                            'Learn More',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF00CC66),
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   ),

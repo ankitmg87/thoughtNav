@@ -91,7 +91,7 @@ class _EmailWidgetState extends State<EmailWidget> {
                 },
                 child: Container(
                   constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.75,
+                    maxHeight: MediaQuery.of(context).size.height * 0.8,
                   ),
                   padding: EdgeInsets.all(20.0),
                   width: MediaQuery.of(context).size.width * 0.7,
@@ -118,7 +118,6 @@ class _EmailWidgetState extends State<EmailWidget> {
                       ),
                       Expanded(
                         child: ListView(
-                          shrinkWrap: true,
                           children: [
                             Row(
                               children: [
@@ -284,7 +283,7 @@ class _EmailWidgetState extends State<EmailWidget> {
                                                   for (var participant in widget
                                                       .participantsList) {
                                                     if (widget.groupsList[index]
-                                                            .internalGroupLabel ==
+                                                            .groupName ==
                                                         participant
                                                             .userGroupName) {
                                                       groupParticipants
@@ -568,7 +567,7 @@ class _EmailWidgetState extends State<EmailWidget> {
                                                 participant.email,
                                                 sanitisedMessage,
                                                 'Mike Courtney',
-                                                'From ThoughtNav');
+                                                _subject);
                                       } catch (e) {
                                         print(e);
                                       }
@@ -596,7 +595,7 @@ class _EmailWidgetState extends State<EmailWidget> {
                                                 participant.email,
                                                 sanitisedMessage,
                                                 'Mike Courtney',
-                                                'From ThoughtNav');
+                                                _subject);
                                       } catch (e) {
                                         print(e);
                                       }

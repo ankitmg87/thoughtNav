@@ -563,7 +563,7 @@ class ParticipantFirestoreService {
   Future<http.Response> sendEmail(
       String email, String message, String name, String subject) async {
     var url =
-        'http://bluechipdigitech.com/Thoughtnav_C/thoughtnav/flutter/receive-email';
+        'api/emailReceiving.php';
     var response = await http.post(url, body: {
       'email': email,
       'message': message,
