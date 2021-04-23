@@ -78,7 +78,6 @@ class _AddUsersWidgetState extends State<AddUsersWidget> {
 
     if(createdUser != null){
       client.clientUID = createdUser.userUID;
-      client.isOnboarded = false;
       client.password = widget.masterPassword;
 
       await _researcherAndModeratorFirestoreService.createClient(

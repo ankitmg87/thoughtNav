@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/constants/misc_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
 
 class CommentWidget extends StatelessWidget {

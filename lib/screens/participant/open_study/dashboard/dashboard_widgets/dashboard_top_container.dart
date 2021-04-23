@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
-import 'package:thoughtnav/constants/misc_constants.dart';
 
-import 'progress_containers.dart';
 import 'study_details_bottom_sheet.dart';
 
 class DashboardTopContainer extends StatelessWidget {
@@ -32,7 +30,12 @@ class DashboardTopContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: COMMON_PADDING,
+      padding: EdgeInsets.only(
+        left: 30.0,
+        top: 30.0,
+        right: 30.0,
+        bottom: 15.0,
+      ),
       color: Color(0xFF092A66),
       width: double.infinity,
       child: Column(

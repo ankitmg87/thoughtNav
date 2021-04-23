@@ -63,7 +63,6 @@ class ResearcherAndModeratorFirestoreService {
       introPageMessage: INTRO_PAGE_MESSAGE,
       studyClosedMessage: 'This is study closed message',
       commonInviteMessage: 'This is a common invite message',
-      archived: false,
     );
 
     var studyMap = Study().basicDetailsToMap(study);

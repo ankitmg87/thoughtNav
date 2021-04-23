@@ -4,8 +4,6 @@ class Study {
   String studyUID;
   String studyName;
 
-  bool archived;
-
   String internalStudyLabel;
   String studyStatus;
   int activeParticipants;
@@ -36,7 +34,6 @@ class Study {
   Study({
     this.studyUID,
     this.studyName,
-    this.archived,
     this.internalStudyLabel,
     this.studyStatus,
     this.activeParticipants,
@@ -68,7 +65,6 @@ class Study {
 
     basicDetailsMap['studyUID'] = study.studyUID;
     basicDetailsMap['studyName'] = study.studyName;
-    basicDetailsMap['archived'] = study.archived;
     basicDetailsMap['internalStudyLabel'] = study.internalStudyLabel;
     basicDetailsMap['masterPassword'] = study.masterPassword;
     basicDetailsMap['studyStatus'] = study.studyStatus;
@@ -92,7 +88,6 @@ class Study {
   Study.basicDetailsFromMap(Map<String, dynamic> study){
     studyUID = study['studyUID'];
     studyName = study['studyName'];
-    archived = study['archived'];
     internalStudyLabel = study['internalStudyLabel'];
     masterPassword = study['masterPassword'];
     studyStatus = study['studyStatus'];

@@ -119,7 +119,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
 
     if(createdUser != null){
       client.clientUID = createdUser.userUID;
-      client.isOnboarded = false;
       client.password = _masterPassword;
 
       await _researcherAndModeratorFirestoreService.createClient(

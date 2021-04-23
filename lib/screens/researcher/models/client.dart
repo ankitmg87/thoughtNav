@@ -6,7 +6,6 @@ class Client {
   String lastName;
   String password;
   String phone;
-  bool isOnboarded;
 
   Client({
     this.clientUID,
@@ -16,7 +15,6 @@ class Client {
     this.lastName,
     this.password,
     this.phone,
-    this.isOnboarded,
   });
 
   Map<String, dynamic> toMap(){
@@ -29,7 +27,6 @@ class Client {
     clientMap['lastName'] = lastName;
     clientMap['password'] = password;
     clientMap['phone'] = phone;
-    clientMap['isOnboarded'] = isOnboarded;
 
     return clientMap;
   }
@@ -42,7 +39,6 @@ class Client {
     lastName = clientMap['lastName'];
     password = clientMap['password'];
     phone = clientMap['phone'];
-    isOnboarded = clientMap['isOnboarded'];
   }
 
 }
