@@ -1,3 +1,7 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -6,11 +10,9 @@ import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_dashboard.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_reports.dart';
-import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/sub_screens/study_users.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
-import 'package:thoughtnav/services/researcher_and_moderator_storage_service.dart';
 
 class ModeratorStudyScreen extends StatefulWidget {
   @override

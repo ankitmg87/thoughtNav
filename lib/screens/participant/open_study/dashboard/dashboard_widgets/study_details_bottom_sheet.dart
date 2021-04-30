@@ -1,3 +1,7 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,17 +26,6 @@ class StudyDetailsBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // var textSpan = HTML.toTextSpan(
-    //   context,
-    //   introMessage,
-    //   // defaultTextStyle: TextStyle(color: Colors.grey[700]),
-    //   // overrideStyle: {
-    //   //   'p': TextStyle(fontSize: 14),
-    //   //   'a': TextStyle(wordSpacing: 2),
-    //   //   // specify any tag not just the supported ones,
-    //   //   // and apply TextStyles to them and/override them
-    //   // },
-    // );
 
     return Container(
       padding: EdgeInsets.only(

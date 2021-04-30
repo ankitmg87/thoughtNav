@@ -1,8 +1,10 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'package:flutter/material.dart';
-import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/active_question_expansion_tile_child.dart';
-import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/active_task_widget.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 
 class EndDrawerExpansionTile extends StatefulWidget {

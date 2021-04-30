@@ -1,8 +1,11 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
-import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/response.dart';
 import 'package:thoughtnav/screens/researcher/widgets/response_report_widget.dart';

@@ -2,11 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
-
-import 'full_screen_new_widgets/custom_flat_button.dart';
 
 class StudyDetailsScreen extends StatefulWidget {
   @override
@@ -137,9 +136,34 @@ class _StudyDetailsScreenState extends State<StudyDetailsScreen> {
                           ],
                         ),
                       ),
-                      CustomFlatButton(
-                        label: 'Let\'s Get Started',
-                        routeName: ONBOARDING_SCREEN,
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 40.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: FlatButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                color: PROJECT_GREEN,
+                                onPressed: (){
+                                  Navigator.of(context).pushNamedAndRemoveUntil(ONBOARDING_SCREEN, (route) => false);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Text(
+                                    'Let\'s Get Started',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       SizedBox(
                         height: screenHeight * 0.05,

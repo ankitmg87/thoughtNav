@@ -1,10 +1,13 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/models/user.dart';
-import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_setup.dart';
 import 'package:thoughtnav/screens/researcher/screens/draft_study_sub_screens/draft_study_users.dart';
@@ -339,6 +342,10 @@ class __DraftStudySecondaryAppBarWidgetState
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
+      hoverColor: Colors.white,
+      splashColor: Colors.white,
+      highlightColor: Colors.white,
       child: Text(
         widget.label,
         style: TextStyle(
@@ -347,10 +354,6 @@ class __DraftStudySecondaryAppBarWidgetState
           fontSize: 16.0,
         ),
       ),
-      onTap: widget.onTap,
-      hoverColor: Colors.white,
-      splashColor: Colors.white,
-      highlightColor: Colors.white,
     );
   }
 }

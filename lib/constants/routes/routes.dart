@@ -1,3 +1,7 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 const String TN_HOME_SCREEN_ROUTE = 'tn_home_screen';
 const String LOGIN_SCREEN = 'login_screen';
 const String FORGOT_PASSWORD_SCREEN = 'forgot_password';

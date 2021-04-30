@@ -1,3 +1,7 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 const String APP_NAME = 'ThoughtNav';
 
 const String USER_TYPE_ROOT_USER = 'root';

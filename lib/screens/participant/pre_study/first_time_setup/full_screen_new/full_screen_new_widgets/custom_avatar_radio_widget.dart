@@ -1,12 +1,13 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/models/avatar_and_display_name.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';
-import 'package:thoughtnav/services/firebase_firestore_service.dart';
-import 'package:thoughtnav/services/participant_firestore_service.dart';
 
 class CustomAvatarRadioWidget extends StatefulWidget {
   final Participant participant;

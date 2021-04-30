@@ -1,4 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';

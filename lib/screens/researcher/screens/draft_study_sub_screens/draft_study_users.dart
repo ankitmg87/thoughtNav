@@ -1,3 +1,7 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -332,6 +336,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                         groupParticipantsIndex],
                                         _groups);
                                   },
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
                                   child: Container(
                                     padding: EdgeInsets.all(8.0),
                                     decoration: BoxDecoration(
@@ -344,10 +352,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                       size: 16.0,
                                     ),
                                   ),
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
                                 ),
                               ],
                             );
@@ -505,6 +509,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                               onTap: () async {
                                 await _buildEditClientDialog(clients[index]);
                               },
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
                               child: Container(
                                 padding: EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
@@ -517,10 +525,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                   size: 16.0,
                                 ),
                               ),
-                              splashColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
                             ),
                           ],
                         );
@@ -689,6 +693,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                   onTap: () async {
                                     await _buildEditModeratorDialog(moderatorAssignedToThisStudy[index]);
                                   },
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
                                   child: Container(
                                     padding: EdgeInsets.all(8.0),
                                     decoration: BoxDecoration(
@@ -701,10 +709,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                       size: 16.0,
                                     ),
                                   ),
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
                                 ),
                               ],
                             );
@@ -819,6 +823,10 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                     await _buildEditModeratorDialog(moderatorsNotAssignedToThisStudy[
                                     index]);
                                   },
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
                                   child: Container(
                                     padding: EdgeInsets.all(8.0),
                                     decoration: BoxDecoration(
@@ -831,10 +839,6 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                       size: 16.0,
                                     ),
                                   ),
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
                                 ),
                               ],
                             );
@@ -1924,7 +1928,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                                 onChanged: (value) {
                                   stateFulBuilderSetState(() {
                                     phone = value.trim();
-                                    participant.phone = value.trim();
+                                    participant.phone = phone;
                                   });
                                 },
                                 inputFormatters: [
@@ -2936,6 +2940,10 @@ class __DraftStudySecondaryAppBarWidgetState
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
+      hoverColor: Colors.white,
+      splashColor: Colors.white,
+      highlightColor: Colors.white,
       child: Text(
         widget.label,
         style: TextStyle(
@@ -2944,10 +2952,6 @@ class __DraftStudySecondaryAppBarWidgetState
           fontSize: 14.0,
         ),
       ),
-      onTap: widget.onTap,
-      hoverColor: Colors.white,
-      splashColor: Colors.white,
-      highlightColor: Colors.white,
     );
   }
 }

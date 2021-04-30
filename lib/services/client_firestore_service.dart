@@ -1,7 +1,10 @@
+// ThoughtNav. Focus Groups. Made Easy.
+// © Aperio Insights 30th April 2021. Version 1.0.0
+// All Rights Reserved
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
 import 'package:thoughtnav/screens/researcher/models/insight.dart';
-import 'package:thoughtnav/screens/researcher/models/notification.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
 import 'package:thoughtnav/screens/researcher/models/study.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';
@@ -9,7 +12,6 @@ import 'package:thoughtnav/screens/researcher/models/topic.dart';
 const String _STUDIES_COLLECTION = 'studies';
 const String _TOPICS_COLLECTION = 'topics';
 const String _QUESTIONS_COLLECTION = 'questions';
-const String _NOTIFICATIONS_COLLECTION = 'notifications';
 const String _CLIENTS_COLLECTION = 'clients';
 const String _INSIGHTS_COLLECTION = 'insights';
 const String _INSIGHT_NOTIFICATIONS_COLLECTION = 'insightNotifications';

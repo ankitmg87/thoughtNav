@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/constants/string_constants.dart';
-import 'package:thoughtnav/models/avatar_and_display_name.dart';
-import 'package:thoughtnav/screens/researcher/models/all_avatars_and_display_names.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';
 import 'package:thoughtnav/screens/researcher/models/client.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
