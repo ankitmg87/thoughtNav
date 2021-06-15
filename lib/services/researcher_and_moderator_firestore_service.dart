@@ -1,3 +1,6 @@
+// Copyright © 2021, Aperio Insights. Version 1.0.0
+// All rights reserved.
+
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
