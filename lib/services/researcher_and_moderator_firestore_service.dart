@@ -411,7 +411,7 @@ class ResearcherAndModeratorFirestoreService {
 
   Future<http.Response> sendEmail(
       String email, String message, String name, String subject) async {
-    var url = 'https://thoughtexplorers.com/web/ thoughtnav_production/api/emailSending.php';
+    var url = 'https://thoughtexplorers.com/web/api/emailSending.php';
 
     var response = await http.post(url, body: {
       'email': email,
@@ -954,7 +954,7 @@ class ResearcherAndModeratorFirestoreService {
   }
 
   Future<http.Response> sendDataForPdfGeneration(Map<String, dynamic> completeStudyForReport) async {
-    var url = 'https://thoughtexplorers.com/web/thoughtnav_production/api/index.php';
+    var url = 'https://thoughtexplorers.com/web/api/index.php';
     var object = jsonEncode(completeStudyForReport);
     var response = await http.post(url, body: {
       'pdf_data': object,
