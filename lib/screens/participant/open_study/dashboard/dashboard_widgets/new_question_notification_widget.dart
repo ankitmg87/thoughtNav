@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This question is used to show notification to the participant when
+/// moderator adds a new question in the middle of the study
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/constants/color_constants.dart';

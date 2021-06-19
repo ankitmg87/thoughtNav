@@ -1,6 +1,11 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the login screen
+/// Users can login according to their configuration from this screen
+/// This screen automatically redirects towards the proper screens
+/// based on the type of the user
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';

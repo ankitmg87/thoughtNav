@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the container which carries various information that is
+/// shown to participants on the onboarding screens
+
 import 'package:flutter/material.dart';
 
 class CustomInformationContainer extends StatelessWidget {

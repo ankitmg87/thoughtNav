@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the rewards screen
+/// Participants can set the reward preferences on this screen
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';

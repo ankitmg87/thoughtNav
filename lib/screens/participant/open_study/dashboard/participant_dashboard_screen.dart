@@ -1,6 +1,10 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the participant's dashboard screen.
+/// This file checks whether the participant has opened the web app on a smartphone
+/// or a desktop and then shows the correct layout accordingly.
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -503,47 +507,63 @@ class _ParticipantDashboardScreenState
               isAlwaysShown: true,
               thickness: 10.0,
               child: ListView(
-                children: List.generate(_studyNavigatorTopics.length, (index) {
-                  if (index == 0 &&
-                      _studyNavigatorTopics[index].topicDate
-                          .millisecondsSinceEpoch <=
-                          Timestamp.now().millisecondsSinceEpoch) {
-                    return EndDrawerExpansionTile(
-                      title: _studyNavigatorTopics[index].topicName,
-                      questions: _studyNavigatorTopics[index].questions,
-                      participantUID: _participantUID,
-                      topicUID: _studyNavigatorTopics[index].topicUID,
-                    );
-                  } else {
-                    if (_studyNavigatorTopics[index - 1].questions.last.isProbe &&
-                        _studyNavigatorTopics[index].topicDate
-                            .millisecondsSinceEpoch <=
-                            Timestamp.now().millisecondsSinceEpoch) {
-                      return EndDrawerExpansionTile(
-                        title: _studyNavigatorTopics[index].topicName,
-                        questions: _studyNavigatorTopics[index].questions,
-                        participantUID: _participantUID,
-                        topicUID: _studyNavigatorTopics[index].topicUID,
-                      );
-                    } else {
-                      if (_studyNavigatorTopics[index - 1].questions.last
-                          .respondedBy
-                          .contains(_participantUID) &&
-                          _studyNavigatorTopics[index].topicDate
-                              .millisecondsSinceEpoch <=
-                              Timestamp.now().millisecondsSinceEpoch) {
+                children: List.generate(_studyNavigatorTopics.length, (index){
+                  if (_topics[index]
+                      .topicDate
+                      .millisecondsSinceEpoch <=
+                      Timestamp.now()
+                          .millisecondsSinceEpoch) {
                         return EndDrawerExpansionTile(
                           title: _studyNavigatorTopics[index].topicName,
                           questions: _studyNavigatorTopics[index].questions,
                           participantUID: _participantUID,
                           topicUID: _studyNavigatorTopics[index].topicUID,
                         );
-                      } else {
-                        return LockedTopicListTile();
-                      }
-                    }
+                  } else {
+                    return LockedTopicListTile();
                   }
                 }).toList(),
+                // List.generate(_studyNavigatorTopics.length, (index) {
+                //   if (index == 0 &&
+                //       _studyNavigatorTopics[index].topicDate
+                //           .millisecondsSinceEpoch <=
+                //           Timestamp.now().millisecondsSinceEpoch) {
+                //     return EndDrawerExpansionTile(
+                //       title: _studyNavigatorTopics[index].topicName,
+                //       questions: _studyNavigatorTopics[index].questions,
+                //       participantUID: _participantUID,
+                //       topicUID: _studyNavigatorTopics[index].topicUID,
+                //     );
+                //   } else {
+                //     if (_studyNavigatorTopics[index - 1].questions.last.isProbe &&
+                //         _studyNavigatorTopics[index].topicDate
+                //             .millisecondsSinceEpoch <=
+                //             Timestamp.now().millisecondsSinceEpoch) {
+                //       return EndDrawerExpansionTile(
+                //         title: _studyNavigatorTopics[index].topicName,
+                //         questions: _studyNavigatorTopics[index].questions,
+                //         participantUID: _participantUID,
+                //         topicUID: _studyNavigatorTopics[index].topicUID,
+                //       );
+                //     } else {
+                //       if (_studyNavigatorTopics[index - 1].questions.last
+                //           .respondedBy
+                //           .contains(_participantUID) &&
+                //           _studyNavigatorTopics[index].topicDate
+                //               .millisecondsSinceEpoch <=
+                //               Timestamp.now().millisecondsSinceEpoch) {
+                //         return EndDrawerExpansionTile(
+                //           title: _studyNavigatorTopics[index].topicName,
+                //           questions: _studyNavigatorTopics[index].questions,
+                //           participantUID: _participantUID,
+                //           topicUID: _studyNavigatorTopics[index].topicUID,
+                //         );
+                //       } else {
+                //         return LockedTopicListTile();
+                //       }
+                //     }
+                //   }
+                // }).toList(),
               ),
             ),
           ),
@@ -1286,45 +1306,59 @@ class _ParticipantDashboardScreenState
   }
 
   Widget _buildStudyTopic(int index) {
-    if (index == 0 &&
-        _topics[index].topicDate.millisecondsSinceEpoch <=
-            Timestamp.now().millisecondsSinceEpoch) {
-      return ActiveTaskWidget(
-        topic: _topics[index],
+    if (_topics[index]
+        .topicDate
+        .millisecondsSinceEpoch <=
+        Timestamp.now()
+            .millisecondsSinceEpoch) {
+      return EndDrawerExpansionTile(
+        title: _studyNavigatorTopics[index].topicName,
+        questions: _studyNavigatorTopics[index].questions,
         participantUID: _participantUID,
+        topicUID: _studyNavigatorTopics[index].topicUID,
       );
     } else {
-      if (_topics[index - 1].questions.last.isProbe) {
-        if (_topics[index].topicDate.millisecondsSinceEpoch <=
-            Timestamp.now().millisecondsSinceEpoch) {
-          return ActiveTaskWidget(
-            topic: _topics[index],
-            participantUID: _participantUID,
-          );
-        } else {
-          return LockedTaskWidget(topic: _topics[index]);
-        }
-      } else {
-        if (_topics[index - 1].questions.last.respondedBy != null) {
-          if (_topics[index - 1]
-              .questions
-              .last
-              .respondedBy
-              .contains(_participantUID) &&
-              _topics[index].topicDate.millisecondsSinceEpoch <=
-                  Timestamp.now().millisecondsSinceEpoch) {
-            return ActiveTaskWidget(
-              topic: _topics[index],
-              participantUID: _participantUID,
-            );
-          } else {
-            return LockedTaskWidget(topic: _topics[index]);
-          }
-        } else {
-          return LockedTaskWidget(topic: _topics[index]);
-        }
-      }
+      return LockedTopicListTile();
     }
+    // if (index == 0 &&
+    //     _topics[index].topicDate.millisecondsSinceEpoch <=
+    //         Timestamp.now().millisecondsSinceEpoch) {
+    //   return ActiveTaskWidget(
+    //     topic: _topics[index],
+    //     participantUID: _participantUID,
+    //   );
+    // } else {
+    //   if (_topics[index - 1].questions.last.isProbe) {
+    //     if (_topics[index].topicDate.millisecondsSinceEpoch <=
+    //         Timestamp.now().millisecondsSinceEpoch) {
+    //       return ActiveTaskWidget(
+    //         topic: _topics[index],
+    //         participantUID: _participantUID,
+    //       );
+    //     } else {
+    //       return LockedTaskWidget(topic: _topics[index]);
+    //     }
+    //   } else {
+    //     if (_topics[index - 1].questions.last.respondedBy != null) {
+    //       if (_topics[index - 1]
+    //           .questions
+    //           .last
+    //           .respondedBy
+    //           .contains(_participantUID) &&
+    //           _topics[index].topicDate.millisecondsSinceEpoch <=
+    //               Timestamp.now().millisecondsSinceEpoch) {
+    //         return ActiveTaskWidget(
+    //           topic: _topics[index],
+    //           participantUID: _participantUID,
+    //         );
+    //       } else {
+    //         return LockedTaskWidget(topic: _topics[index]);
+    //       }
+    //     } else {
+    //       return LockedTaskWidget(topic: _topics[index]);
+    //     }
+    //   }
+    // }
   }
 
   StreamBuilder _buildNotificationsStreamBuilder(

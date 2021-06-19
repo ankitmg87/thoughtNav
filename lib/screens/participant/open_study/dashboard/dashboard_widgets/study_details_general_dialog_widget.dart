@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the dialogue box that is shown when the participant wants
+/// to view study details on a desktop
+
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/participant.dart';

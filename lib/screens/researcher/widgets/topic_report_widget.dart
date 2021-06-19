@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the widget that is shown to moderators which enables them
+/// to view topics on the reports screen
+
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';

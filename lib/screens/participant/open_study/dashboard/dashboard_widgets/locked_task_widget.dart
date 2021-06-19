@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the widget that is used to show the locked topic which is
+/// shown on the participant dashboard
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thoughtnav/screens/researcher/models/topic.dart';

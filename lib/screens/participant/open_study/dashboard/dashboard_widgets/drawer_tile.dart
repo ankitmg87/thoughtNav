@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the tile which is used in the custom menu
+
 import 'package:flutter/material.dart';
 
 class DrawerTile extends StatelessWidget {

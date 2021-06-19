@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the question widget which is visible on study setup screen
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_web_view/easy_web_view.dart';
 
@@ -208,9 +210,11 @@ class _StudySetupScreenQuestionWidgetState
                 child: TextFormField(
                   enabled: widget.question.isProbe
                       ? true
-                      : widget.question.respondedBy.isNotEmpty
-                      ? false
-                      : true,
+                      : widget.question.respondedBy != null
+                          ? widget.question.respondedBy.isNotEmpty
+                              ? false
+                              : true
+                          : false,
                   initialValue: _questionNumber,
                   focusNode: _questionNumberFocusNode,
                   onFieldSubmitted: (questionNumber) {
@@ -262,7 +266,7 @@ class _StudySetupScreenQuestionWidgetState
                       _updateQuestionDetails();
                     }
                   },
-                  onChanged: (questionTitle){
+                  onChanged: (questionTitle) {
                     if (questionTitle.isNotEmpty || questionTitle != null) {
                       _questionTitle = questionTitle;
                       widget.question.questionTitle = _questionTitle;
@@ -312,7 +316,8 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
-                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                      WidgetsBinding.instance.focusManager.primaryFocus
+                          .unfocus();
                       await _updateQuestionDetails();
                       await showGeneralDialog(
                         context: context,
@@ -543,7 +548,8 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
-                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                      WidgetsBinding.instance.focusManager.primaryFocus
+                          .unfocus();
                       await _updateQuestionDetails();
                       final date = await showDatePicker(
                         context: context,
@@ -608,7 +614,8 @@ class _StudySetupScreenQuestionWidgetState
                   ),
                   child: InkWell(
                     onTap: () async {
-                      WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                      WidgetsBinding.instance.focusManager.primaryFocus
+                          .unfocus();
                       await _updateQuestionDetails();
                       final time = await showTimePicker(
                         context: context,
@@ -692,7 +699,8 @@ class _StudySetupScreenQuestionWidgetState
                       value: 1,
                       groupValue: _selectedRadio,
                       onChanged: (int value) {
-                        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                        WidgetsBinding.instance.focusManager.primaryFocus
+                            .unfocus();
                         _setSelectedRadio(value);
                       },
                     ),
@@ -720,7 +728,8 @@ class _StudySetupScreenQuestionWidgetState
                       value: 2,
                       groupValue: _selectedRadio,
                       onChanged: (int value) {
-                        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                        WidgetsBinding.instance.focusManager.primaryFocus
+                            .unfocus();
                         _setSelectedRadio(value);
                       },
                     ),
@@ -748,7 +757,8 @@ class _StudySetupScreenQuestionWidgetState
                       value: 3,
                       groupValue: _selectedRadio,
                       onChanged: (int value) {
-                        WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                        WidgetsBinding.instance.focusManager.primaryFocus
+                            .unfocus();
                         _setSelectedRadio(value);
                       },
                     ),
@@ -780,7 +790,8 @@ class _StudySetupScreenQuestionWidgetState
                         child: Checkbox(
                           value: widget.question.allowImage,
                           onChanged: (bool value) {
-                            WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                            WidgetsBinding.instance.focusManager.primaryFocus
+                                .unfocus();
                             setState(() {
                               widget.question.allowImage = value;
                               _updateQuestionDetails();
@@ -815,7 +826,8 @@ class _StudySetupScreenQuestionWidgetState
                         child: Checkbox(
                           value: widget.question.allowVideo,
                           onChanged: (bool value) {
-                            WidgetsBinding.instance.focusManager.primaryFocus.unfocus();
+                            WidgetsBinding.instance.focusManager.primaryFocus
+                                .unfocus();
                             setState(() {
                               widget.question.allowVideo = value;
                               _updateQuestionDetails();

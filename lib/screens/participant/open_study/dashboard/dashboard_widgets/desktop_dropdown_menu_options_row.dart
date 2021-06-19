@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the Dropdown menu that is shown to the participants if they
+/// are using a desktop configuration
+
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 

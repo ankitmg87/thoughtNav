@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file handles all the colour values that are common throughout the project
+
 import 'package:flutter/material.dart';
 
 const Color SCAFFOLD_BACKGROUND_COLOR = Color(0xFFF2F2F2);

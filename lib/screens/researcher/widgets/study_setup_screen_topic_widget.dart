@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the topic widget which is visible on study setup screen
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -79,9 +81,12 @@ class _StudySetupScreenTopicWidgetState
       }
     });
 
-    _questions = widget.topic.questions;
+    if (widget.topic.questions != null) {
+      _questions = List.from(widget.topic.questions);
+    }
 
     _questions ??= <Question>[];
+    // widget.topic.questions ??=  <Question>[];
   }
 
   @override
@@ -329,10 +334,26 @@ class _StudySetupScreenTopicWidgetState
               SizedBox(
                 width: 40.0,
               ),
-              widget.topic.questions != null
-                  ? widget.topic.questions.isNotEmpty
-                      ? widget.topic.questions.first.respondedBy.isNotEmpty
-                          ? SizedBox()
+              _questions != null
+                  ? _questions.isNotEmpty
+                      ? _questions.first.respondedBy != null
+                          ? _questions.first.respondedBy.isNotEmpty
+                              ? SizedBox()
+                              : InkWell(
+                                  highlightColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  onTap: widget.deleteTopic,
+                                  child: Text(
+                                    'Delete Topic',
+                                    style: TextStyle(
+                                      color: Colors.red[700],
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
                           : InkWell(
                               highlightColor: Colors.transparent,
                               focusColor: Colors.transparent,
@@ -520,13 +541,16 @@ class _StudySetupScreenTopicWidgetState
                       widget.studyUID,
                       widget.topic.topicUID,
                       widget.topic.topicDate,
-                      widget.topic.questions.first.respondedBy.isNotEmpty
-                          ? true
-                          : false,
+                      widget.topic.questions,
                     );
                     setState(() {
                       _questions.add(question);
-                      widget.topic.questions = _questions;
+                      if (widget.topic.questions == null) {
+                        widget.topic.questions = <Question>[];
+                        widget.topic.questions.add(question);
+                      } else {
+                        widget.topic.questions = _questions;
+                      }
                     });
                   },
                   child: Text(

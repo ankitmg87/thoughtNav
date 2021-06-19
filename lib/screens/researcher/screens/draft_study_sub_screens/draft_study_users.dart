@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the screen which is shown to the moderators for enabling
+/// them to add various participants, clients and moderators
+
 import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -151,6 +154,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
   void _downloadFile(String url) {
     var anchorElement = AnchorElement(href: url);
     anchorElement.download = url;
+    anchorElement.click();
   }
 
   void _setList(String label) {
@@ -2076,7 +2080,7 @@ class _DraftStudyUsersState extends State<DraftStudyUsers> {
                               ),
                               InkWell(
                                 onTap: () async {
-                                  _downloadFile('');
+                                  _downloadFile('https://drive.google.com/uc?export=download&id=1DQg-6FC_V2jWgkkCdYjFvslsrzgwfVDT');
                                 },
                                 hoverColor: Colors.transparent,
                                 splashColor: Colors.transparent,

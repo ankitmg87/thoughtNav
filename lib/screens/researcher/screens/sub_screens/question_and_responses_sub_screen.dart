@@ -1,6 +1,11 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This screen defines the question and responses sub screen
+/// This screen enables the moderators to view the questions and responses of
+/// the participants on this screen
+/// Moderators can also add insights on this screen
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

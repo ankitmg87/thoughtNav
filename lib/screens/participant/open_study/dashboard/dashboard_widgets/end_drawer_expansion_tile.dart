@@ -1,10 +1,15 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the tile which is used in the study navigator to show
+/// topics and questions
+
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';
 import 'package:thoughtnav/screens/participant/open_study/dashboard/dashboard_widgets/active_question_expansion_tile_child.dart';
 import 'package:thoughtnav/screens/researcher/models/question.dart';
+
+import 'locked_question_expansion_tile.dart';
 
 class EndDrawerExpansionTile extends StatefulWidget {
   const EndDrawerExpansionTile({

@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the report topic model
+
 class ReportTopic {
   String topicName;
   String topicNumber;

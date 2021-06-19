@@ -1,6 +1,10 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the bottom sheet that is shown when participant wants to view
+/// the study details on a smartphone
+
+
 import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

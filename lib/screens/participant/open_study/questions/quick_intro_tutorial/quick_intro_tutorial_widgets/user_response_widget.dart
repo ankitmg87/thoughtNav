@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the widget that is shown when any participant has responded
+/// to a particular question
+
 import 'dart:html';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -150,7 +153,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
         Navigator.of(buildContext).pop();
       }
       else {
-        js.context.callMethod('alertMessage', ['Please pick a JPEG, JPG or PNG Image File']);
+        js.context.callMethod('alertMessage', ['Please pick a JPEG, JPG or PNG Image File. Any other image types are not allowed']);
       }
     }
   }
@@ -203,7 +206,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
       }
     }
     else {
-      js.context.callMethod('alertMessage', ['Please pick an mpeg-4 or mp4 file']);
+      js.context.callMethod('alertMessage', ['Please pick an MPEG-4 or MP4 Video File. Any other type of video formats are not allowed.']);
     }
   }
 

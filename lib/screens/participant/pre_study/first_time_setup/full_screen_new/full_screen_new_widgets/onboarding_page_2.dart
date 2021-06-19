@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the second step of onboarding.
+/// Participants are able to set phone, gender and password on this screen
+
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -52,6 +55,10 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
 
     _password = widget.participant.password;
     _confirmPassword = widget.participant.password;
+
+    if(widget.participant.phone != null){
+      widget.phoneNumberController.text = widget.participant.phone;
+    }
 
     super.initState();
   }

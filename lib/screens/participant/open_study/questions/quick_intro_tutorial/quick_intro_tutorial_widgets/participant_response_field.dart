@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the text field that is shown where the participants can note
+/// down their response
+
 import 'dart:html';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -108,7 +111,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
         Navigator.of(buildContext).pop();
       }
       else {
-        js.context.callMethod('alertMessage', ['Please pick a JPEG, JPG or PNG Image File']);
+        js.context.callMethod('alertMessage', ['Please pick a JPEG, JPG or PNG Image File. Any other image types are not allowed']);
       }
     }
   }
@@ -159,7 +162,7 @@ class _ParticipantResponseFieldState extends State<ParticipantResponseField> {
         Navigator.of(buildContext).pop();
       }
       else {
-        js.context.callMethod('alertMessage', ['Please pick an MPEG-4 or MP4 Video File']);
+        js.context.callMethod('alertMessage', ['Please pick an MPEG-4 or MP4 Video File. Any other type of video formats are not allowed.']);
       }
     }
   }

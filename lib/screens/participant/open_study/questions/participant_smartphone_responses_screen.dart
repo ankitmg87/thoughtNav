@@ -1,6 +1,10 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the responses screen of the participants.
+/// Participants are able to respond to the questions and read responses given by
+/// other participants
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -905,43 +909,54 @@ class _ParticipantSmartphoneResponsesScreenState
                             itemCount: topics.length,
                             itemBuilder:
                                 (BuildContext context, int topicIndex) {
-                              if (topicIndex == 0) {
-                                return _buildStudyNavigatorActiveTopicExpansionTile(
-                                    topics[topicIndex]);
-                              } else {
-                                if (topics[topicIndex - 1]
-                                    .questions
-                                    .last
-                                    .isProbe && topics[topicIndex].topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
-                                  return _buildStudyNavigatorActiveTopicExpansionTile(
-                                      topics[topicIndex]);
-                                } else if (topics[topicIndex - 1]
-                                    .questions
-                                    .last
-                                    .respondedBy !=
-                                    null) {
-                                  if (topics[topicIndex - 1]
-                                      .questions
-                                      .last
-                                      .respondedBy
-                                      .contains(widget
-                                      .participant.participantUID) &&
-                                      topics[topicIndex]
-                                          .topicDate
-                                          .millisecondsSinceEpoch <=
-                                          Timestamp.now()
-                                              .millisecondsSinceEpoch  && topics[topicIndex].topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
-                                    return _buildStudyNavigatorActiveTopicExpansionTile(
-                                        topics[topicIndex]);
+                                  if (topics[topicIndex]
+                                      .topicDate
+                                      .millisecondsSinceEpoch <=
+                                      Timestamp.now()
+                                          .millisecondsSinceEpoch) {
+                                      return _buildStudyNavigatorActiveTopicExpansionTile(
+                                          topics[topicIndex]);
                                   } else {
-                                    return _buildStudyNavigatorLockedTopicListTile(
-                                        topics[topicIndex]);
+                                        return _buildStudyNavigatorLockedTopicListTile(
+                                            topics[topicIndex]);
                                   }
-                                } else {
-                                  return _buildStudyNavigatorLockedTopicListTile(
-                                      topics[topicIndex]);
-                                }
-                              }
+                              // if (topicIndex == 0) {
+                              //   return _buildStudyNavigatorActiveTopicExpansionTile(
+                              //       topics[topicIndex]);
+                              // } else {
+                              //   if (topics[topicIndex - 1]
+                              //       .questions
+                              //       .last
+                              //       .isProbe && topics[topicIndex].topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
+                              //     return _buildStudyNavigatorActiveTopicExpansionTile(
+                              //         topics[topicIndex]);
+                              //   } else if (topics[topicIndex - 1]
+                              //       .questions
+                              //       .last
+                              //       .respondedBy !=
+                              //       null) {
+                              //     if (topics[topicIndex - 1]
+                              //         .questions
+                              //         .last
+                              //         .respondedBy
+                              //         .contains(widget
+                              //         .participant.participantUID) &&
+                              //         topics[topicIndex]
+                              //             .topicDate
+                              //             .millisecondsSinceEpoch <=
+                              //             Timestamp.now()
+                              //                 .millisecondsSinceEpoch  && topics[topicIndex].topicDate.millisecondsSinceEpoch <= Timestamp.now().millisecondsSinceEpoch) {
+                              //       return _buildStudyNavigatorActiveTopicExpansionTile(
+                              //           topics[topicIndex]);
+                              //     } else {
+                              //       return _buildStudyNavigatorLockedTopicListTile(
+                              //           topics[topicIndex]);
+                              //     }
+                              //   } else {
+                              //     return _buildStudyNavigatorLockedTopicListTile(
+                              //         topics[topicIndex]);
+                              //   }
+                              // }
                             },
                             separatorBuilder:
                                 (BuildContext context, int index) {

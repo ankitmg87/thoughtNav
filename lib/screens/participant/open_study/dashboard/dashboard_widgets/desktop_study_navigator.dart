@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the study navigator that is shown to the participants
+/// when they are using a desktop configuration.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -20,9 +23,10 @@ class DesktopStudyNavigator extends StatefulWidget {
 
 class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
   final _scrollController = ScrollController();
+  final double _initialWidth = 50.0;
+  final double _finalWidth = 300.0;
+
   double _value = 50.0;
-  double _initialWidth = 50.0;
-  double _finalWidth = 300.0;
   bool _isExpanded = false;
   bool _showDrawer = false;
 
@@ -92,11 +96,12 @@ class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
                       child: ListView(
                         padding: EdgeInsets.only(right: 15.0),
                         controller: _scrollController,
-                        children: List.generate(widget.topics.length, (index) {
-                          if (index == 0 &&
-                              widget.topics[index].topicDate
-                                      .millisecondsSinceEpoch <=
-                                  Timestamp.now().millisecondsSinceEpoch) {
+                        children: List.generate(widget.topics.length, (index){
+                          if (widget.topics[index]
+                              .topicDate
+                              .millisecondsSinceEpoch <=
+                              Timestamp.now()
+                                  .millisecondsSinceEpoch) {
                             return EndDrawerExpansionTile(
                               title: widget.topics[index].topicName,
                               questions: widget.topics[index].questions,
@@ -104,36 +109,51 @@ class _DesktopStudyNavigatorState extends State<DesktopStudyNavigator> {
                               topicUID: widget.topics[index].topicUID,
                             );
                           } else {
-                            if (widget
-                                    .topics[index - 1].questions.last.isProbe &&
-                                widget.topics[index].topicDate
-                                        .millisecondsSinceEpoch <=
-                                    Timestamp.now().millisecondsSinceEpoch) {
-                              return EndDrawerExpansionTile(
-                                title: widget.topics[index].topicName,
-                                questions: widget.topics[index].questions,
-                                participantUID: widget.participantUID,
-                                topicUID: widget.topics[index].topicUID,
-                              );
-                            } else {
-                              if (widget.topics[index - 1].questions.last
-                                      .respondedBy
-                                      .contains(widget.participantUID) &&
-                                  widget.topics[index].topicDate
-                                          .millisecondsSinceEpoch <=
-                                      Timestamp.now().millisecondsSinceEpoch) {
-                                return EndDrawerExpansionTile(
-                                  title: widget.topics[index].topicName,
-                                  questions: widget.topics[index].questions,
-                                  participantUID: widget.participantUID,
-                                  topicUID: widget.topics[index].topicUID,
-                                );
-                              } else {
-                                return LockedTopicListTile();
-                              }
-                            }
+                            return LockedTopicListTile();
                           }
                         }).toList(),
+                        // List.generate(widget.topics.length, (index) {
+                        //   if (index == 0 &&
+                        //       widget.topics[index].topicDate
+                        //               .millisecondsSinceEpoch <=
+                        //           Timestamp.now().millisecondsSinceEpoch) {
+                        //     return EndDrawerExpansionTile(
+                        //       title: widget.topics[index].topicName,
+                        //       questions: widget.topics[index].questions,
+                        //       participantUID: widget.participantUID,
+                        //       topicUID: widget.topics[index].topicUID,
+                        //     );
+                        //   } else {
+                        //     if (widget
+                        //             .topics[index - 1].questions.last.isProbe &&
+                        //         widget.topics[index].topicDate
+                        //                 .millisecondsSinceEpoch <=
+                        //             Timestamp.now().millisecondsSinceEpoch) {
+                        //       return EndDrawerExpansionTile(
+                        //         title: widget.topics[index].topicName,
+                        //         questions: widget.topics[index].questions,
+                        //         participantUID: widget.participantUID,
+                        //         topicUID: widget.topics[index].topicUID,
+                        //       );
+                        //     } else {
+                        //       if (widget.topics[index - 1].questions.last
+                        //               .respondedBy
+                        //               .contains(widget.participantUID) &&
+                        //           widget.topics[index].topicDate
+                        //                   .millisecondsSinceEpoch <=
+                        //               Timestamp.now().millisecondsSinceEpoch) {
+                        //         return EndDrawerExpansionTile(
+                        //           title: widget.topics[index].topicName,
+                        //           questions: widget.topics[index].questions,
+                        //           participantUID: widget.participantUID,
+                        //           topicUID: widget.topics[index].topicUID,
+                        //         );
+                        //       } else {
+                        //         return LockedTopicListTile();
+                        //       }
+                        //     }
+                        //   }
+                        // }).toList(),
                       ),
                     ),
                   )

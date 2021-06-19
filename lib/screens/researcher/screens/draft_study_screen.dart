@@ -1,6 +1,10 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the draft study screen which is shown to the moderators
+/// when the study is in draft mode.
+/// This study holds two draft study sub screens
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -83,63 +87,6 @@ class _DraftStudyScreenState extends State<DraftStudyScreen> {
   }
 
   void _setStudyAsActive() async {
-    //var dialogContext;
-
-    // _unAwaited(
-    //   showGeneralDialog(
-    //     context: context,
-    //     pageBuilder: (BuildContext context, Animation<double> animation,
-    //         Animation<double> secondaryAnimation) {
-    //       dialogContext = context;
-    //       return Center(
-    //         child: Material(
-    //           borderRadius: BorderRadius.circular(4.0),
-    //           color: Colors.white,
-    //           child: Container(
-    //             padding: EdgeInsets.all(16.0),
-    //             decoration: BoxDecoration(
-    //               borderRadius: BorderRadius.circular(4.0),
-    //             ),
-    //             child: Text(
-    //               'Please Wait...',
-    //               style: TextStyle(
-    //                 color: Colors.grey[700],
-    //                 fontWeight: FontWeight.bold,
-    //                 fontSize: 16.0,
-    //               ),
-    //             ),
-    //           ),
-    //         ),
-    //       );
-    //     },
-    //   ),
-    // );
-    //
-    // var groups = await _getGroups();
-    // var masterPassword = await _getMasterPassword();
-    //
-    // var studyName = _studyName.replaceAll(RegExp(r'[^\w\s]+'), '');
-    //
-    // for (var group in groups){
-    //   var rawEmailString =
-    //       'participant.' + studyName + '.' + group.groupName + '@thoughtnav.com';
-    //   var lowerCaseRawEmail = rawEmailString.toLowerCase();
-    //   var sanitizedEmail = lowerCaseRawEmail.replaceAll(' ', '');
-    //
-    //   await _addParticipantToFirebase(_studyUID, Participant(
-    //     userFirstName: 'Participant',
-    //     userLastName: '${group.groupIndex}',
-    //     email: sanitizedEmail,
-    //     password: masterPassword,
-    //     userGroupName: group.groupName,
-    //     rewardAmount: group.groupRewardAmount,
-    //     groupUID: group.groupUID,
-    //
-    //   ), masterPassword);
-    // }
-    //
-    // Navigator.of(dialogContext).pop();
-
     await _firebaseFirestoreService.updateStudyStatus(_studyUID, 'Active').then((value){
       if(_userType == 'root'){
         Navigator.of(context).popAndPushNamed(RESEARCHER_MAIN_SCREEN);

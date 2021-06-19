@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the widget which enables the moderators to send emails
+/// to users
+
 import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
@@ -47,7 +50,7 @@ class _EmailWidgetState extends State<EmailWidget> {
   void initState() {
     js.context.callMethod('setInitialValue', [
       '<p>${widget.commonInviteMessage}</p>'
-          '<p>Link: <a href="http://bluechipdigitech.com/Thoughtnav/web/#tn_home_screen">http://bluechipdigitech.com/Thoughtnav/web/#tn_home_screen</a></p>'
+          '<p>Link: <a href="http://thoughtexplorers.com/#tn_home_screen">http://thoughtexplorers.com/#tn_home_screen</a></p>'
           '<p>Password: ${widget.masterPassword}</p>'
     ]);
 

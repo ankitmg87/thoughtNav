@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the custom input field that is provided on the study setup screen
+
 import 'package:flutter/material.dart';
 
 class StudySetupScreenCustomInputField extends StatelessWidget {

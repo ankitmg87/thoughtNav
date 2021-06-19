@@ -1,6 +1,10 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the container that is shown on the top displaying basic
+/// details about the study to the participants.
+/// Participants can also see the number of total questions and answered questions.
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';

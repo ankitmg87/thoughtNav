@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file carries various methods for communicating with Firestore
+
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -108,12 +110,10 @@ class ResearcherAndModeratorFirestoreService {
           .doc(avatarAndDisplayNameDoc['id'])
           .set(avatarAndDisplayNameDoc.data());
     }
-    
+
     // for (var avatarAndDisplayName in avatarAndDisplayNameList){
     //   await FirebaseFirestore.instance.collection('avatarsAndDisplayNames').doc(avatarAndDisplayName.id).set(avatarAndDisplayName.toMap());
     // }
-
-
   }
 
   Future<Study> getStudy(String studyUID) async {
@@ -190,10 +190,11 @@ class ResearcherAndModeratorFirestoreService {
   }
 
   Future<Question> createQuestion(String studyUID, String topicUID,
-      Timestamp topicTimestamp, bool isProbe) async {
+      Timestamp topicTimestamp, List<Question> questions) async {
     var question = Question(
       questionType: 'Standard',
       questionTimestamp: topicTimestamp,
+      respondedBy: [],
       totalComments: 0,
       totalResponses: 0,
       questionNumber: '',
@@ -201,7 +202,13 @@ class ResearcherAndModeratorFirestoreService {
       groupIndexes: [],
       allowImage: false,
       allowVideo: false,
-      isProbe: isProbe,
+      isProbe: questions != null
+          ? questions.isNotEmpty
+              ? questions.first.respondedBy.isNotEmpty
+                  ? true
+                  : false
+              : false
+          : false,
     );
 
     var questionMap = question.toMap();
@@ -404,8 +411,7 @@ class ResearcherAndModeratorFirestoreService {
 
   Future<http.Response> sendEmail(
       String email, String message, String name, String subject) async {
-    var url =
-        'api/emailSending.php';
+    var url = 'https://thoughtexplorers.com/web/ thoughtnav_production/api/emailSending.php';
 
     var response = await http.post(url, body: {
       'email': email,
@@ -836,7 +842,7 @@ class ResearcherAndModeratorFirestoreService {
 
       studies.add(study);
     }
-
+    studies.sort((a, b) => b.created.millisecondsSinceEpoch.compareTo(a.created.millisecondsSinceEpoch));
     return studies;
   }
 
@@ -947,9 +953,8 @@ class ResearcherAndModeratorFirestoreService {
     });
   }
 
-  Future<http.Response> sendDataForPdfGeneration(
-      String link, Map<String, dynamic> completeStudyForReport) async {
-    var url = link;
+  Future<http.Response> sendDataForPdfGeneration(Map<String, dynamic> completeStudyForReport) async {
+    var url = 'https://thoughtexplorers.com/web/thoughtnav_production/api/index.php';
     var object = jsonEncode(completeStudyForReport);
     var response = await http.post(url, body: {
       'pdf_data': object,

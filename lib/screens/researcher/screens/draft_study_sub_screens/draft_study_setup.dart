@@ -1,6 +1,10 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the scree which is shown to the moderators.
+/// Moderators can edit basic details, groups, categories, topics and questions
+/// on this screen
+
 import 'dart:async';
 import 'dart:js' as js;
 

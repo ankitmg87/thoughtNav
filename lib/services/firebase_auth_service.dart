@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file carries various methods for communicating with Firebase authentication
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'dart:js' as js;

@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the response model
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:thoughtnav/screens/researcher/models/comment.dart';
 

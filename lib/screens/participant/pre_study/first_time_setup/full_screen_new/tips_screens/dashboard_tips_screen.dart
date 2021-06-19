@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the tips screen which is shown to the participants after
+/// onboarding is complete
+
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/constants/routes/routes.dart';

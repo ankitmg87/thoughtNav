@@ -1,6 +1,11 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the study reports screen.
+/// Moderators will be able to view all topics, questions, responses and comments
+/// on this screen
+/// Moderators can generate reports in pdf and csv formats from this screen
+
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -93,7 +98,6 @@ class _StudyReportsState extends State<StudyReports> {
     }
     var response =
     await _researcherAndModeratorService.sendDataForPdfGeneration(
-        'api/',
         reportStudy.toMap(reportStudy));
     var decodedResponse = jsonDecode(response.body);
     _response = decodedResponse['message'];

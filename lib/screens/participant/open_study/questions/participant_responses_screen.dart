@@ -1,6 +1,10 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the responses screen of the participants.
+/// Participants are able to respond to the questions and read responses given by
+/// other participants
+
 import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -1372,133 +1376,188 @@ class _ParticipantResponseScreenState extends State<ParticipantResponseScreen> {
                                 itemCount: _studyNavigatorTopics.length,
                                 itemBuilder:
                                     (BuildContext context, int topicIndex) {
-                                  if (topicIndex == 0) {
-                                    return _buildDesktopStudyNavigatorExpansionTile(
-                                      topicIndex,
-                                      _studyNavigatorTopics[topicIndex],
-                                      _participantUID,
-                                    );
-                                  } else {
-                                    if (_studyNavigatorTopics[topicIndex - 1]
-                                            .questions
-                                            .last
-                                            .isProbe &&
-                                        _studyNavigatorTopics[topicIndex]
-                                                .topicDate
-                                                .millisecondsSinceEpoch <=
-                                            Timestamp.now()
-                                                .millisecondsSinceEpoch) {
+
+                                  if(_studyNavigatorTopics[topicIndex]
+                                      .topicDate
+                                      .millisecondsSinceEpoch <=
+                                      Timestamp.now()
+                                          .millisecondsSinceEpoch){
                                       return _buildDesktopStudyNavigatorExpansionTile(
-                                          topicIndex,
-                                          _studyNavigatorTopics[topicIndex],
-                                          _participantUID);
-                                    } else if (_studyNavigatorTopics[
-                                                topicIndex - 1]
-                                            .questions
-                                            .last
-                                            .respondedBy !=
-                                        null) {
-                                      if (_studyNavigatorTopics[topicIndex - 1]
-                                              .questions
-                                              .last
-                                              .respondedBy
-                                              .contains(_participantUID) &&
-                                          _studyNavigatorTopics[topicIndex]
-                                                  .topicDate
-                                                  .millisecondsSinceEpoch <=
-                                              Timestamp.now()
-                                                  .millisecondsSinceEpoch) {
-                                        return _buildDesktopStudyNavigatorExpansionTile(
-                                            topicIndex,
-                                            _studyNavigatorTopics[topicIndex],
-                                            _participantUID);
-                                      } else {
-                                        return ListTile(
-                                          onTap: () {
-                                            showGeneralDialog(
-                                              context: context,
-                                              barrierLabel:
-                                                  'Locked Topic Dialog',
-                                              barrierDismissible: true,
-                                              pageBuilder: (BuildContext
-                                                      context,
-                                                  Animation<double> animation,
-                                                  Animation<double>
-                                                      secondaryAnimation) {
-                                                return Center(
-                                                  child: Material(
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10.0),
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          EdgeInsets.all(20.0),
-                                                      child: Text(
-                                                        'All Previous questions must be answered',
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 20.0,
-                                                          color:
-                                                              Colors.grey[700],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          },
-                                          title: Text(
-                                            'Topic Locked',
-                                          ),
-                                        );
-                                      }
-                                    } else {
-                                      return ListTile(
-                                        onTap: () {
-                                          showGeneralDialog(
-                                            context: context,
-                                            barrierLabel: 'Locked Topic Dialog',
-                                            barrierDismissible: true,
-                                            pageBuilder: (BuildContext context,
-                                                Animation<double> animation,
-                                                Animation<double>
-                                                    secondaryAnimation) {
-                                              return Center(
-                                                child: Material(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsets.all(20.0),
-                                                    child: Text(
-                                                      'All Previous questions must be answered',
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 20.0,
-                                                        color: Colors.grey[700],
-                                                      ),
+                                        topicIndex,
+                                        _studyNavigatorTopics[topicIndex],
+                                        _participantUID,
+                                      );
+                                  }
+                                  else {
+                                    return ListTile(
+                                      onTap: () {
+                                        showGeneralDialog(
+                                          context: context,
+                                          barrierLabel: 'Locked Topic Dialog',
+                                          barrierDismissible: true,
+                                          pageBuilder: (BuildContext context,
+                                              Animation<double> animation,
+                                              Animation<double>
+                                              secondaryAnimation) {
+                                            return Center(
+                                              child: Material(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                  BorderRadius.circular(
+                                                      10.0),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                  EdgeInsets.all(20.0),
+                                                  child: Text(
+                                                    'All Previous questions must be answered',
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                      fontSize: 20.0,
+                                                      color: Colors.grey[700],
                                                     ),
                                                   ),
                                                 ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                        title: Text(
-                                          'Topic Locked',
-                                        ),
-                                      );
-                                    }
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      title: Text(
+                                        'Topic Locked',
+                                      ),
+                                    );
                                   }
+
+                                  // if (topicIndex == 0) {
+                                  //   return _buildDesktopStudyNavigatorExpansionTile(
+                                  //     topicIndex,
+                                  //     _studyNavigatorTopics[topicIndex],
+                                  //     _participantUID,
+                                  //   );
+                                  // } else {
+                                  //   if (_studyNavigatorTopics[topicIndex - 1]
+                                  //           .questions
+                                  //           .last
+                                  //           .isProbe &&
+                                  //       _studyNavigatorTopics[topicIndex]
+                                  //               .topicDate
+                                  //               .millisecondsSinceEpoch <=
+                                  //           Timestamp.now()
+                                  //               .millisecondsSinceEpoch) {
+                                  //     return _buildDesktopStudyNavigatorExpansionTile(
+                                  //         topicIndex,
+                                  //         _studyNavigatorTopics[topicIndex],
+                                  //         _participantUID);
+                                  //   } else if (_studyNavigatorTopics[
+                                  //               topicIndex - 1]
+                                  //           .questions
+                                  //           .last
+                                  //           .respondedBy !=
+                                  //       null) {
+                                  //     if (_studyNavigatorTopics[topicIndex - 1]
+                                  //             .questions
+                                  //             .last
+                                  //             .respondedBy
+                                  //             .contains(_participantUID) &&
+                                  //         _studyNavigatorTopics[topicIndex]
+                                  //                 .topicDate
+                                  //                 .millisecondsSinceEpoch <=
+                                  //             Timestamp.now()
+                                  //                 .millisecondsSinceEpoch) {
+                                  //       return _buildDesktopStudyNavigatorExpansionTile(
+                                  //           topicIndex,
+                                  //           _studyNavigatorTopics[topicIndex],
+                                  //           _participantUID);
+                                  //     } else {
+                                  //       return ListTile(
+                                  //         onTap: () {
+                                  //           showGeneralDialog(
+                                  //             context: context,
+                                  //             barrierLabel:
+                                  //                 'Locked Topic Dialog',
+                                  //             barrierDismissible: true,
+                                  //             pageBuilder: (BuildContext
+                                  //                     context,
+                                  //                 Animation<double> animation,
+                                  //                 Animation<double>
+                                  //                     secondaryAnimation) {
+                                  //               return Center(
+                                  //                 child: Material(
+                                  //                   shape:
+                                  //                       RoundedRectangleBorder(
+                                  //                     borderRadius:
+                                  //                         BorderRadius.circular(
+                                  //                             10.0),
+                                  //                   ),
+                                  //                   child: Padding(
+                                  //                     padding:
+                                  //                         EdgeInsets.all(20.0),
+                                  //                     child: Text(
+                                  //                       'All Previous questions must be answered',
+                                  //                       style: TextStyle(
+                                  //                         fontWeight:
+                                  //                             FontWeight.bold,
+                                  //                         fontSize: 20.0,
+                                  //                         color:
+                                  //                             Colors.grey[700],
+                                  //                       ),
+                                  //                     ),
+                                  //                   ),
+                                  //                 ),
+                                  //               );
+                                  //             },
+                                  //           );
+                                  //         },
+                                  //         title: Text(
+                                  //           'Topic Locked',
+                                  //         ),
+                                  //       );
+                                  //     }
+                                  //   }
+                                  //   else {
+                                  //     return ListTile(
+                                  //       onTap: () {
+                                  //         showGeneralDialog(
+                                  //           context: context,
+                                  //           barrierLabel: 'Locked Topic Dialog',
+                                  //           barrierDismissible: true,
+                                  //           pageBuilder: (BuildContext context,
+                                  //               Animation<double> animation,
+                                  //               Animation<double>
+                                  //                   secondaryAnimation) {
+                                  //             return Center(
+                                  //               child: Material(
+                                  //                 shape: RoundedRectangleBorder(
+                                  //                   borderRadius:
+                                  //                       BorderRadius.circular(
+                                  //                           10.0),
+                                  //                 ),
+                                  //                 child: Padding(
+                                  //                   padding:
+                                  //                       EdgeInsets.all(20.0),
+                                  //                   child: Text(
+                                  //                     'All Previous questions must be answered',
+                                  //                     style: TextStyle(
+                                  //                       fontWeight:
+                                  //                           FontWeight.bold,
+                                  //                       fontSize: 20.0,
+                                  //                       color: Colors.grey[700],
+                                  //                     ),
+                                  //                   ),
+                                  //                 ),
+                                  //               ),
+                                  //             );
+                                  //           },
+                                  //         );
+                                  //       },
+                                  //       title: Text(
+                                  //         'Topic Locked',
+                                  //       ),
+                                  //     );
+                                  //   }
+                                  // }
                                 },
                               ),
                             );

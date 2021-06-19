@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the onboarding screen which holds the three steps for
+/// onboarding
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -69,6 +72,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     var dialogContext;
 
     _newPassword = _participant.password;
+
+    _participant.secondaryEmail ??= _participant.email;
 
     unAwaited(
       showGeneralDialog(

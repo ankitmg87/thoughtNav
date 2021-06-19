@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file carries various methods for communicating with Firebase storage
+
 import 'dart:html';
 
 import 'package:firebase/firebase.dart' as fb;

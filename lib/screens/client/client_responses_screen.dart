@@ -1,6 +1,11 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This screen displays the responses screen for the client.
+/// Clients will be able to see responses and comments of participants according
+/// to the corresponding topic and question.
+/// They will also be able to access and add insights.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';

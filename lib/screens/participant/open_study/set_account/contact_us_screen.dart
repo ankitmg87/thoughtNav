@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This is the contact us screen. This screen allows the participant to contact
+/// Mike Courtney via email.
+
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:thoughtnav/constants/color_constants.dart';

@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file handles all the front end strings and makes them available as
+/// constant values for using them anywhere in the project
+
 const String APP_NAME = 'ThoughtNav';
 
 const String USER_TYPE_ROOT_USER = 'root';

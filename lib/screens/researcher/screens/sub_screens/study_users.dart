@@ -1,6 +1,11 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the study users tab
+/// Moderators are able to view details of participants, clients and moderators on this screen
+/// Moderators can send emails to users from this screen
+/// Moderators can also add users from this screen
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,8 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the group widget that is shown to the maoderators
+
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
@@ -40,17 +42,21 @@ class _DraftScreenGroupWidgetState extends State<DraftScreenGroupWidget> {
     super.initState();
     _groupNameFocusNode.addListener(() {
       if (!_groupNameFocusNode.hasFocus) {
-        if (widget.group.groupName.isNotEmpty ||
-            widget.group.groupName != null) {
-          _updateGroupDetails();
+        if(widget.group.groupName != null){
+          if (widget.group.groupName.isNotEmpty ||
+              widget.group.groupName != null) {
+            _updateGroupDetails();
+          }
         }
       }
     });
     _internalGroupLabelFocusNode.addListener(() {
       if (!_internalGroupLabelFocusNode.hasFocus) {
-        if (widget.group.internalGroupLabel.isNotEmpty ||
-            widget.group.groupName != null) {
-          _updateGroupDetails();
+        if(widget.group.internalGroupLabel != null){
+          if (widget.group.internalGroupLabel.isNotEmpty ||
+              widget.group.groupName != null) {
+            _updateGroupDetails();
+          }
         }
       }
     });

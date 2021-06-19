@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines the widget that is shown to moderators which enables them
+/// to set category to the study
+
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';

@@ -1,6 +1,9 @@
 // Copyright © 2021, Aperio Insights. Version 1.0.0
 // All rights reserved.
 
+/// This file defines widget that is shown to the moderators for adding
+/// custom categories
+
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/categories.dart';
@@ -32,11 +35,16 @@ class _CustomCategoriesWidgetState extends State<CustomCategoriesWidget> {
     _controllers.clear();
     _totalCustomCategories = 1;
 
-    if (widget.categories.customCategories.isNotEmpty) {
-      for (var category in widget.categories.customCategories) {
-        _customCategories.add(CustomCategory.fromMap(category));
+    if(widget.categories.customCategories != null){
+      if (widget.categories.customCategories.isNotEmpty) {
+        for (var category in widget.categories.customCategories) {
+          _customCategories.add(CustomCategory.fromMap(category));
+        }
       }
     }
+
+    widget.categories.customCategories ??= List.from(_customCategories);
+
 
     if (_customCategories.isNotEmpty) {
       _totalCustomCategories = _customCategories.length;
