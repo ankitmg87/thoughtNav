@@ -568,7 +568,7 @@ class ParticipantFirestoreService {
   Future<http.Response> sendEmail(
       String email, String message, String name, String subject) async {
     var url =
-        'https://thoughtexplorers.com/dev/api/emailReceiving.php';
+        'https://thoughtexplorers.com/test/api/emailReceiving.php';
     var response = await http.post(url, body: {
       'email': email,
       'message': message,
