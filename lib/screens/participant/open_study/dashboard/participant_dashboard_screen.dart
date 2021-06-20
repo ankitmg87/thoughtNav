@@ -1311,14 +1311,12 @@ class _ParticipantDashboardScreenState
         .millisecondsSinceEpoch <=
         Timestamp.now()
             .millisecondsSinceEpoch) {
-      return EndDrawerExpansionTile(
-        title: _studyNavigatorTopics[index].topicName,
-        questions: _studyNavigatorTopics[index].questions,
+      return ActiveTaskWidget(
+        topic: _topics[index],
         participantUID: _participantUID,
-        topicUID: _studyNavigatorTopics[index].topicUID,
       );
     } else {
-      return LockedTopicListTile();
+      return LockedTaskWidget(topic: _topics[index]);
     }
     // if (index == 0 &&
     //     _topics[index].topicDate.millisecondsSinceEpoch <=
