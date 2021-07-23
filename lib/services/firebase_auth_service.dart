@@ -59,12 +59,13 @@ class FirebaseAuthService {
     await user.updatePassword(newPassword);
   }
 
-  Future<void> resetPassword(String email) async {
+  Future<String> resetPassword(String email) async {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
+      return null;
     }
     catch (e) {
-      print(e);
+      return e.message;
     }
   }
 
