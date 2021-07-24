@@ -4,9 +4,9 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "favicon.png": "6e139f5da5e7e7d907b86b14af5031a7",
-"main.dart.js": "94d30f08546a1f4e4329190b83ec8284",
-"index.html": "334d8b8415b1294aba2d5678e27f95eb",
-"/": "334d8b8415b1294aba2d5678e27f95eb",
+"main.dart.js": "292ab69c2a6cfeb38380cbc49328f877",
+"index.html": "22921b46909f487e26d07e67f4bb3466",
+"/": "22921b46909f487e26d07e67f4bb3466",
 "manifest.json": "943a1b980a88e0083c53e9771dfa2031",
 "assets/images/researcher_images/researcher_dashboard/researcher_thoughtnav_logo.png": "c7b28da9209cd95b11b0c3ff7c81999a",
 "assets/images/researcher_images/researcher_dashboard/participant_icon.png": "54073bb9d9536a3800096168015797ba",
@@ -44,9 +44,9 @@ const RESOURCES = {
 "assets/packages/flutter_widget_from_html_core/test/images/logo.png": "57838d52c318faff743130c3fcfae0c6",
 "assets/packages/flutter_markdown/assets/logo.png": "67642a0b80f3d50277c44cde8f450e50",
 "assets/packages/wakelock_web/assets/no_sleep.js": "7748a45cd593f33280669b29c2c8919a",
-"assets/NOTICES": "1b238050a918b835d96eb85b9fedbbbb",
+"assets/NOTICES": "2117cda6909e158dfe40b6203fa00cfa",
 "assets/FontManifest.json": "61541eb69e517ffcfb42fb187555df05",
-"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
+"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
 "assets/assets/fonts/sofia_pro_regular.otf": "a7a07e7f06f7f684948562bb2e7d1cbd",
 "assets/AssetManifest.json": "e4a8013dee4e3c610b548eab2947d4dc",
 "quill.js": "b0b128e4501b62cd9317a9662f54a863",
@@ -71,7 +71,7 @@ self.addEventListener("install", (event) => {
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
       return cache.addAll(
-        CORE.map((value) => new Request(value + '?revision=' + RESOURCES[value], {'cache': 'reload'})));
+        CORE.map((value) => new Request(value, {'cache': 'reload'})));
     })
   );
 });
