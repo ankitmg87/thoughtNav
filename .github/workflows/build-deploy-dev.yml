@@ -59,7 +59,8 @@ jobs:
       #     password: ${{ secrets.ftp_password }}
       #     protocol: ftps
       #     port: 21
-      - name: Deploy to goDaddy Server 
+
+      - name: Deploy 
       uses: kevinpainchaud/simple-ftp-deploy-action@v1.2.1
       with:
         ftp_host: thoughtexplorers.com
