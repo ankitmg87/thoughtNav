@@ -51,11 +51,21 @@ jobs:
       # - name: 🚚 Get latest code
       #   uses: actions/checkout@v2
 
+      # - name: Deploy to goDaddy Server 
+      #   uses: SamKirkland/FTP-Deploy-Action@4.1.0
+      #   with:
+      #     server: thoughtexplorers.com
+      #     username: dev@thoughtexplorers.com
+      #     password: ${{ secrets.ftp_password }}
+      #     protocol: ftps
+      #     port: 21
       - name: Deploy to goDaddy Server 
-        uses: SamKirkland/FTP-Deploy-Action@4.1.0
-        with:
-          server: thoughtexplorers.com
-          username: dev@thoughtexplorers.com
-          password: ${{ secrets.ftp_password }}
-          protocol: ftps
-          port: 21
+      uses: kevinpainchaud/simple-ftp-deploy-action@v1.2.1
+      with:
+        ftp_host: thoughtexplorers.com
+        ftp_username: dev@thoughtexplorers.com
+        ftp_password: ${{ secrets.FTP_PASSWORD }}
+        local_source_dir: "./build/web"
+        dist_target_dir: "/"
+        delete: "true"
+        exclude: "'^logs/' '^README.md'"
