@@ -1,0 +1,61 @@
+name: Build & deploy - Test
+
+on:
+  push:
+    branches:
+      - test
+  pull_request:
+    branches:
+      - test
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: "2.2.2"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build release project
+        run: flutter build web
+
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./build/web
+
+  deploy:
+    name: 🎉 Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/test'
+
+    steps:
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: production-files
+          path: ./build
+
+      # - name: 🚚 Get latest code
+      #   uses: actions/checkout@v2
+
+      - name: Deploy to goDaddy Server 
+        uses: SamKirkland/FTP-Deploy-Action@4.1.0
+        with:
+          server: thoughtexplorers.com
+          username: test@thoughtexplorers.com
+          password: ${{ secrets.ftp_password }}
+          protocol: ftps
+          port: 21
