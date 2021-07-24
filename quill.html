@@ -1,0 +1,69 @@
+<!--
+ThoughtNav. Focus Groups. Made Easy.
+© Aperio Insights 30th April 2021. Version 1.0.0
+All Rights Reserved
+ -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id='container' style="height: 320px;">
+  <div id='quillEditor'>
+
+  </div>
+
+</div>
+
+
+
+
+<!-- Include the Quill library -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<script src="quill.js" defer></script>
+
+<!-- Initialize Quill editor -->
+<script>
+
+var text = localStorage.getItem("content");
+
+var options = {
+placeholder: 'Please type something',
+theme: 'snow',
+modules: {
+toolbar: [
+[{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}],
+['link', 'image'],
+]
+}
+
+}
+
+  var editor = new Quill('#quillEditor', options);
+
+  if(text != null){
+    editor.root.innerHTML = text;
+  }
+
+  editor.on('text-change', function(){
+    var html = editor.root.innerHTML;
+
+    localStorage.setItem("content", html);
+
+  });
+
+
+
+</script>
+
+</body>
+
+</html>
