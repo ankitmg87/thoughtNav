@@ -4,7 +4,6 @@
 /// This file defines the widget which enables the moderators to send emails
 /// to users
 
-import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:thoughtnav/constants/color_constants.dart';
 import 'package:thoughtnav/screens/researcher/models/group.dart';
@@ -12,6 +11,8 @@ import 'package:thoughtnav/screens/researcher/models/participant.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 import 'dart:js' as js;
+
+import 'package:webview_flutter/webview_flutter.dart';
 
 class EmailWidget extends StatefulWidget {
   final List<Group> groupsList;
@@ -480,10 +481,13 @@ class _EmailWidgetState extends State<EmailWidget> {
                             SizedBox(
                               height: 10.0,
                             ),
-                            EasyWebView(
-                              src: 'quill.html',
-                              onLoaded: () {},
-                              height: 400,
+                            Expanded(
+                              child: SizedBox(
+                                height: 400,
+                                child: WebView(
+                                  initialUrl: 'quill.html',
+                                ),
+                              ),
                             ),
                             SizedBox(
                               height: 10.0,

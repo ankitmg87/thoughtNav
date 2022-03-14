@@ -32,12 +32,15 @@ import 'package:thoughtnav/screens/researcher/screens/draft_study_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/responses_screen.dart';
 import 'package:thoughtnav/screens/researcher/screens/moderator_study_screen.dart';
 import 'package:thoughtnav/screens/test_screen.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_web/webview_flutter_web.dart';
 
 import 'constants/routes/routes.dart';
 
 
 void main() async {
   await GetStorage.init();
+  WebView.platform = WebWebViewPlatform();
   runApp(MyApp());
 }
 

@@ -8,7 +8,7 @@ All Rights Reserved
 <html>
 <head>
 
-    <base href="/thoughtNav/">
+    <base href='/'>
 
     <meta charset="UTF-8">
     <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -27,9 +27,6 @@ All Rights Reserved
     <link rel="manifest" href="manifest.json">
 
     <script src="quill.js" defer></script>
-
-    <script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">
 
 </head>
 <body>
@@ -61,16 +58,15 @@ function webSaveAs(blob, name) {
 <script>
   // Your web app's Firebase configuration
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  var firebaseConfig = {
-    apiKey: "AIzaSyBizkjwZGwIyyu_aRLheIP3nuGDVbW3ewk",
-    authDomain: "thoughtnav-51841.firebaseapp.com",
-    databaseURL: "https://thoughtnav-51841.firebaseio.com",
-    projectId: "thoughtnav-51841",
-    storageBucket: "thoughtnav-51841.appspot.com",
-    messagingSenderId: "996043842386",
-    appId: "1:996043842386:web:003adf08a372ab4d8fd08b",
-    measurementId: "G-SVJDE00FXC"
-  };
+ const firebaseConfig = {
+  apiKey: "AIzaSyC1UumyW1FBWYwOvO60GhzPyhvzDjmrO1Q",
+  authDomain: "thoughtnav-dev.firebaseapp.com",
+  projectId: "thoughtnav-dev",
+  storageBucket: "thoughtnav-dev.appspot.com",
+  messagingSenderId: "338570494742",
+  appId: "1:338570494742:web:5db065ee92c1a1e1e84637",
+  measurementId: "G-YEXWHPCQXM"
+};
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   firebase.analytics();

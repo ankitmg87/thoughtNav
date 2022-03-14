@@ -318,10 +318,10 @@ class __QuestionDisplayBarState extends State<_QuestionDisplayBar> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    StreamBuilder<DocumentSnapshot>(
+                    StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                       stream: _streamResponsesAndComments,
                       builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot> snapshot) {
+                          AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.active) {
                           if (snapshot.hasData) {

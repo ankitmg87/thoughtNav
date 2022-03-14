@@ -312,10 +312,14 @@ class ResearcherAndModeratorFirestoreService {
         await _studiesReference.orderBy('created', descending: true).get();
 
     for (var snapshot in studiesSnapshot.docs) {
-      var study = Study.basicDetailsFromMap(snapshot.data());
-      allStudiesList.add(study);
+      print(snapshot.data());
+      try{
+        var study = Study.basicDetailsFromMap(snapshot.data());
+        allStudiesList.add(study);
+      }catch(e){
+        print(e);
+      }
     }
-
     return allStudiesList;
   }
 
@@ -413,7 +417,7 @@ class ResearcherAndModeratorFirestoreService {
       String email, String message, String name, String subject) async {
     var url = 'https://thoughtexplorers.com/test/api/emailSending.php';
 
-    var response = await http.post(url, body: {
+    var response = await http.post(Uri.parse(url), body: {
       'email': email,
       'message': message,
       'name': name,
@@ -956,7 +960,7 @@ class ResearcherAndModeratorFirestoreService {
   Future<http.Response> sendDataForPdfGeneration(Map<String, dynamic> completeStudyForReport) async {
     var url = 'https://thoughtexplorers.com/test/api/index.php';
     var object = jsonEncode(completeStudyForReport);
-    var response = await http.post(url, body: {
+    var response = await http.post(Uri.parse(url), body: {
       'pdf_data': object,
     });
     return response;

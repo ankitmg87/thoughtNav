@@ -4,8 +4,6 @@
 /// This file defines the question widget which is visible on study setup screen
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_web_view/easy_web_view.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -17,6 +15,8 @@ import 'package:thoughtnav/screens/researcher/models/topic.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
 
 import 'dart:js' as js;
+
+import 'package:webview_flutter/webview_flutter.dart';
 
 class StudySetupScreenQuestionWidget extends StatefulWidget {
   final String studyUID;
@@ -925,10 +925,14 @@ class _StudySetupScreenQuestionWidgetState
                             height: 20.0,
                           ),
                           Expanded(
-                            child: EasyWebView(
+                            child: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.4,
-                              src: 'quill.html',
-                              onLoaded: () {},
+                              child: WebView(
+                                onWebViewCreated: (controller) {
+
+                                },
+                                initialUrl: 'quill.html',
+                              ),
                             ),
                           ),
                           Align(

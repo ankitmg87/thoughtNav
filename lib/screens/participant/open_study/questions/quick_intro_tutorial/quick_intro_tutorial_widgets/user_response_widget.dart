@@ -913,9 +913,9 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                   });
                 },
                 initiallyExpanded: _expanded,
-                title: StreamBuilder<QuerySnapshot>(
+                title: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   stream: _lastCommentStream,
-                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
                         return SizedBox();
@@ -930,8 +930,7 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                               : Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    snapshot.data.docs.last
-                                                .data()['avatarURL'] !=
+                                    snapshot.data.docs.last.data()['avatarURL'] !=
                                             null
                                         ? CachedNetworkImage(
                                             imageUrl: snapshot.data.docs.last
@@ -1551,9 +1550,9 @@ class _UserResponseWidgetState extends State<UserResponseWidget> {
                   });
                 },
                 initiallyExpanded: _expanded,
-                title: StreamBuilder<QuerySnapshot>(
+                title: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   stream: _lastCommentStream,
-                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
                         return SizedBox();

@@ -7,7 +7,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -20,6 +19,8 @@ import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.d
 import 'package:video_player/video_player.dart';
 
 import 'dart:js' as js;
+
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ResponseWidget extends StatefulWidget {
   final String studyUID;
@@ -454,7 +455,10 @@ class _ResponseWidgetState extends State<ResponseWidget>
                       height: 20.0,
                     ),
                     Expanded(
-                        child: EasyWebView(src: 'quill.html', onLoaded: () {})),
+                      child: WebView(
+                        initialUrl: 'quill.html',
+                      ),
+                    ),
                     SizedBox(
                       height: 20.0,
                     ),

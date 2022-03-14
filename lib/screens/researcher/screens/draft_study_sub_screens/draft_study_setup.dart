@@ -8,7 +8,6 @@
 import 'dart:async';
 import 'dart:js' as js;
 
-import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +25,7 @@ import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_custom_
 import 'package:thoughtnav/screens/researcher/widgets/study_setup_screen_topic_widget.dart';
 import 'package:thoughtnav/services/firebase_firestore_service.dart';
 import 'package:thoughtnav/services/researcher_and_moderator_firestore_service.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'draft_study_widgets/draft_screen_group_widget.dart';
 
@@ -154,7 +154,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
 
   @override
   void initState() {
-
     _initializeFocusNodes();
     _futureDraftStudy = _getStudyDetails();
 
@@ -212,13 +211,14 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
     mStudy =
         await _researcherAndModeratorFirestoreService.getStudy(widget.studyUID);
 
-    if(mStudy.startDate != null){
-      _startDate = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY).parse(mStudy.startDate);
+    if (mStudy.startDate != null) {
+      _startDate =
+          DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY).parse(mStudy.startDate);
     }
-    if(mStudy.endDate != null){
-      _endDate = DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY).parse(mStudy.endDate);
+    if (mStudy.endDate != null) {
+      _endDate =
+          DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY).parse(mStudy.endDate);
     }
-
 
     await _getCategories();
     _selectedTimeZone = _getTimeZone();
@@ -395,7 +395,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         DraftScreenCustomTextField(
                                           textFormField: TextFormField(
                                             focusNode: _studyNameFocusNode,
-                                            initialValue: mStudy.studyName != 'Draft Study' ? mStudy.studyName : null,
+                                            initialValue: mStudy.studyName !=
+                                                    'Draft Study'
+                                                ? mStudy.studyName
+                                                : null,
                                             onChanged: (studyName) {
                                               mStudy.studyName = studyName;
                                             },
@@ -449,7 +452,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           textFormField: TextFormField(
                                             focusNode:
                                                 _internalStudyLabelFocusNode,
-                                            initialValue: mStudy.internalStudyLabel != 'Internal Study Label' ? mStudy.internalStudyLabel : null,
+                                            initialValue:
+                                                mStudy.internalStudyLabel !=
+                                                        'Internal Study Label'
+                                                    ? mStudy.internalStudyLabel
+                                                    : null,
                                             onChanged: (internalStudyLabel) {
                                               mStudy.internalStudyLabel =
                                                   internalStudyLabel;
@@ -510,7 +517,11 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         DraftScreenCustomTextField(
                                           textFormField: TextFormField(
                                             focusNode: _masterPasswordFocusNode,
-                                            initialValue: mStudy.masterPassword != 'Master Password' ? mStudy.masterPassword : null,
+                                            initialValue:
+                                                mStudy.masterPassword !=
+                                                        'Master Password'
+                                                    ? mStudy.masterPassword
+                                                    : null,
                                             onChanged: (masterPassword) {
                                               mStudy.masterPassword =
                                                   masterPassword;
@@ -573,7 +584,8 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                 await showDatePicker(
                                               firstDate: DateTime.now(),
                                               initialDate: DateTime.now(),
-                                              lastDate: _endDate ?? DateTime(2025),
+                                              lastDate:
+                                                  _endDate ?? DateTime(2025),
                                               context: context,
                                             );
                                             if (beginDate != null) {
@@ -615,8 +627,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                           onTap: () async {
                                             final endDate =
                                                 await showDatePicker(
-                                              firstDate: _startDate ?? DateTime.now(),
-                                              initialDate: _startDate ?? DateTime.now(),
+                                              firstDate:
+                                                  _startDate ?? DateTime.now(),
+                                              initialDate:
+                                                  _startDate ?? DateTime.now(),
                                               lastDate: DateTime(2025),
                                               context: context,
                                             );
@@ -684,27 +698,28 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                 height: 10.0,
                                               ),
                                               _buildTextEditor(
-                                                  initialValue:
-                                                      mStudy.introPageMessage,
-                                                  titleMessage:
-                                                      'Enter Introduction Message',
-                                                  initialValueSetMessage:
-                                                      'Introduction Message Set',
-                                                  saveFunction: () async {
-                                                    String text = js.context
-                                                        .callMethod(
-                                                            'readLocalStorage');
-                                                    if (text.isNotEmpty) {
-                                                      await _researcherAndModeratorFirestoreService
-                                                          .saveIntroductionMessage(
-                                                              widget.studyUID,
-                                                              text);
-
-                                                      mStudy.introPageMessage =
-                                                          text;
-                                                      setState(() {});
-                                                    }
-                                                  }),
+                                                initialValue:
+                                                    mStudy.introPageMessage,
+                                                titleMessage:
+                                                    'Enter Introduction Message',
+                                                initialValueSetMessage:
+                                                    'Introduction Message Set',
+                                                // saveFunction: () async {
+                                                //   String text = js.context
+                                                //       .callMethod(
+                                                //           'readLocalStorage');
+                                                //   if (text.isNotEmpty) {
+                                                //     await _researcherAndModeratorFirestoreService
+                                                //         .saveIntroductionMessage(
+                                                //             widget.studyUID,
+                                                //             text);
+                                                //
+                                                //     mStudy.introPageMessage =
+                                                //         text;
+                                                //     setState(() {});
+                                                //   }
+                                                // },
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -907,7 +922,6 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                             ),
                                           ),
                                         ),
-
                                         InkWell(
                                           onTap: () async {
                                             await showGeneralDialog(
@@ -917,12 +931,10 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                                   Animation<double> animation,
                                                   Animation<double>
                                                       secondaryAnimation) {
-
                                                 return CustomCategoriesWidget(
                                                   studyUID: widget.studyUID,
                                                   categories: _categories,
                                                 );
-
                                               },
                                             );
 
@@ -1011,95 +1023,118 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
                                         ),
                                       ],
                                     ),
-                                    _categories.customCategories != null ?
-                                    _categories.customCategories.isNotEmpty ?
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          height: 30.0,
-                                        ),
-                                        GridView.builder(
-                                          itemCount:
-                                          _categories.customCategories.length,
-                                          shrinkWrap: true,
-                                          physics: NeverScrollableScrollPhysics(),
-                                          gridDelegate:
-                                          SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisSpacing: 40.0,
-                                            mainAxisSpacing: 30.0,
-                                            crossAxisCount: 4,
-                                            childAspectRatio: 8 / 1.35,
-                                          ),
-                                          itemBuilder: (context, index) {
-                                            var customCategory =
-                                            CustomCategory.fromMap(_categories
-                                                .customCategories[index]);
+                                    _categories.customCategories != null
+                                        ? _categories
+                                                .customCategories.isNotEmpty
+                                            ? Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(
+                                                    height: 30.0,
+                                                  ),
+                                                  GridView.builder(
+                                                    itemCount: _categories
+                                                        .customCategories
+                                                        .length,
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        NeverScrollableScrollPhysics(),
+                                                    gridDelegate:
+                                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                                      crossAxisSpacing: 40.0,
+                                                      mainAxisSpacing: 30.0,
+                                                      crossAxisCount: 4,
+                                                      childAspectRatio:
+                                                          8 / 1.35,
+                                                    ),
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      var customCategory =
+                                                          CustomCategory.fromMap(
+                                                              _categories
+                                                                      .customCategories[
+                                                                  index]);
 
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius.circular(2.0),
-                                                border: Border.all(
-                                                  width: 0.75,
-                                                  color: Colors.grey[300],
-                                                ),
-                                              ),
-                                              child: InkWell(
-                                                child: Padding(
-                                                  padding: EdgeInsets.only(
-                                                    left: 4.0,
-                                                    right: 10.0,
-                                                    top: 8.0,
-                                                    bottom: 8.0,
+                                                      return Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      2.0),
+                                                          border: Border.all(
+                                                            width: 0.75,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ),
+                                                        child: InkWell(
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                              left: 4.0,
+                                                              right: 10.0,
+                                                              top: 8.0,
+                                                              bottom: 8.0,
+                                                            ),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Theme(
+                                                                  data:
+                                                                      ThemeData(
+                                                                    accentColor:
+                                                                        PROJECT_NAVY_BLUE,
+                                                                    unselectedWidgetColor:
+                                                                        Colors.grey[
+                                                                            300],
+                                                                  ),
+                                                                  child:
+                                                                      Checkbox(
+                                                                    value: customCategory
+                                                                        .selected,
+                                                                    onChanged: (bool
+                                                                        value) {
+                                                                      setState(
+                                                                          () {
+                                                                        _categories.customCategories[index]['selected'] =
+                                                                            value;
+                                                                      });
+                                                                      _saveCategories();
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  _categories.customCategories[
+                                                                          index]
+                                                                      [
+                                                                      'category'],
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        14.0,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
                                                   ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                    children: [
-                                                      Theme(
-                                                        data: ThemeData(
-                                                          accentColor:
-                                                          PROJECT_NAVY_BLUE,
-                                                          unselectedWidgetColor:
-                                                          Colors.grey[300],
-                                                        ),
-                                                        child: Checkbox(
-                                                          value: customCategory
-                                                              .selected,
-                                                          onChanged: (bool value) {
-                                                            setState(() {
-                                                              _categories.customCategories[
-                                                              index]
-                                                              ['selected'] =
-                                                                  value;
-                                                            });
-                                                            _saveCategories();
-                                                          },
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        _categories
-                                                            .customCategories[
-                                                        index]['category'],
-                                                        style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontWeight:
-                                                          FontWeight.bold,
-                                                          fontSize: 14.0,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ) : SizedBox() : SizedBox(),
+                                                ],
+                                              )
+                                            : SizedBox()
+                                        : SizedBox(),
                                     SizedBox(
                                       height: 40.0,
                                     ),
@@ -1451,87 +1486,96 @@ class _DraftStudySetupState extends State<DraftStudySetup> {
       ),
       child: InkWell(
         onTap: () {
-          js.context.callMethod('setInitialValue', [initialValue]);
-          showGeneralDialog(
-              context: context,
-              pageBuilder: (BuildContext textEditorContext,
-                  Animation<double> animation,
-                  Animation<double> secondaryAnimation) {
-                return Center(
-                  child: Material(
-                    borderRadius: BorderRadius.circular(10.0),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      padding: EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                titleMessage,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.bold,
+          print(initialValue);
+          print(titleMessage);
+          print(initialValueSetMessage);
+          try{
+            js.context.callMethod('setInitialValue', [initialValue]);
+            showGeneralDialog(
+                context: context,
+                pageBuilder: (BuildContext textEditorContext,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation) {
+                  return Center(
+                    child: Material(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        padding: EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  titleMessage ?? '',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              InkWell(
-                                onTap: () =>
-                                    Navigator.of(textEditorContext).pop(),
-                                child: Icon(
-                                  Icons.clear,
-                                  color: Colors.red[700],
+                                InkWell(
+                                  onTap: () =>
+                                      Navigator.of(textEditorContext).pop(),
+                                  child: Icon(
+                                    Icons.clear,
+                                    color: Colors.red[700],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          Container(
-                            height: 1.0,
-                            color: Colors.grey[300],
-                          ),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Expanded(
-                            child: EasyWebView(
-                              width: MediaQuery.of(context).size.width * 0.3,
-                              src: 'quill.html',
-                              onLoaded: () {},
+                              ],
                             ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: RaisedButton(
-                              color: PROJECT_GREEN,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                              onPressed: () async {
-                                await saveFunction();
-                                Navigator.of(textEditorContext).pop();
-                              },
-                              child: Text(
-                                'SAVE',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.bold,
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                            Container(
+                              height: 1.0,
+                              color: Colors.grey[300],
+                            ),
+                            SizedBox(
+                              height: 20.0,
+                            ),
+                            Expanded(
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.3,
+                                child: WebView(
+                                  initialUrl: 'quill.html',
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: RaisedButton(
+                                color: PROJECT_GREEN,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                onPressed: () async {
+                                  await saveFunction();
+                                  Navigator.of(textEditorContext).pop();
+                                },
+                                child: Text(
+                                  'SAVE',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              });
+                  );
+                });
+          } catch (e){
+            print(e);
+          }
+
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(

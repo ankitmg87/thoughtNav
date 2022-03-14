@@ -569,7 +569,7 @@ class ParticipantFirestoreService {
       String email, String message, String name, String subject) async {
     var url =
         'https://thoughtexplorers.com/test/api/emailReceiving.php';
-    var response = await http.post(url, body: {
+    var response = await http.post(Uri.parse(url), body: {
       'email': email,
       'message': message,
       'name': name,
